@@ -1,0 +1,7 @@
+{
+  "name": "@compass/demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@compass/shared": "0.1.0", "@compass/server": "0.1.0" }
+}

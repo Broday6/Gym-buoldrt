@@ -1,0 +1,90 @@
+/* Compass Search widget styles.
+   Every colour, radius and space is a CSS variable so a storefront can retheme
+   the widgets without overriding a single rule. */
+.compass-root {
+  --compass-fg: #16181d;
+  --compass-muted: #6b7280;
+  --compass-bg: #ffffff;
+  --compass-surface: #f7f7f8;
+  --compass-border: #e3e5e9;
+  --compass-accent: #1f5f4f;
+  --compass-danger: #b4232a;
+  --compass-radius: 8px;
+  --compass-gap: 16px;
+  --compass-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--compass-fg);
+  font-family: var(--compass-font);
+}
+
+.compass-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--compass-gap); padding-bottom: 12px;
+  border-bottom: 1px solid var(--compass-border); margin-bottom: var(--compass-gap);
+  flex-wrap: wrap;
+}
+.compass-header__count { margin: 0; color: var(--compass-muted); font-size: 14px; }
+.compass-header__count strong { color: var(--compass-fg); }
+.compass-sort { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--compass-muted); }
+.compass-sort__select {
+  font: inherit; padding: 6px 10px; border: 1px solid var(--compass-border);
+  border-radius: var(--compass-radius); background: var(--compass-bg); color: var(--compass-fg);
+}
+
+.compass-grid {
+  display: grid; gap: var(--compass-gap);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.compass-hit {
+  display: flex; flex-direction: column; border: 1px solid var(--compass-border);
+  border-radius: var(--compass-radius); overflow: hidden; background: var(--compass-bg);
+}
+.compass-hit__link { text-decoration: none; color: inherit; display: block; padding-bottom: 8px; }
+.compass-hit__media { position: relative; aspect-ratio: 1; background: var(--compass-surface); }
+.compass-hit__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.compass-hit__placeholder {
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(45deg, var(--compass-surface) 0 10px, #eceef1 10px 20px);
+}
+.compass-hit__badge {
+  position: absolute; top: 8px; left: 8px; background: var(--compass-danger); color: #fff;
+  font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+}
+.compass-hit__title { margin: 12px 12px 4px; font-size: 14px; line-height: 1.35; font-weight: 600; }
+.compass-hit__title mark { background: #fdf2ba; color: inherit; padding: 0 1px; }
+.compass-hit__variant, .compass-hit__options { margin: 0 12px; font-size: 12px; color: var(--compass-muted); }
+.compass-hit__price { margin: 6px 12px 0; font-size: 14px; }
+.compass-hit__price s { color: var(--compass-muted); margin-right: 6px; }
+.compass-hit__stock { margin: 4px 12px 0; font-size: 12px; color: var(--compass-danger); }
+.compass-hit__cart {
+  margin: 8px 12px 12px; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--compass-accent); background: var(--compass-accent); color: #fff;
+  border-radius: var(--compass-radius); cursor: pointer;
+}
+.compass-hit__cart:hover { filter: brightness(1.08); }
+
+.compass-empty { padding: 48px 16px; text-align: center; color: var(--compass-muted); }
+.compass-empty strong { color: var(--compass-fg); }
+.compass-empty__hint { font-size: 14px; }
+
+.compass-pagination {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 24px; font-size: 14px; color: var(--compass-muted);
+}
+.compass-pagination button {
+  font: inherit; padding: 8px 16px; border: 1px solid var(--compass-border);
+  background: var(--compass-bg); border-radius: var(--compass-radius); cursor: pointer;
+}
+.compass-pagination button[disabled] { opacity: .45; cursor: default; }
+
+[aria-busy='true'] .compass-grid { opacity: .55; transition: opacity .15s ease; }
+
+@media (prefers-color-scheme: dark) {
+  .compass-root {
+    --compass-fg: #eceef1; --compass-muted: #9aa2ae; --compass-bg: #16181d;
+    --compass-surface: #1f232a; --compass-border: #2c313a; --compass-accent: #3f9e85;
+  }
+  .compass-hit__placeholder {
+    background: repeating-linear-gradient(45deg, var(--compass-surface) 0 10px, #262b33 10px 20px);
+  }
+}

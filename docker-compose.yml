@@ -1,0 +1,63 @@
+# Development topology. Production notes are in docs/OPERATIONS.md.
+services:
+  typesense:
+    image: typesense/typesense:27.1
+    restart: unless-stopped
+    command: >
+      --data-dir /data
+      --api-key=${TYPESENSE_API_KEY:-dev-typesense-key}
+      --enable-cors
+    volumes:
+      - typesense-data:/data
+    ports:
+      - '8108:8108'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8108/health']
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: compass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-compass}
+      POSTGRES_DB: compass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U compass -d compass']
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://compass:${POSTGRES_PASSWORD:-compass}@postgres:5432/compass
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: '8108'
+      TYPESENSE_PROTOCOL: http
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-dev-typesense-key}
+      PORT: '3100'
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Never set this outside local development: it disables API-key checks.
+      COMPASS_DEV_OPEN: ${COMPASS_DEV_OPEN:-0}
+    volumes:
+      - compass-data:/app/data
+    ports:
+      - '3100:3100'
+    depends_on:
+      typesense:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  typesense-data:
+  postgres-data:
+  compass-data:

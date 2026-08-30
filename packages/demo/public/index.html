@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compass Search — Phase 1 demo storefront</title>
+  <link rel="stylesheet" href="/sdk/styles.css">
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           background: var(--compass-bg, #fff); color: var(--compass-fg, #16181d); }
+    .page { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+    .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+           padding-bottom: 20px; border-bottom: 1px solid var(--compass-border, #e3e5e9); }
+    .bar h1 { font-size: 17px; margin: 0 12px 0 0; letter-spacing: -0.01em; }
+    .bar form { display: flex; gap: 8px; flex: 1 1 340px; }
+    .bar input[type=search] { flex: 1; font: inherit; padding: 10px 14px; border-radius: 8px;
+           border: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-bg, #fff);
+           color: inherit; }
+    .bar select, .bar button { font: inherit; padding: 10px 14px; border-radius: 8px;
+           border: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-bg, #fff);
+           color: inherit; cursor: pointer; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 0 4px; }
+    .chips button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px;
+           border: 1px solid var(--compass-border, #e3e5e9); background: transparent;
+           color: var(--compass-muted, #6b7280); cursor: pointer; }
+    .chips button:hover { color: inherit; }
+    .meta { font-size: 12px; color: var(--compass-muted, #6b7280); padding: 8px 0 16px;
+            font-variant-numeric: tabular-nums; }
+    .meta code { background: var(--compass-surface, #f7f7f8); padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="page compass-root">
+    <div class="bar">
+      <h1>Compass Search</h1>
+      <form id="search-form">
+        <input type="search" id="q" placeholder="Try: chandaleer · black shutter · 4x6 beam 12ft" autocomplete="off">
+        <button type="submit">Search</button>
+      </form>
+      <select id="site"></select>
+    </div>
+
+    <div class="chips" id="examples"></div>
+    <p class="meta" id="meta"></p>
+    <div id="results"></div>
+  </div>
+
+  <script type="module">
+    import { CompassClient, ResultsWidget } from '/sdk/index.js';
+
+    const EXAMPLES = [
+      'chandaleer', 'black shutter', '4x6 beam 12ft', 'crownmoulding',
+      '3-1/2 inch crown moulding', 'faux beams', 'sage shutters',
+    ];
+
+    const siteSelect = document.querySelector('#site');
+    const input = document.querySelector('#q');
+    const meta = document.querySelector('#meta');
+    let widget;
+
+    const { sites } = await (await fetch('/v1/sites')).json();
+    siteSelect.innerHTML = sites.map((s) => `<option value="${s.id}">${s.name}</option>`).join('');
+
+    document.querySelector('#examples').innerHTML =
+      EXAMPLES.map((q) => `<button type="button" data-q="${q}">${q}</button>`).join('');
+
+    function mount(siteId) {
+      const client = new CompassClient({ site: siteId, baseUrl: '' });
+      widget = new ResultsWidget({
+        client,
+        container: '#results',
+        onStateChange: (response) => {
+          const parsed = response.parsedFilters?.length
+            ? ` · parsed <code>${response.parsedFilters.map((f) => `${f.field}=${f.value}`).join(' ')}</code>`
+            : '';
+          meta.innerHTML =
+            `<code>${response.queryType}</code> query · searched <code>${response.effectiveQuery || '—'}</code>` +
+            ` · ${response.totalHits} products · ${response.processingTimeMs}ms${parsed}`;
+        },
+        onAddToCart: (sku) => console.log('add to cart', sku),
+      });
+      widget.readUrl();
+      input.value = widget.state.q;
+      void widget.render();
+    }
+
+    mount(sites[0].id);
+    siteSelect.addEventListener('change', () => mount(siteSelect.value));
+    document.querySelector('#search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      void widget.setQuery(input.value);
+    });
+    document.querySelector('#examples').addEventListener('click', (e) => {
+      const button = e.target.closest('[data-q]');
+      if (!button) return;
+      input.value = button.dataset.q;
+      void widget.setQuery(button.dataset.q);
+    });
+  </script>
+</body>
+</html>
