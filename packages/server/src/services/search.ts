@@ -12,7 +12,7 @@ import { relaxTerms, suggestCorrection } from '../query/spelling.js';
 import { rankCandidates } from '../ranking/cascade.js';
 import { groupByParent, highlight } from '../ranking/group.js';
 import type { SynonymStore } from '../merchandising/synonyms.js';
-import type { CustomAttributeDefinition } from '../merchandising/labels.js';
+import type { BadgeDefinition, CustomAttributeDefinition } from '../merchandising/labels.js';
 import type { RedirectStore } from '../merchandising/redirects.js';
 import { ResultCache, cacheKey } from './cache.js';
 
@@ -44,7 +44,10 @@ export interface SearchServiceOptions {
    * as the concrete store so the search pipeline does not depend on Postgres
    * just to know which custom facets exist.
    */
-  collections?: { listAttributes(siteId: string): Promise<CustomAttributeDefinition[]> };
+  collections?: {
+    listAttributes(siteId: string): Promise<CustomAttributeDefinition[]>;
+    listBadges?(siteId: string): Promise<BadgeDefinition[]>;
+  };
   cache?: ResultCache<SearchResponse>;
 }
 
@@ -57,6 +60,9 @@ export interface SearchServiceOptions {
  * of 24, which is past where anyone paginates.
  */
 const DEFAULT_RANKING_WINDOW = Number(process.env.COMPASS_RANKING_WINDOW ?? 240);
+
+/** More than two badges on one card stops being emphasis and becomes noise. */
+const MAX_BADGES_PER_CARD = 2;
 
 export class SearchService {
   private readonly cache: ResultCache<SearchResponse>;
@@ -173,6 +179,7 @@ export class SearchService {
     const pageHits = grouped.slice(start, start + hitsPerPage);
     const surfaces = [...new Set(effectiveTerms)];
     for (const hit of pageHits) this.addHighlights(hit, surfaces);
+    await this.addBadges(site.id, pageHits);
 
     // totalHits is the true count; totalPages is what can actually be paged to.
     const reachable = Math.min(totalHits, this.maxPaginationHits(hitsPerPage));
@@ -477,6 +484,36 @@ export class SearchService {
       sort,
       ...extra,
     };
+  }
+
+  /**
+   * Resolve `badge:*` labels into the labels and tones a card renders.
+   *
+   * Only the page's hits are decorated — the badge definitions are a handful of
+   * rows and the labels are already on the document, so this costs one cached
+   * lookup rather than a query per card. Highest priority first, capped, so a
+   * product matching six badges does not turn its card into a wall of pills.
+   */
+  private async addBadges(siteId: string, hits: Hit[]): Promise<void> {
+    if (hits.length === 0) return;
+    const definitions = (await this.options.collections?.listBadges?.(siteId)) ?? [];
+    const byKey = new Map(definitions.map((b) => [b.key, b]));
+
+    for (const hit of hits) {
+      // `labels` is carried through grouping purely to resolve badges here; it
+      // is internal and must be stripped on every path, including the one where
+      // no badges are defined at all.
+      const labels = (hit as Hit & { labels?: string[] }).labels ?? [];
+      const badges = labels
+        .filter((l) => l.startsWith('badge:'))
+        .map((l) => byKey.get(l.slice('badge:'.length)))
+        .filter((b): b is BadgeDefinition => Boolean(b) && b!.enabled)
+        .sort((a, b) => a.priority - b.priority)
+        .slice(0, MAX_BADGES_PER_CARD)
+        .map((b) => ({ key: b.key, label: b.label, tone: b.tone }));
+      if (badges.length) hit.badges = badges;
+      delete (hit as Hit & { labels?: string[] }).labels;
+    }
   }
 
   private addHighlights(hit: Hit, surfaces: string[]): void {

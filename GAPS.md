@@ -51,6 +51,28 @@ The facet pass lifts each group's own selection so multi-select stays usable.
 Custom attribute selections were being lifted too but never reapplied, so the
 result count and every catalogue facet ignored them. Fixed and tested.
 
+### ✅ The demo only worked with authentication disabled
+
+**Found:** the documented command — `npm run demo` — returned **401 on every
+request**. The storefront and the console never carried an API key, so the one
+path a reader is told to follow was the one path that was broken. It had only
+ever been exercised with `COMPASS_DEV_OPEN=1` set by hand, which is also the
+flag that skips the auth layer entirely.
+
+**Fixed:** the storefront fetches its site's public search key from
+`/demo/config.json` and sends it on every request; the console asks for an admin
+key once and keeps it in `localStorage`. The server never serves an admin key.
+Verified: both smoke suites now pass against a server with no dev flag set, and
+the console's key gate is covered in both directions — no key asks, a pasted key
+gets in and survives a reload.
+
+### ✅ A "clean" build was silently a no-op
+
+`rm -rf packages/*/dist && tsc -b` exited 0 without emitting anything, because
+the `.tsbuildinfo` files still claimed the outputs were current. Every
+verification that relied on it was weaker than it looked. Clean builds now use
+`tsc -b --force`; the tree compiles clean from scratch.
+
 ---
 
 ## P1 — availability and security
@@ -98,8 +120,10 @@ Fastify supports JSON Schema per route; the schemas need writing. **Not fixed.**
 ### No admin roles
 
 The spec calls for Admin, Merchandiser and Analyst. Today there are two API-key
-scopes, `search` and `admin`, and any admin key can do anything. Fine while the
-only admin surface is the API; blocking once a console exists. **Not fixed.**
+scopes, `search` and `admin`, and any admin key can do anything the console can
+do — including pushing a catalogue. A console now exists, so this has moved from
+tolerable to blocking. **Not fixed.** The console's key gate is per site, so the
+scope boundary it needs is already in the right place.
 
 ### Secrets and backups are undocumented
 
@@ -118,25 +142,31 @@ database is not. **Not fixed.** Highest-priority item on this list.
 | **Scale is unproven above ~100k documents** | Measured to 104,396 variants. Broad faceted search misses the p95 target there on the dev engine. Nothing has been run at 2.3M SKUs. |
 | **No OpenAPI spec** | §4.13 requires one, kept current. |
 | **No SSR or SEO mode** | §4.11: canonical tags on filtered URLs, `noindex` on facet permutations, server-render or `<noscript>` fallback. Collection pages make this more urgent — they are landing pages. |
-| **No accessibility audit** | The autocomplete implements the ARIA combobox pattern and the mobile filter modal manages focus, both verified in a browser. Neither has been through a screen reader or an axe pass. |
-| **Analytics aggregates are never computed** | Events are written, including which rescue path fired. `daily_query_stats` and `daily_product_stats` stay empty, so there is no dashboard. |
+| **No accessibility audit** | The autocomplete implements the ARIA combobox pattern and the mobile filter modal manages focus, both verified in a browser. Neither has been through a screen reader or an axe pass, and the console has not been checked at all. |
+| ~~**Analytics aggregates are never computed**~~ ✅ | Fixed. `AnalyticsService.rollup` fills `daily_query_stats` and `daily_product_stats`, and the console dashboard reads them. Revenue is attributed across every query in a session that led to the purchase, not only the last. |
 | **No CI** | Tests and the UI smoke test run by hand. |
 | **`docs/OPERATIONS.md` did not exist** | Referenced by `docker-compose.yml`. Now written. |
 | **Result cache is per instance** | Correct but unshared: N instances mean N cold caches and N copies. Fine to a handful of instances. |
 | **No index-rebuild scheduling** | `npm run reindex` exists; nothing runs it. Needs a cron and a NetSuite export drop. |
+| **The analytics rollup is not scheduled either** | `rollup()` is correct and the seed calls it, but nothing runs it nightly, so the dashboard goes stale after a day in a real deployment. |
+| **The console has no undo** | Every change writes to `audit_log`, which is the hard half. The diff view and one-click revert are not built. |
 
 ---
 
 ## P3 — planned scope not yet built
 
-Phase 3 (merchandiser control): rules engine, visual drag-to-pin merchandiser,
-campaigns with scheduling, banners, admin console.
-Phase 4 (intelligence): semantic retrieval, analytics dashboard,
-personalisation, recommendations, A/B testing.
-Phase 5 (hardening): SEO/SSR, accessibility audit, load testing at full scale.
+Phase 3 is delivered: the console, the visual drag-to-pin merchandiser,
+scheduling, badges, the analytics dashboard and recommendations all exist.
 
-Collections and custom attributes — delivered in this pass — are the structural
-half of Phase 3. The rules engine reuses the same selector language.
+What remains:
+
+- **Query-triggered rules.** Everything binds to a *product set* today
+  (collections, badges). Binding a consequence to a *query* — pin these three
+  for "beams", swap the facet set, show a banner — is the missing half.
+- **Semantic retrieval.** `semanticWeight` is plumbed and set to 0. The one
+  open acceptance criterion depends on it.
+- **Personalisation and A/B testing.**
+- **SEO/SSR, an accessibility audit, and load testing at full scale.**
 
 ---
 
@@ -153,6 +183,10 @@ half of Phase 3. The rules engine reuses the same selector language.
 | Collections span categories | Browsed a collection, counted the distinct top-level categories on the page |
 | Custom attributes filter and count | Applied two custom filters at once, checked the total and the facet counts |
 | Variant-scoped labels | Browsed a finish-based collection; confirmed the dark variant is the one shown |
-| The UI works | 24 browser checks at desktop and mobile widths |
+| The storefront works | 31 browser checks at desktop and mobile widths |
+| The console works | 21 browser checks, including that every screen shows computed data rather than zeros |
+| Both surfaces authenticate | Ran both suites against a server with no dev flag set; checked that the console asks for a key when it has none |
+| Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 
-Reproduce with `npm test`, `npm run ui-smoke`, and `npm run bench`.
+Reproduce with `npm test`, `npm run ui-smoke`, `npm run ui-smoke:admin`, and
+`npm run bench`.

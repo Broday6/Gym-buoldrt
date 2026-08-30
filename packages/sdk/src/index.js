@@ -2,11 +2,13 @@ export { CompassClient, debounceAsync } from './client.js';
 export { ResultsWidget, SORT_OPTIONS, esc } from './results.js';
 export { AutocompleteWidget } from './autocomplete.js';
 export { FacetsWidget } from './facets.js';
+export { RecommendWidget } from './recommend.js';
 
 import { CompassClient } from './client.js';
 import { ResultsWidget } from './results.js';
 import { AutocompleteWidget } from './autocomplete.js';
 import { FacetsWidget } from './facets.js';
+import { RecommendWidget } from './recommend.js';
 
 /**
  * One-call install for a storefront template:
@@ -64,6 +66,14 @@ export function init(options) {
         ...options,
         client,
         input,
+        // Instant search: the grid follows the shopper's typing. Only meaningful
+        // when there is a grid on the page to follow it.
+        onInstant: widgets.results && options.instant !== false
+          ? (value) => {
+              if (value.length && value.length < (options.minChars ?? 2)) return;
+              void widgets.results.setQuery(value);
+            }
+          : undefined,
         // With a results grid on the page, selecting a suggestion should
         // re-run the grid in place rather than navigate away from it.
         onSubmit: widgets.results
@@ -87,6 +97,30 @@ export function init(options) {
         void widgets.results.setQuery(input.value);
       });
     }
+  }
+
+  // Recommendation rails, each independently placed by the storefront.
+  if (options.recommendations) {
+    widgets.recommendations = options.recommendations.map((spec) =>
+      new RecommendWidget({ ...options, client, ...spec }));
+    for (const widget of widgets.recommendations) void widget.render();
+  }
+
+  // The shortcut every modern tool has. "/" alone is the storefront convention;
+  // ⌘K is the one people bring from everywhere else.
+  if (options.searchInput && options.shortcut !== false) {
+    const input = typeof options.searchInput === 'string'
+      ? document.querySelector(options.searchInput)
+      : options.searchInput;
+    document.addEventListener('keydown', (event) => {
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? '');
+      const wants = ((event.metaKey || event.ctrlKey) && event.key === 'k') ||
+        (event.key === '/' && !typing);
+      if (!wants) return;
+      event.preventDefault();
+      input?.focus();
+      input?.select();
+    });
   }
 
   if (widgets.results) {

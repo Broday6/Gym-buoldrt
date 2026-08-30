@@ -6,10 +6,39 @@ functional replacement for Algolia and Searchspring, owned end to end.
 Multi-tenant from the ground up: one deployment serves every brand, and every
 index, rule, synonym set and analytics view is scoped to a site.
 
-> **Status: Phases 1–2 complete, plus collections and custom attributes.**
+> **Status: shopper storefront and merchandiser console both operational.**
 > See [PROGRESS.md](PROGRESS.md) for what is delivered and measured, and
 > [GAPS.md](GAPS.md) for an audit of what still stands between this and running
 > a real storefront.
+
+## The demo
+
+```bash
+npm install
+createdb compass && export DATABASE_URL=postgres://compass@localhost:5432/compass
+npm run demo          # seeds two catalogues, merchandising rules, and 30 days of traffic
+```
+
+| | |
+|---|---|
+| **Storefront** | http://localhost:3100/demo/ — instant search, facets, collections, badges, recommendation rails |
+| **Console** | http://localhost:3100/admin/ — analytics, query tester with ranking explainability, visual rule builder |
+
+The seed generates a month of simulated shopper sessions *against the index it
+just built*, so every number on the dashboard is computed from events the system
+actually recorded rather than from fixtures.
+
+Both surfaces authenticate like a real deployment. The storefront picks up its
+public **search key** automatically — that key is meant to be visible and ships
+inside every storefront bundle. The console asks for an **admin key** the first
+time you open it; the seed prints one per site:
+
+```
+  ekena       admin key: ck_admin_…
+  archdepot   admin key: ck_admin_…
+```
+
+Paste it once and it is remembered in that browser. `npm run keys` issues more.
 
 ## Quick start
 
@@ -31,8 +60,9 @@ Then open **http://localhost:3100/demo/** and try `chandaleer`, `black shutter`,
 `4x6 beam 12ft`, `crownmoulding`.
 
 ```bash
-npm test              # 108 tests: ranking, dimensions, ingestion, discovery, end to end
-npm run ui-smoke      # 24 browser checks at desktop and mobile widths
+npm test                # 154 tests: ranking, dimensions, ingestion, discovery, merchandising
+npm run ui-smoke        # 30 storefront checks at desktop and mobile widths
+npm run ui-smoke:admin  # 16 console checks
 npm run bench         # latency, reported uncached and cached
 npm run query -- ekena "black shutter" --explain    # why each hit ranks where it does
 npm run keys -- create ekena search "miva storefront"
@@ -121,8 +151,9 @@ packages/
     test/          ranking, dimensions, ingestion and end-to-end suites
     src/merchandising/  synonyms, redirects, collections, custom attributes, selectors
     src/services/       search pipeline, autocomplete, result cache
-  sdk/      storefront client, results grid, autocomplete, facets, theme CSS
-  demo/     catalogue generator, seeder, storefront page, UI smoke test
+  sdk/      storefront client, results grid, autocomplete, facets, recommendations, theme CSS
+  admin/    merchandiser console — plain ES modules, no build step
+  demo/     catalogue generator, traffic simulator, seeder, storefront page, UI smoke test
 ```
 
 ## API
@@ -141,6 +172,10 @@ All endpoints are `POST`, JSON in and out, scoped by site.
 | `/v1/{site}/redirects` | admin | Query patterns that navigate instead of searching. |
 | `/v1/{site}/admin/collections` | admin | Cross-category collections: rules, membership, scheduling. |
 | `/v1/{site}/admin/attributes` | admin | Merchandiser-defined facets and their values. |
+| `/v1/{site}/admin/badges` | admin | Rule-driven product badges. |
+| `/v1/{site}/admin/collections/preview` | admin | Count what a rule would catch, before saving. |
+| `/v1/{site}/recommend` | search | Similar, bought-together, recently-viewed, trending. |
+| `/v1/{site}/analytics/*` | admin | Overview, top and failing queries, trends, facet usage. |
 | `/v1/{site}/catalog/records` | admin | Upsert or delete individual products, no reindex. |
 | `/metrics`, `/health/ready` | — | Per-route latency and error counts; readiness for a load balancer. |
 | `/v1/{site}/catalog/batch` | admin | Full ingest from `rows[]` or `csv`. Builds and swaps an index. |

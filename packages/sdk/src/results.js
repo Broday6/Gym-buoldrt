@@ -18,6 +18,13 @@ const DEFAULT_TEMPLATES = {
           ${hit.effectivePrice < hit.price && hit.price > 0
             ? `<span class="compass-hit__badge">${Math.round(((hit.price - hit.effectivePrice) / hit.price) * 100)}% off</span>`
             : ''}
+          ${(hit.badges ?? []).length
+            /* Merchandiser badges sit on the image, where the eye lands first.
+               The server caps them at two, so this cannot become a wall. */
+            ? `<span class="compass-hit__badges">${hit.badges
+                .map((b) => `<span class="compass-badge compass-badge--${esc(b.tone)}">${esc(b.label)}</span>`)
+                .join('')}</span>`
+            : ''}
         </div>
         <h3 class="compass-hit__title">${hit.highlights?.title ?? esc(hit.title)}</h3>
         ${hit.variantTitle ? `<p class="compass-hit__variant">${esc(hit.variantTitle)}</p>` : ''}

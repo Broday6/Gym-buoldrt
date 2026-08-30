@@ -2,7 +2,7 @@
  * Seed the demo environment: generate a messy catalogue, ingest it into every
  * configured site, provision API keys and print a walkthrough.
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { generateCatalogCsv } from './generate-catalog.js';
 import { createEngine } from '../server/src/app.js';
 import { SiteRegistry } from '../server/src/config/sites.js';
@@ -10,6 +10,10 @@ import { createPool, migrate } from '../server/src/db/pool.js';
 import { ingestRows, parseCsv, summariseQuality } from '../server/src/ingest/pipeline.js';
 import { createApiKey } from '../server/src/routes/auth.js';
 import { CollectionStore } from '../server/src/merchandising/collections.js';
+import { SearchService } from '../server/src/services/search.js';
+import { AnalyticsService } from '../server/src/services/analytics.js';
+import { EventCollector } from '../server/src/events/collector.js';
+import { generateTraffic } from './traffic.js';
 
 const productCount = Number(process.env.SEED_PRODUCTS ?? 520);
 
@@ -66,6 +70,25 @@ const DEMO_COLLECTIONS = [
   },
 ];
 
+/** Rule-driven badges: the cheapest merchandising lever there is. */
+const DEMO_BADGES = [
+  { key: 'best_seller', label: 'Best Seller', tone: 'praise' as const, priority: 10,
+    selector: { all: [{ field: 'salesVelocity', op: 'gte', value: 400 }] } },
+  { key: 'new', label: 'New', tone: 'new' as const, priority: 20,
+    selector: { all: [{ field: 'dateAdded', op: 'gte', value: isoDaysAgo(120) }] } },
+  { key: 'low_stock', label: 'Low Stock', tone: 'scarcity' as const, priority: 30,
+    selector: { all: [
+      { field: 'variant.inventory', op: 'between', value: 1, to: 6 },
+    ] } },
+  { key: 'clearance', label: 'Clearance', tone: 'sale' as const, priority: 5,
+    selector: { all: [{ field: 'onSale', op: 'equals', value: true },
+                      { field: 'margin', op: 'lt', value: 35 }] } },
+];
+
+function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+}
+
 /** A merchandiser-invented facet that no source system supplies. */
 const DEMO_ATTRIBUTES = [
   {
@@ -110,6 +133,51 @@ const DEMO_ATTRIBUTES = [
 
 mkdirSync('./data/demo', { recursive: true });
 
+/**
+ * Demo API keys.
+ *
+ * The database stores only hashes, so a key that is generated and not written
+ * down is gone. The storefront needs its search key on every page load and the
+ * console needs its admin key, so the seed keeps the plaintext in a local file
+ * under data/ — which is git-ignored, and is demo credentials for a catalogue
+ * that does not exist. Nothing outside the demo reads it: production keys are
+ * issued by `npm run keys` and shown once.
+ */
+const KEY_FILE = './data/demo/keys.json';
+type DemoKeys = Record<string, { search: string; admin: string }>;
+
+function readDemoKeys(): DemoKeys {
+  try {
+    return JSON.parse(readFileSync(KEY_FILE, 'utf8')) as DemoKeys;
+  } catch {
+    return {};
+  }
+}
+
+async function issueDemoKeys(siteId: string): Promise<{ search: string; admin: string } | null> {
+  const file = readDemoKeys();
+  const { rows } = await db.query<{ n: string }>(
+    'SELECT COUNT(*) AS n FROM api_keys WHERE site_id = $1 AND revoked_at IS NULL',
+    [siteId],
+  );
+  // Keys still on record and still written down: leave both alone.
+  if (Number(rows[0]?.n ?? 0) > 0 && file[siteId]) return null;
+
+  // Otherwise the file and the database have drifted apart — a dropped
+  // database, or a deleted file. Revoke whatever is on record and reissue, so
+  // the two can never disagree about which key works.
+  await db.query(
+    'UPDATE api_keys SET revoked_at = now() WHERE site_id = $1 AND revoked_at IS NULL',
+    [siteId],
+  );
+  const issued = {
+    search: await createApiKey(db, siteId, 'search', 'storefront'),
+    admin: await createApiKey(db, siteId, 'admin', 'console'),
+  };
+  writeFileSync(KEY_FILE, JSON.stringify({ ...file, [siteId]: issued }, null, 2));
+  return issued;
+}
+
 for (const [index, site] of sites.list().entries()) {
   // Different seeds so the two brands do not share an identical catalogue.
   const csv = generateCatalogCsv({ productCount, seed: 20260830 + index * 977 });
@@ -121,6 +189,9 @@ for (const [index, site] of sites.list().entries()) {
   }
   for (const attribute of DEMO_ATTRIBUTES) {
     await collections.createAttribute(site.id, attribute as never);
+  }
+  for (const badge of DEMO_BADGES) {
+    await collections.createBadge(site.id, { ...badge, author: 'seed' } as never);
   }
 
   const rows = parseCsv(csv);
@@ -141,16 +212,13 @@ for (const [index, site] of sites.list().entries()) {
      result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping)],
   );
 
-  const { rows: existing } = await db.query<{ n: string }>(
-    'SELECT COUNT(*) AS n FROM api_keys WHERE site_id = $1 AND revoked_at IS NULL',
-    [site.id],
-  );
-  let keys = '(existing keys kept)';
-  if (Number(existing[0]?.n ?? 0) === 0) {
-    const searchKey = await createApiKey(db, site.id, 'search', 'storefront');
-    const adminKey = await createApiKey(db, site.id, 'admin', 'seed');
-    keys = `\n    search key: ${searchKey}\n    admin key:  ${adminKey}`;
-  }
+  // Keys are issued once and then kept, so the console key a merchandiser
+  // pasted in survives a reseed. They are recorded in data/demo/keys.json —
+  // the only place the plaintext exists, since the database stores hashes.
+  const issued = await issueDemoKeys(site.id);
+  const keys = issued
+    ? `\n    search key: ${issued.search}\n    admin key:  ${issued.admin}`
+    : '(existing keys kept)';
 
   console.log(
     `\n${site.name} (${site.id})\n` +
@@ -165,6 +233,56 @@ for (const [index, site] of sites.list().entries()) {
   );
 }
 
+// ---- demo traffic ----------------------------------------------------------
+//
+// An analytics dashboard with no data demonstrates nothing. This drives real
+// searches against the index just built and records the events, so every figure
+// on the dashboard is computed rather than fabricated.
+if (process.env.SEED_TRAFFIC !== '0') {
+  const search = new SearchService(engine, { collections });
+  const collector = new EventCollector(db, { batchSize: 5_000 });
+  const analytics = new AnalyticsService(db);
+
+  for (const site of sites.list()) {
+    await db.query('DELETE FROM events WHERE site_id = $1 AND shopper_id LIKE $2',
+      [site.id, 'demo-shopper-%']);
+
+    const events = await generateTraffic(site.id, async (query) => {
+      const r = await search.search(site, { q: query, hitsPerPage: 20, facets: [], rescue: false });
+      return {
+        total: r.totalHits,
+        hits: r.hits.map((h) => ({
+          sku: h.sku, parentId: h.parentId, effectivePrice: h.effectivePrice || 120,
+        })),
+      };
+    }, { sessions: Number(process.env.SEED_SESSIONS ?? 700) });
+
+    // Written in chunks so one oversized INSERT cannot exceed the parameter cap.
+    for (let i = 0; i < events.length; i += 2_000) {
+      collector.collect(events.slice(i, i + 2_000));
+      await collector.flush();
+    }
+    const rolled = await analytics.rollup(site.id, 30);
+    const overview = await analytics.overview(site.id, 30);
+    console.log(
+      `\n${site.name} traffic\n` +
+        `  events:   ${events.length} across ${rolled.days} days\n` +
+        `  searches: ${overview.volume.searches}  (${overview.volume.uniqueQueries} unique)\n` +
+        `  zero-result rate: ${overview.quality.zeroResultRate}%  CTR: ${overview.engagement.clickThroughRate}%\n` +
+        `  search-attributed revenue: $${overview.revenue.searchAttributedRevenue.toLocaleString()}`,
+    );
+  }
+  await collector.stop();
+}
+
 await engine.close();
 await db.end();
-console.log('\nSeed complete. Start the API with `npm run dev`, then open http://localhost:3100/demo/\n');
+const finalKeys = readDemoKeys();
+console.log(
+  '\nSeed complete.\n' +
+  '  Storefront: http://localhost:3100/demo/   (picks up its public search key automatically)\n' +
+  '  Console:    http://localhost:3100/admin/  (paste the admin key below when it asks)\n\n' +
+  Object.entries(finalKeys)
+    .map(([id, k]) => `  ${id.padEnd(11)} admin key: ${k.admin}`)
+    .join('\n') + '\n',
+);

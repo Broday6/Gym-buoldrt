@@ -312,3 +312,43 @@ body.compass-ac-locked { overflow: hidden; }
 body.compass-facets-locked { overflow: hidden; }
 
 .compass-hit__noprice { color: var(--compass-muted); font-size: 13px; }
+
+/* ------------------------------------------------------ merchandiser badges */
+.compass-hit__badges {
+  position: absolute; left: 8px; bottom: 8px; display: flex; gap: 4px; flex-wrap: wrap;
+  max-width: calc(100% - 16px);
+}
+.compass-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 3px; background: rgb(255 255 255 / 92%); color: #33363d;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+}
+.compass-badge--sale { background: #b4232a; color: #fff; }
+.compass-badge--new { background: #2f6b34; color: #fff; }
+.compass-badge--scarcity { background: #a8620f; color: #fff; }
+.compass-badge--praise { background: #24527d; color: #fff; }
+
+/* ------------------------------------------------- recommendation strips */
+.compass-recs { margin: 32px 0 8px; }
+.compass-recs__head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px;
+}
+.compass-recs__title { font-size: 15px; font-weight: 650; margin: 0; letter-spacing: -.01em; }
+.compass-recs__note { font-size: 12px; color: var(--compass-muted); margin: 0; }
+.compass-recs__rail {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr);
+  gap: var(--compass-gap); overflow-x: auto; scroll-snap-type: x mandatory;
+  padding-bottom: 6px; scrollbar-width: thin;
+}
+.compass-recs__rail > * { scroll-snap-align: start; }
+@media (max-width: 640px) { .compass-recs__rail { grid-auto-columns: minmax(146px, 1fr); } }
+
+/* ------------------------------------------------------------ instant mode */
+.compass-instant-hint {
+  font-size: 12px; color: var(--compass-muted); margin: 0 0 10px;
+}
+kbd {
+  font: inherit; font-size: 11px; padding: 1px 5px; border-radius: 4px;
+  border: 1px solid var(--compass-border); background: var(--compass-surface);
+}

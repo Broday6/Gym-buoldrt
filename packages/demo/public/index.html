@@ -67,7 +67,11 @@
     }
     .examples button:hover { color: inherit; border-color: var(--compass-accent, #1f5f4f); }
 
-    .layout { display: grid; grid-template-columns: 250px 1fr; gap: 32px; align-items: start; }
+    /* min-width:0 on the content column: a grid item defaults to min-width:auto,
+       so a wide product grid pushes the column past the viewport instead of
+       wrapping inside it. */
+    .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 32px; align-items: start; }
+    .layout > main { min-width: 0; }
     .sidebar { position: sticky; top: 78px; }
     .sidebar__title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
       color: var(--compass-muted, #6b7280); margin: 0 0 10px; }
@@ -127,6 +131,9 @@
     <div class="examples">
       <span class="examples__label">Try</span>
       <span id="examples"></span>
+      <span class="examples__label" style="margin-left:auto">
+        Press <kbd>/</kbd> or <kbd>&#8984;K</kbd> to search
+      </span>
     </div>
     <p class="diag" id="diag"></p>
 
@@ -135,7 +142,11 @@
         <p class="sidebar__title">Filters</p>
         <div id="facets"></div>
       </aside>
-      <main id="results"></main>
+      <main>
+        <div id="results"></div>
+        <div id="rec-viewed"></div>
+        <div id="rec-trending"></div>
+      </main>
     </div>
   </div>
 
@@ -157,6 +168,11 @@
     const { sites } = await (await fetch('/v1/sites')).json();
     siteSelect.innerHTML = sites.map((s) => `<option value="${s.id}">${s.name}</option>`).join('');
 
+    // A search-scoped key is public by design — every storefront ships one in
+    // its bundle. Fetching it here means the demo goes through the same
+    // authentication a real deployment does, rather than running keyless.
+    const { searchKeys = {} } = await (await fetch('/demo/config.json')).json().catch(() => ({}));
+
     document.querySelector('#examples').innerHTML =
       EXAMPLES.map((q) => `<button type="button" data-q="${q}">${q}</button>`).join(' ');
 
@@ -168,6 +184,7 @@
       widgets = init({
         site: siteId,
         baseUrl: '',
+        apiKey: searchKeys[siteId] ?? null,
         searchInput: input,
         results: '#results',
         facets: '#facets',
@@ -175,7 +192,16 @@
         productUrl: (hit) => `#product/${encodeURIComponent(hit.parentId)}`,
         categoryUrl: (c) => `#category/${encodeURIComponent(c.id)}`,
         searchUrl: (q) => `?q=${encodeURIComponent(q)}`,
-        onAddToCart: (sku) => console.log('add to cart', sku),
+        onAddToCart: (sku) => {
+          // A real storefront hands this to its cart; here it drives the
+          // recommendation rails so the demo shows behaviour, not a stub.
+          toastLike(`Added ${sku} to cart`);
+          void widgets.recommendations?.[0]?.render();
+        },
+        recommendations: [
+          { kind: 'recently_viewed', container: '#rec-viewed', limit: 8 },
+          { kind: 'trending', container: '#rec-trending', limit: 8 },
+        ],
         onStateChange: (response) => {
           const parsed = response.parsedFilters?.length
             ? ` <code>${response.parsedFilters.map((f) => `${f.field}=${f.value}`).join(' ')}</code>`
@@ -203,7 +229,9 @@
         return response;
       };
 
-      const directory = await (await fetch(`/v1/${siteId}/directory`)).json();
+      const directory = await (await fetch(`/v1/${siteId}/directory`, {
+        headers: searchKeys[siteId] ? { 'x-compass-key': searchKeys[siteId] } : {},
+      })).json();
       const colnav = document.querySelector('#colnav');
       colnav.innerHTML = '<span class="colnav__label">Collections</span>' +
         (directory.collections ?? [])
@@ -217,6 +245,21 @@
           (c) => `<button type="button" data-cat="${c.id}">${c.path[c.path.length - 1]} <span style="opacity:.55">${c.products}</span></button>`,
         ),
       ].join('');
+    }
+
+    function toastLike(message) {
+      let el = document.querySelector('#toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:99;padding:10px 16px;' +
+          'border-radius:8px;background:var(--compass-accent,#1f5f4f);color:#fff;font-size:13px;' +
+          'box-shadow:0 8px 24px rgb(0 0 0/22%)';
+        document.body.append(el);
+      }
+      el.textContent = message;
+      clearTimeout(el.__timer);
+      el.__timer = setTimeout(() => el.remove(), 2200);
     }
 
     await mount(sites[0].id);

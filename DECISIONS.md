@@ -411,3 +411,137 @@ return 500.
 Collection *membership* is unaffected either way, because it is already in the
 index — which is a second argument for stamping labels in at ingest rather than
 resolving them at query time.
+
+---
+
+## D23 — Badges reuse the collection rule language
+
+**Decision.** A badge ("Best Seller", "Only 3 left", "Clearance") is a selector
+plus a label and a tone, applied through the same label pipeline as collections
+and custom attributes.
+
+**Why.** Badges are the cheapest merchandising lever there is: they change what
+a shopper notices without changing what ranks. Every competitor ships them, and
+building them on a second, parallel rule system would have meant a merchandiser
+learning two things that behave almost identically.
+
+They inherit the variant scoping for free, which matters more than it sounds:
+"Only 3 left" belongs on the variant that is nearly out, not on a product whose
+other five finishes are fully stocked.
+
+**Capped at two per card.** More than that stops being emphasis and becomes
+noise — the whole point of a badge is that it is unusual.
+
+---
+
+## D24 — Recommendations degrade to top sellers, and say so
+
+**Decision.** Five kinds — similar, bought-together, recently-viewed, trending,
+top sellers — ordered by how much data they need. Anything that comes back empty
+falls through to top sellers, and the response reports which kind actually
+served it.
+
+**Why.** An empty recommendation rail is worse than a generic one: it leaves a
+hole in the page and tells the shopper the store has nothing to offer. But
+silently substituting is how you end up unable to tell whether "similar
+products" is working, so `servedBy` is on the response and in the DOM.
+
+The ordering also means the feature works on day one. Similar products need only
+a catalogue; bought-together needs orders; recently-viewed needs the shopper's
+own history. A store with no traffic still gets a working rail.
+
+---
+
+## D25 — Simulated demo traffic, generated against the live index
+
+**Decision.** The seed drives real searches against the index it just built and
+records the resulting events, rather than inserting fixture rows.
+
+**Why.** An analytics dashboard with no data demonstrates nothing, and
+hand-written fixtures produce numbers that do not behave like real ones — every
+figure comes out suspiciously round and no table tells you anything.
+
+The generated traffic is deliberately shaped: head-heavy query volume, so the
+top-queries table means something and the result cache is exercised;
+click-through that decays steeply with position, so average click position is a
+real signal; a realistic proportion of failing queries, so the zero-result
+report has something to report; and bursty rather than uniform sessions, so
+day-over-day trends move.
+
+Every dashboard number is then *computed* from events the system actually
+recorded, which is the only way the dashboard demonstrates the dashboard.
+
+---
+
+## D26 — Query-attributed revenue is split multi-touch across the session
+
+**Decision.** A purchase carries no query — the shopper bought a product, not a
+search — so its revenue is divided evenly across the distinct queries that
+preceded it in the same session.
+
+**Why.** Attributing the whole order to the last query before checkout
+overstates whichever term happens to sit closest to the buy button, and
+attributing it to the first overstates discovery. Even splitting across the
+session is the honest granularity available for an anonymous shopper, and it is
+what §4.9 asks for.
+
+---
+
+## D27 — The console is plain ES modules, served by the API process
+
+**Decision.** No framework, no build step. Views are objects with a `render`
+method; the shell owns a single delegated event listener.
+
+**Why.** The same reasoning as the storefront SDK: it has to be servable
+straight from the API process, and a merchandising console is a set of tables
+and forms. A build step would add a toolchain to install, a bundle to keep in
+sync with the API it talks to, and a deployment story, in exchange for
+conveniences this does not need.
+
+The single delegated listener is what makes a full re-render safe — there is
+never a stale handler bound to an element that no longer exists.
+
+---
+
+## D28 — Rule previews count against a bounded sample, and say when they did
+
+**Decision.** The visual builder counts matches on every edit, evaluating the
+selector against up to 5,000 products and extrapolating beyond that.
+
+**Why.** A rule a merchandiser cannot see the effect of is a rule they will not
+trust — which is the whole reason the builder exists rather than a JSON field.
+But the count runs on every keystroke, so it has to be bounded. Below the
+threshold the count is exact and says so; above it, the response is explicit
+that it estimated.
+
+---
+
+## D29 — The demo authenticates for real; the console asks for its key
+
+**Decision.** The demo storefront fetches its site's **search-scoped** key from
+`/demo/config.json` and sends it on every request. The console asks for an
+**admin** key once and keeps it in `localStorage`. Neither surface runs with
+authentication disabled, and the server never serves an admin key.
+
+**Why.** The demo previously worked only with `COMPASS_DEV_OPEN=1`, which meant
+the one path a reader is told to follow was the one path that never exercised
+authentication — and `npm run demo`, which does not set that flag, returned 401
+on every request. A demo that skips the auth layer is not a demo of the system.
+
+The asymmetry between the two keys is the point of having two scopes. A search
+key is designed to be public: it ships inside every storefront bundle, is
+visible to anyone who views source, and can only read search endpoints and post
+events — so publishing it on a demo route costs nothing that was not already
+given away. An admin key can change the catalogue, so it is never served over
+HTTP; the seed prints it, and it is pasted in once.
+
+The gate is reactive rather than a login screen: the console asks only after the
+API actually refuses a request, so a deployment that puts its own
+authentication in front of the console never sees it. A stored key that stops
+working is discarded rather than retried, because a console that silently shows
+empty screens is worse than one that says it cannot get in.
+
+**Cost.** The plaintext demo keys live in `data/demo/keys.json`, which is the
+only copy — the database stores hashes. It is git-ignored, and if the file and
+the database ever disagree the seed revokes what is on record and reissues, so
+the two cannot drift into a state where nobody knows the working key.

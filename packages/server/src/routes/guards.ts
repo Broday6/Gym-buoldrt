@@ -140,17 +140,19 @@ export interface GuardOptions {
   trustProxy: boolean;
   /** Largest body accepted on a shopper-facing endpoint. */
   maxSearchBodyBytes: number;
+  /** Classifies a URL as an admin API route; see app.ts. */
+  isAdminApi: (url: string) => boolean;
 }
 
 /** Install rate limiting, body-size checks and metrics on every route. */
 export function registerGuards(app: FastifyInstance, options: GuardOptions): void {
   app.addHook('onRequest', async (request, reply) => {
     const url = request.url;
-    if (url === '/health' || url === '/health/ready' || url === '/metrics') return;
+    // Static assets — the console and the storefront SDK — are not rate limited:
+    // one page load fetches a dozen of them.
+    if (!url.startsWith('/v1/')) return;
 
-    const isAdmin = url.includes('/admin/') || url.includes('/catalog/') ||
-      url.includes('/synonyms') || url.includes('/redirects');
-    const limiter = isAdmin ? options.admin : options.search;
+    const limiter = options.isAdminApi(url) ? options.admin : options.search;
     const result = limiter.check(clientKey(request, options.trustProxy));
 
     reply.header('x-ratelimit-remaining', String(result.remaining));

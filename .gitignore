@@ -7,5 +7,6 @@ data/
 *.log
 ui-desktop.png
 ui-mobile.png
+admin.png
 packages/demo/*.d.ts
 packages/demo/*.js.map

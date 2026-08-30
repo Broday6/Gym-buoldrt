@@ -6,6 +6,10 @@ import type { MatchType, RedirectStore } from '../merchandising/redirects.js';
 import type {
   CollectionInput, CollectionStore, CustomAttributeInput,
 } from '../merchandising/collections.js';
+import type { AnalyticsService } from '../services/analytics.js';
+import type { RecommendRequest, RecommendService } from '../services/recommend.js';
+import type { Selector } from '../merchandising/selector.js';
+import type { PreviewService } from '../services/preview.js';
 import type { SearchEngine } from '../engine/types.js';
 import type { SearchService } from '../services/search.js';
 import type { EventCollector } from '../events/collector.js';
@@ -22,6 +26,9 @@ export interface RouteDeps {
   synonyms: SynonymStore;
   redirects: RedirectStore;
   collections: CollectionStore;
+  analytics: AnalyticsService;
+  recommend: RecommendService;
+  preview: PreviewService;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
@@ -30,7 +37,8 @@ export interface RouteDeps {
 
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
   const {
-    engine, search, autocomplete, synonyms, redirects, collections, sites, collector, db, auth,
+    engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
+    preview, sites, collector, db, auth,
   } = deps;
   const searchScope = { preHandler: requireScope('search', auth) };
   const adminScope = { preHandler: requireScope('admin', auth) };
@@ -143,6 +151,128 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     };
   });
 
+  // ---- recommendations ---------------------------------------------------
+
+  app.post<{ Params: { site: string }; Body: RecommendRequest }>(
+    '/v1/:site/recommend',
+    searchScope,
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      const body = request.body ?? ({ kind: 'top_sellers' } as RecommendRequest);
+      return recommend.recommend(site, body);
+    },
+  );
+
+  // ---- analytics ---------------------------------------------------------
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
+    '/v1/:site/analytics/overview',
+    adminScope,
+    async (request) => analytics.overview(request.params.site, days(request.query.days)),
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string; format?: string } }>(
+    '/v1/:site/analytics/queries',
+    adminScope,
+    async (request, reply) => {
+      const rows = await analytics.topQueries(
+        request.params.site, days(request.query.days), Number(request.query.limit ?? 25),
+      );
+      if (request.query.format === 'csv') {
+        return reply.header('content-type', 'text/csv').send(analytics.toCsv(rows as never));
+      }
+      return { queries: rows };
+    },
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string; format?: string } }>(
+    '/v1/:site/analytics/problems',
+    adminScope,
+    async (request, reply) => {
+      const rows = await analytics.problemQueries(
+        request.params.site, days(request.query.days), Number(request.query.limit ?? 25),
+      );
+      if (request.query.format === 'csv') {
+        return reply.header('content-type', 'text/csv').send(analytics.toCsv(rows as never));
+      }
+      return { queries: rows };
+    },
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
+    '/v1/:site/analytics/trending',
+    adminScope,
+    async (request) => analytics.trending(request.params.site, days(request.query.days, 7)),
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
+    '/v1/:site/analytics/facets',
+    adminScope,
+    async (request) => ({
+      facets: await analytics.facetUsage(request.params.site, days(request.query.days)),
+    }),
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
+    '/v1/:site/analytics/timeseries',
+    adminScope,
+    async (request) => ({
+      points: await analytics.timeseries(request.params.site, days(request.query.days)),
+    }),
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { q: string; days?: string } }>(
+    '/v1/:site/analytics/clicked',
+    adminScope,
+    async (request, reply) => {
+      if (!request.query.q) return reply.code(400).send({ error: 'q is required' });
+      return {
+        products: await analytics.clickedProducts(
+          request.params.site, request.query.q, days(request.query.days),
+        ),
+      };
+    },
+  );
+
+  app.post<{ Params: { site: string }; Body: { days?: number } }>(
+    '/v1/:site/analytics/rollup',
+    adminScope,
+    async (request) => analytics.rollup(request.params.site, request.body?.days ?? 30),
+  );
+
+  // ---- badges ------------------------------------------------------------
+
+  app.get<{ Params: { site: string } }>('/v1/:site/admin/badges', adminScope, async (request) => ({
+    badges: (await collections.listBadges(request.params.site)).map((b) => ({
+      key: b.key, label: b.label, tone: b.tone, priority: b.priority, enabled: b.enabled,
+    })),
+  }));
+
+  app.post<{
+    Params: { site: string };
+    Body: { key: string; label: string; tone?: string; selector: Selector; priority?: number };
+  }>('/v1/:site/admin/badges', adminScope, async (request, reply) => {
+    try {
+      const created = await collections.createBadge(request.params.site, request.body as never);
+      search.invalidate(request.params.site);
+      return reply.code(201).send({ ...created, reindexRequired: true });
+    } catch (err) {
+      return reply.code(400).send({ error: (err as Error).message });
+    }
+  });
+
+  app.delete<{ Params: { site: string; key: string } }>(
+    '/v1/:site/admin/badges/:key',
+    adminScope,
+    async (request, reply) => {
+      const removed = await collections.removeBadge(request.params.site, request.params.key);
+      if (!removed) return reply.code(404).send({ error: 'no such badge' });
+      search.invalidate(request.params.site);
+      return { deleted: true, reindexRequired: true };
+    },
+  );
+
   // ---- collections and custom attributes ---------------------------------
 
   /**
@@ -159,6 +289,22 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     '/v1/:site/admin/collections',
     adminScope,
     async (request) => ({ collections: await collections.list(request.params.site) }),
+  );
+
+  /**
+   * Count what a rule would catch, before it is saved. The visual builder calls
+   * this on every edit, which is what makes a rule trustworthy enough to save.
+   */
+  app.post<{ Params: { site: string }; Body: { selector: Selector } }>(
+    '/v1/:site/admin/collections/preview',
+    adminScope,
+    async (request, reply) => {
+      try {
+        return await preview.preview(request.params.site, request.body?.selector);
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
   );
 
   app.post<{ Params: { site: string }; Body: CollectionInput }>(
@@ -487,6 +633,12 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     request.log.error({ err: message, url: request.url }, 'request failed');
     return reply.code(err.statusCode ?? 500).send({ error: message });
   });
+}
+
+/** Bounded day window, so a query string cannot ask for an unbounded scan. */
+function days(raw: string | undefined, fallback = 30): number {
+  const n = Number(raw ?? fallback);
+  return Number.isFinite(n) ? Math.min(365, Math.max(1, Math.round(n))) : fallback;
 }
 
 /** Every merchandising change is recorded with its author and timestamp. */

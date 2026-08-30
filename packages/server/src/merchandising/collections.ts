@@ -7,6 +7,7 @@ import {
   type LabelPlan,
 } from './labels.js';
 import { describeSelector, validateSelector, type Selector } from './selector.js';
+import type { BadgeDefinition } from './labels.js';
 
 /**
  * Collections and custom attributes: merchandiser-authored structure that cuts
@@ -91,7 +92,7 @@ export class CollectionStore {
       // labels, not the ability to search.
       console.error({ err: (err as Error).message, site: siteId }, 'collections unavailable');
       if (cached) return cached.plan;
-      const empty: LabelPlan = { collections: [], attributes: [] };
+      const empty: LabelPlan = { collections: [], attributes: [], badges: [] };
       this.cache.set(siteId, { plan: empty, expires: Date.now() + 5_000 });
       return empty;
     }
@@ -310,6 +311,48 @@ export class CollectionStore {
   async removeAttribute(siteId: string, key: string): Promise<boolean> {
     const { rowCount } = await this.db.query(
       'DELETE FROM custom_attributes WHERE site_id = $1 AND key = $2',
+      [siteId, key],
+    );
+    this.invalidate(siteId);
+    return Boolean(rowCount);
+  }
+
+  // ---- badges ------------------------------------------------------------
+
+  async listBadges(siteId: string): Promise<BadgeDefinition[]> {
+    return (await this.plan(siteId)).badges;
+  }
+
+  async createBadge(
+    siteId: string,
+    input: {
+      key: string; label: string;
+      tone?: 'neutral' | 'sale' | 'new' | 'scarcity' | 'praise';
+      selector: Selector; priority?: number;
+      startsAt?: string | null; endsAt?: string | null; author?: string;
+    },
+  ): Promise<{ key: string }> {
+    const key = slugify(input.key).replace(/-/g, '_');
+    if (!key) throw new Error('a badge needs a key');
+    if (!input.label?.trim()) throw new Error('a badge needs a label');
+    validateSelector(input.selector);
+    await this.db.query(
+      `INSERT INTO badges (site_id, key, label, tone, selector, priority, starts_at, ends_at, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       ON CONFLICT (site_id, key) DO UPDATE SET
+         label = EXCLUDED.label, tone = EXCLUDED.tone, selector = EXCLUDED.selector,
+         priority = EXCLUDED.priority, starts_at = EXCLUDED.starts_at,
+         ends_at = EXCLUDED.ends_at, updated_at = now()`,
+      [siteId, key, input.label, input.tone ?? 'neutral', JSON.stringify(input.selector),
+       input.priority ?? 100, input.startsAt ?? null, input.endsAt ?? null, input.author ?? null],
+    );
+    this.invalidate(siteId);
+    return { key };
+  }
+
+  async removeBadge(siteId: string, key: string): Promise<boolean> {
+    const { rowCount } = await this.db.query(
+      'DELETE FROM badges WHERE site_id = $1 AND key = $2',
       [siteId, key],
     );
     this.invalidate(siteId);

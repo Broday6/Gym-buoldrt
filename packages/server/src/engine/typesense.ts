@@ -234,6 +234,51 @@ export class TypesenseEngine implements SearchEngine {
     return deleted;
   }
 
+  async getByParentIds(site: string, parentIds: string[]): Promise<VariantDoc[]> {
+    if (parentIds.length === 0) return [];
+    try {
+      const response = (await this.client.collections(site).documents().search({
+        q: '*',
+        query_by: 'title',
+        filter_by: `parentId:=[${parentIds.map(escapeValue).join(',')}]`,
+        group_by: 'parentId',
+        group_limit: 1,
+        per_page: Math.min(250, parentIds.length),
+      } as never)) as TypesenseSearchResponse;
+      const byParent = new Map<string, VariantDoc>();
+      for (const group of response.grouped_hits ?? []) {
+        const hit = group.hits[0];
+        if (!hit) continue;
+        const doc = fromTypesenseDoc(hit.document);
+        byParent.set(doc.parentId, doc);
+      }
+      return parentIds.map((id) => byParent.get(id)).filter((d): d is VariantDoc => Boolean(d));
+    } catch {
+      return [];
+    }
+  }
+
+  async sampleDocuments(site: string, limit: number): Promise<{ docs: VariantDoc[]; total: number }> {
+    try {
+      const collection = await this.client.collections(site).retrieve();
+      const total = collection.num_documents ?? 0;
+      const docs: VariantDoc[] = [];
+      // Paged rather than exported: an export streams the whole collection,
+      // which is the opposite of what a preview needs.
+      for (let page = 1; docs.length < limit && page <= 10; page++) {
+        const response = (await this.client.collections(site).documents().search({
+          q: '*', query_by: 'title', per_page: 250, page,
+        } as never)) as TypesenseSearchResponse & { hits?: TypesenseHit[] };
+        const hits = response.hits ?? [];
+        if (hits.length === 0) break;
+        for (const hit of hits) docs.push(fromTypesenseDoc(hit.document));
+      }
+      return { docs: docs.slice(0, limit), total };
+    } catch {
+      return { docs: [], total: 0 };
+    }
+  }
+
   async search(query: EngineQuery): Promise<EngineResult> {
     const started = performance.now();
     const queryBy = query.weights

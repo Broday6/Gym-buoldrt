@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compass Search — merchandiser console</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4f'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='2.6'/%3E%3Cpath d='M16 5v4M16 23v4M5 16h4M23 16h4' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/admin/app.css">
+</head>
+<body>
+  <div class="shell">
+    <nav class="side" aria-label="Sections">
+      <div class="side__brand"><span class="side__mark" aria-hidden="true"></span> Compass</div>
+      <div class="side__site">
+        <label class="field">
+          <span class="sr-only" hidden>Site</span>
+          <select id="site" aria-label="Site"></select>
+        </label>
+      </div>
+      <div class="side__nav" id="nav"></div>
+      <div class="side__foot">
+        <a href="/demo/" target="_blank" rel="noopener">Open storefront &rarr;</a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="view-title">Dashboard</h1>
+          <p class="topbar__sub" id="view-sub"></p>
+        </div>
+        <div class="topbar__actions" id="view-actions"></div>
+      </header>
+      <div class="view" id="view"></div>
+    </main>
+  </div>
+
+  <script type="module" src="/admin/app.js"></script>
+</body>
+</html>

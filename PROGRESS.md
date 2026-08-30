@@ -4,6 +4,7 @@
 ## Phase 1.5 — Performance refinement ✅ complete
 ## Phase 2 — Discovery UX ✅ complete
 ## Phase 2.5 — Collections, custom attributes, readiness audit ✅ complete
+## Phase 3 — Merchandiser console, badges, analytics, recommendations ✅ complete
 
 A full readiness audit is in **[GAPS.md](GAPS.md)** — what was found, what was
 fixed, what remains, and how each claim was verified.
@@ -21,14 +22,19 @@ fixed, what remains, and how each claim was verified.
 | Structure | Cross-category collections (rule-based, hand-picked or both; nestable, schedulable) and merchandiser-defined custom attributes that filter and count like catalogue facets | `packages/server/src/merchandising/collections.ts`, `selector.ts`, `labels.ts` |
 | Operations | Rate limiting, per-endpoint body limits, cross-origin lockdown on admin, readiness endpoint, `/metrics`, graceful degradation when Postgres is down, single-record upsert/delete | `packages/server/src/routes/guards.ts`, `docs/OPERATIONS.md` |
 | Discovery | Autocomplete (suggestions, products, categories, brands, redirects, trending), zero-results rescue cascade, result cache | `packages/server/src/services/` |
+| Badges | Merchandiser-authored, variant-scoped, scheduled, priority-ordered; capped at two per card | `packages/server/src/merchandising/labels.ts` |
+| Recommendations | Similar, frequently-bought-together, recently-viewed, trending; every rail degrades to top sellers and says which served it | `packages/server/src/services/recommend.ts` |
+| Analytics | Nightly rollup, 30-day overview, top and failing queries, facet usage, product performance, multi-touch query revenue attribution | `packages/server/src/services/analytics.ts` |
+| Rule preview | Counts what a selector would catch before it is saved, exact under 5,000 products and explicit when it estimated | `packages/server/src/services/preview.ts` |
 | Ingestion | NetSuite-aware field mapping, normalisation, variant rollup, data-quality report, zero-downtime swap, sub-second partial updates | `packages/server/src/ingest/` |
 | API | search · browse · autocomplete · directory · events · synonyms · redirects · catalog batch/updates/status · health; scoped search vs admin keys | `packages/server/src/routes/` |
 | Analytics | Buffered append-only event collector incl. rescue path and effective query; aggregate + audit schema | `packages/server/src/events/`, `src/db/` |
 | Storefront SDK | Client, results grid, ARIA-combobox autocomplete with mobile takeover, faceted navigation with desktop/mobile split, themable CSS | `packages/sdk/` |
-| Demo | 520-product messy catalogue per site, placeholder product imagery, full storefront page | `packages/demo/` |
-| Tooling | `query` (ranking explainer), `bench` (cold + cached latency), `keys`, `reindex`, `ui-smoke` (24 browser checks) | `packages/server/src/cli/`, `packages/demo/` |
+| Console | Dashboard, query tester with per-hit explainability, visual rule builder, collections, badges, vocabulary, catalog health — plain ES modules, no build step, served by the API process | `packages/admin/` |
+| Demo | 520-product messy catalogue per site, placeholder imagery, full storefront, 30 days of simulated traffic generated against the live index | `packages/demo/` |
+| Tooling | `query` (ranking explainer), `bench` (cold + cached latency), `keys`, `reindex`, `ui-smoke` (31 storefront checks), `ui-smoke:admin` (21 console checks) | `packages/server/src/cli/`, `packages/demo/`, `packages/admin/` |
 
-**142 unit tests + 24 browser checks, all passing.**
+**154 unit tests + 31 storefront browser checks + 21 console browser checks, all passing.**
 
 ---
 
@@ -43,12 +49,12 @@ fixed, what remains, and how each claim was verified.
 | "black shutter" returns black shutters, not every sibling variant | ✅ | `engine.test.ts`; finish facet returns only `Black` |
 | Facet counts accurate; no facet click can dead-end | ✅ | zero-count values never emitted; `ui-smoke` |
 | Mobile filters use a full-screen modal + "Show N Results" | ✅ | `ui-smoke`: staged, previewed, applied |
-| Ranking explainability says why X outranks Y | ✅ (API + CLI) | `--explain`; admin UI is Phase 3 |
+| Ranking explainability says why X outranks Y | ✅ | `--explain`; the console's query tester shows the cascade per hit |
 | Zero-results never dead-end, and the shopper is told | ✅ | rescue cascade; `ui-smoke` |
 | A natural-language query with zero keyword overlap | ⏳ Phase 4 | needs the vector half |
-| Pin 3 products for "beams", schedule for next weekend | ⏳ Phase 3 | rules engine |
-| Deactivating a campaign changes results within seconds | ⏳ Phase 3 | cache invalidation hook already in place |
-| Dashboard zero-result row → one-click fix | ⏳ Phase 4 | events already record the rescue path |
+| Pin 3 products for "beams", schedule for next weekend | ◐ | hand-picking, scheduling and drag-to-reorder are built; query-triggered campaigns are not |
+| Deactivating a campaign changes results within seconds | ✅ | disabling a collection or badge invalidates the result cache on write |
+| Dashboard zero-result row → one-click fix | ✅ | failing-query rows carry an inline "add synonym" action |
 | A merchandiser-defined structure spanning categories | ✅ | `collections.test.ts`; live: "Dark Finishes" spans Beams, Shutters and Lighting |
 | A merchandiser-invented filter applied across categories | ✅ | "Room" and "Budget" facets, authored outside the feed |
 | Paging through a result set returns every product once | ✅ | verified across category, collection and sorted queries |
@@ -66,11 +72,14 @@ or the other.
 
 | Path | p50 | p95 | Target | |
 |---|---|---|---|---|
-| search | 9.3ms | 38.0ms | < 100ms | ✅ |
-| search + facet filter | 15.5ms | 84.2ms | < 100ms | ✅ |
-| browse | 7.0ms | 10.4ms | < 120ms | ✅ |
-| browse, deep page | 50.3ms | 58.4ms | < 120ms | ✅ |
+| search | 9.9ms | 39.4ms | < 100ms | ✅ |
+| search + facet filter | 16.0ms | 43.4ms | < 100ms | ✅ |
+| browse | 7.6ms | 10.8ms | < 120ms | ✅ |
+| browse, deep page | 48.8ms | 54.5ms | < 120ms | ✅ |
 | search, cached | 0ms | 0.01ms | < 100ms | ✅ |
+| browse, cached | 0.01ms | 0.01ms | < 120ms | ✅ |
+
+96% cache hit rate on the benchmark's repeated traffic.
 
 Latency rose from the 8.6ms p95 measured in Phase 2, and the cause is worth
 stating plainly: **correct pagination costs something.** Every query now ranks a
@@ -147,39 +156,50 @@ DECISIONS.md:
    whole layered design depends on. First task in any environment with Docker:
    `docker compose up`, then re-run the engine suite against it.
 3. **No semantic retrieval.** `semanticWeight` is plumbed and set to 0.
-4. **No rules, campaigns, pinning or banners.** Phase 3.
-5. **No admin console.** Phase 3. Synonyms and redirects are API-only today.
-6. **No analytics dashboard.** Phase 4. Events, including the rescue path taken,
-   are being recorded now.
-7. **No A/B testing.** Phase 4.
-8. **Facet swatch colours are inferred from finish names.** A real deployment
-   should map finishes to hex values in the admin console.
+4. **No query-triggered rules engine.** Collections, badges, hand-picking,
+   drag-to-reorder and scheduling are built and share one selector language.
+   What is missing is the trigger half: "when the query is *beams*, pin these
+   three" — boosts, buries, banners and query rewrites bound to a query rather
+   than to a product set.
+5. **No A/B testing.**
+6. **No admin roles.** One admin key can do anything the console can do. See
+   GAPS.md — this is the blocking item now that a console exists.
+7. **Facet swatch colours are inferred from finish names.** A real deployment
+   should map finishes to hex values in the console.
+8. **Recommendations are co-occurrence and popularity only.** No embeddings, so
+   "similar products" means *bought or viewed alongside*, not *looks like*.
 
 ---
 
-## Phase 3 — Merchandiser control (proposed next)
+## What Phase 3 delivered
 
-Collections and custom attributes are the structural half of this phase and are
-now delivered; the rules engine reuses the same selector language.
+| | |
+|---|---|
+| **Merchandiser console** | Six screens — dashboard, query tester, collections, badges, vocabulary, catalog health. No screen requires raw JSON, and no admin action exists only as an API call. |
+| **Visual rule builder** | Pick a field, a comparator and a value; the match count updates as you type and the matching products are shown. The same selector language backs collections and badges. |
+| **Badges** | Variant-scoped, scheduled, priority-ordered, capped at two per card. "Only 3 left" lands on the variant that is nearly out, not on the product. |
+| **Analytics** | Nightly rollup and a 30-day overview: volume, zero-result rate, click-through, average click position, top and failing queries, facet usage, product performance, and multi-touch query→revenue attribution. |
+| **Zero-result workflow** | A failing query on the dashboard carries an inline "add synonym" action, so the report is a place to fix things rather than a place to read about them. |
+| **Recommendations** | Four kinds, each degrading to top sellers rather than vanishing, and each reporting which strategy actually served it. |
+| **Simulated traffic** | 30 days of shopper sessions generated against the live index, head-heavy and position-decayed, so the dashboard shows computed numbers rather than fixtures. |
+| **Real authentication on both surfaces** | The storefront carries a public search key; the console asks for an admin key once. Neither runs with auth disabled. |
 
+---
 
-1. **Rules engine** — trigger (query match / category / filter state / site),
-   optional conditions (date window, segment, device, inventory), stackable
-   consequences (pin, boost, bury, hide, hidden filter, facet swap, banner,
-   redirect, query rewrite). Evaluated at query time, cached with the
-   invalidation hook that already exists.
-2. **Visual merchandiser** — type a query or pick a category, see the live grid,
-   drag to pin, click to hide/boost/bury, save as a rule. Raw JSON editor
-   available but never the only path.
-3. **Campaigns** — named bundles with start/end datetimes, preview before live,
-   one-click activate, automatic expiry, calendar view.
-4. **Category page control** — banner slot, SEO text, default sort, facet set,
-   products per page.
-5. **Versioning and rollback** — every rule change already writes to
-   `audit_log`; this adds the diff view and one-click revert.
-6. **Admin console** — the React SPA these screens live in, with the persistent
-   "test a query" panel and the explainability toggle wired to `explain: true`.
+## Phase 4 — proposed next
 
-The cache invalidation hook, the audit log, the explainability payload and the
-`rulesApplied` field on every response were all built in Phases 1–2 specifically
-so Phase 3 is additive rather than a refactor.
+1. **Query-triggered rules** — trigger (query match / category / filter state /
+   site), optional conditions (date window, segment, device, inventory),
+   stackable consequences (pin, boost, bury, hide, hidden filter, facet swap,
+   banner, redirect, query rewrite). The selector language, the cache
+   invalidation hook, the audit log and the `rulesApplied` field on every
+   response were all built for this.
+2. **Semantic retrieval** — `semanticWeight` is plumbed and set to 0. This is
+   what the last open acceptance criterion needs: a natural-language query with
+   zero keyword overlap.
+3. **Admin roles** — Admin, Merchandiser, Analyst, against the console that now
+   exists.
+4. **A/B testing** — two ranking configurations, traffic split, measured on the
+   attribution that is already computed.
+5. **Versioning and rollback** — every change already writes to `audit_log`;
+   this adds the diff view and one-click revert.

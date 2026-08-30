@@ -1,0 +1,7 @@
+{
+  "name": "@compass/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Merchandiser console. Plain ES modules, no build step."
+}

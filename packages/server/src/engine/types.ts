@@ -111,6 +111,20 @@ export interface SearchEngine {
    */
   upsertDocuments(site: string, docs: VariantDoc[]): Promise<number>;
   deleteBySku(site: string, skus: string[]): Promise<number>;
+  /**
+   * Fetch documents by parent id, one representative variant each, in the order
+   * asked for. Recommendations resolve ids to cards this way; searching for the
+   * id as text would be both slower and wrong.
+   */
+  getByParentIds(site: string, parentIds: string[]): Promise<VariantDoc[]>;
+  /**
+   * A bounded sample of the catalogue, grouped by parent.
+   *
+   * Used to count how many products a merchandising rule would catch, before it
+   * is saved. Bounded because a preview has to feel instant; the caller is told
+   * whether it saw everything.
+   */
+  sampleDocuments(site: string, limit: number): Promise<{ docs: VariantDoc[]; total: number }>;
   search(query: EngineQuery): Promise<EngineResult>;
   /** Indexed vocabulary, used for compound splitting and spell correction. */
   vocabulary(site: string): Promise<Set<string>>;

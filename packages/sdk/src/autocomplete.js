@@ -21,6 +21,14 @@ const DEFAULTS = {
   limit: 6,
   mobileBreakpoint: 640,
   sections: ['suggestions', 'products', 'categories', 'brands'],
+  /**
+   * Instant search: update the results grid as the shopper types, not only on
+   * submit. The dropdown still shows suggestions and categories — the two
+   * answer different questions, and a shopper scanning a full grid while
+   * refining a query is the behaviour that separates a modern search from a
+   * form field.
+   */
+  instant: true,
 };
 
 export class AutocompleteWidget {
@@ -126,6 +134,7 @@ export class AutocompleteWidget {
       return;
     }
     this.debounceTimer = setTimeout(() => this.fetch(value), this.config.debounceMs);
+    if (this.config.instant) this.config.onInstant?.(value);
   }
 
   async showEmptyState() {

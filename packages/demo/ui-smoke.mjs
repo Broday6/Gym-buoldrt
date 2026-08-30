@@ -44,7 +44,7 @@ async function open(label, width, height) {
 // ---------------------------------------------------------------- desktop --
 const desktop = await open('desktop', 1280, 900);
 
-check('results grid renders', (await desktop.locator('.compass-hit').count()) > 0);
+check('results grid renders', (await desktop.locator('.compass-grid .compass-hit').count()) > 0);
 check('facet groups render', (await desktop.locator('.compass-facet').count()) >= 4);
 check('category nav renders', (await desktop.locator('#catnav button').count()) > 1);
 
@@ -81,7 +81,9 @@ await desktop.press('#q', 'Enter');
 await desktop.waitForTimeout(1200);
 await desktop.selectOption('.compass-sort__select', 'price_asc');
 await desktop.waitForTimeout(1000);
-const priced = (await desktop.locator('.compass-hit__price strong').allTextContents())
+// Scoped to the grid: the recommendation rails also carry price elements, and
+// a rail is ordered by its own logic, not by the shopper's chosen sort.
+const priced = (await desktop.locator('.compass-grid .compass-hit__price strong').allTextContents())
   .map((p) => Number(p.replace(/[^0-9.]/g, '')));
 check('explicit sort survives the ranking pipeline',
   priced.every((n, i) => i === 0 || priced[i - 1] <= n), priced.slice(0, 5).join(', '));
@@ -91,7 +93,31 @@ await desktop.press('#q', 'Enter');
 await desktop.waitForTimeout(1400);
 const notice = await desktop.locator('.compass-rescue__notice').textContent().catch(() => null);
 check('a hopeless query is rescued, not dead-ended', Boolean(notice), notice?.trim() ?? 'no banner');
-check('the rescue leaves products on the page', (await desktop.locator('.compass-hit').count()) > 0);
+check('the rescue leaves products on the page',
+  (await desktop.locator('.compass-grid .compass-hit').count()) > 0);
+
+// ---- merchandising surfaces ----
+check('merchandiser badges render on cards',
+  (await desktop.locator('.compass-grid .compass-badge').count()) > 0,
+  (await desktop.locator('.compass-grid .compass-badge').first().textContent().catch(() => '')) ?? '');
+const rails = await desktop.locator('.compass-recs').count();
+check('recommendation rails render', rails > 0, `${rails} rails`);
+check('a rail always has products, never an empty shell',
+  (await desktop.locator('.compass-recs__rail .compass-hit').count()) > 0);
+check('a rail says what actually served it', Boolean(
+  await desktop.locator('.compass-recs').first().getAttribute('data-served-by')));
+
+// ---- instant search ----
+await desktop.fill('#q', 'shutt');
+await desktop.waitForTimeout(1100);
+const instant = (await desktop.locator('.compass-header__count').textContent())?.trim() ?? '';
+check('the grid updates while typing, before submit', /shutt/.test(instant), instant.replace(/\s+/g, ' '));
+await desktop.keyboard.press('Escape');
+
+await desktop.click('h1.brand, .brand');
+await desktop.keyboard.press('/');
+check('slash focuses the search box',
+  (await desktop.evaluate(() => document.activeElement?.id)) === 'q');
 
 check('no horizontal overflow (desktop)', !(await desktop.evaluate(
   () => document.documentElement.scrollWidth > document.documentElement.clientWidth)));
@@ -101,6 +127,8 @@ await desktop.screenshot({ path: 'ui-desktop.png' });
 const mobile = await open('mobile', 390, 800);
 
 check('mobile shows a filter trigger', await mobile.locator('.compass-facets__trigger').isVisible());
+check('badges survive at mobile width',
+  (await mobile.locator('.compass-grid .compass-badge').count()) > 0);
 check('mobile hides the desktop facet rail',
   (await mobile.locator('.compass-facets__groups').isVisible().catch(() => false)) === false);
 

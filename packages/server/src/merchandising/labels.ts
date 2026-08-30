@@ -58,9 +58,28 @@ export interface CustomAttributeDefinition {
   }[];
 }
 
+/**
+ * A badge is presentation, not navigation: it changes what a shopper notices
+ * without changing what ranks. It reuses the same selector language as a
+ * collection, so a merchandiser who can write one can write the other.
+ */
+export interface BadgeDefinition {
+  id: number;
+  siteId: string;
+  key: string;
+  label: string;
+  tone: 'neutral' | 'sale' | 'new' | 'scarcity' | 'praise';
+  selector: Selector | null;
+  priority: number;
+  enabled: boolean;
+  startsAt: Date | null;
+  endsAt: Date | null;
+}
+
 export interface LabelPlan {
   collections: CollectionDefinition[];
   attributes: CustomAttributeDefinition[];
+  badges: BadgeDefinition[];
 }
 
 /** `collection:<slug>` and `<key>:<value>`, the wire form of a label. */
@@ -70,6 +89,10 @@ export function collectionLabel(slug: string): string {
 
 export function attributeLabel(key: string, value: string): string {
   return `${key}:${value}`;
+}
+
+export function badgeLabel(key: string): string {
+  return `badge:${key}`;
 }
 
 /**
@@ -131,6 +154,16 @@ export function labelsFor(product: Product, plan: LabelPlan): Map<string, string
       if (!manual && (value.selector === null || !matches(product, value.selector))) continue;
       assign(attributeLabel(attribute.key, value.value), value.selector, manual);
     }
+  }
+
+  // Badges are variant-scoped for the same reason collections are: "Only 2
+  // left" belongs on the variant that is nearly out, not on the whole product.
+  for (const badge of plan.badges ?? []) {
+    if (!badge.enabled || badge.selector === null) continue;
+    if (badge.startsAt && badge.startsAt > new Date()) continue;
+    if (badge.endsAt && badge.endsAt <= new Date()) continue;
+    if (!matches(product, badge.selector)) continue;
+    assign(badgeLabel(badge.key), badge.selector, false);
   }
 
   return perVariant;
@@ -252,11 +285,22 @@ export async function loadLabelPlan(db: Db, siteId: string): Promise<LabelPlan> 
     });
   }
 
-  return { collections, attributes };
+  const { rows: badgeRows } = await db.query(
+    `SELECT id, key, label, tone, selector, priority, enabled, starts_at, ends_at
+     FROM badges WHERE site_id = $1 ORDER BY priority, id`,
+    [siteId],
+  );
+  const badges: BadgeDefinition[] = badgeRows.map((r) => ({
+    id: r.id, siteId, key: r.key, label: r.label, tone: r.tone,
+    selector: r.selector ?? null, priority: r.priority, enabled: r.enabled,
+    startsAt: r.starts_at, endsAt: r.ends_at,
+  }));
+
+  return { collections, attributes, badges };
 }
 
 /** An empty plan, for ingests that run with no database reachable. */
-export const EMPTY_LABEL_PLAN: LabelPlan = { collections: [], attributes: [] };
+export const EMPTY_LABEL_PLAN: LabelPlan = { collections: [], attributes: [], badges: [] };
 
 /**
  * Apply a plan to a catalogue, returning the products with labels attached and

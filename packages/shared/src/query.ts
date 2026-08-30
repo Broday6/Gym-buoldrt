@@ -111,6 +111,8 @@ export interface Hit {
   variantCount: number;
   /** Sibling variants of the same parent that also matched the query. */
   matchedVariants: { sku: string; variantTitle: string; price: number; image: string }[];
+  /** Merchandiser-defined badges that apply to this variant. */
+  badges?: { key: string; label: string; tone: string }[];
   /** Field -> highlighted snippet with <mark> around matched terms. */
   highlights?: Record<string, string>;
   explanation?: RankExplanation;

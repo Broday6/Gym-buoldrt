@@ -61,6 +61,9 @@ export function groupByParent(
         image: s.candidate.doc.image,
       })),
     };
+    // Carried through so the service can resolve badge labels without another
+    // engine round trip.
+    (hit as Hit & { labels?: string[] }).labels = doc.labels ?? [];
     if (options.includeExplanations) hit.explanation = best!.explanation;
     return hit;
   });

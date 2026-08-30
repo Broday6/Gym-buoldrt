@@ -2,6 +2,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SqliteEngine } from './engine/sqlite.js';
@@ -13,6 +14,9 @@ import { ResultCache } from './services/cache.js';
 import { SynonymStore } from './merchandising/synonyms.js';
 import { RedirectStore } from './merchandising/redirects.js';
 import { CollectionStore } from './merchandising/collections.js';
+import { AnalyticsService } from './services/analytics.js';
+import { RecommendService } from './services/recommend.js';
+import { PreviewService } from './services/preview.js';
 import { SiteRegistry } from './config/sites.js';
 import { EventCollector } from './events/collector.js';
 import { createPool, migrate, type Db } from './db/pool.js';
@@ -21,6 +25,30 @@ import { registerRoutes } from './routes/index.js';
 import { Metrics, RateLimiter, registerGuards } from './routes/guards.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Whether a URL is an admin API route.
+ *
+ * Scoped to `/v1/` deliberately. The console's own static assets live under
+ * `/admin/`, and a module script is always fetched with an Origin header even
+ * same-origin — so a looser check locks the console out of its own JavaScript.
+ */
+/** True when a browser Origin header names the host the request arrived on. */
+export function sameOrigin(origin: string, host: string | undefined): boolean {
+  if (!host) return false;
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
+export function isAdminApi(url: string): boolean {
+  if (!url.startsWith('/v1/')) return false;
+  return url.includes('/admin/') || url.includes('/catalog/') ||
+    url.includes('/synonyms') || url.includes('/redirects') ||
+    url.includes('/analytics/');
+}
 
 export interface AppOptions {
   databaseUrl?: string;
@@ -41,6 +69,9 @@ export interface BuiltApp {
   synonyms: SynonymStore;
   redirects: RedirectStore;
   collections: CollectionStore;
+  analytics: AnalyticsService;
+  recommend: RecommendService;
+  preview: PreviewService;
 }
 
 /** Choose the retrieval core: Typesense when configured, SQLite otherwise. */
@@ -75,6 +106,9 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
     }),
   });
   const autocomplete = new AutocompleteService(engine, search, db, redirects);
+  const analytics = new AnalyticsService(db);
+  const recommend = new RecommendService(engine, search, db);
+  const preview = new PreviewService(engine);
   const collector = new EventCollector(db);
   collector.start();
 
@@ -95,9 +129,12 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
     hook: 'onRequest',
   });
   app.addHook('onRequest', async (request, reply) => {
-    const isAdmin = request.url.includes('/admin/') || request.url.includes('/catalog/') ||
-      request.url.includes('/synonyms') || request.url.includes('/redirects');
-    if (isAdmin && request.headers.origin) {
+    // A browser sends Origin on every non-GET fetch, same-origin included, so
+    // the test is whether the origin MATCHES the host — not whether it exists.
+    // Rejecting on presence alone locks the admin console out of its own API.
+    if (!isAdminApi(request.url)) return;
+    const origin = request.headers.origin;
+    if (origin && !sameOrigin(origin, request.headers.host)) {
       await reply.code(403).send({ error: 'admin endpoints are not available cross-origin' });
     }
   });
@@ -115,6 +152,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
     metrics,
     trustProxy: process.env.COMPASS_TRUST_PROXY === '1',
     maxSearchBodyBytes: Number(process.env.COMPASS_MAX_SEARCH_BODY_BYTES ?? 32 * 1024),
+    isAdminApi,
   });
 
   app.get('/metrics', async () => metrics.snapshot());
@@ -122,14 +160,40 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const keyStore = new KeyStore(db);
   const open = options.open ?? process.env.COMPASS_DEV_OPEN === '1';
   await registerRoutes(app, {
-    engine, search, autocomplete, synonyms, redirects, collections, sites, collector, db,
-    auth: { keyStore, open },
+    engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
+    preview, sites, collector, db, auth: { keyStore, open },
   });
 
   // The demo storefront and the built SDK bundle, when present.
   const demoDir = resolve(HERE, '../../demo/public');
   if (existsSync(demoDir)) {
     await app.register(fastifyStatic, { root: demoDir, prefix: '/demo/' });
+
+    // The seeded storefront's public search keys.
+    //
+    // A search-scoped key is designed to be visible: it ships inside every
+    // storefront bundle and can only read search endpoints and post events.
+    // Publishing it here is what lets the demo exercise real authentication
+    // instead of running with the door open. Admin keys are never served —
+    // the seed prints those for the console to be pasted in once.
+    app.get('/demo/config.json', async (_request, reply) => {
+      const file = resolve(process.cwd(), 'data/demo/keys.json');
+      let keys: Record<string, { search?: string }> = {};
+      if (existsSync(file)) {
+        try {
+          keys = JSON.parse(await readFile(file, 'utf8')) as typeof keys;
+        } catch (err) {
+          app.log.warn({ err }, 'demo key file is unreadable; storefront will run keyless');
+        }
+      }
+      return reply.header('cache-control', 'no-store').send({
+        searchKeys: Object.fromEntries(
+          Object.entries(keys)
+            .filter(([, v]) => typeof v?.search === 'string')
+            .map(([site, v]) => [site, v.search]),
+        ),
+      });
+    });
 
     // Placeholder product imagery for the seeded catalogue, so the demo grid
     // shows something judgeable instead of broken-image icons.
@@ -145,6 +209,13 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
       },
     );
   }
+  // The merchandiser console: plain ES modules, no build step, served by the
+  // same process that serves the API it talks to.
+  const adminDir = resolve(HERE, '../../admin/public');
+  if (existsSync(adminDir)) {
+    await app.register(fastifyStatic, { root: adminDir, prefix: '/admin/', decorateReply: false });
+  }
+
   // The SDK ships as plain ES modules, so it is served straight from source.
   const sdkDir = resolve(HERE, '../../sdk/src');
   if (existsSync(sdkDir)) {
@@ -160,5 +231,6 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   void join;
   return {
     app, engine, db, collector, sites, search, autocomplete, synonyms, redirects, collections,
+    analytics, recommend, preview,
   };
 }

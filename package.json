@@ -12,6 +12,7 @@
   "scripts": {
     "bench": "tsx packages/server/src/cli/bench.ts",
     "build": "tsc -b",
+    "demo": "npm run seed && npm run dev",
     "dev": "tsx watch packages/server/src/server.ts",
     "keys": "tsx packages/server/src/cli/keys.ts",
     "query": "tsx packages/server/src/cli/query.ts",
@@ -20,7 +21,8 @@
     "start": "node --experimental-sqlite packages/server/dist/server.js",
     "test": "tsx --test packages/server/test/*.test.ts",
     "typecheck": "tsc -b --pretty false",
-    "ui-smoke": "node packages/demo/ui-smoke.mjs"
+    "ui-smoke": "node packages/demo/ui-smoke.mjs",
+    "ui-smoke:admin": "node packages/admin/ui-smoke.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -455,6 +455,41 @@ export class SqliteEngine implements SearchEngine {
     this.statements.clear();
   }
 
+  async getByParentIds(site: string, parentIds: string[]): Promise<VariantDoc[]> {
+    const index = this.liveIndex(site);
+    if (!index || parentIds.length === 0) return [];
+    const placeholders = parentIds.map(() => '?').join(',');
+    const rows = this.db
+      .prepare(
+        `SELECT parent_id, doc, MIN(rowid) AS r FROM docs
+         WHERE index_name = ? AND parent_id IN (${placeholders})
+         GROUP BY parent_id`,
+      )
+      .all(index, ...parentIds) as { parent_id: string; doc: string }[];
+    const byParent = new Map(rows.map((r) => [r.parent_id, JSON.parse(r.doc) as VariantDoc]));
+    // Preserve the caller's order: it is usually a ranking (most co-purchased,
+    // most recently viewed) and re-sorting would throw that away.
+    return parentIds.map((id) => byParent.get(id)).filter((d): d is VariantDoc => Boolean(d));
+  }
+
+  async sampleDocuments(site: string, limit: number): Promise<{ docs: VariantDoc[]; total: number }> {
+    const index = this.liveIndex(site);
+    if (!index) return { docs: [], total: 0 };
+    const total = (this.db
+      .prepare('SELECT COUNT(DISTINCT parent_ord) AS n FROM docs WHERE index_name = ?')
+      .get(index) as { n: number }).n;
+    // Ordered by parent so a partial sample is whole products, never a product
+    // missing half its variants — which would make a variant rule misfire.
+    const rows = this.db
+      .prepare(
+        `SELECT d.doc FROM docs d
+         WHERE d.index_name = ? AND d.parent_ord < ?
+         ORDER BY d.parent_ord`,
+      )
+      .all(index, limit) as { doc: string }[];
+    return { docs: rows.map((r) => JSON.parse(r.doc) as VariantDoc), total };
+  }
+
   async documentCount(site: string): Promise<number> {
     const index = this.liveIndex(site);
     if (!index) return 0;
