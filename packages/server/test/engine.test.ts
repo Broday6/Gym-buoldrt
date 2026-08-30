@@ -177,6 +177,83 @@ describe('search behaviour end to end', () => {
   });
 });
 
+describe('pagination', () => {
+  /**
+   * A catalogue whose products carry many variants each — the case that broke
+   * paging when the candidate window was measured in variants rather than in
+   * products.
+   */
+  async function wideCatalogue() {
+    const local = new SqliteEngine(':memory:');
+    const products: Product[] = [];
+    for (let p = 0; p < 60; p++) {
+      products.push({
+        parentId: `W-${p}`,
+        title: `Wide Product ${p} Shutter`,
+        description: 'A product with a deep variant matrix.',
+        brand: 'Ekena Millwork',
+        categoryPath: ['Exterior', 'Shutters'],
+        categoryIds: ['exterior', 'exterior/shutters'],
+        salesVelocity: 1000 - p,
+        variants: Array.from({ length: 8 }, (_, v) => ({
+          sku: `W-${p}-${v}`,
+          parentId: `W-${p}`,
+          variantTitle: `Finish ${v}`,
+          price: 100 + p + v,
+          inventory: 5,
+          attributes: { finish: `Finish ${v}`, material: 'PVC' },
+        })),
+      });
+    }
+    await indexProducts(local, 'ekena', products);
+    return { local, service: new SearchService(local) };
+  }
+
+  test('every page is full, and the last page holds the remainder', async () => {
+    const { local, service: svc } = await wideCatalogue();
+    const first = await svc.search(site, { q: 'shutter', hitsPerPage: 24, page: 1 });
+    assert.equal(first.totalHits, 60, '60 products, not 480 variants');
+    assert.equal(first.hits.length, 24, 'a full page, despite eight variants per product');
+    assert.equal(first.totalPages, 3);
+    const last = await svc.search(site, { q: 'shutter', hitsPerPage: 24, page: 3 });
+    assert.equal(last.hits.length, 12);
+    await local.close();
+  });
+
+  test('paging through returns every product exactly once', async () => {
+    const { local, service: svc } = await wideCatalogue();
+    const seen: string[] = [];
+    for (let page = 1; page <= 3; page++) {
+      const r = await svc.search(site, { q: 'shutter', hitsPerPage: 24, page });
+      seen.push(...r.hits.map((h) => h.parentId));
+    }
+    // Ordering must be a property of the query alone. A window that grew with
+    // the page re-ranked differently each time, so products appeared twice and
+    // others never appeared at all.
+    assert.equal(seen.length, 60);
+    assert.equal(new Set(seen).size, 60, 'no duplicates across pages');
+    await local.close();
+  });
+
+  test('beyond the last page returns nothing, and totalPages says so', async () => {
+    const { local, service: svc } = await wideCatalogue();
+    const r = await svc.search(site, { q: 'shutter', hitsPerPage: 24, page: 9 });
+    assert.equal(r.hits.length, 0);
+    assert.equal(r.totalPages, 3);
+    await local.close();
+  });
+
+  test('deep pagination is capped, and the cap is reported', async () => {
+    const { local } = await wideCatalogue();
+    const capped = new SearchService(local, { rankingWindow: 30 });
+    const r = await capped.search(site, { q: 'shutter', hitsPerPage: 24, page: 1 });
+    assert.equal(r.totalHits, 60, 'the true count is still reported');
+    assert.equal(r.totalPages, 2, 'but only the reachable window can be paged');
+    assert.equal(r.reachableHits, 30);
+    await local.close();
+  });
+});
+
 describe('index lifecycle', () => {
   test('a rebuild swaps atomically and the old documents go away', async () => {
     const local = new SqliteEngine(':memory:');

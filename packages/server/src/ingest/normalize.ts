@@ -224,6 +224,8 @@ export function toVariantDocs(site: string, products: Product[]): VariantDoc[] {
         tags: product.tags ?? [],
         attrs: variant.attributes as Record<string, string | number>,
         variantCount,
+        labels: variant.labels ?? product.labels ?? [],
+        collectionPositions: product.collectionPositions ?? {},
       });
     }
   }

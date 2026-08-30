@@ -22,13 +22,31 @@ export interface EngineQuery {
   /** Exact part-number lookup; short-circuits scoring when it hits. */
   sku?: string;
   categoryId?: string;
+  /** Collection slug, browsed exactly like a category. */
+  collection?: string;
+  /**
+   * Merchandiser-defined labels to filter on, as `key:value`. OR within a key,
+   * AND across keys, matching how facet groups behave.
+   */
+  labelFilters?: Record<string, string[]>;
+  /** Custom-attribute keys to count, alongside the built-in facets. */
+  labelFacets?: string[];
   filters: FacetFilters;
   ranges: RangeFilter[];
   /** Dimension filters lifted out of the query text. */
   constraints: ParsedConstraint[];
   facets: string[];
   sort: string;
-  /** How many candidates to re-rank. Bounded so re-ranking stays O(window). */
+  /**
+   * How many distinct PARENT products to bring back.
+   *
+   * This is the unit that matters, because results are grouped by parent: a
+   * window measured in variants gives an unpredictable number of cards. On a
+   * catalogue averaging six variants per product, a 120-variant window yielded
+   * 19 cards for a 24-card page and nothing at all from page two onward.
+   */
+  groupWindow: number;
+  /** Hard cap on variant rows fetched, so a wide product cannot blow the window. */
   candidateLimit: number;
   typo: { minWordLengthFor1Typo: number; minWordLengthFor2Typos: number };
   weights: SearchableAttribute[];
@@ -84,6 +102,15 @@ export interface SearchEngine {
     site: string,
     updates: { sku: string; price?: number; salePrice?: number; inventory?: number }[],
   ): Promise<number>;
+  /**
+   * Add or replace whole documents in the live index, and delete by SKU.
+   *
+   * The webhook path: a single product changing must not require rebuilding a
+   * 2.3M-document index, and a discontinued product must be removable in
+   * seconds rather than at the next nightly refresh.
+   */
+  upsertDocuments(site: string, docs: VariantDoc[]): Promise<number>;
+  deleteBySku(site: string, skus: string[]): Promise<number>;
   search(query: EngineQuery): Promise<EngineResult>;
   /** Indexed vocabulary, used for compound splitting and spell correction. */
   vocabulary(site: string): Promise<Set<string>>;

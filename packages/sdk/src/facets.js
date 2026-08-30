@@ -38,6 +38,11 @@ export class FacetsWidget {
     this.staged = {};       // mobile: what the shopper has ticked but not applied
     this.ranges = {};
     this.stagedRanges = {};
+    // Merchandiser-defined attributes travel separately from catalogue fields,
+    // so a custom facet called "material" can never collide with the real one.
+    this.appliedLabels = {};
+    this.stagedLabels = {};
+    this.customFields = new Set();
     this.facets = [];
     this.expanded = new Set();
     this.collapsed = new Set();
@@ -59,6 +64,12 @@ export class FacetsWidget {
     return this.isMobile && this.modalOpen ? this.staged : this.applied;
   }
 
+  /** Values currently ticked for a field, regardless of which bag it is in. */
+  selectedValues(field) {
+    const staged = this.isMobile && this.modalOpen;
+    return this.bagFor(field, staged)[field] ?? [];
+  }
+
   get workingRanges() {
     return this.isMobile && this.modalOpen ? this.stagedRanges : this.ranges;
   }
@@ -66,12 +77,20 @@ export class FacetsWidget {
   update(response) {
     this.facets = response.facets ?? [];
     this.applied = cloneFilters(response.appliedFilters ?? {});
+    this.customFields = new Set(this.facets.filter((f) => f.custom).map((f) => f.field));
     this.totalHits = response.totalHits ?? 0;
     if (!this.modalOpen) {
       this.staged = cloneFilters(this.applied);
+      this.stagedLabels = cloneFilters(this.appliedLabels);
       this.stagedRanges = { ...this.ranges };
     }
     this.render();
+  }
+
+  /** Selections for one field land in whichever bag that field belongs to. */
+  bagFor(field, staged) {
+    if (this.customFields.has(field)) return staged ? this.stagedLabels : this.appliedLabels;
+    return staged ? this.staged : this.applied;
   }
 
   /** Mobile preview count for the apply button, without applying anything. */
@@ -125,7 +144,10 @@ export class FacetsWidget {
 
   chipsHtml() {
     const chips = [];
-    for (const [field, values] of Object.entries(this.applied)) {
+    for (const [field, values] of [
+      ...Object.entries(this.applied),
+      ...Object.entries(this.appliedLabels),
+    ]) {
       const facet = this.facets.find((f) => f.field === field);
       for (const value of values) {
         const label = facet?.values.find((v) => String(v.value) === String(value))?.label ?? value;
@@ -174,7 +196,7 @@ export class FacetsWidget {
 
   valuesHtml(facet) {
     if (!facet.values?.length) return '';
-    const selected = new Set((this.working[facet.field] ?? []).map(String));
+    const selected = new Set(this.selectedValues(facet.field).map(String));
     const expanded = this.expanded.has(facet.field);
     const limit = expanded ? facet.values.length : Math.min(facet.values.length, this.config.showMoreStep);
     const shown = facet.values.slice(0, limit);
@@ -315,15 +337,17 @@ export class FacetsWidget {
   }
 
   toggleValue(field, value, checked, force = false) {
-    const target = force ? this.applied : this.working;
+    const staged = !force && this.isMobile && this.modalOpen;
+    const target = this.bagFor(field, staged);
     const values = new Set((target[field] ?? []).map(String));
     if (checked) values.add(String(value));
     else values.delete(String(value));
     if (values.size) target[field] = [...values];
     else delete target[field];
 
-    if (force || !(this.isMobile && this.modalOpen)) {
-      if (force) this.staged = cloneFilters(this.applied);
+    if (!staged) {
+      this.staged = cloneFilters(this.applied);
+      this.stagedLabels = cloneFilters(this.appliedLabels);
       this.emit();
     } else {
       this.render();
@@ -360,6 +384,7 @@ export class FacetsWidget {
   clearAll() {
     if (this.isMobile && this.modalOpen) {
       this.staged = {};
+      this.stagedLabels = {};
       this.stagedRanges = {};
       this.render();
       this.requestPreview();
@@ -367,6 +392,8 @@ export class FacetsWidget {
     }
     this.applied = {};
     this.staged = {};
+    this.appliedLabels = {};
+    this.stagedLabels = {};
     this.ranges = {};
     this.stagedRanges = {};
     this.emit();
@@ -374,6 +401,7 @@ export class FacetsWidget {
 
   openModal() {
     this.staged = cloneFilters(this.applied);
+    this.stagedLabels = cloneFilters(this.appliedLabels);
     this.stagedRanges = { ...this.ranges };
     this.modalOpen = true;
     this.previewCount = this.totalHits;
@@ -387,6 +415,7 @@ export class FacetsWidget {
     document.body.classList.remove('compass-facets-locked');
     if (apply) {
       this.applied = cloneFilters(this.staged);
+      this.appliedLabels = cloneFilters(this.stagedLabels);
       this.ranges = { ...this.stagedRanges };
       this.emit();
     } else {
@@ -398,11 +427,19 @@ export class FacetsWidget {
   /** Ask the page for a count for the staged selection, without applying it. */
   requestPreview() {
     if (!this.onPreview) return;
-    this.onPreview({ filters: cloneFilters(this.staged), ranges: this.rangeList(this.stagedRanges) });
+    this.onPreview({
+      filters: cloneFilters(this.staged),
+      labelFilters: cloneFilters(this.stagedLabels),
+      ranges: this.rangeList(this.stagedRanges),
+    });
   }
 
   emit() {
-    this.onChange({ filters: cloneFilters(this.applied), ranges: this.rangeList(this.ranges) });
+    this.onChange({
+      filters: cloneFilters(this.applied),
+      labelFilters: cloneFilters(this.appliedLabels),
+      ranges: this.rangeList(this.ranges),
+    });
   }
 
   rangeList(source) {
@@ -410,7 +447,8 @@ export class FacetsWidget {
   }
 
   activeCount() {
-    return Object.values(this.applied).reduce((n, v) => n + v.length, 0) + Object.keys(this.ranges).length;
+    const count = (bag) => Object.values(bag).reduce((n, v) => n + v.length, 0);
+    return count(this.applied) + count(this.appliedLabels) + Object.keys(this.ranges).length;
   }
 }
 

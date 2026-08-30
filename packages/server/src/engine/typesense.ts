@@ -72,6 +72,10 @@ function collectionSchema(name: string) {
       { name: 'margin', type: 'float' as const, optional: true },
       { name: 'dateAddedTs', type: 'int64' as const, optional: true },
       { name: 'tags', type: 'string[]' as const, facet: true, optional: true },
+      // Merchandiser labels: `collection:<slug>` and `<attribute>:<value>`.
+      // One faceted multi-value field rather than a column per attribute, so a
+      // merchandiser can invent an attribute without a schema change.
+      { name: 'labels', type: 'string[]' as const, facet: true, optional: true },
       { name: 'variantCount', type: 'int32' as const, optional: true },
       ...FACET_ATTRIBUTES.map((a) => ({ name: a, type: 'string' as const, facet: true, optional: true })),
       ...NUMERIC_ATTRIBUTES.map((a) => ({ name: a, type: 'float' as const, facet: true, optional: true })),
@@ -199,6 +203,37 @@ export class TypesenseEngine implements SearchEngine {
     return rows.filter((r) => r.success).length;
   }
 
+  /** Upsert whole documents into the live collection, via the site alias. */
+  async upsertDocuments(site: string, docs: VariantDoc[]): Promise<number> {
+    if (docs.length === 0) return 0;
+    const results = (await this.client
+      .collections(site)
+      .documents()
+      .import(docs.map(toTypesenseDoc), { action: 'upsert', batch_size: 200 })) as
+      | { success: boolean }[]
+      | string;
+    const rows = typeof results === 'string'
+      ? results.split('\n').filter(Boolean).map((l) => JSON.parse(l) as { success: boolean })
+      : results;
+    this.directoryCache.delete(site);
+    return rows.filter((r) => r.success).length;
+  }
+
+  async deleteBySku(site: string, skus: string[]): Promise<number> {
+    if (skus.length === 0) return 0;
+    let deleted = 0;
+    for (const sku of skus) {
+      try {
+        await this.client.collections(site).documents(`${site}:${sku}`).delete();
+        deleted++;
+      } catch {
+        // Already gone is the desired end state, not an error.
+      }
+    }
+    this.directoryCache.delete(site);
+    return deleted;
+  }
+
   async search(query: EngineQuery): Promise<EngineResult> {
     const started = performance.now();
     const queryBy = query.weights
@@ -211,12 +246,18 @@ export class TypesenseEngine implements SearchEngine {
       query_by: queryBy.join(','),
       query_by_weights: queryByWeights.join(','),
       filter_by: buildFilterBy(query),
-      facet_by: (query.facets ?? []).map((f) => TYPESENSE_FIELD[f] ?? f).join(','),
+      facet_by: [
+        ...(query.facets ?? []).map((f) => TYPESENSE_FIELD[f] ?? f),
+        // Custom attributes all live in `labels`; the counts are split back
+        // out by key below.
+        ...((query.labelFacets ?? []).length ? ['labels'] : []),
+      ].join(','),
       max_facet_values: 200,
       // Collapse variants to one card per product, keeping the matching variant.
       group_by: 'parentId',
       group_limit: 8,
-      per_page: Math.min(250, query.candidateLimit),
+      // Typesense paginates groups natively, so the window is in products.
+      per_page: Math.min(250, query.groupWindow),
       page: 1,
       num_typos: query.exactOnly ? 0 : 2,
       min_len_1typo: query.typo.minWordLengthFor1Typo,
@@ -244,13 +285,35 @@ export class TypesenseEngine implements SearchEngine {
       }
     }
 
-    const facets: EngineFacet[] = (response.facet_counts ?? []).map((f) => ({
-      field: REVERSE_FIELD[f.field_name] ?? f.field_name,
-      values: f.counts.map((c) => ({ value: c.value, count: c.count })),
-      stats: f.stats && f.stats.min !== undefined && f.stats.max !== undefined
-        ? { min: f.stats.min, max: f.stats.max }
-        : undefined,
-    }));
+    const facets: EngineFacet[] = [];
+    for (const f of response.facet_counts ?? []) {
+      if (f.field_name === 'labels') {
+        // Split `key:value` counts back into one facet per requested key.
+        const wanted = new Set(query.labelFacets ?? []);
+        const byKey = new Map<string, { value: string | number; count: number }[]>();
+        for (const c of f.counts) {
+          const separator = c.value.indexOf(':');
+          if (separator <= 0) continue;
+          const key = c.value.slice(0, separator);
+          if (!wanted.has(key)) continue;
+          const bucket = byKey.get(key) ?? [];
+          bucket.push({ value: c.value.slice(separator + 1), count: c.count });
+          byKey.set(key, bucket);
+        }
+        for (const key of query.labelFacets ?? []) {
+          const values = byKey.get(key);
+          if (values?.length) facets.push({ field: key, values });
+        }
+        continue;
+      }
+      facets.push({
+        field: REVERSE_FIELD[f.field_name] ?? f.field_name,
+        values: f.counts.map((c) => ({ value: c.value, count: c.count })),
+        stats: f.stats && f.stats.min !== undefined && f.stats.max !== undefined
+          ? { min: f.stats.min, max: f.stats.max }
+          : undefined,
+      });
+    }
 
     return {
       candidates,
@@ -367,6 +430,12 @@ function buildFilterBy(query: EngineQuery): string {
   const clauses: string[] = [];
   if (query.sku) clauses.push(`sku:=${escapeValue(query.sku)}`);
   if (query.categoryId) clauses.push(`categoryIds:=${escapeValue(query.categoryId)}`);
+  if (query.collection) clauses.push(`labels:=${escapeValue(`collection:${query.collection}`)}`);
+  for (const [key, values] of Object.entries(query.labelFilters ?? {})) {
+    if (!values?.length) continue;
+    // OR within a key, AND across keys, matching the built-in facets.
+    clauses.push(`labels:=[${values.map((v) => escapeValue(`${key}:${v}`)).join(',')}]`);
+  }
   if (query.excludeSkus?.length) {
     clauses.push(`sku:!=[${query.excludeSkus.map(escapeValue).join(',')}]`);
   }

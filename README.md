@@ -6,10 +6,10 @@ functional replacement for Algolia and Searchspring, owned end to end.
 Multi-tenant from the ground up: one deployment serves every brand, and every
 index, rule, synonym set and analytics view is scoped to a site.
 
-> **Status: Phases 1–2 complete** — core search, plus the discovery UX
-> (autocomplete, faceted navigation, synonyms, redirects, zero-results rescue).
-> See [PROGRESS.md](PROGRESS.md) for what is delivered, what is measured, and
-> the known gaps.
+> **Status: Phases 1–2 complete, plus collections and custom attributes.**
+> See [PROGRESS.md](PROGRESS.md) for what is delivered and measured, and
+> [GAPS.md](GAPS.md) for an audit of what still stands between this and running
+> a real storefront.
 
 ## Quick start
 
@@ -79,6 +79,14 @@ cannot see is disorienting, and the count is what tells them whether the filter
 was a good idea before they commit. Zero-count values are never offered, so a
 facet click can never dead-end.
 
+**Collections and custom attributes** let a merchandiser build structure the
+catalogue does not have. A category says what a product *is*; a collection says
+what it is *for* — "Farmhouse Kitchen", "Contractor Value" — and routinely spans
+categories with nothing else in common. Membership is a rule, a hand-picked
+list, or both, and a custom attribute ("Room", "Budget") becomes a facet that
+filters and counts exactly like a catalogue field. Both are authored outside the
+feed, so a nightly refresh cannot erase them. ([D19–D21](DECISIONS.md))
+
 **Nothing ever returns an empty page.** On zero results the engine spell-corrects,
 then relaxes the least informative term, then falls back to the nearest matching
 category, then to best sellers — and always tells the shopper which happened,
@@ -111,7 +119,7 @@ packages/
     src/ingest/    field mapping, normalisation, data-quality report, pipeline
     src/routes/    HTTP API and scoped API-key auth
     test/          ranking, dimensions, ingestion and end-to-end suites
-    src/merchandising/  synonyms and redirects
+    src/merchandising/  synonyms, redirects, collections, custom attributes, selectors
     src/services/       search pipeline, autocomplete, result cache
   sdk/      storefront client, results grid, autocomplete, facets, theme CSS
   demo/     catalogue generator, seeder, storefront page, UI smoke test
@@ -126,10 +134,15 @@ All endpoints are `POST`, JSON in and out, scoped by site.
 | `/v1/{site}/search` | search | Full search. Query analysis, ranking, facets, rescue. |
 | `/v1/{site}/browse` | search | Category browse through the same pipeline. |
 | `/v1/{site}/autocomplete` | search | Multi-section suggestions. Sub-50ms. |
-| `/v1/{site}/directory` | search | Categories and brands with counts, for nav. |
+| `/v1/{site}/directory` | search | Categories, brands and collections, for nav. |
+| `/v1/{site}/collections` | search | Collections a shopper may browse right now. |
 | `/v1/{site}/events` | search | Behavioural events, batched (max 500). |
 | `/v1/{site}/synonyms` | admin | Two-way, one-way and phrase synonyms. |
 | `/v1/{site}/redirects` | admin | Query patterns that navigate instead of searching. |
+| `/v1/{site}/admin/collections` | admin | Cross-category collections: rules, membership, scheduling. |
+| `/v1/{site}/admin/attributes` | admin | Merchandiser-defined facets and their values. |
+| `/v1/{site}/catalog/records` | admin | Upsert or delete individual products, no reindex. |
+| `/metrics`, `/health/ready` | — | Per-route latency and error counts; readiness for a load balancer. |
 | `/v1/{site}/catalog/batch` | admin | Full ingest from `rows[]` or `csv`. Builds and swaps an index. |
 | `/v1/{site}/catalog/updates` | admin | Price/inventory deltas against the live index. |
 | `/v1/{site}/catalog/status` | admin | Recent ingest runs and data-quality reports. |

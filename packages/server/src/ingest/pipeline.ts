@@ -4,6 +4,7 @@ import type { DataQualityReport, Product } from '@compass/shared';
 import type { SearchEngine } from '../engine/types.js';
 import { inferMapping, mergeMapping, type FieldMapping } from './mapping.js';
 import { normalizeRows, toVariantDocs, type SourceRow } from './normalize.js';
+import { EMPTY_LABEL_PLAN, applyLabels, type LabelPlan } from '../merchandising/labels.js';
 
 /**
  * Ingestion orchestration.
@@ -22,6 +23,8 @@ export interface IngestResult {
   durationMs: number;
   quality: DataQualityReport;
   mapping: FieldMapping;
+  /** How many products each collection and attribute value actually caught. */
+  labelCounts: Record<string, number>;
 }
 
 export interface IngestOptions {
@@ -29,6 +32,14 @@ export interface IngestOptions {
   mapping?: Partial<FieldMapping>;
   batchSize?: number;
   onProgress?: (indexed: number, total: number) => void;
+  /**
+   * Collections and custom attributes to stamp onto the catalogue.
+   *
+   * The feed is overwritten on every ingest, so merchandiser-authored structure
+   * has to be reapplied on every ingest too — otherwise a nightly refresh
+   * silently erases it.
+   */
+  labels?: LabelPlan;
 }
 
 export function parseCsv(content: string): SourceRow[] {
@@ -61,7 +72,8 @@ export async function indexProducts(
   products: Product[],
   options: IngestOptions = {},
 ): Promise<Omit<IngestResult, 'quality' | 'mapping' | 'durationMs'>> {
-  const docs = toVariantDocs(site, products);
+  const { products: labelled, counts } = applyLabels(products, options.labels ?? EMPTY_LABEL_PLAN);
+  const docs = toVariantDocs(site, labelled);
   const handle = await engine.createIndex(site);
   const batchSize = options.batchSize ?? 2_000;
   for (let i = 0; i < docs.length; i += batchSize) {
@@ -72,8 +84,9 @@ export async function indexProducts(
   return {
     site,
     indexName: handle.name,
-    productsIndexed: products.length,
+    productsIndexed: labelled.length,
     variantsIndexed: docs.length,
+    labelCounts: counts,
   };
 }
 

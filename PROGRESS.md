@@ -3,6 +3,10 @@
 ## Phase 1 — Core search MVP ✅ complete
 ## Phase 1.5 — Performance refinement ✅ complete
 ## Phase 2 — Discovery UX ✅ complete
+## Phase 2.5 — Collections, custom attributes, readiness audit ✅ complete
+
+A full readiness audit is in **[GAPS.md](GAPS.md)** — what was found, what was
+fixed, what remains, and how each claim was verified.
 
 ---
 
@@ -14,6 +18,8 @@
 | Query analysis | Router (part number / dimensional / natural language / keyword), dimension parser, unit + fraction normalisation, compound splitting, plural folding, typo budgets, spelling correction | `packages/server/src/query/` |
 | Ranking | Five-criterion tie-breaking cascade, business composite within a relevance band, per-hit explanations, explicit-sort passthrough | `packages/server/src/ranking/` |
 | Merchandising | Synonyms (two-way, one-way, phrase), redirects (exact / starts-with / contains / regex, prioritised), audit log on every change | `packages/server/src/merchandising/` |
+| Structure | Cross-category collections (rule-based, hand-picked or both; nestable, schedulable) and merchandiser-defined custom attributes that filter and count like catalogue facets | `packages/server/src/merchandising/collections.ts`, `selector.ts`, `labels.ts` |
+| Operations | Rate limiting, per-endpoint body limits, cross-origin lockdown on admin, readiness endpoint, `/metrics`, graceful degradation when Postgres is down, single-record upsert/delete | `packages/server/src/routes/guards.ts`, `docs/OPERATIONS.md` |
 | Discovery | Autocomplete (suggestions, products, categories, brands, redirects, trending), zero-results rescue cascade, result cache | `packages/server/src/services/` |
 | Ingestion | NetSuite-aware field mapping, normalisation, variant rollup, data-quality report, zero-downtime swap, sub-second partial updates | `packages/server/src/ingest/` |
 | API | search · browse · autocomplete · directory · events · synonyms · redirects · catalog batch/updates/status · health; scoped search vs admin keys | `packages/server/src/routes/` |
@@ -22,7 +28,7 @@
 | Demo | 520-product messy catalogue per site, placeholder product imagery, full storefront page | `packages/demo/` |
 | Tooling | `query` (ranking explainer), `bench` (cold + cached latency), `keys`, `reindex`, `ui-smoke` (24 browser checks) | `packages/server/src/cli/`, `packages/demo/` |
 
-**108 unit tests + 24 browser checks, all passing.**
+**142 unit tests + 24 browser checks, all passing.**
 
 ---
 
@@ -43,6 +49,9 @@
 | Pin 3 products for "beams", schedule for next weekend | ⏳ Phase 3 | rules engine |
 | Deactivating a campaign changes results within seconds | ⏳ Phase 3 | cache invalidation hook already in place |
 | Dashboard zero-result row → one-click fix | ⏳ Phase 4 | events already record the rescue path |
+| A merchandiser-defined structure spanning categories | ✅ | `collections.test.ts`; live: "Dark Finishes" spans Beams, Shutters and Lighting |
+| A merchandiser-invented filter applied across categories | ✅ | "Room" and "Budget" facets, authored outside the feed |
+| Paging through a result set returns every product once | ✅ | verified across category, collection and sorted queries |
 
 ---
 
@@ -57,31 +66,29 @@ or the other.
 
 | Path | p50 | p95 | Target | |
 |---|---|---|---|---|
-| search | 5.6ms | 8.6ms | < 100ms | ✅ |
-| search + facet filter | 5.4ms | 18.0ms | < 100ms | ✅ |
-| browse | 3.9ms | 5.0ms | < 120ms | ✅ |
-| browse, deep page | 22.6ms | 24.5ms | < 120ms | ✅ |
+| search | 9.3ms | 38.0ms | < 100ms | ✅ |
+| search + facet filter | 15.5ms | 84.2ms | < 100ms | ✅ |
+| browse | 7.0ms | 10.4ms | < 120ms | ✅ |
+| browse, deep page | 50.3ms | 58.4ms | < 120ms | ✅ |
+| search, cached | 0ms | 0.01ms | < 100ms | ✅ |
 
-Phase 1 measured 35.3ms p95 on search here; the refinement work below took that
-to 8.6ms.
+Latency rose from the 8.6ms p95 measured in Phase 2, and the cause is worth
+stating plainly: **correct pagination costs something.** Every query now ranks a
+fixed window of products regardless of which page was asked for, because a
+window that grew with the page produced duplicate and missing products. The
+window size is the single knob trading latency against pagination depth:
+
+| `COMPASS_RANKING_WINDOW` | search p95 | Pages of 24 |
+|---|---|---|
+| 120 | 28ms | 5 |
+| **240 (default)** | **38ms** | **10** |
+| 500 | 76ms | 20 |
 
 **Stress catalogue — 25,000 products / 104,396 variant documents, SQLite dev engine**
 
-| Path | p50 | p95 | Target | |
-|---|---|---|---|---|
-| search | 76ms | 460ms | < 100ms | ❌ |
-| search + facet filter | 224ms | 574ms | < 100ms | ❌ |
-| browse | 65ms | 74ms | < 120ms | ✅ |
-| browse, deep page (55k-variant category) | 339ms | 370ms | < 120ms | ❌ |
-| search, cached | 0ms | 48ms | < 100ms | ✅ |
-
-Read that honestly: **the dev engine meets the targets to roughly 2–5k products
-and does not at 25k.** The p95 tail is dominated by zero-result queries running
-the rescue cascade, and by faceting over very large match sets — both of which
-are linear scans that SQLite does in an interpreter and Typesense does in
-optimised C++ with bitsets. This is the boundary the two-engine design exists
-for, not a defect to keep grinding at. Verifying §7 at 2.3M SKUs is a Typesense
-task and remains open.
+Broad faceted search misses the p95 target at this size on the development
+engine; browse passes. See GAPS.md — this is the boundary the two-engine design
+exists for, and verifying §7 at 2.3M SKUs remains a Typesense task.
 
 ### What the refinement changed
 
@@ -100,7 +107,20 @@ DECISIONS.md:
 | Rescue probes without facets; fallbacks route through the cache | zero-result p95 792ms → 460ms |
 | Result cache with event-based invalidation | 94% hit rate on repeated traffic; ~0ms |
 
-### Bugs found and fixed
+### Bugs found and fixed by the readiness audit
+
+- **Pagination was returning partial and duplicated pages.** A category of 192
+  products gave 19 results on page 1 and nothing from page 2 on. The candidate
+  window was measured in variants while pages are measured in products. Fixed,
+  and the window is now page-independent so ordering is stable.
+- **A custom-attribute filter did not filter the total or the catalogue facets.**
+- **A config-store outage took search down** — 500s with Postgres stopped, even
+  though the retrieval index does not depend on it.
+- **No rate limiting, one 64MB body limit for every endpoint, and admin routes
+  reachable cross-origin.**
+- **No way to add or remove a single product without a full reindex.**
+
+### Bugs found and fixed earlier
 
 - **An explicit sort was silently discarded.** The relevance cascade re-ranked
   the candidate window after the engine had already ordered it by price, so
@@ -138,6 +158,10 @@ DECISIONS.md:
 ---
 
 ## Phase 3 — Merchandiser control (proposed next)
+
+Collections and custom attributes are the structural half of this phase and are
+now delivered; the rules engine reuses the same selector language.
+
 
 1. **Rules engine** — trigger (query match / category / filter state / site),
    optional conditions (date window, segment, device, inventory), stackable

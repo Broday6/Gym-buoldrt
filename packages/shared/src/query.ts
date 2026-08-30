@@ -22,6 +22,17 @@ export interface SearchRequest {
   q?: string;
   /** Browse mode: category id instead of a query. Both may be set. */
   categoryId?: string;
+  /**
+   * Collection slug. A merchandiser-defined grouping that cuts across the
+   * catalogue taxonomy, browsed exactly like a category.
+   */
+  collection?: string;
+  /**
+   * Merchandiser-defined attribute filters, keyed by attribute. OR within a
+   * key, AND across keys — the same shape as `filters`, kept separate so a
+   * custom attribute can never collide with a catalogue field.
+   */
+  labelFilters?: Record<string, string[]>;
   filters?: FacetFilters;
   ranges?: RangeFilter[];
   sort?: string;
@@ -57,6 +68,12 @@ export interface FacetResult {
   displayType: 'checkbox' | 'slider' | 'swatch' | 'grid';
   values: FacetValue[];
   stats?: { min: number; max: number };
+  /**
+   * True for a merchandiser-defined attribute. Selections on these go back in
+   * `labelFilters`, not `filters`, so a custom attribute can never collide with
+   * a catalogue field name.
+   */
+  custom?: boolean;
 }
 
 /** Why a hit ranked where it did. Powers the admin explainability panel. */
@@ -113,6 +130,12 @@ export interface SearchResponse {
   hitsPerPage: number;
   totalHits: number;
   totalPages: number;
+  /**
+   * Set when deep pagination was capped: the true match count is `totalHits`,
+   * but only this many can be paged to. Storefronts should stop offering page
+   * links past `totalPages` and prompt the shopper to refine instead.
+   */
+  reachableHits?: number;
   processingTimeMs: number;
   query: string;
   /** What the engine actually searched for after analysis/rescue. */

@@ -76,6 +76,20 @@
       .sidebar { position: static; }
     }
 
+    /* ---- collections: merchandiser structures, distinct from the taxonomy ---- */
+    .colnav { border-bottom: 1px solid var(--compass-border, #e3e5e9); }
+    .colnav__inner { max-width: 1280px; margin: 0 auto; padding: 9px 20px; display: flex;
+      gap: 8px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+    .colnav__inner::-webkit-scrollbar { display: none; }
+    .colnav__label { font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--compass-muted, #6b7280); white-space: nowrap; margin-right: 2px; }
+    .colnav button {
+      font: inherit; font-size: 13px; white-space: nowrap; padding: 5px 12px; cursor: pointer;
+      border: 1px solid var(--compass-accent, #1f5f4f); border-radius: 999px;
+      background: transparent; color: var(--compass-accent, #1f5f4f);
+    }
+    .colnav button[aria-current='true'] { background: var(--compass-accent, #1f5f4f); color: #fff; }
+
     .diag {
       font-size: 12px; color: var(--compass-muted, #6b7280); margin: 0 0 14px;
       font-variant-numeric: tabular-nums; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
@@ -104,6 +118,9 @@
 
   <nav class="catnav" aria-label="Categories">
     <div class="catnav__inner" id="catnav"></div>
+  </nav>
+  <nav class="colnav" aria-label="Collections">
+    <div class="colnav__inner" id="colnav"></div>
   </nav>
 
   <div class="page compass-root">
@@ -165,12 +182,14 @@
             : '';
           const rescue = response.rescue ? ` <code>rescued: ${response.rescue.strategy}</code>` : '';
           const rules = response.rulesApplied?.length ? ` <code>${response.rulesApplied.join(' ')}</code>` : '';
+          const capped = response.reachableHits
+            ? ` <code>paging capped at ${response.reachableHits}</code>` : '';
           diag.innerHTML =
             `<code>${response.queryType}</code>` +
             `<span>searched <code>${response.effectiveQuery || '—'}</code></span>` +
             `<span>${response.totalHits.toLocaleString()} products</span>` +
             `<span class="diag__ok">${response.processingTimeMs}ms</span>` +
-            parsed + rescue + rules;
+            parsed + rescue + rules + capped;
         },
       });
 
@@ -185,6 +204,11 @@
       };
 
       const directory = await (await fetch(`/v1/${siteId}/directory`)).json();
+      const colnav = document.querySelector('#colnav');
+      colnav.innerHTML = '<span class="colnav__label">Collections</span>' +
+        (directory.collections ?? [])
+          .map((c) => `<button type="button" data-col="${c.slug}" title="${c.rule ?? ''}">${c.name}</button>`)
+          .join('');
       const top = directory.categories.filter((c) => !c.id.includes('/')).slice(0, 8);
       const second = directory.categories.filter((c) => c.id.split('/').length === 2).slice(0, 10);
       catnav.innerHTML = [
@@ -207,12 +231,30 @@
       void widgets.results.setQuery(button.dataset.q);
     });
 
+    document.querySelector('#colnav').addEventListener('click', (e) => {
+      const button = e.target.closest('[data-col]');
+      if (!button) return;
+      const already = button.getAttribute('aria-current') === 'true';
+      for (const b of document.querySelectorAll('#colnav button')) b.setAttribute('aria-current', 'false');
+      for (const b of catnav.querySelectorAll('button')) b.setAttribute('aria-current', 'false');
+      input.value = '';
+      if (already) {
+        widgets.results.state.collection = null;
+        setCategory(null);
+        return;
+      }
+      button.setAttribute('aria-current', 'true');
+      void widgets.results.setCollection(button.dataset.col);
+    });
+
     catnav.addEventListener('click', (e) => {
       const button = e.target.closest('[data-cat]');
       if (!button) return;
       for (const b of catnav.querySelectorAll('button')) b.setAttribute('aria-current', 'false');
+      for (const b of document.querySelectorAll('#colnav button')) b.setAttribute('aria-current', 'false');
       button.setAttribute('aria-current', 'true');
       input.value = '';
+      widgets.results.state.collection = null;
       setCategory(button.dataset.cat || null);
     });
 
@@ -220,6 +262,7 @@
       currentCategory = id;
       widgets.results.state.q = '';
       widgets.results.state.filters = {};
+      widgets.results.state.labelFilters = {};
       widgets.results.state.ranges = [];
       void widgets.results.setCategory(id);
     }

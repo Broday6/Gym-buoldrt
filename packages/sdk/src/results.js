@@ -117,6 +117,8 @@ export class ResultsWidget {
       q: options.query ?? '',
       categoryId: options.categoryId ?? null,
       filters: {},
+      labelFilters: {},
+      collection: options.collection ?? null,
       ranges: [],
       sort: options.sort ?? 'relevance',
       page: 1,
@@ -145,9 +147,21 @@ export class ResultsWidget {
     return this.render();
   }
 
-  setFilters(filters, ranges) {
+  setFilters(filters, ranges, labelFilters) {
     this.state.filters = filters ?? {};
+    if (labelFilters) this.state.labelFilters = labelFilters;
     if (ranges) this.state.ranges = ranges;
+    this.state.page = 1;
+    return this.render();
+  }
+
+  /** Browse a merchandiser-defined collection instead of a category. */
+  setCollection(slug) {
+    this.state.collection = slug;
+    this.state.categoryId = null;
+    this.state.q = '';
+    this.state.filters = {};
+    this.state.labelFilters = {};
     this.state.page = 1;
     return this.render();
   }
@@ -163,11 +177,13 @@ export class ResultsWidget {
    * filter modal's "Show N Results" button, which has to be honest about what
    * the shopper is about to get before they commit to it.
    */
-  async previewCount({ filters, ranges }) {
+  async previewCount({ filters, ranges, labelFilters }) {
     const seq = ++this.previewSeq;
     const params = {
       q: this.state.q,
       filters,
+      labelFilters,
+      collection: this.state.collection ?? undefined,
       ranges,
       sort: this.state.sort,
       page: 1,
@@ -190,6 +206,8 @@ export class ResultsWidget {
       const params = {
         q: this.state.q,
         filters: this.state.filters,
+        labelFilters: this.state.labelFilters,
+        collection: this.state.collection ?? undefined,
         ranges: this.state.ranges,
         sort: this.state.sort,
         page: this.state.page,
@@ -271,6 +289,12 @@ export class ResultsWidget {
     const params = url.searchParams;
     for (const key of [...params.keys()]) if (key.startsWith('c_')) params.delete(key);
     if (this.state.q) params.set('q', this.state.q); else params.delete('q');
+    if (this.state.collection) params.set('collection', this.state.collection);
+    else params.delete('collection');
+    for (const key of [...params.keys()]) if (key.startsWith('m_')) params.delete(key);
+    for (const [field, values] of Object.entries(this.state.labelFilters ?? {})) {
+      if (values?.length) params.set(`m_${field}`, values.join('~'));
+    }
     if (this.state.page > 1) params.set('page', String(this.state.page)); else params.delete('page');
     if (this.state.sort !== 'relevance') params.set('sort', this.state.sort); else params.delete('sort');
     for (const [field, values] of Object.entries(this.state.filters)) {
@@ -284,9 +308,12 @@ export class ResultsWidget {
     this.state.q = params.get('q') ?? this.state.q;
     this.state.page = Number(params.get('page') ?? 1);
     this.state.sort = params.get('sort') ?? this.state.sort;
+    this.state.collection = params.get('collection') ?? this.state.collection;
     this.state.filters = {};
+    this.state.labelFilters = {};
     for (const [key, value] of params) {
       if (key.startsWith('c_')) this.state.filters[key.slice(2)] = value.split('~');
+      if (key.startsWith('m_')) this.state.labelFilters[key.slice(2)] = value.split('~');
     }
     return this.state;
   }

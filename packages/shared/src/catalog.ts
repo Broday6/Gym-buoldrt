@@ -28,6 +28,13 @@ export interface Variant {
   image?: string;
   attributes: VariantAttributes;
   discontinued?: boolean;
+  /**
+   * Merchandiser labels carried by this specific variant. A collection whose
+   * rule mentions variant fields labels only the variants that satisfy it, so
+   * browsing "Dark Finishes" shows the dark option rather than whichever
+   * variant sorted first.
+   */
+  labels?: string[];
 }
 
 /** The product a shopper perceives; the grouping unit in result sets. */
@@ -48,6 +55,15 @@ export interface Product {
   margin?: number;
   dateAdded?: string;
   tags?: string[];
+  /**
+   * Merchandiser-authored labels: `collection:<slug>` and `<attribute>:<value>`.
+   * Computed from the collections and custom attributes in the config store,
+   * never from the catalogue feed, and reapplied on every ingest so a nightly
+   * refresh cannot quietly erase them.
+   */
+  labels?: string[];
+  /** Curated position within a collection, keyed by collection label. */
+  collectionPositions?: Record<string, number>;
   variants: Variant[];
 }
 
@@ -89,6 +105,10 @@ export interface VariantDoc {
   attrs: Record<string, string | number>;
   /** Number of variants on the parent, used for "N options" affordances. */
   variantCount: number;
+  /** Collection and custom-attribute labels; see Product.labels. */
+  labels: string[];
+  /** Curated position within a collection, keyed by collection label. */
+  collectionPositions: Record<string, number>;
 }
 
 export interface DataQualityReport {

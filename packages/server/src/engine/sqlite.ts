@@ -31,6 +31,8 @@ export class SqliteEngine implements SearchEngine {
   private expansionCache = new Map<string, Expansion[]>();
   private statements = new Map<string, ReturnType<DatabaseSync['prepare']>>();
   private encoders = new Map<string, FacetEncoder>();
+  /** Index the in-flight query is reading; set once per search. */
+  private currentIndex = '';
   private dictCache = new Map<string, FacetDictionary>();
   private directoryCache = new Map<string, IndexDirectory>();
 
@@ -63,7 +65,7 @@ export class SqliteEngine implements SearchEngine {
       .user_version;
     if (version !== SCHEMA_VERSION) {
       for (const table of ['docs_fts', 'facet_dict', 'index_vocab', 'index_categories',
-        'doc_categories', 'doc_attrs', 'docs', 'indexes']) {
+        'doc_labels', 'doc_categories', 'doc_attrs', 'docs', 'indexes']) {
         this.db.exec(`DROP TABLE IF EXISTS ${table}`);
       }
       this.db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
@@ -101,6 +103,7 @@ export class SqliteEngine implements SearchEngine {
         UNIQUE (index_name, id)
       );
       CREATE INDEX IF NOT EXISTS docs_idx_parent ON docs (index_name, parent_id);
+      CREATE INDEX IF NOT EXISTS docs_idx_parent_ord ON docs (index_name, parent_ord);
       CREATE INDEX IF NOT EXISTS docs_idx_sku ON docs (index_name, sku);
       CREATE TABLE IF NOT EXISTS doc_attrs (
         doc_rowid INTEGER NOT NULL,
@@ -111,6 +114,18 @@ export class SqliteEngine implements SearchEngine {
       );
       CREATE INDEX IF NOT EXISTS doc_attrs_idx ON doc_attrs (index_name, key, value_text);
       CREATE INDEX IF NOT EXISTS doc_attrs_by_doc ON doc_attrs (doc_rowid);
+      -- Merchandiser labels: collection membership and custom attribute values.
+      -- Dictionary-encoded like every other facet, so filtering and counting on
+      -- a merchandiser-invented attribute costs the same as a catalogue one.
+      CREATE TABLE IF NOT EXISTS doc_labels (
+        doc_rowid INTEGER NOT NULL,
+        index_name TEXT NOT NULL,
+        label_key TEXT NOT NULL,
+        value_id INTEGER NOT NULL,
+        parent_ord INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS doc_labels_lookup ON doc_labels (index_name, label_key, value_id);
+      CREATE INDEX IF NOT EXISTS doc_labels_by_doc ON doc_labels (doc_rowid);
       CREATE TABLE IF NOT EXISTS doc_categories (
         doc_rowid INTEGER NOT NULL,
         index_name TEXT NOT NULL,
@@ -195,6 +210,10 @@ export class SqliteEngine implements SearchEngine {
     const insertCategoryPath = this.db.prepare(
       'INSERT OR IGNORE INTO index_categories (index_name, category_id, path_json) VALUES (?,?,?)',
     );
+    const insertLabel = this.db.prepare(
+      `INSERT INTO doc_labels (doc_rowid, index_name, label_key, value_id, parent_ord)
+       VALUES (?,?,?,?,?)`,
+    );
 
     this.db.exec('BEGIN');
     try {
@@ -236,6 +255,17 @@ export class SqliteEngine implements SearchEngine {
             rowid, handle.name, key,
             typeof value === 'number' ? String(value) : value,
             typeof value === 'number' ? value : null,
+          );
+        }
+        for (const label of d.labels ?? []) {
+          const separator = label.indexOf(':');
+          if (separator <= 0) continue;
+          const key = label.slice(0, separator);
+          const value = label.slice(separator + 1);
+          if (!value) continue;
+          insertLabel.run(
+            rowid, handle.name, key, encoder.valueId(`label:${key}`, value),
+            encoder.parentOrd(d.parentId),
           );
         }
         d.categoryIds.forEach((cid, level) => {
@@ -306,6 +336,7 @@ export class SqliteEngine implements SearchEngine {
    * deleted from row by row without the original column values to hand.
    */
   private dropIndex(name: string): void {
+    this.db.prepare('DELETE FROM doc_labels WHERE index_name = ?').run(name);
     this.db.prepare('DELETE FROM index_categories WHERE index_name = ?').run(name);
     this.db.prepare('DELETE FROM facet_dict WHERE index_name = ?').run(name);
     this.db.prepare('DELETE FROM index_vocab WHERE index_name = ?').run(name);
@@ -360,6 +391,68 @@ export class SqliteEngine implements SearchEngine {
       WHERE index_name = '${index}'
     `);
     return changed;
+  }
+
+  /**
+   * Upsert whole documents into the LIVE index.
+   *
+   * Unlike a full ingest this writes in place, so a webhook can add or change
+   * one product without a rebuild. Existing rows for the same ids are removed
+   * first, because an FTS row cannot be updated in place.
+   */
+  async upsertDocuments(site: string, docs: VariantDoc[]): Promise<number> {
+    const index = this.liveIndex(site);
+    if (!index || docs.length === 0) return 0;
+    await this.deleteByIds(index, docs.map((d) => d.id));
+    await this.indexBatch({ name: index, site }, docs);
+    // The dictionary gained entries for any new facet value in these docs.
+    this.persistDictionary(index);
+    this.dictCache.delete(index);
+    this.directoryCache.delete(site);
+    this.vocabCache.delete(site);
+    this.expansionCache.clear();
+    return docs.length;
+  }
+
+  /** Remove products from the live index by SKU. */
+  async deleteBySku(site: string, skus: string[]): Promise<number> {
+    const index = this.liveIndex(site);
+    if (!index || skus.length === 0) return 0;
+    const placeholders = skus.map(() => '?').join(',');
+    const rows = this.db
+      .prepare(`SELECT id FROM docs WHERE index_name = ? AND sku IN (${placeholders})`)
+      .all(index, ...skus) as { id: string }[];
+    if (rows.length === 0) return 0;
+    await this.deleteByIds(index, rows.map((r) => r.id));
+    this.directoryCache.delete(site);
+    return rows.length;
+  }
+
+  private async deleteByIds(index: string, ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => '?').join(',');
+    const rowids = this.db
+      .prepare(`SELECT rowid FROM docs WHERE index_name = ? AND id IN (${placeholders})`)
+      .all(index, ...ids) as { rowid: number }[];
+    if (rowids.length === 0) return;
+
+    const rowPlaceholders = rowids.map(() => '?').join(',');
+    const values = rowids.map((r) => r.rowid);
+    this.db.exec('BEGIN');
+    try {
+      this.db.prepare(`DELETE FROM doc_attrs WHERE doc_rowid IN (${rowPlaceholders})`).run(...values);
+      this.db.prepare(`DELETE FROM doc_labels WHERE doc_rowid IN (${rowPlaceholders})`).run(...values);
+      this.db.prepare(`DELETE FROM doc_categories WHERE doc_rowid IN (${rowPlaceholders})`).run(...values);
+      this.db.prepare(`DELETE FROM docs WHERE rowid IN (${rowPlaceholders})`).run(...values);
+      this.db.exec('COMMIT');
+    } catch (err) {
+      this.db.exec('ROLLBACK');
+      throw err;
+    }
+    // An external-content FTS table cannot be deleted from row by row without
+    // the original column values, so it is rebuilt from what remains.
+    this.db.exec("INSERT INTO docs_fts (docs_fts) VALUES ('rebuild')");
+    this.statements.clear();
   }
 
   async documentCount(site: string): Promise<number> {
@@ -526,7 +619,8 @@ export class SqliteEngine implements SearchEngine {
       : `FROM docs d WHERE d.index_name = ? ${filterSql}`;
     const baseParams = narrowed.materialised ? filterParams : [index, ...filterParams];
 
-    const rows = this.fetchCandidates(query, narrowed, base, baseParams, filterSql);
+    this.currentIndex = index;
+    const rows = this.fetchCandidates(query, narrowed, base, baseParams, filterSql, filterParams);
 
     const candidates: EngineCandidate[] = rows.map((r) => {
       const doc = JSON.parse(r.doc) as VariantDoc;
@@ -547,12 +641,13 @@ export class SqliteEngine implements SearchEngine {
   }
 
   /**
-   * The candidate window.
+   * The candidate window, measured in parent products.
    *
-   * When relevance is the sort and nothing else needs filtering, the candidate
-   * table is sorted on its own and only the surviving rows read a document —
-   * fetching 150 blobs instead of joining and sorting every match. That single
-   * change took a broad query from ~28ms to under 1ms at 100k documents.
+   * Results are grouped by parent, so the window has to be too. This picks the
+   * top N parents (by best variant score, or by the sort column) and then
+   * fetches only the matching variants belonging to them. Sizing the window in
+   * variants instead — which is what this used to do — makes the number of
+   * cards on a page depend on how many variants those products happen to have.
    */
   private fetchCandidates(
     query: EngineQuery,
@@ -560,18 +655,52 @@ export class SqliteEngine implements SearchEngine {
     base: string,
     baseParams: (string | number)[],
     filterSql: string,
+    filterParams: (string | number)[],
   ): { doc: string; score: number }[] {
-    if (narrowed.scored && !filterSql && !SORTABLE[query.sort]) {
-      return this.stmt(
-        `SELECT d.doc AS doc, x.score AS score
-         FROM (SELECT rowid, score FROM _match ORDER BY score LIMIT ?) x
-         CROSS JOIN docs d ON d.rowid = x.rowid`,
-      ).all(query.candidateLimit) as { doc: string; score: number }[];
-    }
-    const orderBy = this.orderByFor(query, narrowed.scored);
-    return this.stmt(
-      `SELECT d.doc AS doc, ${narrowed.scored ? 'm.score' : '0'} AS score ${base} ${orderBy} LIMIT ?`,
-    ).all(...baseParams, query.candidateLimit) as { doc: string; score: number }[];
+    const sort = SORTABLE[query.sort];
+    // For an ascending sort the group's representative is its cheapest variant;
+    // for a descending one, its most expensive. For relevance it is the best
+    // scoring variant, and FTS5 bm25 is negative-better, so MIN wins there too.
+    const aggregate = sort
+      ? `${sort.direction === 'asc' ? 'MIN' : 'MAX'}(d.${sort.column})`
+      : narrowed.scored ? 'MIN(m.score)' : 'MAX(d.sales_velocity)';
+    const direction = sort ? sort.direction.toUpperCase() : narrowed.scored ? 'ASC' : 'DESC';
+    // Within a group the variants must be ordered by the same measure, or the
+    // card's representative is an arbitrary variant of a correctly ranked
+    // product — a price-sorted grid whose prices are not in order.
+    const withinGroup = sort
+      ? `d.${sort.column}`
+      : narrowed.scored ? 'm.score' : 'd.sales_velocity';
+
+    this.db.exec('DROP TABLE IF EXISTS temp._groups');
+    this.db.exec('CREATE TEMP TABLE _groups (parent_ord INTEGER PRIMARY KEY, rank_value REAL)');
+    this.stmt(
+      `INSERT INTO temp._groups (parent_ord, rank_value)
+       SELECT d.parent_ord, ${aggregate} AS rv ${base}
+       GROUP BY d.parent_ord ORDER BY rv ${direction} LIMIT ?`,
+    ).run(...baseParams, query.groupWindow);
+
+    // The same filters apply again here. Selecting a parent does not select
+    // every variant it owns: a query for "4x6 beam 12ft" picks the parent via
+    // its 12ft variant, and the 10ft one must still be excluded.
+    const rows = this.stmt(
+      `SELECT d.doc AS doc, ${narrowed.scored ? 'm.score' : '0'} AS score
+       FROM _groups g
+       CROSS JOIN docs d ON d.index_name = ? AND d.parent_ord = g.parent_ord
+       ${narrowed.materialised ? 'JOIN _match m ON m.rowid = d.rowid' : ''}
+       WHERE 1=1 ${filterSql}
+       ORDER BY g.rank_value ${direction}, ${withinGroup} ${direction}
+       LIMIT ?`,
+    ).all(this.currentIndex, ...filterParams, query.candidateLimit) as
+      { doc: string; score: number }[];
+
+    this.db.exec('DROP TABLE IF EXISTS temp._groups');
+    return rows;
+  }
+
+  /** Integer id of one label value, or undefined when nothing carries it. */
+  private labelValueId(index: string, key: string, value: string): number | undefined {
+    return this.dictionary(index).toId.get(`label:${key}`)?.get(value);
   }
 
   /** Translate facet filter values into their integer ids for this index. */
@@ -651,13 +780,6 @@ export class SqliteEngine implements SearchEngine {
     return { materialised: true, scored: false, categoryHandled: true };
   }
 
-  private orderByFor(query: EngineQuery, hasMatch: boolean): string {
-    const sort = SORTABLE[query.sort];
-    if (sort) return `ORDER BY d.${sort.column} ${sort.direction.toUpperCase()}`;
-    // Relevance: pull the strongest BM25 candidates, then re-rank above.
-    return hasMatch ? 'ORDER BY m.score' : 'ORDER BY d.sales_velocity DESC';
-  }
-
   /** Equality, range, category and dimension filters, as SQL fragments. */
   private buildFilters(
     query: EngineQuery,
@@ -678,6 +800,44 @@ export class SqliteEngine implements SearchEngine {
       );
       params.push(query.categoryId);
     }
+    // Collection membership narrows exactly like a category does.
+    if (query.collection) {
+      const id = this.labelValueId(index, 'collection', query.collection);
+      if (id === undefined) {
+        parts.push('AND 1 = 0');
+      } else {
+        parts.push(
+          `AND EXISTS (SELECT 1 FROM doc_labels l WHERE l.doc_rowid = d.rowid
+             AND l.label_key = 'collection' AND l.value_id = ?)`,
+        );
+        params.push(id);
+      }
+    }
+
+    // Custom attributes filter like catalogue attributes: OR within a key,
+    // AND across keys. Lifted out for the facet pass, same as built-in facets.
+    for (const [key, values] of Object.entries(query.labelFilters ?? {})) {
+      if (!values?.length) continue;
+      // Only a label group's OWN selection is lifted, and only when counting
+      // that group. ALL_FACETS lifts the column-backed selections because those
+      // are re-applied per row in the in-memory tally; label selections are not
+      // in that tally, so lifting them here would leave the total and every
+      // built-in facet count ignoring the filter entirely.
+      if (skipFacetField === `label:${key}`) continue;
+      const ids = values
+        .map((v) => this.labelValueId(index, key, v))
+        .filter((id): id is number => id !== undefined);
+      if (ids.length === 0) {
+        parts.push('AND 1 = 0');
+        continue;
+      }
+      parts.push(
+        `AND EXISTS (SELECT 1 FROM doc_labels l WHERE l.doc_rowid = d.rowid
+           AND l.label_key = ? AND l.value_id IN (${ids.map(() => '?').join(',')}))`,
+      );
+      params.push(key, ...ids);
+    }
+
     if (query.excludeSkus?.length) {
       parts.push(`AND d.sku NOT IN (${query.excludeSkus.map(() => '?').join(',')})`);
       params.push(...query.excludeSkus);
@@ -869,7 +1029,47 @@ export class SqliteEngine implements SearchEngine {
       if (values.length) facets.push({ field, values });
     }
 
+    for (const facet of this.labelFacets(query, index, narrowed)) facets.push(facet);
     return { facets, totalGroups: totalParents.size };
+  }
+
+  /**
+   * Counts for merchandiser-defined attributes.
+   *
+   * These live in their own table rather than a column, because a merchandiser
+   * can invent one at any time and columns cannot be added without a reindex.
+   * The counting rule is the same: a group excludes its own selection so
+   * multi-select stays usable, and zero-count values are never emitted.
+   */
+  private labelFacets(
+    query: EngineQuery,
+    index: string,
+    narrowed: CandidateSet,
+  ): EngineFacet[] {
+    const keys = query.labelFacets ?? [];
+    if (keys.length === 0) return [];
+    const dict = this.dictionary(index).toValue;
+    const out: EngineFacet[] = [];
+
+    for (const key of keys) {
+      const { sql, params } = this.buildFilters(query, index, `label:${key}`, narrowed);
+      const rows = this.stmt(
+        `SELECT l.value_id AS id, COUNT(DISTINCT l.parent_ord) AS count
+         FROM doc_labels l
+         CROSS JOIN docs d ON d.rowid = l.doc_rowid
+         ${narrowed.materialised ? 'JOIN _match m ON m.rowid = d.rowid' : ''}
+         WHERE l.index_name = ? AND l.label_key = ? ${sql}
+         GROUP BY l.value_id ORDER BY count DESC LIMIT 200`,
+      ).all(index, key, ...params) as { id: number; count: number }[];
+
+      const decode = dict.get(`label:${key}`);
+      const values = rows
+        .filter((r) => r.count > 0)
+        .map((r) => ({ value: decode?.get(r.id) ?? String(r.id), count: r.count }))
+        .sort((a, b) => b.count - a.count || String(a.value).localeCompare(String(b.value)));
+      if (values.length) out.push({ field: key, values });
+    }
+    return out;
   }
 
   private lead(narrowed: CandidateSet): string {
@@ -1089,7 +1289,7 @@ interface Expansion {
   prefix: boolean;
 }
 
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 7;
 const MAX_EXPANSIONS = 12;
 const MAX_PREFIX_EXPANSIONS = 8;
 

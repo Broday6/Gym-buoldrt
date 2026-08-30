@@ -36,8 +36,8 @@ export function init(options) {
     widgets.facets = new FacetsWidget({
       ...options,
       container: options.facets,
-      onChange: ({ filters, ranges }) => {
-        void widgets.results.setFilters(filters, ranges);
+      onChange: ({ filters, ranges, labelFilters }) => {
+        void widgets.results.setFilters(filters, ranges, labelFilters);
       },
       // The mobile modal needs a count for its apply button before the
       // selection is applied, which is a separate, hit-less query.

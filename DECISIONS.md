@@ -295,3 +295,119 @@ commit.
 
 The staged count is a separate hit-less query, so the button is honest about
 what the shopper is about to get.
+
+---
+
+## D18 — The candidate window is measured in products, and is fixed per query
+
+**Decision.** Retrieval brings back a fixed number of parent *products* — not
+variants, and not a number that varies with the requested page.
+
+**Why.** Both halves were bugs, and both were invisible until measured.
+
+Measuring the window in variants meant the number of cards on a page depended on
+how many variants those products happened to have. A 120-variant window on a
+catalogue averaging six variants per product produced **19 cards for a 24-card
+page, and nothing at all from page two onward**.
+
+Sizing the window by page then made the ordering depend on which page was asked
+for: the cascade re-ranks whatever it is given, so a wider window inserts
+products ahead of ones already ranked. Paging through 192 products returned 31
+duplicates and missed 31 others entirely. A fixed window makes the ordering a
+property of the query alone, so pagination is stable by construction.
+
+**Consequence.** Deep pagination is capped at the window (500 products by
+default). That is what every hosted search engine does, for the same reason:
+serving page 400 means ranking everything before it, and nobody paginates that
+far — they refine. `totalHits` still reports the true count; `totalPages`
+reports what can actually be reached, and `reachableHits` says when the two
+differ so a storefront can stop rendering page links.
+
+**Related.** Ordering the groups is not enough on its own: the representative
+variant within each group has to be ordered by the same measure, or a
+price-sorted grid shows correctly ranked products at arbitrary prices.
+
+---
+
+## D19 — Merchandiser structure lives outside the catalogue and is stamped in at ingest
+
+**Decision.** Collections and custom attributes are authored in Postgres and
+applied to the index as *labels* — `collection:farmhouse-kitchen`,
+`room:Kitchen` — recomputed on every ingest.
+
+**Why.** A category comes from the feed and says what a product **is**. A
+collection says what it is **for** — "Farmhouse Kitchen", "Contractor Value",
+"Black Friday" — and routinely spans categories with nothing else in common. The
+same is true one level down: "Room" and "Budget" are facets a merchandiser
+invents, not fields any source system supplies.
+
+Storing them in the catalogue is not an option, because the feed is overwritten
+on every ingest and a nightly refresh would silently erase a merchandiser's
+work. Storing them only in Postgres is not an option either, because they have
+to be filterable and facetable, which means they have to reach the retrieval
+engine. Labels are the bridge: authored outside, reapplied on every ingest.
+
+**Consequence.** Membership changes need a reindex to become visible. The API
+says so explicitly (`reindexRequired: true`) rather than letting a merchandiser
+believe a change is live when it is not. Metadata changes — a rename, enabling a
+scheduled collection — take effect immediately, which is why scheduled
+collections are built into the index up front and merely withheld from the
+listing until they are live.
+
+---
+
+## D20 — Membership is decided per product, but labels are attached per variant
+
+**Decision.** A product is in a collection, but the label goes only on the
+variants that actually satisfy the rule.
+
+**Why.** This is the "black shutter" principle again. Browsing "Dark Finishes"
+has to show the *dark* option, not whichever variant sorted first; a product in
+"Under $100" has to show its cheap variant, not its $340 one. Before this, both
+showed the wrong variant — the product was correctly in the collection and the
+card was misleading.
+
+A rule that says nothing about variants labels every variant, so a purely
+product-level collection behaves as you would expect. A rule that mentions
+variant fields is re-evaluated against each variant individually, which also
+makes mixed rules ("category contains Beams AND finish is Walnut") resolve
+correctly without the rule language needing a separate variant mode.
+
+**Exception.** A hand-picked product carries the label on every variant: the
+merchandiser chose the product, not one of its options.
+
+---
+
+## D21 — Selectors are declarative structures, not expression strings
+
+**Decision.** A rule is `{all: [{field, op, value}]}`, validated on write.
+
+**Why.** A merchandiser builds these in a form, so every clause has to
+round-trip cleanly to and from UI controls — which an expression string cannot
+do. Validating on write means a malformed rule is a 400 at authoring time rather
+than a surprise at 2am during the nightly ingest.
+
+Two deliberate choices inside the language: an empty selector matches **nothing**
+(a half-written rule must not sweep in the catalogue), and manual assignment
+beats the selector in both directions, so a merchandiser can fix one wrong
+product without rewriting a rule that is otherwise doing its job.
+
+Aggregate fields — `minPrice`, `inStock`, `onSale`, `totalInventory` — exist
+because that is how a merchandiser thinks about a product. "Under $100" means
+its cheapest variant is.
+
+---
+
+## D22 — A configuration-store outage degrades search, it does not end it
+
+**Decision.** Synonyms, redirects and custom-facet metadata fall back to their
+last known value, or to empty, when Postgres is unreachable.
+
+**Why.** The retrieval index is entirely independent of that database, so an
+analytics and configuration store taking the storefront's search down with it is
+a self-inflicted outage. Before this fix, stopping Postgres made `/search`
+return 500.
+
+Collection *membership* is unaffected either way, because it is already in the
+index — which is a second argument for stamping labels in at ingest rather than
+resolving them at query time.

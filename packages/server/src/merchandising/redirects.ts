@@ -92,7 +92,18 @@ export class RedirectStore {
   async get(siteId: string): Promise<RedirectSet> {
     const cached = this.cache.get(siteId);
     if (cached && cached.expires > Date.now()) return cached.set;
-    const rows = await this.rows(siteId, true);
+    let rows: RedirectRule[];
+    try {
+      rows = await this.rows(siteId, true);
+    } catch (err) {
+      // A config store outage degrades search rather than ending it; the
+      // retrieval index does not depend on this database.
+      console.error({ err: (err as Error).message, site: siteId }, 'redirects unavailable');
+      if (cached) return cached.set;
+      const empty = new RedirectSet([]);
+      this.cache.set(siteId, { set: empty, expires: Date.now() + 5_000 });
+      return empty;
+    }
     const set = new RedirectSet(rows);
     this.cache.set(siteId, { set, expires: Date.now() + this.ttlMs });
     return set;

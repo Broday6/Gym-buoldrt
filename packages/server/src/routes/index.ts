@@ -3,6 +3,9 @@ import type { EventBatch, SearchRequest } from '@compass/shared';
 import type { AutocompleteRequest, AutocompleteService } from '../services/autocomplete.js';
 import type { SynonymKind, SynonymStore } from '../merchandising/synonyms.js';
 import type { MatchType, RedirectStore } from '../merchandising/redirects.js';
+import type {
+  CollectionInput, CollectionStore, CustomAttributeInput,
+} from '../merchandising/collections.js';
 import type { SearchEngine } from '../engine/types.js';
 import type { SearchService } from '../services/search.js';
 import type { EventCollector } from '../events/collector.js';
@@ -18,6 +21,7 @@ export interface RouteDeps {
   autocomplete: AutocompleteService;
   synonyms: SynonymStore;
   redirects: RedirectStore;
+  collections: CollectionStore;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
@@ -25,9 +29,24 @@ export interface RouteDeps {
 }
 
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
-  const { engine, search, autocomplete, synonyms, redirects, sites, collector, db, auth } = deps;
+  const {
+    engine, search, autocomplete, synonyms, redirects, collections, sites, collector, db, auth,
+  } = deps;
   const searchScope = { preHandler: requireScope('search', auth) };
   const adminScope = { preHandler: requireScope('admin', auth) };
+
+  /**
+   * Readiness, for a load balancer. Returns 503 when the instance cannot serve
+   * useful traffic, which is a different question from whether the process is
+   * alive — `/health` answers that and always returns 200.
+   */
+  app.get('/health/ready', async (_request, reply) => {
+    const documents = await engine.documentCount(sites.list()[0]?.id ?? '');
+    if (documents === 0) {
+      return reply.code(503).send({ status: 'not_ready', reason: 'no documents indexed' });
+    }
+    return { status: 'ready', documents };
+  });
 
   app.get('/health', async () => {
     const checks: Record<string, string> = { engine: engine.kind };
@@ -91,7 +110,9 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
       const body = request.body ?? {};
-      if (!body.categoryId) return reply.code(400).send({ error: 'categoryId is required for browse' });
+      if (!body.categoryId && !body.collection) {
+        return reply.code(400).send({ error: 'browse needs a categoryId or a collection' });
+      }
       return search.browse(site, body);
     },
   );
@@ -116,10 +137,138 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       categories: directory.categories.sort((a, b) => a.id.localeCompare(b.id)),
       brands: directory.brands,
       facets: site.defaultFacets,
+      collections: await collections.browsable(site.id),
       sortOptions: SORT_OPTIONS,
       currency: site.currency,
     };
   });
+
+  // ---- collections and custom attributes ---------------------------------
+
+  /**
+   * Shopper-facing: the collections that may be browsed right now. Scheduled
+   * and internal ones are built into the index but never listed here.
+   */
+  app.get<{ Params: { site: string } }>('/v1/:site/collections', searchScope, async (request, reply) => {
+    const site = sites.get(request.params.site);
+    if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+    return { collections: await collections.browsable(site.id) };
+  });
+
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/admin/collections',
+    adminScope,
+    async (request) => ({ collections: await collections.list(request.params.site) }),
+  );
+
+  app.post<{ Params: { site: string }; Body: CollectionInput }>(
+    '/v1/:site/admin/collections',
+    adminScope,
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      try {
+        const created = await collections.create(site.id, { ...request.body, author: actorOf(request) });
+        await audit(db, site.id, actorOf(request), 'upsert', 'collection', created.slug, null, created);
+        search.invalidate(site.id);
+        return reply.code(201).send(created);
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.post<{
+    Params: { site: string; slug: string };
+    Body: { members: { parentId: string; mode?: 'include' | 'exclude'; position?: number | null }[] };
+  }>('/v1/:site/admin/collections/:slug/members', adminScope, async (request, reply) => {
+    try {
+      const applied = await collections.setMembers(
+        request.params.site, request.params.slug, request.body?.members ?? [], actorOf(request),
+      );
+      search.invalidate(request.params.site);
+      // Membership is stamped into the index at ingest, so a manual change
+      // needs a reindex before shoppers see it. Say so rather than implying
+      // the change is already live.
+      return { applied, reindexRequired: true };
+    } catch (err) {
+      return reply.code(400).send({ error: (err as Error).message });
+    }
+  });
+
+  app.delete<{ Params: { site: string; slug: string } }>(
+    '/v1/:site/admin/collections/:slug',
+    adminScope,
+    async (request, reply) => {
+      const removed = await collections.remove(request.params.site, request.params.slug);
+      if (!removed) return reply.code(404).send({ error: 'no such collection' });
+      await audit(db, request.params.site, actorOf(request), 'delete', 'collection',
+        request.params.slug, null, null);
+      search.invalidate(request.params.site);
+      return { deleted: true, reindexRequired: true };
+    },
+  );
+
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/admin/attributes',
+    adminScope,
+    async (request) => ({
+      attributes: (await collections.listAttributes(request.params.site)).map((a) => ({
+        key: a.key, label: a.label, displayType: a.displayType, enabled: a.enabled,
+        position: a.position,
+        values: a.values.map((v) => ({
+          value: v.value, hasRule: v.selector !== null,
+          manualIncludes: v.includes.size, manualExcludes: v.excludes.size,
+        })),
+      })),
+    }),
+  );
+
+  app.post<{ Params: { site: string }; Body: CustomAttributeInput }>(
+    '/v1/:site/admin/attributes',
+    adminScope,
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      try {
+        const created = await collections.createAttribute(site.id, {
+          ...request.body, author: actorOf(request),
+        });
+        await audit(db, site.id, actorOf(request), 'upsert', 'attribute', created.key, null, created);
+        search.invalidate(site.id);
+        return reply.code(201).send({ ...created, reindexRequired: true });
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.post<{
+    Params: { site: string; key: string };
+    Body: { value: string; parentIds: string[]; mode?: 'include' | 'exclude' };
+  }>('/v1/:site/admin/attributes/:key/assign', adminScope, async (request, reply) => {
+    try {
+      const applied = await collections.assign(
+        request.params.site, request.params.key, request.body.value,
+        request.body.parentIds ?? [], request.body.mode ?? 'include', actorOf(request),
+      );
+      search.invalidate(request.params.site);
+      return { applied, reindexRequired: true };
+    } catch (err) {
+      return reply.code(400).send({ error: (err as Error).message });
+    }
+  });
+
+  app.delete<{ Params: { site: string; key: string } }>(
+    '/v1/:site/admin/attributes/:key',
+    adminScope,
+    async (request, reply) => {
+      const removed = await collections.removeAttribute(request.params.site, request.params.key);
+      if (!removed) return reply.code(404).send({ error: 'no such attribute' });
+      search.invalidate(request.params.site);
+      return { deleted: true, reindexRequired: true };
+    },
+  );
 
   // ---- synonyms ----------------------------------------------------------
 
@@ -214,7 +363,10 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     const { parseCsv } = await import('../ingest/pipeline.js');
     const sourceRows = rows?.length ? rows : parseCsv(csv!);
     try {
-      const result = await ingestRows(engine, site.id, sourceRows, { mapping });
+      const result = await ingestRows(engine, site.id, sourceRows, {
+        mapping,
+        labels: await collections.plan(site.id),
+      });
       await db.query(
         `INSERT INTO ingest_runs (site_id, index_name, source, products, variants, duration_ms, quality, mapping)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
@@ -249,6 +401,65 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     if (changed > 0) search.invalidate(site.id);
     return { requested: updates.length, updated: changed, durationMs: Date.now() - started };
   });
+
+  /**
+   * Webhook path: add or replace individual products in the live index.
+   *
+   * A single product changing must not require rebuilding the whole index, and
+   * a discontinued line must be removable in seconds rather than at the next
+   * nightly refresh.
+   */
+  app.post<{
+    Params: { site: string };
+    Body: { rows?: SourceRow[]; csv?: string; mapping?: IngestOptions['mapping'] };
+  }>('/v1/:site/catalog/records', adminScope, async (request, reply) => {
+    const site = sites.get(request.params.site);
+    if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+    const { rows, csv, mapping } = request.body ?? {};
+    if (!rows?.length && !csv) return reply.code(400).send({ error: 'provide rows[] or csv' });
+
+    const { parseCsv } = await import('../ingest/pipeline.js');
+    const { inferMapping, mergeMapping } = await import('../ingest/mapping.js');
+    const { normalizeRows, toVariantDocs } = await import('../ingest/normalize.js');
+    const { applyLabels } = await import('../merchandising/labels.js');
+
+    const sourceRows = rows?.length ? rows : parseCsv(csv!);
+    const resolved = mergeMapping(inferMapping(Object.keys(sourceRows[0] ?? {})), mapping);
+    const { products, quality } = normalizeRows(site.id, sourceRows, resolved);
+    // Merchandiser structure is reapplied here too, so a product arriving by
+    // webhook lands in the same collections a full ingest would put it in.
+    const { products: labelled } = applyLabels(products, await collections.plan(site.id));
+    const docs = toVariantDocs(site.id, labelled);
+
+    const started = Date.now();
+    const upserted = await engine.upsertDocuments(site.id, docs);
+    search.invalidate(site.id);
+    autocomplete.invalidate(site.id);
+    return {
+      productsUpserted: products.length,
+      variantsUpserted: upserted,
+      durationMs: Date.now() - started,
+      issues: summariseQuality(quality),
+    };
+  });
+
+  app.delete<{ Params: { site: string }; Body: { skus: string[] } }>(
+    '/v1/:site/catalog/records',
+    adminScope,
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      const skus = request.body?.skus ?? [];
+      if (!skus.length) return reply.code(400).send({ error: 'skus array is required' });
+      const started = Date.now();
+      const deleted = await engine.deleteBySku(site.id, skus);
+      if (deleted > 0) {
+        search.invalidate(site.id);
+        autocomplete.invalidate(site.id);
+      }
+      return { requested: skus.length, deleted, durationMs: Date.now() - started };
+    },
+  );
 
   app.get<{ Params: { site: string } }>('/v1/:site/catalog/status', adminScope, async (request, reply) => {
     const site = sites.get(request.params.site);

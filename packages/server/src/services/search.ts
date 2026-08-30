@@ -12,6 +12,7 @@ import { relaxTerms, suggestCorrection } from '../query/spelling.js';
 import { rankCandidates } from '../ranking/cascade.js';
 import { groupByParent, highlight } from '../ranking/group.js';
 import type { SynonymStore } from '../merchandising/synonyms.js';
+import type { CustomAttributeDefinition } from '../merchandising/labels.js';
 import type { RedirectStore } from '../merchandising/redirects.js';
 import { ResultCache, cacheKey } from './cache.js';
 
@@ -31,10 +32,31 @@ export interface SearchServiceOptions {
   candidateLimit?: number;
   /** Cascade criteria forming a relevance band; see ranking/cascade.ts. */
   bandDepth?: number;
+  /**
+   * Products ranked per query, and therefore the deepest reachable result.
+   * Beyond it a shopper refines rather than paginates.
+   */
+  rankingWindow?: number;
   synonyms?: SynonymStore;
   redirects?: RedirectStore;
+  /**
+   * Source of merchandiser-defined attributes. Typed structurally rather than
+   * as the concrete store so the search pipeline does not depend on Postgres
+   * just to know which custom facets exist.
+   */
+  collections?: { listAttributes(siteId: string): Promise<CustomAttributeDefinition[]> };
   cache?: ResultCache<SearchResponse>;
 }
+
+/**
+ * Products ranked per query.
+ *
+ * This is the one knob trading latency against pagination depth: every query
+ * fetches this many products' worth of variants, whichever page was asked for,
+ * because a window that varied by page made ordering unstable. 240 is ten pages
+ * of 24, which is past where anyone paginates.
+ */
+const DEFAULT_RANKING_WINDOW = Number(process.env.COMPASS_RANKING_WINDOW ?? 240);
 
 export class SearchService {
   private readonly cache: ResultCache<SearchResponse>;
@@ -101,10 +123,18 @@ export class SearchService {
     const { terms, ruleIds } = await this.applySynonyms(site.id, analyzed);
 
     const facetFields = request.facets ?? site.defaultFacets.map((f) => f.field);
+    // Merchandiser-defined attributes are counted alongside the built-in
+    // facets, so a custom filter behaves exactly like a catalogue one.
+    const attributes = this.options.collections
+      ? (await this.options.collections.listAttributes(site.id)).filter((a) => a.enabled)
+      : [];
+    const labelFacets = attributes.map((a) => a.key);
+
     const attempt = await this.retrieve(site, request, {
       terms,
       analyzed,
       facetFields,
+      labelFacets,
       sort,
       page,
       hitsPerPage,
@@ -117,7 +147,7 @@ export class SearchService {
     // 3. A zero-result page is a conversion emergency; cascade before giving up.
     if (totalHits === 0 && query && request.rescue !== false) {
       const rescued = await this.rescue(site, request, {
-        analyzed, terms, facetFields, sort, page, hitsPerPage, vocabulary,
+        analyzed, terms, facetFields, labelFacets, sort, page, hitsPerPage, vocabulary,
       });
       if (rescued?.response) {
         // A delegated fallback is already a complete response; relabel it with
@@ -144,17 +174,20 @@ export class SearchService {
     const surfaces = [...new Set(effectiveTerms)];
     for (const hit of pageHits) this.addHighlights(hit, surfaces);
 
+    // totalHits is the true count; totalPages is what can actually be paged to.
+    const reachable = Math.min(totalHits, this.maxPaginationHits(hitsPerPage));
     return {
       hits: pageHits,
       page,
       hitsPerPage,
       totalHits,
-      totalPages: Math.max(1, Math.ceil(totalHits / hitsPerPage)),
+      totalPages: Math.max(1, Math.ceil(reachable / hitsPerPage)),
+      reachableHits: reachable < totalHits ? reachable : undefined,
       processingTimeMs: round(performance.now() - started),
       query: request.q ?? '',
       effectiveQuery: effectiveTerms.join(' '),
       queryType: analyzed.type,
-      facets: this.buildFacets(site, engineFacets, request),
+      facets: this.buildFacets(site, engineFacets, request, attributes),
       appliedFilters: request.filters ?? {},
       sort,
       rescue,
@@ -206,6 +239,7 @@ export class SearchService {
       terms: string[];
       analyzed: AnalyzedQuery;
       facetFields: string[];
+      labelFacets: string[];
       sort: string;
       page: number;
       hitsPerPage: number;
@@ -223,12 +257,16 @@ export class SearchService {
       rawQuery: request.q ?? '',
       sku: ctx.analyzed.skuCandidate,
       categoryId: request.categoryId,
+      collection: request.collection,
+      labelFilters: request.labelFilters,
+      labelFacets: probe ? [] : ctx.labelFacets,
       filters: request.filters ?? {},
       ranges: request.ranges ?? [],
       constraints: ctx.analyzed.constraints,
       facets: probe ? [] : ctx.facetFields,
       sort: ctx.sort,
-      candidateLimit: probe ? 1 : this.candidateLimit(ctx.page, ctx.hitsPerPage),
+      groupWindow: probe ? 1 : this.groupWindow(),
+      candidateLimit: probe ? 1 : this.candidateLimit(),
       typo: site.typoTolerance,
       weights: site.searchableAttributes,
       exactOnly: ctx.analyzed.exactOnly,
@@ -251,16 +289,37 @@ export class SearchService {
   }
 
   /**
-   * How many candidates to re-rank.
+   * How many parent products to bring back for re-ranking.
    *
-   * Grouping collapses variants, so the window has to be wider than the page
-   * itself — but a first page does not need the window a tenth page needs, and
-   * fetching documents is the most expensive part of retrieval. Sizing it to
-   * the requested page keeps the common case cheap.
+   * Deliberately independent of the requested page. The cascade re-ranks
+   * whatever it is given, so a window that grew with the page produced a
+   * different ordering on every page — products appeared twice, and others
+   * never appeared at all. A fixed window makes the ordering a property of the
+   * query alone, so pagination is stable by construction.
    */
-  private candidateLimit(page: number, hitsPerPage: number): number {
-    const floor = this.options.candidateLimit ?? 120;
-    return Math.min(1_000, Math.max(floor, page * hitsPerPage * 4));
+  private groupWindow(): number {
+    return this.options.rankingWindow ?? DEFAULT_RANKING_WINDOW;
+  }
+
+  /**
+   * Hard cap on variant rows. A window of 500 products on a catalogue averaging
+   * six variants each is ~3,000 rows; the cap stops a handful of very wide
+   * products from turning that into ten times as many.
+   */
+  private candidateLimit(): number {
+    return Math.min(6_000, this.groupWindow() * 8);
+  }
+
+  /**
+   * Deep pagination is capped at the ranking window.
+   *
+   * Serving page 400 means ranking everything before it, and nobody paginates
+   * that far — they refine instead. Every hosted search engine caps this for
+   * the same reason. The cap is reported in the response so a storefront can
+   * stop offering page links rather than offering ones that return nothing.
+   */
+  private maxPaginationHits(hitsPerPage: number): number {
+    return Math.max(hitsPerPage, this.groupWindow());
   }
 
   /**
@@ -276,6 +335,7 @@ export class SearchService {
       analyzed: AnalyzedQuery;
       terms: string[];
       facetFields: string[];
+      labelFacets: string[];
       sort: string;
       page: number;
       hitsPerPage: number;
@@ -431,12 +491,46 @@ export class SearchService {
     site: SiteConfig,
     engineFacets: EngineFacet[],
     request: SearchRequest,
+    attributes: { key: string; label: string; displayType: FacetResult['displayType'];
+                  position: number; collapsed: boolean; truncateAt: number;
+                  sortBy: 'count' | 'alpha' | 'custom'; customOrder: string[] | null }[] = [],
   ): FacetResult[] {
     const byField = new Map(engineFacets.map((f) => [f.field, f]));
     const selected = request.filters ?? {};
     const out: FacetResult[] = [];
 
-    for (const config of [...site.defaultFacets].sort((a, b) => a.order - b.order)) {
+    // Custom attributes render exactly like catalogue facets, ordered together
+    // with them, so a shopper cannot tell which came from the feed.
+    const configs = [
+      ...site.defaultFacets,
+      ...attributes.map((a) => ({
+        field: a.key, label: a.label, displayType: a.displayType, order: a.position,
+        collapsed: a.collapsed, truncateAt: a.truncateAt, sortBy: a.sortBy,
+        customOrder: a.customOrder ?? undefined, custom: true as const,
+      })),
+    ];
+    const selectedLabels = request.labelFilters ?? {};
+
+    for (const config of configs.sort((a, b) => a.order - b.order)) {
+      const isCustom = 'custom' in config;
+      if (isCustom) {
+        const engineFacet = byField.get(config.field);
+        if (!engineFacet?.values.length) continue;
+        const chosen = new Set((selectedLabels[config.field] ?? []).map(String));
+        out.push({
+          field: config.field,
+          label: config.label,
+          displayType: config.displayType,
+          custom: true,
+          values: engineFacet.values.map((v) => ({
+            value: v.value,
+            label: String(v.value),
+            count: v.count,
+            selected: chosen.has(String(v.value)),
+          })),
+        });
+        continue;
+      }
       const engineFacet = byField.get(config.field);
       if (!engineFacet) continue;
 

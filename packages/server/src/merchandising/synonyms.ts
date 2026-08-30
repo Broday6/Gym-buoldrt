@@ -106,12 +106,24 @@ export class SynonymStore {
   async get(siteId: string): Promise<SynonymSet> {
     const cached = this.cache.get(siteId);
     if (cached && cached.expires > Date.now()) return cached.set;
-    const { rows } = await this.db.query<{
+    let rows: {
       id: number; kind: SynonymKind; from_terms: string[]; terms: string[]; enabled: boolean;
-    }>(
-      'SELECT id, kind, from_terms, terms, enabled FROM synonyms WHERE site_id = $1 AND enabled',
-      [siteId],
-    );
+    }[];
+    try {
+      ({ rows } = await this.db.query(
+        'SELECT id, kind, from_terms, terms, enabled FROM synonyms WHERE site_id = $1 AND enabled',
+        [siteId],
+      ));
+    } catch (err) {
+      // The retrieval index is independent of this database. A config store
+      // outage must degrade search — no synonyms — not take the storefront
+      // down with it. Serve the last known set if there is one.
+      console.error({ err: (err as Error).message, site: siteId }, 'synonyms unavailable');
+      if (cached) return cached.set;
+      const empty = new SynonymSet([]);
+      this.cache.set(siteId, { set: empty, expires: Date.now() + 5_000 });
+      return empty;
+    }
     const set = new SynonymSet(
       rows.map((r) => ({
         id: r.id, siteId, kind: r.kind, fromTerms: r.from_terms, terms: r.terms, enabled: r.enabled,

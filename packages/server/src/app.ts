@@ -12,11 +12,13 @@ import { AutocompleteService } from './services/autocomplete.js';
 import { ResultCache } from './services/cache.js';
 import { SynonymStore } from './merchandising/synonyms.js';
 import { RedirectStore } from './merchandising/redirects.js';
+import { CollectionStore } from './merchandising/collections.js';
 import { SiteRegistry } from './config/sites.js';
 import { EventCollector } from './events/collector.js';
 import { createPool, migrate, type Db } from './db/pool.js';
 import { KeyStore } from './routes/auth.js';
 import { registerRoutes } from './routes/index.js';
+import { Metrics, RateLimiter, registerGuards } from './routes/guards.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -38,6 +40,7 @@ export interface BuiltApp {
   autocomplete: AutocompleteService;
   synonyms: SynonymStore;
   redirects: RedirectStore;
+  collections: CollectionStore;
 }
 
 /** Choose the retrieval core: Typesense when configured, SQLite otherwise. */
@@ -61,9 +64,11 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const sites = SiteRegistry.load();
   const synonyms = new SynonymStore(db);
   const redirects = new RedirectStore(db);
+  const collections = new CollectionStore(db);
   const search = new SearchService(engine, {
     synonyms,
     redirects,
+    collections,
     cache: new ResultCache({
       maxEntries: Number(process.env.COMPASS_CACHE_ENTRIES ?? 2_000),
       ttlMs: Number(process.env.COMPASS_CACHE_TTL_MS ?? 60_000),
@@ -75,16 +80,49 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
 
   const app = Fastify({
     logger: options.logger === false ? false : { level: process.env.LOG_LEVEL ?? 'info' },
-    // Storefront search bodies are small; anything larger is a catalogue push.
-    bodyLimit: 64 * 1024 * 1024,
+    // The ceiling for a catalogue push. Shopper-facing endpoints are held to a
+    // far smaller limit by the guards below.
+    bodyLimit: Number(process.env.COMPASS_MAX_BODY_BYTES ?? 64 * 1024 * 1024),
+    trustProxy: process.env.COMPASS_TRUST_PROXY === '1',
   });
 
-  await app.register(cors, { origin: true, methods: ['GET', 'POST', 'OPTIONS'] });
+  // A public search key ships in a storefront bundle, so the search endpoints
+  // must tolerate any origin. Admin endpoints must not: a browser should never
+  // be able to reach them cross-origin with an admin key.
+  await app.register(cors, {
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    origin: (origin, done) => done(null, true),
+    hook: 'onRequest',
+  });
+  app.addHook('onRequest', async (request, reply) => {
+    const isAdmin = request.url.includes('/admin/') || request.url.includes('/catalog/') ||
+      request.url.includes('/synonyms') || request.url.includes('/redirects');
+    if (isAdmin && request.headers.origin) {
+      await reply.code(403).send({ error: 'admin endpoints are not available cross-origin' });
+    }
+  });
+
+  const metrics = new Metrics();
+  registerGuards(app, {
+    search: new RateLimiter({
+      max: Number(process.env.COMPASS_RATE_SEARCH ?? 600),
+      windowMs: 60_000,
+    }),
+    admin: new RateLimiter({
+      max: Number(process.env.COMPASS_RATE_ADMIN ?? 60),
+      windowMs: 60_000,
+    }),
+    metrics,
+    trustProxy: process.env.COMPASS_TRUST_PROXY === '1',
+    maxSearchBodyBytes: Number(process.env.COMPASS_MAX_SEARCH_BODY_BYTES ?? 32 * 1024),
+  });
+
+  app.get('/metrics', async () => metrics.snapshot());
 
   const keyStore = new KeyStore(db);
   const open = options.open ?? process.env.COMPASS_DEV_OPEN === '1';
   await registerRoutes(app, {
-    engine, search, autocomplete, synonyms, redirects, sites, collector, db,
+    engine, search, autocomplete, synonyms, redirects, collections, sites, collector, db,
     auth: { keyStore, open },
   });
 
@@ -120,5 +158,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   });
 
   void join;
-  return { app, engine, db, collector, sites, search, autocomplete, synonyms, redirects };
+  return {
+    app, engine, db, collector, sites, search, autocomplete, synonyms, redirects, collections,
+  };
 }

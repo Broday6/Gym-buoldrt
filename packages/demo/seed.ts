@@ -9,6 +9,7 @@ import { SiteRegistry } from '../server/src/config/sites.js';
 import { createPool, migrate } from '../server/src/db/pool.js';
 import { ingestRows, parseCsv, summariseQuality } from '../server/src/ingest/pipeline.js';
 import { createApiKey } from '../server/src/routes/auth.js';
+import { CollectionStore } from '../server/src/merchandising/collections.js';
 
 const productCount = Number(process.env.SEED_PRODUCTS ?? 520);
 
@@ -17,6 +18,95 @@ await migrate(db);
 
 const engine = createEngine();
 const sites = SiteRegistry.load();
+const collections = new CollectionStore(db);
+
+/**
+ * Demo structures that deliberately cut across the catalogue taxonomy: none of
+ * these map to a single category, which is the whole point of the feature.
+ */
+const DEMO_COLLECTIONS = [
+  {
+    slug: 'farmhouse-kitchen',
+    name: 'Farmhouse Kitchen',
+    description: 'Beams, brackets and moulding that read farmhouse.',
+    selector: {
+      all: [
+        { field: 'variant.attrs.style', op: 'in', value: ['Rustic', 'Hand Hewn', 'Farmhouse', 'Craftsman'] },
+        { field: 'inStock', op: 'equals', value: true },
+      ],
+    },
+  },
+  {
+    slug: 'dark-finishes',
+    name: 'Dark Finishes',
+    description: 'Anything available in a dark finish, whatever it is.',
+    selector: {
+      any: [
+        { field: 'variant.attrs.finish', op: 'in', value: ['Black', 'Matte Black', 'Espresso', 'Charcoal', 'Oil Rubbed Bronze'] },
+      ],
+    },
+  },
+  {
+    slug: 'contractor-value',
+    name: 'Contractor Value',
+    description: 'High-margin, deep-stock lines worth pushing.',
+    kind: 'internal' as const,
+    selector: {
+      all: [
+        { field: 'margin', op: 'gte', value: 45 },
+        { field: 'totalInventory', op: 'gte', value: 200 },
+      ],
+    },
+  },
+  {
+    slug: 'clearance',
+    name: 'Clearance',
+    description: 'On sale right now.',
+    selector: { all: [{ field: 'onSale', op: 'equals', value: true }] },
+  },
+];
+
+/** A merchandiser-invented facet that no source system supplies. */
+const DEMO_ATTRIBUTES = [
+  {
+    key: 'room',
+    label: 'Room',
+    displayType: 'checkbox' as const,
+    position: 12,
+    values: [
+      { value: 'Kitchen', selector: { any: [
+        { field: 'categoryPath', op: 'contains', value: 'Beams' },
+        { field: 'categoryPath', op: 'contains', value: 'Brackets' },
+      ] } },
+      { value: 'Living Room', selector: { any: [
+        { field: 'categoryPath', op: 'contains', value: 'Moulding' },
+        { field: 'categoryPath', op: 'contains', value: 'Ceiling' },
+        { field: 'categoryPath', op: 'contains', value: 'Lighting' },
+      ] } },
+      { value: 'Exterior', selector: { any: [
+        { field: 'categoryPath', op: 'contains', value: 'Exterior' },
+      ] } },
+      { value: 'Bathroom', selector: { all: [
+        { field: 'categoryPath', op: 'contains', value: 'Wall' },
+        { field: 'variant.attrs.material', op: 'in', value: ['PVC', 'Composite'] },
+      ] } },
+    ],
+  },
+  {
+    key: 'price_band',
+    label: 'Budget',
+    displayType: 'checkbox' as const,
+    position: 2,
+    sortBy: 'custom' as const,
+    customOrder: ['Under $100', '$100 – $300', '$300 – $700', 'Premium'],
+    values: [
+      { value: 'Under $100', selector: { all: [{ field: 'minPrice', op: 'lt', value: 100 }] } },
+      { value: '$100 – $300', selector: { all: [{ field: 'minPrice', op: 'between', value: 100, to: 300 }] } },
+      { value: '$300 – $700', selector: { all: [{ field: 'minPrice', op: 'between', value: 300, to: 700 }] } },
+      { value: 'Premium', selector: { all: [{ field: 'minPrice', op: 'gt', value: 700 }] } },
+    ],
+  },
+];
 
 mkdirSync('./data/demo', { recursive: true });
 
@@ -26,8 +116,18 @@ for (const [index, site] of sites.list().entries()) {
   const path = `./data/demo/${site.id}-catalog.csv`;
   writeFileSync(path, csv);
 
+  for (const collection of DEMO_COLLECTIONS) {
+    await collections.create(site.id, { ...collection, author: 'seed' } as never);
+  }
+  for (const attribute of DEMO_ATTRIBUTES) {
+    await collections.createAttribute(site.id, attribute as never);
+  }
+
   const rows = parseCsv(csv);
-  const result = await ingestRows(engine, site.id, rows);
+  // Merchandiser structure is stamped on at ingest, exactly as the API does it.
+  const result = await ingestRows(engine, site.id, rows, {
+    labels: await collections.plan(site.id),
+  });
 
   await db.query(
     `INSERT INTO sites (id, name, config) VALUES ($1, $2, $3)
@@ -57,6 +157,10 @@ for (const [index, site] of sites.list().entries()) {
       `  catalog:  ${path}\n` +
       `  indexed:  ${result.productsIndexed} products / ${result.variantsIndexed} variants in ${result.durationMs}ms\n` +
       `  quality:  ${summariseQuality(result.quality).join(', ') || 'no issues'}\n` +
+      `  labels:   ${Object.entries(result.labelCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, n]) => `${label}=${n}`)
+        .join('  ') || 'none'}\n` +
       `  keys:     ${keys}`,
   );
 }
