@@ -28,6 +28,10 @@ export interface ShopperEvent {
   revenue?: number;
   quantity?: number;
   analyticsTags?: string[];
+  /** Which rescue path saved a query that would otherwise have been empty. */
+  rescueStrategy?: string;
+  /** What the engine actually searched for, after synonyms and rescue. */
+  effectiveQuery?: string;
   /** Set when the event happened under an A/B variant. */
   abTest?: { testId: string; variant: string };
 }

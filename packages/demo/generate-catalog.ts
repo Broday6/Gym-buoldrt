@@ -274,7 +274,9 @@ export function generateCatalogCsv(options: GeneratorOptions = {}): string {
           defect === 'no_price' ? '' : price,
           onSale ? Math.round(price * (0.72 + rand() * 0.16) * 100) / 100 : '',
           inventory,
-          defect === 'no_image' ? '' : `https://cdn.example.com/img/${sku.toLowerCase()}.jpg`,
+          // Served by the demo server's placeholder route; a real catalogue
+          // ships absolute CDN URLs here.
+          defect === 'no_image' ? '' : `/demo/img/${sku}.svg?f=${encodeURIComponent(finish)}`,
           `${family.skuPrefix}-${finish.slice(0, 3).toUpperCase()}-${variantSeq}`,
           rating,
           reviewCount,

@@ -143,16 +143,37 @@ describe('search behaviour end to end', () => {
     assert.ok(finish!.values.find((v) => v.value === 'Black')?.selected);
   });
 
-  test('sorting by price actually sorts by price', async () => {
-    const r = await service.search(site, { q: '', categoryId: 'exterior', sort: 'price_asc' });
+  test('sorting by price actually sorts by price, on browse and on search', async () => {
+    for (const request of [
+      { categoryId: 'exterior', sort: 'price_asc' },
+      { q: 'shutter', sort: 'price_asc' },
+      { q: 'shutter', sort: 'price_desc' },
+    ]) {
+      const r = await service.search(site, request);
+      const prices = r.hits.map((h) => h.effectivePrice);
+      const expected = request.sort === 'price_desc'
+        ? [...prices].sort((a, b) => b - a)
+        : [...prices].sort((a, b) => a - b);
+      // An explicit sort must survive the relevance cascade, which would
+      // otherwise reorder the candidate window it was applied to.
+      assert.deepEqual(prices, expected, `sort ${request.sort} on ${JSON.stringify(request)}`);
+    }
+  });
+
+  test('an explicit sort survives grouping across many variants', async () => {
+    const r = await service.search(site, { q: 'shutter', sort: 'price_asc', hitsPerPage: 50 });
     const prices = r.hits.map((h) => h.effectivePrice);
+    assert.ok(prices.length > 0);
     assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
   });
 
-  test('a query with no match returns empty rather than nonsense', async () => {
+  test('a query with no match is rescued rather than dead-ending', async () => {
     const r = await service.search(site, { q: 'zzzqqxnothing' });
-    assert.equal(r.totalHits, 0);
-    assert.deepEqual(r.hits, []);
+    // A zero-results page is a conversion emergency: the cascade must always
+    // leave the shopper something to click.
+    assert.ok(r.rescue, 'the rescue path must be reported');
+    assert.ok(r.totalHits > 0, 'the shopper is never shown an empty page');
+    assert.ok(r.rescue!.notice, 'and must be told what happened');
   });
 });
 
@@ -166,7 +187,10 @@ describe('index lifecycle', () => {
     await indexProducts(local, 'ekena', [beam()]);
     assert.equal(await local.documentCount('ekena'), 3, 'the replaced index is dropped, not merged');
     const r = await svc.search(site, { q: 'shutter' });
-    assert.equal(r.totalHits, 0);
+    assert.ok(
+      r.hits.every((h) => h.parentId !== 'SH-100'),
+      'the shutter is gone from the index; anything returned is a rescue fallback',
+    );
     await local.close();
   });
 

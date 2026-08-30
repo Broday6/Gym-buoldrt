@@ -22,9 +22,12 @@ const DEFAULT_TEMPLATES = {
         <h3 class="compass-hit__title">${hit.highlights?.title ?? esc(hit.title)}</h3>
         ${hit.variantTitle ? `<p class="compass-hit__variant">${esc(hit.variantTitle)}</p>` : ''}
         <p class="compass-hit__price">
-          ${hit.effectivePrice < hit.price && hit.price > 0
-            ? `<s>${ctx.money(hit.price)}</s> <strong>${ctx.money(hit.effectivePrice)}</strong>`
-            : `<strong>${ctx.money(hit.effectivePrice)}</strong>`}
+          ${hit.effectivePrice > 0
+            ? hit.effectivePrice < hit.price && hit.price > 0
+              ? `<s>${ctx.money(hit.price)}</s> <strong>${ctx.money(hit.effectivePrice)}</strong>`
+              : `<strong>${ctx.money(hit.effectivePrice)}</strong>`
+            /* A missing price is a catalogue defect, not a free product. */
+            : '<span class="compass-hit__noprice">Price unavailable</span>'}
         </p>
         ${hit.variantCount > 1 ? `<p class="compass-hit__options">${hit.variantCount} options</p>` : ''}
         ${hit.inStock ? '' : '<p class="compass-hit__stock">Out of stock</p>'}
@@ -34,15 +37,34 @@ const DEFAULT_TEMPLATES = {
 
   empty: (query) => `
     <div class="compass-empty">
-      <p>No results for <strong>${esc(query)}</strong>.</p>
+      <p class="compass-empty__title">No results for <strong>${esc(query)}</strong></p>
       <p class="compass-empty__hint">Try fewer words, or check the spelling.</p>
     </div>`,
+
+  /**
+   * The rescue banner. When the engine saved a query that would otherwise have
+   * been empty, the shopper is told what happened and given a way back to their
+   * literal query — silently showing different results than the ones asked for
+   * is how a shopper loses trust in a search box.
+   */
+  rescue: (rescue, response) => {
+    if (!rescue) return '';
+    const original = esc(response.query);
+    return `<div class="compass-rescue" role="status">
+      <p class="compass-rescue__notice">${esc(rescue.notice ?? '')}</p>
+      ${rescue.strategy === 'spell_correct'
+        ? `<p class="compass-rescue__revert">Search instead for
+             <button type="button" class="compass-rescue__link" data-exact="${original}">${original}</button>
+           </p>`
+        : ''}
+    </div>`;
+  },
 
   header: (response, ctx) => `
     <div class="compass-header">
       <p class="compass-header__count">
         ${response.totalHits.toLocaleString()} ${response.totalHits === 1 ? 'product' : 'products'}
-        ${response.query ? ` for <strong>${esc(response.query)}</strong>` : ''}
+        ${response.query && !response.rescue ? ` for <strong>${esc(response.query)}</strong>` : ''}
       </p>
       <label class="compass-sort">
         Sort
@@ -98,7 +120,9 @@ export class ResultsWidget {
       ranges: [],
       sort: options.sort ?? 'relevance',
       page: 1,
+      exact: false,
     };
+    this.previewSeq = 0;
     this.formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: this.currency });
     this.container.addEventListener('click', (e) => this.handleClick(e));
     this.container.addEventListener('change', (e) => this.handleChange(e));
@@ -111,6 +135,7 @@ export class ResultsWidget {
   setQuery(q) {
     this.state.q = q;
     this.state.page = 1;
+    this.state.exact = false;
     return this.render();
   }
 
@@ -120,14 +145,47 @@ export class ResultsWidget {
     return this.render();
   }
 
-  setFilters(filters) {
-    this.state.filters = filters;
+  setFilters(filters, ranges) {
+    this.state.filters = filters ?? {};
+    if (ranges) this.state.ranges = ranges;
     this.state.page = 1;
     return this.render();
   }
 
+  setSort(sort) {
+    this.state.sort = sort;
+    this.state.page = 1;
+    return this.render();
+  }
+
+  /**
+   * Count results for a filter set without applying it. Used by the mobile
+   * filter modal's "Show N Results" button, which has to be honest about what
+   * the shopper is about to get before they commit to it.
+   */
+  async previewCount({ filters, ranges }) {
+    const seq = ++this.previewSeq;
+    const params = {
+      q: this.state.q,
+      filters,
+      ranges,
+      sort: this.state.sort,
+      page: 1,
+      hitsPerPage: 1,
+      facets: [],
+    };
+    const response = this.state.categoryId
+      ? await this.client.browse(this.state.categoryId, params)
+      : await this.client.search(params);
+    if (seq !== this.previewSeq) return null;
+    return response.totalHits;
+  }
+
   async render() {
     this.container.setAttribute('aria-busy', 'true');
+    // A skeleton only on the first paint: on later renders the previous grid
+    // stays put and dims, which stops the page jumping under the shopper.
+    if (!this.response) this.container.innerHTML = skeleton(this.client.hitsPerPage);
     try {
       const params = {
         q: this.state.q,
@@ -135,7 +193,9 @@ export class ResultsWidget {
         ranges: this.state.ranges,
         sort: this.state.sort,
         page: this.state.page,
+        rescue: this.state.exact ? false : undefined,
       };
+      this.state.exact = false;
       const response = this.state.categoryId
         ? await this.client.browse(this.state.categoryId, params)
         : await this.client.search(params);
@@ -149,6 +209,7 @@ export class ResultsWidget {
       const ctx = { productUrl: (h) => this.productUrl(h), money: (v) => this.money(v), sortOptions: this.sortOptions };
       this.container.innerHTML =
         this.templates.header(response, ctx) +
+        this.templates.rescue(response.rescue, response, ctx) +
         (response.hits.length
           ? `<div class="compass-grid">${response.hits.map((h, i) => this.templates.hit(h, i, ctx)).join('')}</div>`
           : this.templates.empty(response.query, ctx)) +
@@ -167,6 +228,13 @@ export class ResultsWidget {
   }
 
   handleClick(event) {
+    const exact = event.target.closest('[data-exact]');
+    if (exact) {
+      // Re-run without letting the rescue cascade rewrite it.
+      this.state.exact = true;
+      void this.render();
+      return;
+    }
     const cart = event.target.closest('.compass-hit__cart');
     if (cart) {
       const sku = cart.dataset.sku;
@@ -222,6 +290,12 @@ export class ResultsWidget {
     }
     return this.state;
   }
+}
+
+/** Placeholder cards sized like the real grid, so the layout does not jump. */
+function skeleton(count = 12) {
+  const card = '<div class="compass-skeleton__card" aria-hidden="true"></div>';
+  return `<div class="compass-skeleton">${card.repeat(Math.max(4, Math.min(count, 24)))}</div>`;
 }
 
 function resolve(target) {

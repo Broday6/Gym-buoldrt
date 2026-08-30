@@ -3,100 +3,239 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compass Search — Phase 1 demo storefront</title>
+  <title>Compass Search — demo storefront</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4f'/%3E%3Ccircle cx='14' cy='14' r='6' fill='none' stroke='white' stroke-width='2.4'/%3E%3Cpath d='M18.5 18.5L25 25' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/sdk/styles.css">
   <style>
     :root { color-scheme: light dark; }
-    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-           background: var(--compass-bg, #fff); color: var(--compass-fg, #16181d); }
-    .page { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
-    .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-           padding-bottom: 20px; border-bottom: 1px solid var(--compass-border, #e3e5e9); }
-    .bar h1 { font-size: 17px; margin: 0 12px 0 0; letter-spacing: -0.01em; }
-    .bar form { display: flex; gap: 8px; flex: 1 1 340px; }
-    .bar input[type=search] { flex: 1; font: inherit; padding: 10px 14px; border-radius: 8px;
-           border: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-bg, #fff);
-           color: inherit; }
-    .bar select, .bar button { font: inherit; padding: 10px 14px; border-radius: 8px;
-           border: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-bg, #fff);
-           color: inherit; cursor: pointer; }
-    .chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 0 4px; }
-    .chips button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px;
-           border: 1px solid var(--compass-border, #e3e5e9); background: transparent;
-           color: var(--compass-muted, #6b7280); cursor: pointer; }
-    .chips button:hover { color: inherit; }
-    .meta { font-size: 12px; color: var(--compass-muted, #6b7280); padding: 8px 0 16px;
-            font-variant-numeric: tabular-nums; }
-    .meta code { background: var(--compass-surface, #f7f7f8); padding: 1px 5px; border-radius: 4px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--compass-bg, #fff); color: var(--compass-fg, #16181d);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* ---- chrome ---- */
+    .topbar {
+      position: sticky; top: 0; z-index: 50; background: var(--compass-bg, #fff);
+      border-bottom: 1px solid var(--compass-border, #e3e5e9);
+    }
+    .topbar__inner {
+      max-width: 1280px; margin: 0 auto; padding: 12px 20px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -.015em; }
+    .brand__mark {
+      width: 24px; height: 24px; border-radius: 6px; flex: none;
+      background: linear-gradient(135deg, var(--compass-accent, #1f5f4f), #6fb3a0);
+    }
+    .searchbox { flex: 1 1 320px; position: relative; min-width: 220px; }
+    .searchbox input {
+      width: 100%; font: inherit; font-size: 15px; padding: 10px 14px 10px 38px;
+      border: 1px solid var(--compass-border, #e3e5e9); border-radius: 10px;
+      background: var(--compass-surface, #f7f7f8); color: inherit;
+    }
+    .searchbox input:focus { outline: 2px solid var(--compass-accent, #1f5f4f); outline-offset: -1px; background: var(--compass-bg, #fff); }
+    .searchbox__icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      width: 15px; height: 15px; color: var(--compass-muted, #6b7280); pointer-events: none; }
+    .sitepick {
+      font: inherit; font-size: 14px; padding: 9px 12px; border-radius: 10px;
+      border: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-bg, #fff); color: inherit; cursor: pointer;
+    }
+
+    /* ---- category nav ---- */
+    .catnav { border-bottom: 1px solid var(--compass-border, #e3e5e9); background: var(--compass-surface, #f7f7f8); }
+    .catnav__inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 20px; display: flex; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .catnav__inner::-webkit-scrollbar { display: none; }
+    .catnav button {
+      font: inherit; font-size: 13.5px; white-space: nowrap; padding: 11px 12px;
+      border: 0; border-bottom: 2px solid transparent; background: none; color: var(--compass-muted, #6b7280); cursor: pointer;
+    }
+    .catnav button:hover { color: inherit; }
+    .catnav button[aria-current='true'] { color: inherit; font-weight: 600; border-bottom-color: var(--compass-accent, #1f5f4f); }
+
+    /* ---- layout ---- */
+    .page { max-width: 1280px; margin: 0 auto; padding: 20px 20px 72px; }
+    .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+    .examples__label { font-size: 12px; color: var(--compass-muted, #6b7280); text-transform: uppercase; letter-spacing: .06em; }
+    .examples button {
+      font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 999px;
+      border: 1px solid var(--compass-border, #e3e5e9); background: transparent;
+      color: var(--compass-muted, #6b7280); cursor: pointer;
+    }
+    .examples button:hover { color: inherit; border-color: var(--compass-accent, #1f5f4f); }
+
+    .layout { display: grid; grid-template-columns: 250px 1fr; gap: 32px; align-items: start; }
+    .sidebar { position: sticky; top: 78px; }
+    .sidebar__title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--compass-muted, #6b7280); margin: 0 0 10px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; gap: 14px; }
+      .sidebar { position: static; }
+    }
+
+    .diag {
+      font-size: 12px; color: var(--compass-muted, #6b7280); margin: 0 0 14px;
+      font-variant-numeric: tabular-nums; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .diag code {
+      background: var(--compass-surface, #f7f7f8); padding: 2px 6px; border-radius: 4px;
+      border: 1px solid var(--compass-border, #e3e5e9);
+    }
+    .diag__ok { color: var(--compass-accent, #1f5f4f); }
   </style>
 </head>
 <body>
-  <div class="page compass-root">
-    <div class="bar">
-      <h1>Compass Search</h1>
-      <form id="search-form">
-        <input type="search" id="q" placeholder="Try: chandaleer · black shutter · 4x6 beam 12ft" autocomplete="off">
-        <button type="submit">Search</button>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand"><span class="brand__mark" aria-hidden="true"></span> Compass Search</div>
+      <form class="searchbox" id="search-form" role="search">
+        <svg class="searchbox__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="q" placeholder="Search the catalogue…" aria-label="Search products">
       </form>
-      <select id="site"></select>
+      <select class="sitepick" id="site" aria-label="Site"></select>
     </div>
+  </header>
 
-    <div class="chips" id="examples"></div>
-    <p class="meta" id="meta"></p>
-    <div id="results"></div>
+  <nav class="catnav" aria-label="Categories">
+    <div class="catnav__inner" id="catnav"></div>
+  </nav>
+
+  <div class="page compass-root">
+    <div class="examples">
+      <span class="examples__label">Try</span>
+      <span id="examples"></span>
+    </div>
+    <p class="diag" id="diag"></p>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <p class="sidebar__title">Filters</p>
+        <div id="facets"></div>
+      </aside>
+      <main id="results"></main>
+    </div>
   </div>
 
   <script type="module">
-    import { CompassClient, ResultsWidget } from '/sdk/index.js';
+    import { init } from '/sdk/index.js';
 
     const EXAMPLES = [
       'chandaleer', 'black shutter', '4x6 beam 12ft', 'crownmoulding',
-      '3-1/2 inch crown moulding', 'faux beams', 'sage shutters',
+      '3-1/2 inch crown moulding', 'sofa', 'returns', 'qqzzxnothing',
     ];
 
     const siteSelect = document.querySelector('#site');
     const input = document.querySelector('#q');
-    const meta = document.querySelector('#meta');
-    let widget;
+    const diag = document.querySelector('#diag');
+    const catnav = document.querySelector('#catnav');
+    let widgets = null;
+    let currentCategory = null;
 
     const { sites } = await (await fetch('/v1/sites')).json();
     siteSelect.innerHTML = sites.map((s) => `<option value="${s.id}">${s.name}</option>`).join('');
 
     document.querySelector('#examples').innerHTML =
-      EXAMPLES.map((q) => `<button type="button" data-q="${q}">${q}</button>`).join('');
+      EXAMPLES.map((q) => `<button type="button" data-q="${q}">${q}</button>`).join(' ');
 
-    function mount(siteId) {
-      const client = new CompassClient({ site: siteId, baseUrl: '' });
-      widget = new ResultsWidget({
-        client,
-        container: '#results',
+    async function mount(siteId) {
+      document.querySelector('#results').innerHTML = '';
+      document.querySelector('#facets').innerHTML = '';
+      currentCategory = null;
+
+      widgets = init({
+        site: siteId,
+        baseUrl: '',
+        searchInput: input,
+        results: '#results',
+        facets: '#facets',
+        hitsPerPage: 24,
+        productUrl: (hit) => `#product/${encodeURIComponent(hit.parentId)}`,
+        categoryUrl: (c) => `#category/${encodeURIComponent(c.id)}`,
+        searchUrl: (q) => `?q=${encodeURIComponent(q)}`,
+        onAddToCart: (sku) => console.log('add to cart', sku),
         onStateChange: (response) => {
           const parsed = response.parsedFilters?.length
-            ? ` · parsed <code>${response.parsedFilters.map((f) => `${f.field}=${f.value}`).join(' ')}</code>`
+            ? ` <code>${response.parsedFilters.map((f) => `${f.field}=${f.value}`).join(' ')}</code>`
             : '';
-          meta.innerHTML =
-            `<code>${response.queryType}</code> query · searched <code>${response.effectiveQuery || '—'}</code>` +
-            ` · ${response.totalHits} products · ${response.processingTimeMs}ms${parsed}`;
+          const rescue = response.rescue ? ` <code>rescued: ${response.rescue.strategy}</code>` : '';
+          const rules = response.rulesApplied?.length ? ` <code>${response.rulesApplied.join(' ')}</code>` : '';
+          diag.innerHTML =
+            `<code>${response.queryType}</code>` +
+            `<span>searched <code>${response.effectiveQuery || '—'}</code></span>` +
+            `<span>${response.totalHits.toLocaleString()} products</span>` +
+            `<span class="diag__ok">${response.processingTimeMs}ms</span>` +
+            parsed + rescue + rules;
         },
-        onAddToCart: (sku) => console.log('add to cart', sku),
       });
-      widget.readUrl();
-      input.value = widget.state.q;
-      void widget.render();
+
+      // Redirects navigate away in a real storefront; here we just report them.
+      const originalRender = widgets.results.render.bind(widgets.results);
+      widgets.results.render = async () => {
+        const response = await originalRender();
+        if (response?.redirect) {
+          diag.innerHTML = `<code>redirect</code><span>would send the shopper to <code>${response.redirect.url}</code></span>`;
+        }
+        return response;
+      };
+
+      const directory = await (await fetch(`/v1/${siteId}/directory`)).json();
+      const top = directory.categories.filter((c) => !c.id.includes('/')).slice(0, 8);
+      const second = directory.categories.filter((c) => c.id.split('/').length === 2).slice(0, 10);
+      catnav.innerHTML = [
+        `<button type="button" data-cat="" aria-current="true">All products</button>`,
+        ...[...top, ...second].map(
+          (c) => `<button type="button" data-cat="${c.id}">${c.path[c.path.length - 1]} <span style="opacity:.55">${c.products}</span></button>`,
+        ),
+      ].join('');
     }
 
-    mount(sites[0].id);
+    await mount(sites[0].id);
+
     siteSelect.addEventListener('change', () => mount(siteSelect.value));
-    document.querySelector('#search-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      void widget.setQuery(input.value);
-    });
+
     document.querySelector('#examples').addEventListener('click', (e) => {
       const button = e.target.closest('[data-q]');
       if (!button) return;
       input.value = button.dataset.q;
-      void widget.setQuery(button.dataset.q);
+      setCategory(null);
+      void widgets.results.setQuery(button.dataset.q);
     });
+
+    catnav.addEventListener('click', (e) => {
+      const button = e.target.closest('[data-cat]');
+      if (!button) return;
+      for (const b of catnav.querySelectorAll('button')) b.setAttribute('aria-current', 'false');
+      button.setAttribute('aria-current', 'true');
+      input.value = '';
+      setCategory(button.dataset.cat || null);
+    });
+
+    function setCategory(id) {
+      currentCategory = id;
+      widgets.results.state.q = '';
+      widgets.results.state.filters = {};
+      widgets.results.state.ranges = [];
+      void widgets.results.setCategory(id);
+    }
+
+    document.querySelector('#search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      setCategoryNavToAll();
+      void widgets.results.setQuery(input.value);
+    });
+
+    function setCategoryNavToAll() {
+      for (const b of catnav.querySelectorAll('button')) {
+        b.setAttribute('aria-current', String(b.dataset.cat === ''));
+      }
+      widgets.results.state.categoryId = null;
+    }
   </script>
 </body>
 </html>

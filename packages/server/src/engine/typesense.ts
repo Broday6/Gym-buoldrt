@@ -10,6 +10,7 @@ import {
   type EngineQuery,
   type EngineResult,
   nextIndexSuffix,
+  type IndexDirectory,
   type IndexHandle,
   type SearchEngine,
 } from './types.js';
@@ -96,6 +97,7 @@ export class TypesenseEngine implements SearchEngine {
   private client: Client;
   private vocabularyDir: string;
   private pendingVocab = new Map<string, Set<string>>();
+  private directoryCache = new Map<string, IndexDirectory>();
 
   constructor(private readonly options: TypesenseOptions) {
     this.client = new Client({
@@ -156,6 +158,7 @@ export class TypesenseEngine implements SearchEngine {
     }
     await this.client.aliases().upsert(handle.site, { collection_name: handle.name });
     this.persistVocabulary(handle.site, this.pendingVocab.get(handle.name) ?? new Set());
+    this.directoryCache.delete(handle.site);
     this.pendingVocab.delete(handle.name);
     if (previous && previous !== handle.name) {
       try {
@@ -255,6 +258,46 @@ export class TypesenseEngine implements SearchEngine {
       facets,
       tookMs: performance.now() - started,
     };
+  }
+
+  /**
+   * Category and brand directory, read from a facet-only search. Cached because
+   * it changes only on promote and autocomplete asks for it on every keystroke.
+   */
+  async directory(site: string): Promise<IndexDirectory> {
+    const cached = this.directoryCache.get(site);
+    if (cached) return cached;
+    try {
+      const response = (await this.client
+        .collections(site)
+        .documents()
+        .search({
+          q: '*',
+          query_by: 'title',
+          facet_by: 'categoryIds,categoryPath,brand',
+          max_facet_values: 500,
+          per_page: 0,
+        } as never)) as TypesenseSearchResponse;
+
+      const counts = new Map(
+        (response.facet_counts ?? []).map((f) => [f.field_name, f.counts]),
+      );
+      const directory: IndexDirectory = {
+        categories: (counts.get('categoryIds') ?? []).map((c) => ({
+          id: c.value,
+          path: c.value
+            .split('/')
+            .map((slug) => slug.replace(/-/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())),
+          products: c.count,
+        })),
+        brands: (counts.get('brand') ?? []).map((c) => ({ name: c.value, products: c.count })),
+      };
+      this.directoryCache.set(site, directory);
+      return directory;
+    } catch {
+      // A missing collection is not an error worth failing autocomplete over.
+      return { categories: [], brands: [] };
+    }
   }
 
   async documentCount(site: string): Promise<number> {

@@ -171,6 +171,14 @@ export interface RankOptions {
   bandDepth?: number;
   now?: number;
   ctrBySku?: Map<string, number>;
+  /**
+   * Keep the engine's ordering instead of applying the cascade.
+   *
+   * When a shopper picks "Price: Low to High" the engine has already ordered by
+   * price, and re-ranking on relevance would silently throw that away. Signals
+   * and explanations are still computed, so the "why" panel keeps working.
+   */
+  preserveOrder?: boolean;
 }
 
 export function rankCandidates(
@@ -200,6 +208,13 @@ export function rankCandidates(
       } satisfies RankExplanation,
     };
   });
+
+  if (options.preserveOrder) {
+    ranked.forEach((r, i) => {
+      r.explanation.finalScore = Math.round((1 - i / Math.max(ranked.length, 1)) * 10_000) / 10_000;
+    });
+    return ranked;
+  }
 
   ranked.sort((a, b) => {
     const text = compareTextRelevance(a.signals, b.signals, depth);

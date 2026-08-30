@@ -5,3 +5,7 @@ data/
 .env
 .env.local
 *.log
+ui-desktop.png
+ui-mobile.png
+packages/demo/*.d.ts
+packages/demo/*.js.map

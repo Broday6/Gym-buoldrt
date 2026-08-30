@@ -36,6 +36,11 @@ export interface SearchRequest {
   sessionId?: string;
   /** Return per-hit ranking explanations. Admin/debug only. */
   explain?: boolean;
+  /**
+   * Set false to suppress the zero-results rescue and see the literal result
+   * set. This is what "search instead for X" sends after a spelling correction.
+   */
+  rescue?: boolean;
 }
 
 export interface FacetValue {

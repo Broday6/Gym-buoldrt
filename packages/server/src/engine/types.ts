@@ -66,6 +66,12 @@ export interface IndexHandle {
   site: string;
 }
 
+/** Navigational directory of an index, used by autocomplete and category nav. */
+export interface IndexDirectory {
+  categories: { id: string; path: string[]; products: number }[];
+  brands: { name: string; products: number }[];
+}
+
 export interface SearchEngine {
   readonly kind: 'typesense' | 'sqlite';
   /** Create a new physical index to write into. Never serves traffic yet. */
@@ -81,6 +87,8 @@ export interface SearchEngine {
   search(query: EngineQuery): Promise<EngineResult>;
   /** Indexed vocabulary, used for compound splitting and spell correction. */
   vocabulary(site: string): Promise<Set<string>>;
+  /** Categories and brands present in the live index, with product counts. */
+  directory(site: string): Promise<IndexDirectory>;
   documentCount(site: string): Promise<number>;
   close(): Promise<void>;
 }

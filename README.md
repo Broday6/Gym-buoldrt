@@ -6,8 +6,10 @@ functional replacement for Algolia and Searchspring, owned end to end.
 Multi-tenant from the ground up: one deployment serves every brand, and every
 index, rule, synonym set and analytics view is scoped to a site.
 
-> **Status: Phase 1 (core search MVP) complete.** See [PROGRESS.md](PROGRESS.md)
-> for what is delivered, what is measured, and the known gaps.
+> **Status: Phases 1–2 complete** — core search, plus the discovery UX
+> (autocomplete, faceted navigation, synonyms, redirects, zero-results rescue).
+> See [PROGRESS.md](PROGRESS.md) for what is delivered, what is measured, and
+> the known gaps.
 
 ## Quick start
 
@@ -29,9 +31,10 @@ Then open **http://localhost:3100/demo/** and try `chandaleer`, `black shutter`,
 `4x6 beam 12ft`, `crownmoulding`.
 
 ```bash
-npm test              # 81 tests: ranking cascade, dimension parser, ingestion, end to end
-npm run bench         # latency against the p95 targets
-npm run query -- ekena "black shutter" --explain    # see exactly why each hit ranks where it does
+npm test              # 108 tests: ranking, dimensions, ingestion, discovery, end to end
+npm run ui-smoke      # 24 browser checks at desktop and mobile widths
+npm run bench         # latency, reported uncached and cached
+npm run query -- ekena "black shutter" --explain    # why each hit ranks where it does
 npm run keys -- create ekena search "miva storefront"
 npm run reindex -- ekena ./catalog.csv              # full rebuild, atomic swap
 ```
@@ -59,7 +62,29 @@ npm run reindex -- ekena ./catalog.csv              # full rebuild, atomic swap
         └─────────────┘
 ```
 
-Two design choices carry most of the weight:
+### The shopper-facing UX
+
+**Autocomplete** fires on every keystroke and returns query suggestions (ranked
+by real search volume), products with thumbnails, categories, brands and
+redirects. It implements the ARIA combobox pattern properly — the input keeps
+focus, the active option is pointed at by `aria-activedescendant` — because a
+search box that traps a keyboard user is worse than no autocomplete at all. On
+narrow screens it becomes a full-screen takeover.
+
+**Faceted navigation** is one widget with two deliberate behaviours. On desktop
+a tick updates the grid immediately, because the grid is right there. On mobile
+the filters take over the screen, selections are staged, and a sticky
+**"Show N Results"** button applies them — live-updating a grid the shopper
+cannot see is disorienting, and the count is what tells them whether the filter
+was a good idea before they commit. Zero-count values are never offered, so a
+facet click can never dead-end.
+
+**Nothing ever returns an empty page.** On zero results the engine spell-corrects,
+then relaxes the least informative term, then falls back to the nearest matching
+category, then to best sellers — and always tells the shopper which happened,
+with a link back to their literal query.
+
+### Two design choices carry most of the weight
 
 **Variant-level indexing with parent grouping.** One document per buyable SKU.
 A search for `black shutter` matches only the black rows; grouping then collapses
@@ -86,8 +111,10 @@ packages/
     src/ingest/    field mapping, normalisation, data-quality report, pipeline
     src/routes/    HTTP API and scoped API-key auth
     test/          ranking, dimensions, ingestion and end-to-end suites
-  sdk/      framework-agnostic storefront client + results widget + theme CSS
-  demo/     catalogue generator, seeder, demo storefront
+    src/merchandising/  synonyms and redirects
+    src/services/       search pipeline, autocomplete, result cache
+  sdk/      storefront client, results grid, autocomplete, facets, theme CSS
+  demo/     catalogue generator, seeder, storefront page, UI smoke test
 ```
 
 ## API
@@ -96,9 +123,13 @@ All endpoints are `POST`, JSON in and out, scoped by site.
 
 | Endpoint | Key scope | Purpose |
 |---|---|---|
-| `/v1/{site}/search` | search | Full search. Query analysis, ranking, facets. |
+| `/v1/{site}/search` | search | Full search. Query analysis, ranking, facets, rescue. |
 | `/v1/{site}/browse` | search | Category browse through the same pipeline. |
+| `/v1/{site}/autocomplete` | search | Multi-section suggestions. Sub-50ms. |
+| `/v1/{site}/directory` | search | Categories and brands with counts, for nav. |
 | `/v1/{site}/events` | search | Behavioural events, batched (max 500). |
+| `/v1/{site}/synonyms` | admin | Two-way, one-way and phrase synonyms. |
+| `/v1/{site}/redirects` | admin | Query patterns that navigate instead of searching. |
 | `/v1/{site}/catalog/batch` | admin | Full ingest from `rows[]` or `csv`. Builds and swaps an index. |
 | `/v1/{site}/catalog/updates` | admin | Price/inventory deltas against the live index. |
 | `/v1/{site}/catalog/status` | admin | Recent ingest runs and data-quality reports. |
@@ -128,17 +159,21 @@ One script tag against any storefront template, Miva included:
     site: 'ekena',
     baseUrl: 'https://search.example.com',
     apiKey: 'ck_search_…',
-    searchInput: '#storefront-search-box',
-    results: '#search-results',
+    searchInput: '#storefront-search-box',  // autocomplete attaches here
+    results: '#search-results',             // grid, sort, pagination
+    facets: '#search-facets',               // sidebar on desktop, modal on mobile
     productUrl: (hit) => `/products/${hit.parentId}`,
+    categoryUrl: (c) => `/categories/${c.id}`,
     onAddToCart: (sku) => myStore.addToCart(sku),
   });
 </script>
 ```
 
-Every DOM template is overridable via `templates`, all colour and spacing comes
-from CSS variables, and the JSON API is available directly for storefronts that
-render their own markup. Clicks are instrumented with their result position, so
+Every widget is also independently constructible (`AutocompleteWidget`,
+`ResultsWidget`, `FacetsWidget`) if you want a different arrangement. Every DOM
+template is overridable via `templates`, all colour and spacing comes from CSS
+variables, and the JSON API is available directly for storefronts that render
+their own markup. Clicks are instrumented with their result position, so
 CTR-by-position analysis works without extra wiring.
 
 ## Catalogue ingestion
@@ -161,6 +196,8 @@ with its line number. Bad rows are reported, never silently dropped.
 | `TYPESENSE_API_KEY` | — | Required when Typesense is configured. |
 | `PORT` | `3100` | |
 | `COMPASS_DEV_OPEN` | `0` | Disables API-key checks. Local development only. |
+| `COMPASS_CACHE_ENTRIES` | `2000` | Result cache size. |
+| `COMPASS_CACHE_TTL_MS` | `60000` | Cache TTL backstop; correctness comes from invalidation. |
 
 Per-site search configuration (attribute weights, typo thresholds, business
 weights, facet layout, default sort) lives in `data/sites.json` and is served

@@ -10,22 +10,24 @@
     "node": ">=22"
   },
   "scripts": {
+    "bench": "tsx packages/server/src/cli/bench.ts",
     "build": "tsc -b",
     "dev": "tsx watch packages/server/src/server.ts",
-    "start": "node --experimental-sqlite packages/server/dist/server.js",
-    "seed": "tsx packages/demo/seed.ts",
+    "keys": "tsx packages/server/src/cli/keys.ts",
+    "query": "tsx packages/server/src/cli/query.ts",
     "reindex": "tsx packages/server/src/cli/reindex.ts",
+    "seed": "tsx packages/demo/seed.ts",
+    "start": "node --experimental-sqlite packages/server/dist/server.js",
     "test": "tsx --test packages/server/test/*.test.ts",
     "typecheck": "tsc -b --pretty false",
-    "query": "tsx packages/server/src/cli/query.ts",
-    "bench": "tsx packages/server/src/cli/bench.ts",
-    "keys": "tsx packages/server/src/cli/keys.ts"
+    "ui-smoke": "node packages/demo/ui-smoke.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/pg": "^8.11.10",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "playwright": "^1.62.1"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

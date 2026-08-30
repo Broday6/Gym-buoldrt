@@ -160,3 +160,138 @@ only reports interactions it alone can see (clicks with position, add-to-cart).
 **Why.** Search volume, zero-result rate and result counts are the backbone of
 the analytics dashboard. A client-side beacon for them is eaten by ad blockers
 and undercounts exactly the queries worth fixing.
+
+---
+
+## D11 — Facet counts are tallied in one pass over integer columns
+
+**Decision.** Facet values and parent products are dictionary-encoded to dense
+integers at index time. A faceted query scans the candidate set once, projecting
+only integer columns, and tallies every facet group in memory.
+
+**Why.** Faceting was the dominant cost at scale — 814ms of an 880ms query at
+100k documents, because each of the seven facet groups ran its own
+`COUNT(DISTINCT …)` against a key/value attribute table.
+
+Three things fixed it, in order of value:
+
+1. **One pass instead of seven.** A facet group excludes its own selection from
+   its own counts so multi-select stays usable, which naively means a different
+   filter set per group. Instead, one scan tallies them all: a row failing no
+   selection counts everywhere, a row failing exactly one counts only toward
+   that group, a row failing two or more counts nowhere.
+2. **Integer columns.** Marshalling several hundred thousand short strings out
+   of SQLite and hashing them into JavaScript Sets cost more than the scan.
+   Dense ids marshal and hash several times faster, and the dictionary is
+   consulted only for the few dozen values that survive into the response.
+3. **Dedicated columns instead of a key/value join.**
+
+Measured against SQL-side aggregation on the same data, the in-memory tally is
+about three times faster, because SQLite's `COUNT(DISTINCT)` per group repeats
+the scan once per facet.
+
+**Consequence.** Adding a facetable attribute changes the index layout and
+requires a reindex — the same constraint Typesense puts on a schema change.
+
+---
+
+## D12 — The full-text match is scoped to one index inside FTS
+
+**Decision.** Every document carries a per-index token in a dedicated FTS
+column, and every match expression ANDs it in.
+
+**Why.** All sites share one FTS table, so a match for "beam" returned Ekena's
+and Architectural Depot's documents and then filtered by index afterwards
+against a 100k-row table. Scoping inside FTS halved the work on a two-site
+deployment and removed a join from the hot path.
+
+**Also.** `CROSS JOIN` is used deliberately where the candidate set must lead
+the join. SQLite otherwise plans these queries by scanning the whole document
+table and probing the candidate set once per row, which was a 5–10x penalty;
+`CROSS JOIN` is SQLite's documented way to pin join order.
+
+---
+
+## D13 — Results are cached, invalidated by event rather than by expiry
+
+**Decision.** A bounded LRU cache of complete search responses, purged whenever
+an index is promoted, a price or stock update lands, or a synonym or redirect
+changes. Shopper and session ids are excluded from the key.
+
+**Why.** Search traffic is head-heavy: a handful of queries carry most of the
+volume and every shopper who types them gets an identical response. Caching
+those is worth more than any further micro-optimisation.
+
+Correctness rests on invalidation, not a short TTL, because the acceptance
+criteria require a merchandising change to be visible within seconds. The TTL
+is a backstop, not the mechanism. When the rules engine lands in Phase 3, rule
+and campaign writes hook the same `invalidate()` call.
+
+**Excluded from the key:** shopper and session ids, or the cache would
+degenerate into one entry per visitor and never hit.
+
+---
+
+## D14 — An explicit sort outranks the relevance cascade
+
+**Decision.** When a shopper picks a sort other than Relevance, the engine's
+ordering is preserved and the cascade only computes signals for the
+explainability panel.
+
+**Why.** This was a real bug: the cascade re-ranked the candidate window on
+relevance after the engine had already ordered it by price, so "Price: Low to
+High" returned an essentially arbitrary order. A sort the shopper chose
+explicitly is an instruction, not a hint.
+
+---
+
+## D15 — Synonyms expand the query, never the index
+
+**Decision.** "sofa" searches for (sofa OR couch); couch documents do not gain
+the word "sofa".
+
+**Why.** Two reasons. The index stays honest — a document's text remains what
+the merchandiser wrote, so relevance explanations stay truthful. And a synonym
+edit takes effect on the next query instead of requiring a reindex, which is
+what makes it a no-code change.
+
+Expansions are strictly additive: the original terms always remain, so a
+synonym can only widen recall and can never move a shopper away from a literal
+match.
+
+---
+
+## D16 — The rescue cascade never shows an empty page, and always says so
+
+**Decision.** On zero results: spell-correct, then relax the least informative
+term, then the nearest matching category, then site best sellers. Whichever
+step fired is named in the response and shown to the shopper.
+
+**Why.** A zero-results page is a conversion emergency, but silently showing
+different results than the ones asked for is how a shopper stops trusting a
+search box. Every rescue is announced, and a spelling correction offers a link
+back to the literal query (`rescue: false` on the request).
+
+**Note.** Spelling correction is deliberately stricter than the engine's typo
+tolerance: it requires the first character to survive, so "beam" is never
+"corrected" to "team". Rewriting text on screen deserves a higher bar than
+quietly matching a fuzzy token. The semantic-only step of §4.8 lands with the
+Phase 4 vectors.
+
+---
+
+## D17 — Desktop filters apply live; mobile filters are staged
+
+**Decision.** One widget, two behaviours. On desktop a tick updates the grid
+immediately. On mobile the filters take over the screen, selections are staged,
+and a sticky "Show N Results" button applies them.
+
+**Why.** This is the Baymard-validated split, and the reason is visibility: on
+desktop the grid is beside the filters so the feedback is immediate and an
+apply button is a wasted click. On mobile the grid is behind the panel, so
+live-updating something the shopper cannot see is disorienting — the count on
+the button is what tells them whether the filter was a good idea before they
+commit.
+
+The staged count is a separate hit-less query, so the button is honest about
+what the shopper is about to get.

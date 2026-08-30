@@ -97,14 +97,14 @@ export class EventCollector {
   }
 
   private async write(events: ShopperEvent[]): Promise<void> {
-    const columns = 16;
+    const columns = 18;
     const values: unknown[] = [];
     const tuples: string[] = [];
     events.forEach((e, i) => {
       const base = i * columns;
-      tuples.push(`($${base + 1},$${base + 2},$${base + 3},$${base + 4},$${base + 5},$${base + 6},` +
-        `$${base + 7},$${base + 8},$${base + 9},$${base + 10},$${base + 11},$${base + 12},` +
-        `$${base + 13},$${base + 14},$${base + 15},$${base + 16})`);
+      tuples.push(
+        `(${Array.from({ length: columns }, (_, c) => `$${base + c + 1}`).join(',')})`,
+      );
       values.push(
         e.site,
         e.type,
@@ -122,13 +122,15 @@ export class EventCollector {
         e.revenue ?? null,
         e.quantity ?? null,
         e.analyticsTags ?? null,
+        e.rescueStrategy ?? null,
+        e.effectiveQuery ?? null,
       );
     });
     await this.db.query(
       `INSERT INTO events (
          site_id, type, shopper_id, session_id, occurred_at, query, normalised_query,
          position, sku, parent_id, category_id, filters, result_count, revenue, quantity,
-         analytics_tags
+         analytics_tags, rescue_strategy, effective_query
        ) VALUES ${tuples.join(',')}`,
       values,
     );
