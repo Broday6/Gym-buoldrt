@@ -93,11 +93,21 @@ await admin.goto(ADMIN, { waitUntil: 'networkidle' });
 await admin.waitForSelector('.stat__value', { timeout: 20000 });
 await audit(admin, 'console: dashboard');
 
-for (const [nav, ready] of [['tester', '#q'], ['collections', 'table'], ['badges', '.badge'], ['catalog', '.stat__value']]) {
-  await admin.click(`[data-nav="${nav}"]`);
-  await admin.waitForSelector(ready, { timeout: 10000 });
-  await admin.waitForTimeout(400);
-  await audit(admin, `console: ${nav}`);
+// The rail lists areas; a screen with siblings is a tab inside one.
+const AREA_OF = {
+  quality: 'reporting', merchandiser: 'merchandising', collections: 'merchandising',
+  badges: 'merchandising', history: 'merchandising', tester: 'preview',
+  vocabulary: 'vocabulary', data: 'data',
+};
+for (const [screen, ready] of [['quality', '.finding'], ['merchandiser', '#merch-q'],
+  ['tester', '#q'], ['collections', 'table'], ['badges', '.badge'], ['data', '.stat__value']]) {
+  await admin.click(`[data-area="${AREA_OF[screen]}"]`);
+  await admin.waitForTimeout(300);
+  const tab = admin.locator(`.tab[data-nav="${screen}"]`);
+  if (await tab.count()) await tab.click();
+  await admin.waitForSelector(ready, { timeout: 15000 });
+  await admin.waitForTimeout(500);
+  await audit(admin, `console: ${screen}`);
 }
 
 await browser.close();

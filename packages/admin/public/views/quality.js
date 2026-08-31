@@ -1,4 +1,4 @@
-import { api, esc, num, pct, table, toast } from '../lib.js';
+import { api, esc, num, pct, state, table, toast } from '../lib.js';
 
 /**
  * Search quality.
@@ -27,16 +27,17 @@ export const quality = {
   subtitle: 'Searches that are wasting traffic, and what to do about each one',
 
   async render(root) {
+    const days = state.days;
     const [{ findings }, { terms }] = await Promise.all([
-      api('/analytics/diagnose?days=30&limit=25'),
-      api('/analytics/terms?days=30&limit=20'),
+      api(`/analytics/diagnose?days=${days}&limit=25`),
+      api(`/analytics/terms?days=${days}&limit=20`),
     ]);
 
     root.innerHTML = `
       <div class="card">
         <div class="card__head">
           <h2 class="card__title">Needs attention</h2>
-          <p class="card__hint">${findings.length} finding${findings.length === 1 ? '' : 's'} · last 30 days</p>
+          <p class="card__hint">${findings.length} finding${findings.length === 1 ? '' : 's'} · last ${days} days</p>
         </div>
         ${findings.length ? `<div class="findings">${findings.map(finding).join('')}</div>`
           : '<p class="empty">Nothing is wasting traffic right now.</p>'}

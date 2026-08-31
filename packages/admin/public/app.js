@@ -19,17 +19,51 @@ import { quality } from './views/quality.js';
 
 // `needs` is the least role that can make use of the screen at all. Controls
 // inside a screen that need more carry their own data-needs.
-const VIEWS = {
-  dashboard: { group: 'Insights', view: dashboard, needs: 'analyst' },
-  quality: { group: 'Insights', view: quality, needs: 'analyst' },
-  tester: { group: 'Insights', view: tester, needs: 'search' },
-  merchandiser: { group: 'Merchandising', view: merchandiser, needs: 'merchandiser' },
-  collections: { group: 'Merchandising', view: collections, needs: 'merchandiser' },
-  badges: { group: 'Merchandising', view: badges, needs: 'merchandiser' },
-  vocabulary: { group: 'Merchandising', view: vocabulary, needs: 'merchandiser' },
-  history: { group: 'Merchandising', view: history, needs: 'analyst' },
-  catalog: { group: 'Catalog', view: catalog, needs: 'analyst' },
+/**
+ * Areas, and the screens inside them.
+ *
+ * The rail lists areas; a screen with siblings appears as a tab in the page
+ * header. Nine entries in one flat list is a menu you read every time — six
+ * areas is a shape you learn once and then navigate from memory.
+ */
+const ICONS = {
+  dashboard: '<path d="M3 12l9-8 9 8"/><path d="M5 10.5V20h14v-9.5"/>',
+  reporting: '<path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/>',
+  merchandising: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  preview: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>',
+  vocabulary: '<path d="M4 5.5h16M4 12h11M4 18.5h7"/>',
+  data: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
 };
+
+/**
+ * An area carries no permission of its own: it is visible when any screen
+ * inside it is. Declaring both invites them to disagree — which they did, and
+ * an analyst lost access to History because the area around it asked for more
+ * than the screen did.
+ */
+const AREAS = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'reporting', label: 'Reporting' },
+  { id: 'merchandising', label: 'Merchandising' },
+  { id: 'preview', label: 'Search preview' },
+  { id: 'vocabulary', label: 'Vocabulary' },
+  { id: 'data', label: 'Data' },
+];
+
+const VIEWS = {
+  dashboard: { area: 'dashboard', label: 'Overview', view: dashboard, needs: 'analyst', windowed: true },
+  quality: { area: 'reporting', label: 'Search quality', view: quality, needs: 'analyst', windowed: true },
+  merchandiser: { area: 'merchandising', label: 'Merchandiser', view: merchandiser, needs: 'merchandiser' },
+  collections: { area: 'merchandising', label: 'Collections', view: collections, needs: 'merchandiser' },
+  badges: { area: 'merchandising', label: 'Badges', view: badges, needs: 'merchandiser' },
+  history: { area: 'merchandising', label: 'History', view: history, needs: 'analyst' },
+  tester: { area: 'preview', label: 'Query tester', view: tester, needs: 'search' },
+  vocabulary: { area: 'vocabulary', label: 'Synonyms & redirects', view: vocabulary, needs: 'merchandiser' },
+  data: { area: 'data', label: 'Index status', view: catalog, needs: 'analyst' },
+};
+
+const screensIn = (area) =>
+  Object.entries(VIEWS).filter(([, v]) => v.area === area && roleCovers(v.needs));
 
 const permitted = (key) => Boolean(VIEWS[key]) && roleCovers(VIEWS[key].needs);
 
@@ -147,21 +181,27 @@ async function loadRole() {
 
 function drawNav() {
   const nav = document.querySelector('#nav');
-  const groups = new Map();
-  for (const [key, entry] of Object.entries(VIEWS)) {
-    if (!groups.has(entry.group)) groups.set(entry.group, []);
-    groups.get(entry.group).push([key, entry.view]);
+  nav.innerHTML = AREAS
+    .filter((a) => screensIn(a.id).length > 0)
+    .map((a) => `
+      <button class="rail__link" data-area="${a.id}" aria-current="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[a.id] ?? ''}</svg>
+        <span>${esc(a.label)}</span>
+      </button>`).join('');
+}
+
+/** The screens inside the current area, when there is more than one. */
+function drawTabs(key) {
+  const tabs = document.querySelector('#tabs');
+  const area = VIEWS[key]?.area;
+  const siblings = area ? screensIn(area) : [];
+  tabs.innerHTML = siblings.length > 1
+    ? siblings.map(([id, v]) => `
+        <button class="tab" data-nav="${id}" aria-current="${id === key}">${esc(v.label)}</button>`).join('')
+    : '';
+  for (const link of document.querySelectorAll('[data-area]')) {
+    link.setAttribute('aria-current', String(link.dataset.area === area));
   }
-  nav.innerHTML = [...groups.entries()]
-    .map(([group, items]) => [group, items.filter(([key]) => permitted(key))])
-    .filter(([, items]) => items.length > 0)
-    .map(([group, items]) => `
-    <p class="side__group">${esc(group)}</p>
-    ${items.map(([key, view]) => `
-      <button class="side__link" data-nav="${key}" aria-current="${key === current}">
-        <span>${esc(view.title)}</span>
-      </button>`).join('')}
-  `).join('');
 }
 
 async function navigate(key, params) {
@@ -173,6 +213,9 @@ async function navigate(key, params) {
   for (const button of document.querySelectorAll('[data-nav]')) {
     button.setAttribute('aria-current', String(button.dataset.nav === key));
   }
+  drawTabs(key);
+  // A reporting window means nothing on a screen with nothing to report.
+  document.querySelector('#range-wrap').hidden = !VIEWS[key].windowed;
   const { view } = VIEWS[key];
   titleEl.textContent = view.title;
   subEl.textContent = view.subtitle ?? '';
@@ -235,6 +278,13 @@ const rerender = () => render();
  * element that no longer exists.
  */
 document.addEventListener('click', async (event) => {
+  const area = event.target.closest('[data-area]');
+  if (area) {
+    closeDrawer();
+    const [first] = screensIn(area.dataset.area);
+    if (first) await navigate(first[0]);
+    return;
+  }
   const nav = event.target.closest('[data-nav]');
   if (nav) {
     closeDrawer();
@@ -250,7 +300,7 @@ document.addEventListener('click', async (event) => {
   }
   const { view } = VIEWS[current];
   try {
-    if (event.target.closest('.topbar__actions')) {
+    if (event.target.closest('.pagehead__actions')) {
       if (await view.onAction?.(event, rerender)) return;
     }
     await view.onClick?.(event, navigate, rerender);
@@ -260,7 +310,7 @@ document.addEventListener('click', async (event) => {
 });
 
 // The merchandiser owns a search box and a category picker inside its view,
-// which the shell's topbar-only handler would never see.
+// which the shell's header-only handler would never see.
 document.addEventListener('input', debounceInput(async (event) => {
   if (event.target.id === 'merch-q') {
     merchandiser.state.query = event.target.value;
@@ -271,13 +321,19 @@ document.addEventListener('input', debounceInput(async (event) => {
 }, 350));
 
 document.addEventListener('change', async (event) => {
+  if (event.target.id === 'range') {
+    // One window for everything on screen: two cards reporting different
+    // periods is a bug you only notice after acting on it.
+    state.days = Number(event.target.value);
+    return render();
+  }
   if (event.target.id === 'merch-cat') {
     merchandiser.state.categoryId = event.target.value;
     merchandiser.state.actions = [];
     await merchandiser.preview();
     return render();
   }
-  if (!event.target.closest('.topbar__actions')) return;
+  if (!event.target.closest('.pagehead__actions')) return;
   const { view } = VIEWS[current];
   try {
     await view.onAction?.(event, rerender);

@@ -3,44 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compass Search — merchandiser console</title>
+  <title>Compass Search — console</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4f'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='2.6'/%3E%3Cpath d='M16 5v4M16 23v4M5 16h4M23 16h4' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/admin/app.css">
 </head>
 <body>
+  <!-- Account-level chrome: which site you are working on, and the things you
+       reach for regardless of which screen you are on. -->
+  <header class="appbar">
+    <a class="appbar__brand" href="#dashboard">
+      <span class="appbar__mark" aria-hidden="true"></span>
+      <span><strong>compass</strong> search</span>
+    </a>
+    <label class="appbar__site">
+      <span class="sr-only">Site</span>
+      <select id="site" aria-label="Site"></select>
+    </label>
+    <nav class="appbar__util" aria-label="Account">
+      <button class="util" data-nav="data">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M5.4 8.2l1.8 1.8 3.4-3.6"/></svg>
+        Index status
+      </button>
+      <a class="util" href="/docs" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4L2.5 8 6 12M10 4l3.5 4-3.5 4"/></svg>
+        API
+      </a>
+      <a class="util" href="/demo/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11v7h-11z"/><path d="M2.5 7h11"/></svg>
+        Storefront
+      </a>
+      <span class="util util--role">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 13.2c.7-2.3 2.6-3.4 5-3.4s4.3 1.1 5 3.4"/></svg>
+        <span id="role">…</span>
+      </span>
+    </nav>
+  </header>
+
   <div class="shell">
     <div class="scrim" id="scrim" hidden></div>
-    <nav class="side" id="side" aria-label="Sections">
-      <div class="side__brand"><span class="side__mark" aria-hidden="true"></span> Compass</div>
-      <div class="side__site">
-        <label class="field">
-          <span class="sr-only" hidden>Site</span>
-          <select id="site" aria-label="Site"></select>
-        </label>
-      </div>
-      <div class="side__nav" id="nav"></div>
-      <div class="side__foot">
-        <p class="side__role">Signed in as <span class="pill" id="role">…</span></p>
-        <a href="/demo/" target="_blank" rel="noopener">Open storefront &rarr;</a><br>
-        <a href="/docs" target="_blank" rel="noopener">API reference &rarr;</a>
-      </div>
+
+    <!-- Areas, not screens. A screen with siblings shows them as tabs in the
+         page header, so the rail stays short enough to scan at a glance. -->
+    <nav class="rail" id="side" aria-label="Sections">
+      <div class="rail__items" id="nav"></div>
     </nav>
 
     <main class="main">
-      <header class="topbar">
-        <button class="topbar__menu" id="menu" aria-label="Sections" aria-expanded="false"
+      <header class="pagehead">
+        <button class="pagehead__menu" id="menu" aria-label="Sections" aria-expanded="false"
           aria-controls="side">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" fill="none"/>
           </svg>
         </button>
-        <div class="topbar__heading">
+        <div class="pagehead__heading">
           <h1 id="view-title">Dashboard</h1>
-          <p class="topbar__sub" id="view-sub"></p>
+          <p class="pagehead__sub" id="view-sub"></p>
         </div>
-        <div class="topbar__actions" id="view-actions"></div>
+        <div class="pagehead__ctl">
+          <!-- One window for every figure on screen, so two cards can never be
+               reporting different periods. -->
+          <label class="range" id="range-wrap">
+            <span class="sr-only">Reporting window</span>
+            <select id="range">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </label>
+          <div class="pagehead__actions" id="view-actions"></div>
+        </div>
       </header>
+
+      <nav class="tabs" id="tabs" aria-label="Section"></nav>
       <div class="view" id="view"></div>
     </main>
   </div>

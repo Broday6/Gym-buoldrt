@@ -40,6 +40,28 @@ await page.goto(BASE, { waitUntil: 'networkidle' });
 check('a stored key gets straight past the connect screen',
   (await page.locator('.connect').count()) === 0);
 
+
+/**
+ * Navigate the way a person does: click the area in the rail, then the screen's
+ * tab if that area has more than one. Exercises both levels of the nav rather
+ * than jumping straight to a hash.
+ */
+const AREA_OF = {
+  dashboard: 'dashboard', quality: 'reporting', merchandiser: 'merchandising',
+  collections: 'merchandising', badges: 'merchandising', history: 'merchandising',
+  tester: 'preview', vocabulary: 'vocabulary', data: 'data',
+};
+
+async function goTo(page, screen) {
+  await page.click(`[data-area="${AREA_OF[screen]}"]`);
+  await page.waitForTimeout(250);
+  const tab = page.locator(`.tab[data-nav="${screen}"]`);
+  if (await tab.count()) {
+    await tab.click();
+    await page.waitForTimeout(250);
+  }
+}
+
 // ---- dashboard -------------------------------------------------------------
 await page.waitForSelector('.stat__value', { timeout: 20000 });
 const stats = await page.locator('.stat__value').allTextContents();
@@ -51,7 +73,7 @@ const fixes = await page.locator('[data-fix="synonym"]').count();
 check('failing queries offer an inline fix', fixes > 0, `${fixes} rows`);
 
 // ---- query tester ----------------------------------------------------------
-await page.click('[data-nav="tester"]');
+await goTo(page, 'tester');
 await page.waitForSelector('#q', { timeout: 10000 });
 await page.fill('#q', 'chandaleer');
 await page.waitForTimeout(1500);
@@ -65,7 +87,7 @@ check('the tester reports the query type and timing',
   (await page.locator('.pill').allTextContents()).some((t) => /ms$/.test(t.trim())));
 
 // ---- collections and the visual rule builder --------------------------------
-await page.click('[data-nav="collections"]');
+await goTo(page, 'collections');
 await page.waitForSelector('table', { timeout: 10000 });
 check('collections are listed', (await page.locator('tbody tr').count()) > 0);
 await page.click('#new-collection');
@@ -81,17 +103,17 @@ check('no raw JSON is required to write a rule',
   (await page.locator('.clause select').count()) >= 2);
 
 // ---- vocabulary, badges, catalog -------------------------------------------
-await page.click('[data-nav="vocabulary"]');
+await goTo(page, 'vocabulary');
 await page.waitForSelector('#add-syn', { timeout: 10000 });
 check('vocabulary screen loads', (await page.locator('#add-red').count()) === 1);
 
-await page.click('[data-nav="badges"]');
+await goTo(page, 'badges');
 await page.waitForTimeout(1000);
 const badgeLabels = await page.locator('.badge').allTextContents();
 check('badges are listed', badgeLabels.length > 0, badgeLabels.join(' | '));
 
 // ---- history and undo -------------------------------------------------------
-await page.click('[data-nav="history"]');
+await goTo(page, 'history');
 // Waiting on `tbody tr` would match the table the previous screen left behind.
 await page.waitForSelector('tbody tr[data-row]', { timeout: 10000 });
 const historyRows = await page.locator('tbody tr[data-row]').count();
@@ -119,7 +141,7 @@ check('the undo is labelled as one',
 check('history is append-only: the original change is still there',
   (await page.locator(`tbody tr[data-row="${topBefore}"]`).count()) === 1);
 
-await page.click('[data-nav="catalog"]');
+await goTo(page, 'data');
 await page.waitForSelector('.stat__value', { timeout: 10000 });
 const catalogStats = await page.locator('.stat__value').allTextContents();
 check('catalog health reports document counts',
@@ -175,18 +197,26 @@ async function openAs(role) {
 const analyst = await openAs('analyst');
 check('the console reports the role it is using',
   (await analyst.locator('#role').textContent())?.trim() === 'analyst');
-const analystNav = (await analyst.locator('[data-nav]').allTextContents()).map((t) => t.trim());
+const analystNav = (await analyst.locator('[data-area] span').allTextContents()).map((t) => t.trim());
 check('an analyst gets the reports', analystNav.includes('Dashboard'), analystNav.join(', '));
-check('an analyst is not offered merchandising screens',
-  !analystNav.some((t) => ['Collections', 'Badges', 'Vocabulary'].includes(t)), analystNav.join(', '));
+// An analyst sees the Merchandising area because History lives in it and they
+// may read it — but nothing inside it that writes.
+check('an analyst is not offered vocabulary',
+  !analystNav.includes('Vocabulary'), analystNav.join(', '));
+await analyst.click('[data-area="merchandising"]');
+await analyst.waitForTimeout(400);
+const analystTabs = (await analyst.locator('.tab').allTextContents()).map((t) => t.trim());
+check('an analyst gets History but not the merchandising screens',
+  analystTabs.length === 0 || (!analystTabs.includes('Merchandiser') && !analystTabs.includes('Badges')),
+  analystTabs.join(', ') || '(History only, no tabs)');
 check('an analyst is not offered the one-click synonym fix',
   (await analyst.locator('[data-fix="synonym"]').count()) === 0);
-await analyst.click('[data-nav="catalog"]');
+await goTo(analyst, 'data');
 await analyst.waitForSelector('.stat__value', { timeout: 10000 });
 check('an analyst can read catalogue health but cannot rebuild the index',
   (await analyst.locator('#reindex').count()) === 0);
 
-await analyst.click('[data-nav="history"]');
+await goTo(analyst, 'history');
 // `tbody tr` would match the table the previous screen left behind.
 await analyst.waitForSelector('tbody tr[data-row]', { timeout: 10000 });
 check('an analyst can read the history but cannot undo anything',
@@ -194,13 +224,18 @@ check('an analyst can read the history but cannot undo anything',
   && (await analyst.locator('[data-revert]').count()) === 0);
 
 const merch = await openAs('merchandiser');
-const merchNav = (await merch.locator('[data-nav]').allTextContents()).map((t) => t.trim());
-check('a merchandiser gets the merchandising screens',
-  ['Collections', 'Badges', 'Vocabulary'].every((t) => merchNav.includes(t)), merchNav.join(', '));
+const merchNav = (await merch.locator('[data-area] span').allTextContents()).map((t) => t.trim());
+check('a merchandiser gets the merchandising areas',
+  ['Merchandising', 'Vocabulary'].every((t) => merchNav.includes(t)), merchNav.join(', '));
 check('a merchandiser gets the one-click synonym fix',
   (await merch.locator('[data-fix="synonym"]').count()) > 0);
-await merch.click('[data-nav="catalog"]');
+await goTo(merch, 'data');
 await merch.waitForSelector('.stat__value', { timeout: 10000 });
+await goTo(merch, 'collections');
+check('and every screen inside them',
+  (await merch.locator('.tab').allTextContents()).length >= 3,
+  (await merch.locator('.tab').allTextContents()).join(', '));
+
 check('a merchandiser still cannot rebuild the index',
   (await merch.locator('#reindex').count()) === 0);
 
@@ -248,9 +283,12 @@ async function openDrawer() {
 }
 
 for (const [nav, ready] of [['tester', '#q'], ['collections', 'table'],
-  ['badges', '.badge'], ['history', 'tbody tr[data-row]'], ['catalog', '.stat__value']]) {
+  ['badges', '.badge'], ['history', 'tbody tr[data-row]'], ['data', '.stat__value']]) {
   await openDrawer();
-  await small.tap(`[data-nav="${nav}"]`);
+  await small.tap(`[data-area="${AREA_OF[nav]}"]`);
+  await small.waitForTimeout(250);
+  const tab = small.locator(`.tab[data-nav="${nav}"]`);
+  if (await tab.count()) await tab.tap();
   await small.waitForSelector(ready, { timeout: 10000 });
   await small.waitForTimeout(400);
   check(`${nav} fits a phone`, await fits());
