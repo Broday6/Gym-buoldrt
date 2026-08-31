@@ -16,8 +16,9 @@
  */
 import { spawn, type ChildProcess } from 'node:child_process';
 import { execFile } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
-import { createServer } from 'node:net';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createConnection, createServer } from 'node:net';
+import { createInterface } from 'node:readline/promises';
 import { promisify } from 'node:util';
 import pg from 'pg';
 
@@ -27,6 +28,12 @@ const args = process.argv.slice(2);
 const RESEED = args.includes('--reseed');
 const PORT = Number(process.env.PORT ?? 3100);
 const KEY_FILE = './data/demo/keys.json';
+/**
+ * Where a working connection string is remembered, so a password typed once is
+ * typed once. Plain text, under the gitignored data/ directory, alongside the
+ * demo API keys — a local development database, and the file says so.
+ */
+const SAVED_URL = './data/db-url.txt';
 
 /**
  * Candidate databases, in the order a developer's machine tends to have one.
@@ -115,6 +122,51 @@ async function dockerRunning(): Promise<boolean> {
   }
 }
 
+/** Is something accepting connections there? Asked by connecting, not binding:
+ *  Windows will happily let you bind 0.0.0.0 over a socket already on
+ *  127.0.0.1, so a bind test would report a busy port as free. */
+function listening(port: number, host = '127.0.0.1'): Promise<boolean> {
+  return new Promise((settle) => {
+    const socket = createConnection({ port, host, timeout: 2000 });
+    const done = (answer: boolean) => { socket.destroy(); settle(answer); };
+    socket.once('connect', () => done(true));
+    socket.once('error', () => done(false));
+    socket.once('timeout', () => done(false));
+  });
+}
+
+/**
+ * Postgres is up but no default login worked.
+ *
+ * The installer on Windows and macOS both ask for a superuser password during
+ * setup, so this is the ordinary case, not an exotic one — and telling someone
+ * to install PostgreSQL when PostgreSQL is already running would send them off
+ * to install a second copy of what they have.
+ */
+async function askForPassword(): Promise<string | null> {
+  if (!process.stdin.isTTY) return null;
+  console.log(`  ${MARK.note} postgres    running on 5432, but no default login worked`);
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const user = (await rl.question('    Postgres username [postgres]: ')).trim() || 'postgres';
+      const password = (await rl.question(`    Password for ${user}: `)).trim();
+      const url = `postgres://${encodeURIComponent(user)}:${encodeURIComponent(password)}`
+        + '@localhost:5432/compass';
+      if (await reachable(url)) return url;
+      if (await createDatabase(url) && await reachable(url)) return url;
+      console.log('    that did not connect — try again\n');
+    }
+    return null;
+  } catch {
+    // Ctrl-C, Ctrl-D, or a pipe that ran dry. Fall through to the printed
+    // instructions rather than a readline stack trace.
+    return null;
+  } finally {
+    rl.close();
+  }
+}
+
 /** Find a database, make one, or explain precisely what to install. */
 async function database(): Promise<string> {
   const configured = process.env.DATABASE_URL;
@@ -128,6 +180,10 @@ async function database(): Promise<string> {
     ]);
   }
 
+  // A connection string that already worked once beats guessing again.
+  const remembered = existsSync(SAVED_URL) ? readFileSync(SAVED_URL, 'utf8').trim() : '';
+  if (remembered && await reachable(remembered)) return remembered;
+
   for (const url of CANDIDATES) {
     if (await reachable(url)) return url;
   }
@@ -137,6 +193,23 @@ async function database(): Promise<string> {
       info('database', `created ${new URL(url).pathname.slice(1)}`);
       return url;
     }
+  }
+
+  if (await listening(5432)) {
+    const url = await askForPassword();
+    if (url) {
+      mkdirSync('./data', { recursive: true });
+      writeFileSync(SAVED_URL, `${url}\n`);
+      info('database', `remembered in ${SAVED_URL} — delete it to be asked again`);
+      return url;
+    }
+    fail('PostgreSQL is running, but none of these logins worked', [
+      ...CANDIDATES.map((u) => `  ${u.replace(/:[^:@/]*@/, ':***@')}`),
+      '',
+      'Use the password you chose when you installed it:',
+      '',
+      ...setEnv('DATABASE_URL', 'postgres://postgres:YOURPASSWORD@localhost:5432/compass'),
+    ]);
   }
 
   if (await dockerRunning()) {
@@ -337,7 +410,12 @@ console.log([
   '',
   admin
     ? `  The console asks for a key once. Paste this one:\n\n    ${admin}\n`
-    : `  Admin keys are in ${KEY_FILE}.\n`,
+    // The database was seeded by someone else, or from a working tree that is
+    // gone: the table holds hashes, so the key it was issued from cannot be
+    // read back. Minting a new one is the only way in.
+    : '  The console asks for a key, and there is no record of one here.\n'
+      + '  Issue yourself a fresh one:\n\n'
+      + '    npm run keys -- create ekena admin "console"\n',
   '  There is one key per role in data/demo/keys.json — open the console as an',
   '  analyst or a merchandiser and the screens and buttons change with it.',
   '',

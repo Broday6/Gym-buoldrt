@@ -22,6 +22,7 @@
     "keys": "tsx packages/server/src/cli/keys.ts",
     "migrate": "tsx packages/server/src/cli/migrate.ts",
     "openapi": "tsx packages/server/src/cli/openapi.ts",
+    "preapp": "node scripts/preflight.mjs",
     "query": "tsx packages/server/src/cli/query.ts",
     "reindex": "tsx packages/server/src/cli/reindex.ts",
     "seed": "tsx packages/demo/seed.ts",

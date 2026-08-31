@@ -49,14 +49,19 @@ npm install
 npm run app
 ```
 
-Nothing else is needed — not `psql`, not a database created by hand. If the
-Postgres installer asked you to set a password for the `postgres` user and it
-was not `postgres`, say so once:
+If `npm` reports that **running scripts is disabled on this system**, that is
+PowerShell's execution policy refusing `npm.ps1`. Either use the batch shim,
+which the policy does not cover — `npm.cmd install`, `npm.cmd run app` — or
+allow local scripts once, which needs no administrator:
 
 ```powershell
-$env:DATABASE_URL="postgres://postgres:YOURPASSWORD@localhost:5432/compass"
-npm run app
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
+
+Nothing else is needed — not `psql`, not a database created by hand. The
+Postgres installer asks you to set a superuser password; if it was not
+`postgres`, `npm run app` notices that Postgres is running but will not let it
+in, asks for the password once, and remembers it in `data/db-url.txt`.
 
 | | |
 |---|---|
