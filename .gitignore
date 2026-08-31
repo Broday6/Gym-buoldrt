@@ -5,19 +5,22 @@ data/
 .env
 .env.local
 *.log
-ui-desktop.png
-ui-mobile.png
-admin.png
-admin-mobile.png
-phone-*.png
-console-*.png
-browser-*.png
-store-*.png
-autopilot.png
-docs-page.png
-history.png
-merchandiser.png
-quality.png
-ssr-nojs.png
+# Screenshots the suites drop in the working directory. Anchored to the root
+# on purpose: unanchored, `history.png` also swallowed the guide's screenshots
+# under packages/, and git ignored three committed assets without a word.
+/ui-desktop.png
+/ui-mobile.png
+/admin.png
+/admin-mobile.png
+/phone-*.png
+/console-*.png
+/browser-*.png
+/store-*.png
+/autopilot.png
+/docs-page.png
+/history.png
+/merchandiser.png
+/quality.png
+/ssr-nojs.png
 packages/demo/*.d.ts
 packages/demo/*.js.map

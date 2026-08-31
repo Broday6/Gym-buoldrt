@@ -29,6 +29,8 @@ export const merchandiser = {
     understood: [],
     rules: [],
     categories: [],
+    /** The busiest searches, offered as a way in from a blank screen. */
+    busiest: [],
     loading: false,
     dirty: false,
   },
@@ -40,12 +42,17 @@ export const merchandiser = {
   async render(root, params) {
     const s = this.state;
     if (!s.categories.length) {
-      const [directory, rules] = await Promise.all([
+      const [directory, rules, top] = await Promise.all([
         api('/directory'),
         api('/admin/query-rules').catch(() => ({ rules: [] })),
+        // The console already knows which searches matter most. Making
+        // somebody guess one to type is asking them to do work the system has
+        // already done.
+        api('/analytics/queries?days=30&limit=8').catch(() => ({ queries: [] })),
       ]);
       s.categories = directory.categories ?? [];
       s.rules = rules.rules ?? [];
+      s.busiest = (top.queries ?? []).filter((q) => q.searches > 0).slice(0, 8);
     }
     if (params?.query && params.query !== s.query) {
       s.mode = 'query';
@@ -112,11 +119,28 @@ export const merchandiser = {
     const s = this.state;
     if (s.loading) return '<div class="card"><p class="empty">Loading the grid…</p></div>';
     if (!s.hits.length) {
-      return `<div class="card"><p class="empty">
-        ${s.query || s.categoryId
-          ? 'No products for that. Try another term.'
-          : 'Type a search term above to see what shoppers get, then drag to rearrange it.'}
-      </p></div>`;
+      if (s.query || s.categoryId) {
+        return '<div class="card"><p class="empty">No products for that. Try another term.</p></div>';
+      }
+      return `<div class="card">
+        <div class="card__head">
+          <h2 class="card__title">Pick a search to work on</h2>
+          <p class="card__hint">
+            You will see exactly what a shopper sees, and can drag any product to
+            where it should be. Nothing is saved until you press Save rule.
+          </p>
+        </div>
+        ${s.busiest.length ? `
+          <p class="start__label">Your busiest searches over the last 30 days</p>
+          <div class="start">
+            ${s.busiest.map((q) => `
+              <button type="button" class="start__item" data-start="${esc(q.query)}">
+                <span class="start__q">${esc(q.query)}</span>
+                <span class="start__n">${q.searches.toLocaleString()} searches</span>
+              </button>`).join('')}
+          </div>`
+          : '<p class="empty">Type a search term above to see what shoppers get.</p>'}
+      </div>`;
     }
     const byParent = new Map(s.actions.map((a) => [a.parentId, a]));
     return `<div class="card">
@@ -211,6 +235,15 @@ export const merchandiser = {
 
   async onClick(event, navigate, rerender) {
     const s = this.state;
+
+    const start = event.target.closest('[data-start]');
+    if (start) {
+      s.mode = 'query';
+      s.query = start.dataset.start;
+      s.actions = [];
+      await this.preview();
+      return rerender();
+    }
 
     const mode = event.target.closest('[data-mode]');
     if (mode) {

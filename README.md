@@ -66,7 +66,7 @@ in, asks for the password once, and remembers it in `data/db-url.txt`.
 | | |
 |---|---|
 | **Storefront** | http://localhost:3100/demo/ — instant search, facets, collections, badges, recommendation rails |
-| **Console** | http://localhost:3100/admin/ — analytics, query tester with ranking explainability, visual rule builder, change history with undo |
+| **Console** | http://localhost:3100/admin/ — start at **Guide**, which walks through the five jobs with screenshots; then analytics, recommendations, the visual merchandiser, and change history with undo |
 | **API reference** | http://localhost:3100/docs — generated from the running server's routes |
 
 The seed generates a month of simulated shopper sessions *against the index it

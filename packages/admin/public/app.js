@@ -8,6 +8,7 @@ import { history } from './views/history.js';
 import { merchandiser } from './views/merchandiser.js';
 import { quality } from './views/quality.js';
 import { autopilot } from './views/autopilot.js';
+import { guide } from './views/guide.js';
 
 /**
  * Console shell.
@@ -34,6 +35,7 @@ const ICONS = {
   preview: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>',
   vocabulary: '<path d="M4 5.5h16M4 12h11M4 18.5h7"/>',
   data: '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  guide: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.7.6-.7 1.1v.6"/><path d="M12 17h.01"/>',
 };
 
 /**
@@ -49,6 +51,7 @@ const AREAS = [
   { id: 'preview', label: 'Search preview' },
   { id: 'vocabulary', label: 'Vocabulary' },
   { id: 'data', label: 'Data' },
+  { id: 'guide', label: 'Guide' },
 ];
 
 const VIEWS = {
@@ -62,6 +65,7 @@ const VIEWS = {
   tester: { area: 'preview', label: 'Query tester', view: tester, needs: 'search' },
   vocabulary: { area: 'vocabulary', label: 'Synonyms & redirects', view: vocabulary, needs: 'merchandiser' },
   data: { area: 'data', label: 'Index status', view: catalog, needs: 'analyst' },
+  guide: { area: 'guide', label: 'How to use this', view: guide, needs: 'search' },
 };
 
 const screensIn = (area) =>

@@ -176,14 +176,14 @@ export function sparkline(points, { width = 720, height = 64 } = {}) {
     .join(' ');
 
   return `<svg class="spark" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none"
-      role="img" aria-label="Daily search volume and zero-result rate">
+      role="img" aria-label="Daily search volume, and the share of searches that found nothing">
       <path class="spark__area" d="${area}"/>
       <path class="spark__line" d="${line}"/>
       <path class="spark__zero" d="${zero}"/>
     </svg>
     <div class="legend">
-      <span><i style="background:var(--accent)"></i>searches (peak ${num(maxSearches)}/day)</span>
-      <span><i style="background:var(--warn)"></i>zero-result rate (peak ${pct(maxRate * 100)})</span>
+      <span><i style="background:var(--accent)"></i>searches (busiest day ${num(maxSearches)})</span>
+      <span><i style="background:var(--warn)"></i>found nothing (worst day ${pct(maxRate * 100)})</span>
     </div>`;
 }
 

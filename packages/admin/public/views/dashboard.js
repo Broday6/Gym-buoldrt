@@ -39,6 +39,11 @@ function indexing(status) {
   const history = runs.filter((r) => r.status !== 'error').slice(0, 8).reverse();
   const peak = Math.max(1, ...history.map((r) => r.variants ?? 0));
 
+  // With one run there is no history to draw, and an empty column beside the
+  // facts reads as something that failed to load rather than something that
+  // does not exist yet.
+  const hasHistory = history.length > 1;
+
   return `
     ${failed ? `
       <div class="banner banner--error" role="status">
@@ -46,33 +51,33 @@ function indexing(status) {
         <p>${esc(failed.error || 'An unknown error occurred.')} Everything below describes the last
         index that succeeded.</p>
       </div>` : ''}
-    <div class="card index">
+    <div class="card index${hasHistory ? '' : ' index--solo'}">
       <div class="index__facts">
         <div class="card__head">
-          <h2 class="card__title">Index</h2>
+          <h2 class="card__title">Product data</h2>
         </div>
-        <p class="index__label">Last completed</p>
+        <p class="index__label">Last updated</p>
         <p class="index__value">${last
           ? esc(new Date(last.started_at).toLocaleString(undefined,
               { dateStyle: 'medium', timeStyle: 'short' }))
           : 'Never'}</p>
-        <p class="index__label">Documents live</p>
+        <p class="index__label">Searchable now</p>
         <p class="index__value">${num(status.documents)}
-          <span class="index__unit">variants</span></p>
-        <button class="btn btn--primary" id="reindex-now" data-needs="admin">Update index now</button>
+          <span class="index__unit">product options</span></p>
+        <button class="btn btn--primary" id="reindex-now" data-needs="admin">Update now</button>
       </div>
+      ${hasHistory ? `
       <div class="index__history">
-        <p class="index__label">Recent index size</p>
-        ${history.length > 1 ? `
+        <p class="index__label">Recent size</p>
+        ${`
           <div class="bars">
             ${history.map((r) => `
               <div class="bars__col" title="${esc(new Date(r.started_at).toLocaleString())} — ${num(r.variants)} variants">
                 <div class="bars__bar" style="height:${Math.round(((r.variants ?? 0) / peak) * 100)}%"></div>
                 <span class="bars__tick">${esc(tick(r.started_at, history))}</span>
               </div>`).join('')}
-          </div>`
-        : '<p class="empty">One run so far — history appears after the next index.</p>'}
-      </div>
+          </div>`}
+      </div>` : ''}
     </div>`;
 }
 
@@ -80,7 +85,7 @@ export const dashboard = {
   title: 'Dashboard',
   subtitle: 'What shoppers searched for, and what search did about it.',
 
-  actions: () => '<button class="btn" id="rollup" data-needs="merchandiser">Refresh aggregates</button>',
+  actions: () => '<button class="btn" id="rollup" data-needs="merchandiser">Refresh numbers</button>',
 
   async render(root) {
     root.innerHTML = '<p class="empty">Loading…</p>';
@@ -98,7 +103,16 @@ export const dashboard = {
       api(`/analytics/facets?days=${days}`),
     ]);
 
-    const zeroTone = overview.quality.zeroResultRate > 8 ? 'stat--warn' : 'stat--ok';
+    // A number on its own does not tell anyone whether to act. Every headline
+    // gets a plain reading of what it counts and, where there is a defensible
+    // target, whether this one is good.
+    const zero = overview.quality.zeroResultRate;
+    const zeroTone = zero > 12 ? 'stat--warn' : zero > 5 ? '' : 'stat--ok';
+    const zeroRead = zero > 12
+      ? 'Higher than most stores — worth fixing'
+      : zero > 5 ? 'About normal for a store this size' : 'Better than most stores';
+    const failed = Math.round(overview.volume.searches * zero / 100);
+    const ctr = overview.engagement.clickThroughRate;
 
     root.innerHTML = `
       ${indexing(status)}
@@ -106,26 +120,30 @@ export const dashboard = {
         <div class="stat">
           <p class="stat__label">Searches</p>
           <p class="stat__value">${num(overview.volume.searches)}</p>
-          <p class="stat__note">${num(overview.volume.uniqueQueries)} unique ·
-            ${overview.volume.searchesPerSession} per session</p>
+          <p class="stat__note">${num(overview.volume.uniqueQueries)} different searches ·
+            ${overview.volume.searchesPerSession} per visit</p>
         </div>
         <div class="stat ${zeroTone}">
-          <p class="stat__label">Zero-result rate</p>
-          <p class="stat__value">${pct(overview.quality.zeroResultRate)}</p>
-          <p class="stat__note">${pct(overview.quality.rescueRate)} rescued ·
-            ${overview.quality.avgResults} results avg</p>
+          <p class="stat__label">Searches that found nothing</p>
+          <p class="stat__value">${pct(zero)}</p>
+          <p class="stat__note">${num(failed)} of ${num(overview.volume.searches)} ·
+            ${pct(overview.quality.rescueRate)} of those were rescued</p>
+          <p class="stat__read">${zeroRead}</p>
         </div>
-        <div class="stat">
-          <p class="stat__label">Click-through</p>
-          <p class="stat__value">${pct(overview.engagement.clickThroughRate)}</p>
-          <p class="stat__note">avg position ${overview.engagement.avgClickPosition} ·
-            ${pct(overview.engagement.searchToCartRate)} to cart</p>
+        <div class="stat ${ctr >= 30 ? 'stat--ok' : ''}">
+          <p class="stat__label">Searches that led to a click</p>
+          <p class="stat__value">${pct(ctr)}</p>
+          <p class="stat__note">Usually the ${overview.engagement.avgClickPosition}th result ·
+            ${pct(overview.engagement.searchToCartRate)} reached the cart</p>
+          <p class="stat__read">${ctr >= 30
+            ? 'Shoppers are finding what they came for'
+            : 'Shoppers are looking and not choosing'}</p>
         </div>
         <div class="stat stat--ok">
-          <p class="stat__label">Search-attributed revenue</p>
+          <p class="stat__label">Revenue from search</p>
           <p class="stat__value">${money(overview.revenue.searchAttributedRevenue)}</p>
           <p class="stat__note">${money(overview.revenue.revenuePerSearch)} per search ·
-            ${pct(overview.revenue.conversionRate)} of searching sessions convert</p>
+            ${pct(overview.revenue.conversionRate)} of searching visits buy</p>
         </div>
       </div>
 
@@ -144,8 +162,8 @@ export const dashboard = {
         </div>
         ${table(
           [{ label: 'Query' }, { label: 'Searches', numeric: true },
-           { label: 'Avg results', numeric: true }, { label: 'Zero', numeric: true },
-           { label: 'CTR', numeric: true }, { label: 'Fix' }],
+           { label: 'Results shown', numeric: true }, { label: 'Found nothing', numeric: true },
+           { label: 'Led to a click', numeric: true }, { label: 'Fix' }],
           problems.queries,
           (q) => `<tr>
             <td class="mono">${esc(q.query)}</td>
@@ -172,7 +190,7 @@ export const dashboard = {
           </div>
           ${table(
             [{ label: 'Query' }, { label: 'Searches', numeric: true },
-             { label: 'CTR', numeric: true }, { label: 'Revenue', numeric: true }],
+             { label: 'Led to a click', numeric: true }, { label: 'Revenue', numeric: true }],
             top.queries,
             (q) => `<tr>
               <td class="mono">${esc(q.query)}</td>

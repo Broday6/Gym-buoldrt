@@ -50,6 +50,7 @@ const AREA_OF = {
   dashboard: 'dashboard', quality: 'reporting', merchandiser: 'merchandising',
   collections: 'merchandising', badges: 'merchandising', history: 'merchandising',
   tester: 'preview', vocabulary: 'vocabulary', data: 'data',
+  autopilot: 'merchandising', guide: 'guide',
 };
 
 async function goTo(page, screen) {
@@ -111,6 +112,52 @@ await goTo(page, 'badges');
 await page.waitForTimeout(1000);
 const badgeLabels = await page.locator('.badge').allTextContents();
 check('badges are listed', badgeLabels.length > 0, badgeLabels.join(' | '));
+
+// ---- the way in from a blank screen ----------------------------------------
+// A console that opens on an empty text box asks somebody to guess what to
+// type, when it already knows which searches matter and which are failing.
+await goTo(page, 'vocabulary');
+await page.waitForSelector('#add-syn', { timeout: 10000 });
+const failing = await page.locator('[data-syn-from]').count();
+check('vocabulary offers the searches that found nothing', failing > 0, `${failing} offered`);
+if (failing) {
+  await page.locator('[data-syn-from]').first().click();
+  await page.waitForTimeout(300);
+  check('picking one fills the synonym form',
+    (await page.inputValue('#syn-from')).length > 0 && await page.inputValue('#syn-kind') === 'one_way',
+    await page.inputValue('#syn-from'));
+}
+
+await goTo(page, 'merchandiser');
+await page.waitForSelector('.start__item', { timeout: 10000 });
+const starters = await page.locator('.start__item').count();
+check('the merchandiser offers your busiest searches', starters > 0, `${starters} offered`);
+await page.locator('.start__item').first().click();
+await page.waitForSelector('.mtile', { timeout: 15000 });
+check('picking one loads that grid', (await page.locator('.mtile').count()) > 0);
+
+// ---- the guide -------------------------------------------------------------
+await goTo(page, 'guide');
+await page.waitForSelector('.guide__job', { timeout: 10000 });
+check('the guide walks through every job', (await page.locator('.guide__job').count()) === 5);
+// Scrolled into view first: the figures load lazily, so measuring them where
+// they sit tests the viewport height, not whether the files are there.
+const shots = await page.evaluate(async () => {
+  const imgs = [...document.querySelectorAll('.guide__figure img')];
+  for (const img of imgs) img.scrollIntoView();
+  await Promise.all(imgs.map((img) => img.complete
+    ? Promise.resolve()
+    : new Promise((done) => {
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      })));
+  return imgs.map((i) => i.naturalWidth > 0);
+});
+// A guide whose screenshots 404 is worse than one with none: it reads as a
+// broken page rather than a missing image.
+check('every screenshot loads', shots.length === 5 && shots.every(Boolean), shots.join(','));
+check('the guide defines the words the console uses',
+  (await page.locator('#guide-words dt').count()) >= 10);
 
 // ---- history and undo -------------------------------------------------------
 await goTo(page, 'history');

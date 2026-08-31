@@ -12,9 +12,15 @@ export const vocabulary = {
   actions: () => '',
 
   async render(root) {
-    const [{ synonyms }, { redirects }] = await Promise.all([
-      api('/synonyms'), api('/redirects'),
+    const [{ synonyms }, { redirects }, failing] = await Promise.all([
+      api('/synonyms'),
+      api('/redirects'),
+      // The searches that found nothing are exactly what a synonym is for, and
+      // the console already has them. Listing them here saves a trip to the
+      // dashboard and a retyped search term.
+      api('/analytics/problems?days=30&limit=6').catch(() => ({ queries: [] })),
     ]);
+    const unmet = (failing.queries ?? []).filter((q) => q.zeroResults > 0).slice(0, 6);
 
     root.innerHTML = `
       <div class="card">
@@ -45,9 +51,18 @@ export const vocabulary = {
                 : `${esc(s.fromTerms.join(', '))}  →  ${esc(s.terms.join(', '))}`}</td>
               <td><button class="btn btn--sm btn--danger" data-del-syn="${s.id}">Delete</button></td>
             </tr>`,
-            'No synonyms yet. The dashboard suggests them from failing queries.',
+            'No synonyms yet.',
           )}
         </div>
+        ${unmet.length ? `
+          <p class="start__label">Searches that found nothing — start with one of these</p>
+          <div class="start">
+            ${unmet.map((q) => `
+              <button type="button" class="start__item" data-syn-from="${esc(q.query)}">
+                <span class="start__q">${esc(q.query)}</span>
+                <span class="start__n">${num(q.searches)} searches, no results</span>
+              </button>`).join('')}
+          </div>` : ''}
       </div>
 
       <div class="card">
@@ -93,6 +108,20 @@ export const vocabulary = {
   },
 
   async onClick(event, navigate, rerender) {
+    const from = event.target.closest('[data-syn-from]');
+    if (from) {
+      // A one-way rule: the words that fail get rewritten to words that work,
+      // and not the reverse.
+      const kind = document.querySelector('#syn-kind');
+      kind.value = 'one_way';
+      kind.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('#syn-from').value = from.dataset.synFrom;
+      const terms = document.querySelector('#syn-terms');
+      terms.value = '';
+      terms.focus();
+      return true;
+    }
+
     const delSyn = event.target.closest('[data-del-syn]');
     if (delSyn) {
       await api(`/synonyms/${delSyn.dataset.delSyn}`, { method: 'DELETE' });

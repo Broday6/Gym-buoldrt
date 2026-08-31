@@ -101,11 +101,12 @@ await audit(admin, 'console: dashboard');
 const AREA_OF = {
   quality: 'reporting', autopilot: 'merchandising', merchandiser: 'merchandising',
   collections: 'merchandising', badges: 'merchandising', history: 'merchandising',
-  tester: 'preview', vocabulary: 'vocabulary', data: 'data',
+  tester: 'preview', vocabulary: 'vocabulary', data: 'data', guide: 'guide',
 };
 for (const [screen, ready] of [['quality', '.finding'], ['autopilot', '.proposal'],
   ['merchandiser', '#merch-q'],
-  ['tester', '#q'], ['collections', 'table'], ['badges', '.badge'], ['data', '.stat__value']]) {
+  ['tester', '#q'], ['collections', 'table'], ['badges', '.badge'], ['data', '.stat__value'],
+  ['guide', '.guide__job']]) {
   await admin.click(`[data-area="${AREA_OF[screen]}"]`);
   await admin.waitForTimeout(300);
   const tab = admin.locator(`.tab[data-nav="${screen}"]`);
