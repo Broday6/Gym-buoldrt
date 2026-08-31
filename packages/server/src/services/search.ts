@@ -5,17 +5,20 @@ import type {
   SearchRequest,
   SearchResponse,
   SiteConfig,
+  ParsedConstraint,
 } from '@compass/shared';
 import type { EngineFacet, EngineQuery, SearchEngine } from '../engine/types.js';
 import { analyzeQuery, type AnalyzedQuery } from '../query/analyze.js';
+import { buildEntityIndex, type EntityIndex } from '../query/entities.js';
 import { relaxTerms, suggestCorrection } from '../query/spelling.js';
 import { rankCandidates } from '../ranking/cascade.js';
-import { groupByParent, highlight } from '../ranking/group.js';
+import { groupByParent, highlight, hitFromDoc } from '../ranking/group.js';
 import type { SynonymStore } from '../merchandising/synonyms.js';
 import type { BadgeDefinition, CustomAttributeDefinition } from '../merchandising/labels.js';
 import type { RedirectStore } from '../merchandising/redirects.js';
 import { ResultCache, cacheKey } from './cache.js';
 import { seoConfigFor, seoDirectives } from './seo.js';
+import { applyRule, type QueryRuleStore } from '../merchandising/queryrules.js';
 
 /**
  * The query pipeline.
@@ -40,6 +43,8 @@ export interface SearchServiceOptions {
   rankingWindow?: number;
   synonyms?: SynonymStore;
   redirects?: RedirectStore;
+  /** Pins, buries and hides bound to what the shopper typed. */
+  queryRules?: QueryRuleStore;
   /**
    * Source of merchandiser-defined attributes. Typed structurally rather than
    * as the concrete store so the search pipeline does not depend on Postgres
@@ -67,6 +72,7 @@ const MAX_BADGES_PER_CARD = 2;
 
 export class SearchService {
   private readonly cache: ResultCache<SearchResponse>;
+  private readonly entities = new Map<string, { index: EntityIndex; expires: number }>();
 
   constructor(
     private readonly engine: SearchEngine,
@@ -138,7 +144,13 @@ export class SearchService {
     }
 
     const vocabulary = await this.engine.vocabulary(site.id);
-    const analyzed = analyzeQuery(query, { vocabulary });
+    const entities = await this.entityIndex(site.id);
+    const analyzed = analyzeQuery(query, { vocabulary, entities });
+
+    // Entities the query named become ordinary filters. Going through the same
+    // path as a facet click is what makes them precise, visible and removable:
+    // the shopper sees "Brand: Heritage" as a chip and can take it off.
+    request = applyEntityConstraints(request, analyzed.constraints);
 
     // 2. Synonyms expand the query rather than the index, so an edit takes
     //    effect on the next search instead of needing a reindex.
@@ -180,6 +192,10 @@ export class SearchService {
           effectiveQuery: '',
           queryType: analyzed.type,
           appliedFilters: request.filters ?? {},
+          // Carried through: a shopper shown a relaxed result set still needs
+          // to see what the query was understood to mean, and which part of it
+          // was dropped to get here.
+          parsedFilters: analyzed.constraints.length ? analyzed.constraints : undefined,
           rescue: rescued.rescue,
           processingTimeMs: round(performance.now() - started),
         };
@@ -191,21 +207,29 @@ export class SearchService {
       }
     }
 
+    // 4. Merchandising bound to the query itself. Applied to the whole ranked
+    //    window rather than the page, so a pin at slot one lands on page one.
+    const merchandised = await this.applyQueryRule(site, request, grouped, ruleIds);
+
     const start = (page - 1) * hitsPerPage;
-    const pageHits = grouped.slice(start, start + hitsPerPage);
+    const pageHits = merchandised.slice(start, start + hitsPerPage);
     const surfaces = [...new Set(effectiveTerms)];
     for (const hit of pageHits) this.addHighlights(hit, surfaces);
     await this.addBadges(site.id, pageHits);
 
+    // A rule can remove products and add ones the query never matched, so the
+    // count a shopper is shown follows the merchandised list, not retrieval.
+    const merchandisedTotal = totalHits + (merchandised.length - grouped.length);
+
     // totalHits is the true count; totalPages is what can actually be paged to.
-    const reachable = Math.min(totalHits, this.maxPaginationHits(hitsPerPage));
+    const reachable = Math.min(merchandisedTotal, this.maxPaginationHits(hitsPerPage));
     return {
       hits: pageHits,
       page,
       hitsPerPage,
-      totalHits,
+      totalHits: merchandisedTotal,
       totalPages: Math.max(1, Math.ceil(reachable / hitsPerPage)),
-      reachableHits: reachable < totalHits ? reachable : undefined,
+      reachableHits: reachable < merchandisedTotal ? reachable : undefined,
       processingTimeMs: round(performance.now() - started),
       query: request.q ?? '',
       effectiveQuery: effectiveTerms.join(' '),
@@ -217,6 +241,129 @@ export class SearchService {
       rulesApplied: ruleIds.length ? ruleIds : undefined,
       parsedFilters: analyzed.constraints.length ? analyzed.constraints : undefined,
     };
+  }
+
+  /**
+   * Pins, buries and hides for this query.
+   *
+   * A pin names a product whether or not the query reached it, which is most of
+   * why merchandisers want pinning at all: putting a new range on "beams" today
+   * should not wait for the text to rank it. Anything pinned but absent is
+   * fetched by id — one lookup, only when a rule actually names something the
+   * results do not already contain.
+   */
+  /**
+   * Brands and product types the catalogue carries, cached per site.
+   *
+   * Built from the index's own directory, so nothing is configured: a brand is
+   * a brand because products carry it. Rebuilt when the index changes, which
+   * `invalidate` already signals.
+   */
+  private async entityIndex(siteId: string): Promise<EntityIndex> {
+    const cached = this.entities.get(siteId);
+    if (cached && cached.expires > Date.now()) return cached.index;
+    const index = await buildEntityIndex(this.engine, siteId);
+    this.entities.set(siteId, { index, expires: Date.now() + 60_000 });
+    return index;
+  }
+
+  private async applyQueryRule(
+    site: SiteConfig,
+    request: SearchRequest,
+    grouped: Hit[],
+    ruleIds: string[],
+  ): Promise<Hit[]> {
+    const store = this.options.queryRules;
+    const query = (request.q ?? '').trim();
+    if (!store || !query) return grouped;
+
+    const rule = await store.forQuery(site.id, query).catch(() => null);
+    if (!rule) return grouped;
+
+    const present = new Set(grouped.map((h) => h.parentId));
+    const missing = rule.actions
+      .filter((a) => a.action === 'pin' && !present.has(a.parentId))
+      .map((a) => a.parentId);
+
+    const absent = new Map<string, Hit>();
+    if (missing.length) {
+      const docs = await this.engine.getByParentIds(site.id, missing).catch(() => []);
+      for (const doc of docs) absent.set(doc.parentId, hitFromDoc(doc));
+    }
+
+    ruleIds.push(`query_rule:${rule.id}`);
+    return applyRule(grouped, rule, absent);
+  }
+
+  /**
+   * Relax a query whose entities were understood but which still found nothing.
+   *
+   * Three steps, most-preserving first, because each drops more of what the
+   * shopper asked for:
+   *
+   *   1. Keep the entities, drop the leftover words. "heritage beams" in a
+   *      catalogue with no Heritage brand still means beams, and showing beams
+   *      beats showing best sellers.
+   *   2. Drop the brand, keep the product type — what they came for.
+   *   3. Drop the product type, keep the brand.
+   *
+   * Every branch says what it dropped. A result set that quietly ignores half
+   * the query is worse than one that explains itself.
+   */
+  private async dropEntity(
+    site: SiteConfig,
+    ctx: RescueContext,
+  ): Promise<RescueOutcome | null> {
+    const brand = ctx.analyzed.constraints.find((c) => c.kind === 'brand');
+    const category = ctx.analyzed.constraints.find((c) => c.kind === 'category');
+    if (!brand && !category) return null;
+
+    // `q: ''` throughout: leaving the text in would re-lift the same entities
+    // and land straight back here.
+    const base = {
+      q: '',
+      sort: ctx.sort === 'relevance' ? 'best_selling' : ctx.sort,
+      page: ctx.page,
+      hitsPerPage: ctx.hitsPerPage,
+      facets: ctx.facetFields,
+    };
+    const asFilters = {
+      ...(category ? { categoryId: String(category.value) } : {}),
+      ...(brand ? { filters: { brand: [String(brand.value)] } } : {}),
+    };
+    const named = (c: typeof brand) => c?.source ?? '';
+
+    const attempt = async (
+      overrides: Record<string, unknown>,
+      notice: string,
+    ): Promise<RescueOutcome | null> => {
+      const response = await this.search(site, { ...base, ...overrides });
+      if (response.totalHits === 0) return null;
+      return { response, terms: ctx.terms, rescue: { strategy: 'drop_entity', notice } };
+    };
+
+    // 1. The words around the entities were the problem.
+    if (ctx.terms.length > 0) {
+      const kept = [brand ? brand.value : null, category ? named(category) : null]
+        .filter(Boolean).join(' ');
+      const outcome = await attempt(asFilters, `No exact matches. Showing ${kept}.`);
+      if (outcome) return outcome;
+    }
+
+    if (!brand || !category) return null;
+
+    // 2. That brand does not make that thing.
+    const withoutBrand = await attempt(
+      { categoryId: String(category.value) },
+      `No ${brand.value} ${named(category)}. Showing all ${named(category)}.`,
+    );
+    if (withoutBrand) return withoutBrand;
+
+    // 3. Last: keep the brand, show everything it does make.
+    return attempt(
+      { filters: { brand: [String(brand.value)] } },
+      `No ${brand.value} ${named(category)}. Showing all ${brand.value}.`,
+    );
   }
 
   /** Browse is search with a category and no query — same engine, same rules. */
@@ -354,23 +501,8 @@ export class SearchService {
   private async rescue(
     site: SiteConfig,
     request: SearchRequest,
-    ctx: {
-      analyzed: AnalyzedQuery;
-      terms: string[];
-      facetFields: string[];
-      labelFacets: string[];
-      sort: string;
-      page: number;
-      hitsPerPage: number;
-      vocabulary: Set<string>;
-    },
-  ): Promise<{
-    attempt?: { grouped: Hit[]; engineFacets: EngineFacet[]; totalHits: number };
-    /** A complete response, when the branch delegated to a cached search. */
-    response?: SearchResponse;
-    terms: string[];
-    rescue: { strategy: RescueStrategy; didYouMean?: string; notice?: string };
-  } | null> {
+    ctx: RescueContext,
+  ): Promise<RescueOutcome | null> {
     const probe = (terms: string[], overrides: Partial<SearchRequest> = {}, sort = ctx.sort) =>
       this.retrieve(site, { ...request, ...overrides }, { ...ctx, terms, sort }, true);
     const build = (terms: string[], overrides: Partial<SearchRequest> = {}, sort = ctx.sort) =>
@@ -393,7 +525,15 @@ export class SearchService {
       };
     }
 
-    // 2. Relax: drop the least informative term and retry.
+    // 2. A brand and a product type that are each real but empty together.
+    //    "Timberthane beams" is not a misspelling and not a nonsense query —
+    //    both halves exist, that combination does not. Dropping the brand and
+    //    saying so beats falling through to best sellers, which answers a
+    //    question nobody asked.
+    const entityRescue = await this.dropEntity(site, ctx);
+    if (entityRescue) return entityRescue;
+
+    // 3. Relax: drop the least informative term and retry.
     let relaxed = relaxTerms(ctx.terms);
     while (relaxed) {
       if ((await probe(relaxed)).totalHits > 0) {
@@ -409,7 +549,7 @@ export class SearchService {
       relaxed = relaxTerms(relaxed);
     }
 
-    // 3. Nearest category: whichever category best matches any query word.
+    // 4. Nearest category: whichever category best matches any query word.
     // A fallback has no query terms, so relevance means nothing — but if the
     // shopper picked a sort, it still applies to what they are shown.
     const fallbackSort = ctx.sort === 'relevance' ? 'best_selling' : ctx.sort;
@@ -439,7 +579,7 @@ export class SearchService {
       }
     }
 
-    // 4. Last resort: the site's best sellers. Never a dead end.
+    // 5. Last resort: the site's best sellers. Never a dead end.
     // No facets here on purpose. A facet rail computed over the entire
     // catalogue is noise on a "we found nothing, here is what sells" page, and
     // it is the most expensive query the engine can be asked for.
@@ -633,6 +773,53 @@ export class SearchService {
     }
     return out;
   }
+}
+
+/** What every rescue branch is handed. */
+interface RescueContext {
+  analyzed: AnalyzedQuery;
+  terms: string[];
+  facetFields: string[];
+  labelFacets: string[];
+  sort: string;
+  page: number;
+  hitsPerPage: number;
+  vocabulary: Set<string>;
+}
+
+/** What a branch returns when it saved the query. */
+interface RescueOutcome {
+  attempt?: { grouped: Hit[]; engineFacets: EngineFacet[]; totalHits: number };
+  /** A complete response, when the branch delegated to a cached search. */
+  response?: SearchResponse;
+  terms: string[];
+  rescue: { strategy: RescueStrategy; didYouMean?: string; notice?: string };
+}
+
+/**
+ * Fold entity constraints into the request as ordinary filters.
+ *
+ * A brand becomes a brand facet selection; a product type becomes the category
+ * being browsed. An explicit choice the shopper already made always wins — if
+ * they are inside Exterior and type "beams", the words narrow the text rather
+ * than teleporting them out of the category they chose.
+ */
+function applyEntityConstraints(
+  request: SearchRequest,
+  constraints: ParsedConstraint[],
+): SearchRequest {
+  const brand = constraints.find((c) => c.kind === 'brand');
+  const category = constraints.find((c) => c.kind === 'category');
+  if (!brand && !category) return request;
+
+  const next: SearchRequest = { ...request };
+  if (brand && !request.filters?.brand?.length) {
+    next.filters = { ...(request.filters ?? {}), brand: [String(brand.value)] };
+  }
+  if (category && !request.categoryId && !request.collection) {
+    next.categoryId = String(category.value);
+  }
+  return next;
 }
 
 /** `in_stock` is stored 0/1; shoppers should never see that. */

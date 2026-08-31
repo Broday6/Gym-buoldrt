@@ -1,4 +1,4 @@
-import type { Hit } from '@compass/shared';
+import type { Hit, VariantDoc } from '@compass/shared';
 import type { RankedCandidate } from './cascade.js';
 
 /**
@@ -14,6 +14,34 @@ export interface GroupOptions {
   /** Keep at most this many matched siblings on each card. */
   maxSiblings?: number;
   includeExplanations?: boolean;
+}
+
+/**
+ * One product document as a result card.
+ *
+ * The shape of a hit is defined once, here, because three paths produce them —
+ * grouped search results, recommendation rails, and products a merchandiser
+ * pinned that the query never matched. Three copies would drift, and a card
+ * missing a field looks like a bug in whichever surface produced it.
+ */
+export function hitFromDoc(doc: VariantDoc): Hit {
+  return {
+    parentId: doc.parentId,
+    sku: doc.sku,
+    title: doc.title,
+    variantTitle: doc.variantTitle,
+    brand: doc.brand,
+    categoryPath: doc.categoryPath,
+    image: doc.image,
+    price: doc.price,
+    salePrice: doc.salePrice,
+    effectivePrice: doc.effectivePrice,
+    inStock: doc.inStock,
+    reviewScore: doc.reviewScore,
+    reviewCount: doc.reviewCount,
+    variantCount: doc.variantCount,
+    matchedVariants: [],
+  };
 }
 
 export function groupByParent(

@@ -1,6 +1,7 @@
 import type { Hit, SiteConfig } from '@compass/shared';
 import type { SearchEngine } from '../engine/types.js';
 import type { Db } from '../db/pool.js';
+import { hitFromDoc } from '../ranking/group.js';
 import type { SearchService } from './search.js';
 
 /**
@@ -239,22 +240,6 @@ export class RecommendService {
     limit: number,
   ): Promise<Hit[]> {
     const docs = await this.engine.getByParentIds(site.id, parentIds.slice(0, limit));
-    return docs.map((doc) => ({
-      parentId: doc.parentId,
-      sku: doc.sku,
-      title: doc.title,
-      variantTitle: doc.variantTitle,
-      brand: doc.brand,
-      categoryPath: doc.categoryPath,
-      image: doc.image,
-      price: doc.price,
-      salePrice: doc.salePrice,
-      effectivePrice: doc.effectivePrice,
-      inStock: doc.inStock,
-      reviewScore: doc.reviewScore,
-      reviewCount: doc.reviewCount,
-      variantCount: doc.variantCount,
-      matchedVariants: [],
-    }));
+    return docs.map(hitFromDoc);
   }
 }

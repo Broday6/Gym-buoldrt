@@ -130,6 +130,8 @@ export type RescueStrategy =
   | 'spell_correct'
   | 'relax_query'
   | 'semantic_only'
+  /** A brand and a product type that are each real but empty in combination. */
+  | 'drop_entity'
   | 'category_fallback';
 
 export interface SearchResponse {
@@ -175,7 +177,7 @@ export interface Banner {
   position: 'top' | { inGrid: number };
 }
 
-export type QueryType = 'sku' | 'dimensional' | 'natural_language' | 'keyword' | 'empty';
+export type QueryType = 'sku' | 'dimensional' | 'natural_language' | 'keyword' | 'empty' | 'entity';
 
 /** A filter the query analyser inferred from the raw text. */
 export interface ParsedConstraint {
@@ -183,5 +185,10 @@ export interface ParsedConstraint {
   value: string | number;
   /** Original substring that produced it, for the "why" panel. */
   source: string;
-  kind: 'dimension' | 'attribute' | 'sku' | 'unit';
+  /**
+   * `brand` and `category` are entities the query named — a brand the
+   * catalogue carries, a product type the taxonomy has. Lifted out of the text
+   * and applied as filters, so they are precise and the shopper can remove one.
+   */
+  kind: 'dimension' | 'attribute' | 'sku' | 'unit' | 'brand' | 'category';
 }

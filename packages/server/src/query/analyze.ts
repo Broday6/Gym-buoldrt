@@ -1,4 +1,5 @@
 import type { ParsedConstraint, QueryType } from '@compass/shared';
+import { liftEntities, type EntityIndex } from './entities.js';
 import { parseDimensions } from './dimensions.js';
 import { STOPWORDS, normalise, singularise, splitCompound, tokenise } from './normalize.js';
 
@@ -38,6 +39,8 @@ const NL_MARKERS = /\b(what|which|how|where|that|for|cover|between|need|looking|
 export interface AnalyzeOptions {
   /** Index vocabulary used for compound splitting. Optional. */
   vocabulary?: Set<string>;
+  /** Brands and product types the catalogue actually carries. Optional. */
+  entities?: EntityIndex;
 }
 
 export function analyzeQuery(raw: string, options: AnalyzeOptions = {}): AnalyzedQuery {
@@ -80,19 +83,35 @@ export function analyzeQuery(raw: string, options: AnalyzeOptions = {}): Analyze
   if (options.vocabulary) {
     terms = terms.flatMap((t) => splitCompound(t, options.vocabulary!) ?? [t]);
   }
-  terms = terms.map(singularise);
+
+  // 3. Lift the brands and product types the catalogue actually carries, so
+  //    "heritage beams" filters to that brand's beams instead of asking the
+  //    index whether those characters appear anywhere in a document.
+  //    Before singularising, because the entity dictionary holds both forms
+  //    and a blind singulariser mangles names ("Columns Direct").
+  const entityMatch = options.entities
+    ? liftEntities(terms, options.entities)
+    : { constraints: [], residual: terms };
+  constraints.push(...entityMatch.constraints);
+  terms = entityMatch.residual.map(singularise);
 
   // 3. Natural language: long, or built from question/relation words with few
   //    catalogue nouns left once stopwords are gone.
   const wordCount = rawTokens.length;
   const isNaturalLanguage =
     constraints.length === 0 && (wordCount >= 6 || (wordCount >= 4 && NL_MARKERS.test(text)));
+  const entityOnly = terms.length === 0 && entityMatch.constraints.length > 0;
 
   const type: QueryType = isNaturalLanguage
     ? 'natural_language'
-    : constraints.length > 0
-      ? 'dimensional'
-      : 'keyword';
+    // "beams" or "ekena beams" is a browse of something specific, not a
+    // keyword search that happens to have returned nothing to match on.
+    : entityOnly || entityMatch.constraints.length > 0
+      ? (constraints.some((c) => c.kind === 'dimension' || c.kind === 'unit')
+        ? 'dimensional' : 'entity')
+      : constraints.length > 0
+        ? 'dimensional'
+        : 'keyword';
 
   return {
     raw,
