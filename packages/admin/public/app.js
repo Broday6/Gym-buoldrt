@@ -7,6 +7,7 @@ import { catalog } from './views/catalog.js';
 import { history } from './views/history.js';
 import { merchandiser } from './views/merchandiser.js';
 import { quality } from './views/quality.js';
+import { autopilot } from './views/autopilot.js';
 
 /**
  * Console shell.
@@ -52,6 +53,7 @@ const AREAS = [
 
 const VIEWS = {
   dashboard: { area: 'dashboard', label: 'Overview', view: dashboard, needs: 'analyst', windowed: true },
+  autopilot: { area: 'merchandising', label: 'Recommendations', view: autopilot, needs: 'analyst' },
   quality: { area: 'reporting', label: 'Search quality', view: quality, needs: 'analyst', windowed: true },
   merchandiser: { area: 'merchandising', label: 'Merchandiser', view: merchandiser, needs: 'merchandiser' },
   collections: { area: 'merchandising', label: 'Collections', view: collections, needs: 'merchandiser' },

@@ -155,7 +155,7 @@ if (process.env.SEED_TRAFFIC !== '0') {
     await db.query('DELETE FROM events WHERE site_id = $1 AND shopper_id LIKE $2',
       [site.id, 'demo-shopper-%']);
 
-    const events = await generateTraffic(site.id, async (query) => {
+    const { events, impressions } = await generateTraffic(site.id, async (query) => {
       const r = await search.search(site, { q: query, hitsPerPage: 20, facets: [], rescue: false });
       return {
         total: r.totalHits,
@@ -170,6 +170,23 @@ if (process.env.SEED_TRAFFIC !== '0') {
       collector.collect(events.slice(i, i + 2_000));
       await collector.flush();
     }
+
+    // What those searches showed. A running server counts this as it serves;
+    // a month of history written after the fact has to be told. Without it
+    // every click-through rate in the demo would be a click count over zero.
+    for (let i = 0; i < impressions.length; i += 2_000) {
+      const chunk = impressions.slice(i, i + 2_000);
+      await db.query(
+        `INSERT INTO daily_impressions (site_id, day, sku, impressions)
+         SELECT $1, d::date, s, n
+           FROM unnest($2::text[], $3::text[], $4::int[]) AS t(d, s, n)
+         ON CONFLICT (site_id, day, sku)
+         DO UPDATE SET impressions = daily_impressions.impressions + EXCLUDED.impressions`,
+        [site.id, chunk.map((c) => c.day), chunk.map((c) => c.sku),
+          chunk.map((c) => c.impressions)],
+      );
+    }
+
     const rolled = await analytics.rollup(site.id, 30);
     const overview = await analytics.overview(site.id, 30);
     console.log(

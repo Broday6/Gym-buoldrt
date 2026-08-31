@@ -31,6 +31,13 @@ export interface SchedulerOptions {
   db: Db;
   sites: SiteRegistry;
   analytics: AnalyticsService;
+  /**
+   * Optional. Without it the rollup still runs and the console still shows
+   * proposals; only the unattended half is absent.
+   */
+  autopilot?: {
+    run(siteId: string, threshold?: number, limit?: number): Promise<{ applied: unknown[] }>;
+  };
   log: { info: (o: object, m: string) => void; error: (o: object, m: string) => void };
   /** How often to check whether a job is due. */
   tickMs?: number;
@@ -56,6 +63,20 @@ export class Scheduler {
           // written after it, and a shopper's day is not the server's day.
           const { days, events } = await options.analytics.rollup(siteId, 2);
           return `${events} events over ${days} day(s)`;
+        },
+      },
+      {
+        // After the rollup, on the numbers it just produced. Off unless a site
+        // asks for it: a system that quietly rewrites merchandising overnight
+        // is not one anybody should have to opt out of.
+        name: 'autopilot',
+        hourUtc: Number(process.env.COMPASS_AUTOPILOT_HOUR_UTC ?? 4),
+        run: async (siteId) => {
+          if (!options.autopilot || process.env.COMPASS_AUTOPILOT !== 'on') {
+            return 'off';
+          }
+          const { applied } = await options.autopilot.run(siteId);
+          return applied.length ? `applied ${applied.length} proposal(s)` : 'nothing confident enough';
         },
       },
     ];

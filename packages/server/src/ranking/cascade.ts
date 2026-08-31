@@ -1,6 +1,6 @@
 import type { BusinessWeights, RankExplanation, SearchableAttribute, VariantDoc } from '@compass/shared';
 import type { EngineCandidate } from '../engine/types.js';
-import { businessScore } from './business.js';
+import { businessScore, type ClickSignals } from './business.js';
 
 /**
  * Textual relevance is a tie-breaking CASCADE, not a weighted sum: each
@@ -170,7 +170,8 @@ export interface RankOptions {
   /** How many cascade criteria form a relevance band. */
   bandDepth?: number;
   now?: number;
-  ctrBySku?: Map<string, number>;
+  /** Measured behaviour, when the analytics store has any. */
+  clicks?: ClickSignals;
   /**
    * Keep the engine's ordering instead of applying the cascade.
    *
@@ -188,7 +189,7 @@ export function rankCandidates(
   const depth = options.bandDepth ?? CASCADE.length;
   const ranked = candidates.map((candidate) => {
     const signals = computeTextSignals(candidate, options.terms, options.weights);
-    const business = businessScore(candidate.doc, options.business, options.now, options.ctrBySku);
+    const business = businessScore(candidate.doc, options.business, options.now, options.clicks);
     return {
       candidate,
       signals,

@@ -16,11 +16,17 @@ export interface BusinessScore {
   breakdown: Record<string, number>;
 }
 
+/** Measured click-through, and what an average product on the site earns. */
+export interface ClickSignals {
+  bySku: Map<string, number>;
+  mean: number;
+}
+
 export function businessScore(
   doc: VariantDoc,
   weights: BusinessWeights,
   now = Date.now(),
-  ctrBySku?: Map<string, number>,
+  clicks?: ClickSignals,
 ): BusinessScore {
   const signals: Record<keyof BusinessWeights, number> = {
     salesVelocity: logNormalise(doc.salesVelocity ?? 0, VELOCITY_CEILING),
@@ -28,7 +34,7 @@ export function businessScore(
     inventoryDepth: logNormalise(doc.inventory ?? 0, INVENTORY_CEILING),
     recency: recencyDecay(doc.dateAddedTs ?? 0, now),
     reviewScore: clamp01((doc.reviewScore ?? 0) / 5),
-    ctr: clamp01(ctrBySku?.get(doc.sku) ?? 0),
+    ctr: relativeCtr(clicks?.bySku.get(doc.sku), clicks?.mean ?? 0),
   };
 
   let total = 0;
@@ -42,6 +48,23 @@ export function businessScore(
     weightSum += weight;
   }
   return { score: weightSum > 0 ? round4(total / weightSum) : 0, breakdown };
+}
+
+/**
+ * Click-through, scored against the site rather than in the abstract.
+ *
+ * A 4% click-through is excellent on one catalogue and poor on another, so an
+ * absolute rate on a 0..1 scale would make this signal both incomparable
+ * between sites and, at realistic rates, far too small to matter next to
+ * signals that use their whole range. Scored relative to the site average
+ * instead: average is 0.5, twice average saturates at 1, none is 0.
+ *
+ * A product nobody has measured scores the same as an average one. Ranking it
+ * last for the crime of being new is how a catalogue freezes.
+ */
+function relativeCtr(ctr: number | undefined, mean: number): number {
+  if (ctr === undefined || mean <= 0) return 0.5;
+  return clamp01(0.5 * (ctr / mean));
 }
 
 /** Diminishing returns: the 900th sale should not matter like the 9th. */

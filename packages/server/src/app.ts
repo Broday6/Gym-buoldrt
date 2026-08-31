@@ -26,6 +26,9 @@ import { AJV_OPTIONS } from './routes/schemas.js';
 import { Scheduler } from './services/scheduler.js';
 import { HistoryService } from './services/history.js';
 import { QueryRuleStore } from './merchandising/queryrules.js';
+import { SignalStore } from './services/signals.js';
+import { AutopilotService } from './services/autopilot.js';
+import { ImpressionRecorder } from './services/impressions.js';
 import { Metrics, RateLimiter, registerGuards } from './routes/guards.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -101,11 +104,16 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const redirects = new RedirectStore(db);
   const collections = new CollectionStore(db);
   const queryRules = new QueryRuleStore(db);
+  const signals = new SignalStore(db);
+  const impressions = new ImpressionRecorder(db);
+  impressions.start();
   const search = new SearchService(engine, {
     synonyms,
     redirects,
     collections,
     queryRules,
+    signals,
+    impressions,
     cache: new ResultCache({
       maxEntries: Number(process.env.COMPASS_CACHE_ENTRIES ?? 2_000),
       ttlMs: Number(process.env.COMPASS_CACHE_TTL_MS ?? 60_000),
@@ -113,6 +121,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   });
   const autocomplete = new AutocompleteService(engine, search, db, redirects);
   const analytics = new AnalyticsService(db);
+  const autopilot = new AutopilotService(db, { queryRules, synonyms });
   const recommend = new RecommendService(engine, search, db);
   const preview = new PreviewService(engine);
   const history = new HistoryService(db, { collections, synonyms, redirects });
@@ -172,11 +181,11 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const open = options.open ?? process.env.COMPASS_DEV_OPEN === '1';
   // Maintenance the deployment would otherwise have to remember: the rollup
   // that keeps the dashboard current runs here, once across all instances.
-  const scheduler = new Scheduler({ db, sites, analytics, log: app.log });
+  const scheduler = new Scheduler({ db, sites, analytics, autopilot, log: app.log });
   scheduler.start();
   await registerRoutes(app, {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, queryRules, sites, collector, db, auth: { keyStore, open }, scheduler,
+    preview, history, queryRules, autopilot, sites, collector, db, auth: { keyStore, open }, scheduler,
   });
 
   // The demo storefront and the built SDK bundle, when present.
@@ -356,6 +365,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
 
   app.addHook('onClose', async () => {
     scheduler.stop();
+    await impressions.stop();
     await collector.stop();
     await engine.close();
     await db.end();

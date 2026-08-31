@@ -67,15 +67,26 @@ export interface SearchProbe {
  * Build a session's worth of events by actually searching the index, so clicks
  * point at products that really matched.
  */
+/** One product, shown that many times on that day. */
+export interface ImpressionCount {
+  day: string;
+  sku: string;
+  impressions: number;
+}
+
 export async function generateTraffic(
   site: string,
   probe: SearchProbe,
   options: TrafficOptions = {},
-): Promise<ShopperEvent[]> {
+): Promise<{ events: ShopperEvent[]; impressions: ImpressionCount[] }> {
   const sessions = options.sessions ?? 600;
   const days = options.days ?? 30;
   const rand = mulberry32(options.seed ?? 424242);
   const events: ShopperEvent[] = [];
+  // Every search shows a page of products, and click-through is meaningless
+  // without that denominator. A live server counts this as it serves; here the
+  // history is being written after the fact, so it is counted here.
+  const shown = new Map<string, number>();
 
   // Cache probe results: the same head queries repeat constantly, and this is
   // a demo generator, not a load test.
@@ -140,6 +151,12 @@ export async function generateTraffic(
 
       if (zero || result.hits.length === 0) continue;
 
+      const day = new Date(clock).toISOString().slice(0, 10);
+      for (const hit of result.hits.slice(0, 24)) {
+        const key = `${day}\u0000${hit.sku}`;
+        shown.set(key, (shown.get(key) ?? 0) + 1);
+      }
+
       // Click-through decays sharply with position, so average click position
       // is a real signal rather than a uniform average.
       const clicks = rand() < 0.55 ? 1 + (rand() < 0.25 ? 1 : 0) : 0;
@@ -188,5 +205,11 @@ export async function generateTraffic(
     }
   }
 
-  return events;
+  return {
+    events,
+    impressions: [...shown].map(([key, impressions]) => {
+      const [day, sku] = key.split('\u0000');
+      return { day: day!, sku: sku!, impressions };
+    }),
+  };
 }

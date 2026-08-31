@@ -15,6 +15,7 @@ import type { SearchEngine } from '../engine/types.js';
 import type { SearchService } from '../services/search.js';
 import type { EventCollector } from '../events/collector.js';
 import type { Db } from '../db/pool.js';
+import type { AutopilotService, Proposal } from '../services/autopilot.js';
 import { SiteNotFoundError, SORT_OPTIONS, type SiteRegistry } from '../config/sites.js';
 import { ingestRows, summariseQuality, type IngestOptions } from '../ingest/pipeline.js';
 import {
@@ -42,6 +43,7 @@ export interface RouteDeps {
   preview: PreviewService;
   history: HistoryService;
   queryRules: QueryRuleStore;
+  autopilot: AutopilotService;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
@@ -55,7 +57,7 @@ const VERSION = process.env.npm_package_version ?? '0.1.0';
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
   const {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, queryRules, sites, collector, db, auth, scheduler,
+    preview, history, queryRules, autopilot, sites, collector, db, auth, scheduler,
   } = deps;
   // Roles are ordered, so each guard names the *least* privilege that endpoint
   // needs and everything above it is admitted automatically.
@@ -582,6 +584,61 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   );
 
   // ---- synonyms ----------------------------------------------------------
+
+  // ---- autopilot --------------------------------------------------------------
+
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/admin/proposals',
+    guard(analystScope, {}),
+    async (request) => {
+      const proposals = await autopilot.proposals(request.params.site);
+      // Names, not SKUs. A recommendation about MLD525X525X144PR499 is one
+      // nobody can sanity-check without going to look it up, and a suggestion
+      // you have to research is one you dismiss.
+      const ids = [...new Set(proposals.flatMap((p) =>
+        (p.products ?? []).map((x) => x.parentId)))];
+      const titles = new Map<string, string>();
+      if (ids.length) {
+        for (const doc of await engine.getByParentIds(request.params.site, ids)) {
+          if (!titles.has(doc.parentId)) titles.set(doc.parentId, doc.title);
+        }
+      }
+      return {
+        proposals: proposals.map((p) => ({
+          ...p,
+          products: p.products?.map((x) => ({ ...x, title: titles.get(x.parentId) })),
+        })),
+      };
+    },
+  );
+
+  app.post<{ Params: { site: string }; Body: { proposal: Proposal } }>(
+    '/v1/:site/admin/proposals/apply',
+    guard(merchScope, { body: S.proposalBody }),
+    async (request, reply) => {
+      try {
+        // The service writes the audit entry itself, so an unattended run
+        // leaves the same trail this one does.
+        await autopilot.apply(request.params.site, request.body.proposal, actorOf(request));
+        // The proposal was derived from evidence that a rule now answers;
+        // offering it again would produce a duplicate rule.
+        await autopilot.dismiss(request.params.site, request.body.proposal.id, actorOf(request));
+        search.invalidate(request.params.site);
+        return { applied: true };
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.post<{ Params: { site: string }; Body: { id: string } }>(
+    '/v1/:site/admin/proposals/dismiss',
+    guard(merchScope, { body: S.proposalDismissBody }),
+    async (request) => {
+      await autopilot.dismiss(request.params.site, request.body.id, actorOf(request));
+      return { dismissed: true };
+    },
+  );
 
   // ---- query merchandising --------------------------------------------------
 

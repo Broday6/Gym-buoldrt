@@ -66,6 +66,34 @@ Verified: both smoke suites now pass against a server with no dev flag set, and
 the console's key gate is covered in both directions — no key asks, a pasted key
 gets in and survives a reload.
 
+### ✅ Click-through was measured against nothing
+
+**Found:** the ranking composite has a `ctr` signal, `businessScore` takes a
+`ctrBySku` map, and **nothing ever passed one** — the weight was 0 and the
+parameter had no caller. Following it back, the reason was worse: the analytics
+rollup wrote `0 AS impressions` for every product, because no impression was
+ever recorded anywhere. Clicks were being collected and thrown away, every rate
+the system could compute was 0/0, and the only signals affecting rank were ones
+somebody had typed into a spreadsheet.
+
+**Fixed.** Impressions are counted server-side as results are served — the
+server already knows exactly what it returned, and a client-side beacon is the
+first thing an ad blocker stops, which would have biased the denominator toward
+whoever does not run one. The rollup now full-outer-joins impressions against
+clicks, so the product shown a thousand times and never clicked gets a row; an
+inner join would have dropped exactly the row a click-through rate exists to
+find, and computed the site average over clicked products only.
+
+Rates are shrunk toward the site average in proportion to how thin the evidence
+is, and scored relative to that average rather than absolutely. A product
+nobody has measured scores as an average one, not last — ranking the unmeasured
+below everything is how a catalogue freezes.
+
+**Watch:** this is a feedback loop. Whatever ranks first gets the impressions,
+so an early accident can entrench itself. The shrinkage damps it and the weight
+is below sales velocity on purpose; any increase to that weight should be
+argued for with a measurement, not a hunch.
+
 ### ✅ The container image had no console in it
 
 **Found:** `Dockerfile` copies `packages/demo/public` and `packages/sdk/src`
@@ -225,6 +253,8 @@ What remains:
   at slot one lands on page one. The console merchandises the live grid by
   dragging results, and a pin names a product whether or not the query ever
   reached it.
+- ~~**Personalisation**~~ ◐ Ranking now adapts to what shoppers on the site do,
+  which is the population half of it. Per-shopper personalisation is not built.
 - **Semantic retrieval.** `semanticWeight` is plumbed and set to 0. The one
   open acceptance criterion depends on it.
 - **Personalisation and A/B testing.**
@@ -259,6 +289,9 @@ What remains:
 | The repository is a complete handoff | Cloned the pushed branch into an empty directory three times, on a fresh database each time: `npm ci`, build, tests, seed, run, every suite. It found two console checks that only passed on an install someone had already used |
 | A blocked step says which step, and what to do | Driven on Linux: dependencies not installed, Postgres running but no login accepted (both the prompt and the non-interactive message), a busy port, a seeded database whose key file is gone. Each names the one command that fixes it |
 | The one command works on Windows too | Reviewed rather than run — there is no Windows here. `npx` is `npx.cmd`, which Node has refused to spawn without a shell since the 2024 command-injection fix, so every child now goes through `node --import tsx`; the tick marks fall back to ASCII outside Windows Terminal; and `npm test` and `npm run a11y` no longer depend on shell globbing or `VAR=value cmd`, neither of which cmd.exe does |
+| Behaviour reaches ranking, end to end | Seeded a month of traffic, checked the rollup: 23,836 impressions, 831 clicks, 5,314 products shown and never clicked. Before this the same query returned 0 impressions for everything |
+| A recommendation changes the results | Read the proposals off a live server, applied one through the API, and watched the top three results for "beam" change to the three products shoppers had been reaching for from position 12 |
+| An automatic change is as visible as a manual one | Applied a proposal, then read `audit_log`: one row, actor recorded, before and after captured, revertible from History like any other change |
 | One command stands the whole thing up | `npm install && npm run app` in a clean tree with **no database at all**: it created one, applied the schema, seeded, started the API, and printed the admin key. Both browser suites then passed against that instance. Also checked the paths that go wrong — no Postgres anywhere, a port already in use, a second run reusing what is there, and `--reseed` |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 | The hosted demo is a shop, not a harness | 32 checks over `file://` at desktop and phone: the grid, the departments, a misspelling landing on the right products, a brand-plus-type query read as both, and its own axe-core pass in both themes |

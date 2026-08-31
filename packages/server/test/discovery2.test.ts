@@ -160,7 +160,7 @@ describe('traffic generator', () => {
         })),
       };
     };
-    const events = await generateTraffic('ekena', probe, { sessions: 400, seed: 7 });
+    const { events, impressions } = await generateTraffic('ekena', probe, { sessions: 400, seed: 7 });
 
     const searches = events.filter((e) => e.type === 'search' || e.type === 'zero_result');
     const zero = events.filter((e) => e.type === 'zero_result');
@@ -181,12 +181,23 @@ describe('traffic generator', () => {
     for (const s of searches) counts.set(s.query!, (counts.get(s.query!) ?? 0) + 1);
     const sorted = [...counts.values()].sort((a, b) => b - a);
     assert.ok(sorted[0]! > sorted[sorted.length - 1]! * 5, 'volume is head-heavy, not uniform');
+
+    // Every click needs a denominator. A product shown and never clicked is
+    // the row a click-through rate exists to produce, so impressions must
+    // cover more products than clicks do, not the same ones.
+    assert.ok(impressions.length > 0, 'searches record what they showed');
+    const shown = new Set(impressions.map((i) => i.sku));
+    const clicked = new Set(clicks.map((c) => c.sku!));
+    for (const sku of clicked) assert.ok(shown.has(sku), `${sku} was clicked without being shown`);
+    // The rate this produces has to be a rate: many more shown than taken.
+    const total = impressions.reduce((n, i) => n + i.impressions, 0);
+    assert.ok(total > clicks.length * 5, `${total} impressions for ${clicks.length} clicks`);
   });
 
   test('is deterministic for a given seed', async () => {
     const probe = async () => ({ total: 5, hits: [{ sku: 'A', parentId: 'P', effectivePrice: 10 }] });
-    const a = await generateTraffic('ekena', probe, { sessions: 40, seed: 99 });
-    const b = await generateTraffic('ekena', probe, { sessions: 40, seed: 99 });
+    const { events: a } = await generateTraffic('ekena', probe, { sessions: 40, seed: 99 });
+    const { events: b } = await generateTraffic('ekena', probe, { sessions: 40, seed: 99 });
     assert.equal(a.length, b.length);
     assert.deepEqual(a.map((e) => e.type), b.map((e) => e.type));
   });
@@ -196,7 +207,7 @@ describe('traffic generator', () => {
       total: 10,
       hits: Array.from({ length: 10 }, (_, i) => ({ sku: `S${i}`, parentId: `P${i}`, effectivePrice: 50 })),
     });
-    const events = await generateTraffic('ekena', probe, { sessions: 300, seed: 3 });
+    const { events } = await generateTraffic('ekena', probe, { sessions: 300, seed: 3 });
     const carts = new Set(events.filter((e) => e.type === 'add_to_cart').map((e) => `${e.sessionId}|${e.sku}`));
     for (const purchase of events.filter((e) => e.type === 'purchase')) {
       assert.ok(carts.has(`${purchase.sessionId}|${purchase.sku}`),

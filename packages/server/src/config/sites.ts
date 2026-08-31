@@ -55,7 +55,12 @@ function site(id: string, name: string): SiteConfig {
       inventoryDepth: 1,
       recency: 1,
       reviewScore: 2,
-      ctr: 0,
+      // Measured on this site, against these results, this week — the only
+      // signal here that is not somebody's opinion, and the one that makes
+      // ranking improve without anyone editing a rule. Weighted below sales
+      // velocity on purpose: it re-orders comparable matches, it does not
+      // decide relevance.
+      ctr: 2,
     },
     defaultFacets: DEFAULT_FACETS,
     defaultSort: 'relevance',

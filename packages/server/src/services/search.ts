@@ -55,6 +55,13 @@ export interface SearchServiceOptions {
     listBadges?(siteId: string): Promise<BadgeDefinition[]>;
   };
   cache?: ResultCache<SearchResponse>;
+  /**
+   * Measured shopper behaviour. Optional, and typed structurally: search must
+   * rank without an analytics database, just less well.
+   */
+  signals?: { get(siteId: string): Promise<{ ctrBySku: Map<string, number>; siteMean: number }> };
+  /** Counts what was served, so click-through has a denominator. */
+  impressions?: { record(siteId: string, skus: string[]): void };
 }
 
 /**
@@ -225,6 +232,10 @@ export class SearchService {
     const surfaces = [...new Set(effectiveTerms)];
     for (const hit of pageHits) this.addHighlights(hit, surfaces);
     await this.addBadges(site.id, pageHits);
+
+    // What was served, counted where it is known for certain. Buffered in
+    // memory by the recorder, so this is a map write, not a database call.
+    this.options.impressions?.record(site.id, pageHits.map((h) => h.sku));
 
     // A rule can remove products and add ones the query never matched, so the
     // count a shopper is shown follows the merchandised list, not retrieval.
@@ -477,10 +488,18 @@ export class SearchService {
     };
 
     const result = await this.engine.search(engineQuery);
+    // Behaviour is read per query rather than cached with the result: the
+    // store is already cached and the map is shared, so this is a lookup, and
+    // ranking that silently used a stale snapshot for an hour is worse.
+    const measured = site.business.ctr
+      ? await this.options.signals?.get(site.id).catch(() => undefined)
+      : undefined;
+
     const ranked = rankCandidates(result.candidates, {
       terms: ctx.terms,
       weights: site.searchableAttributes,
       business: site.business,
+      clicks: measured ? { bySku: measured.ctrBySku, mean: measured.siteMean } : undefined,
       bandDepth: this.options.bandDepth,
       // An explicit sort is the shopper's instruction and outranks relevance.
       preserveOrder: ctx.sort !== 'relevance',

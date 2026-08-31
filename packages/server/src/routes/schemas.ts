@@ -424,6 +424,74 @@ export const queryRuleBody = {
   },
 } as const;
 
+/**
+ * A proposal handed back for application.
+ *
+ * The whole object round-trips rather than an id, because proposals are
+ * derived from behaviour on every read and never stored — there is no row to
+ * look one up in. That means the server is applying something the client sent,
+ * so the fields that decide what happens are bounded here, and `apply` reads
+ * only those: the kind, the query, the product. Confidence and evidence come
+ * along for the audit note and change nothing.
+ */
+export const proposalBody = {
+  type: 'object',
+  required: ['proposal'],
+  additionalProperties: false,
+  properties: {
+    proposal: {
+      type: 'object',
+      required: ['id', 'kind', 'query', 'summary'],
+      additionalProperties: false,
+      properties: {
+        id: { type: 'string', minLength: 1, maxLength: 512 },
+        kind: { type: 'string', enum: ['promote', 'demote', 'synonym'] },
+        query: { type: 'string', maxLength: 256 },
+        products: {
+          type: 'array',
+          maxItems: 10,
+          items: {
+            type: 'object',
+            required: ['parentId'],
+            additionalProperties: false,
+            properties: {
+              parentId: { type: 'string', minLength: 1, maxLength: 128 },
+              sku: { type: 'string', maxLength: 128 },
+              clicks: { type: 'integer', minimum: 0 },
+              position: { type: 'integer', minimum: 1, maximum: 100 },
+              title: { type: 'string', maxLength: 512 },
+            },
+          },
+        },
+        sku: { type: 'string', maxLength: 128 },
+        title: { type: 'string', maxLength: 512 },
+        summary: { type: 'string', minLength: 1, maxLength: 512 },
+        confidence: { type: 'number', minimum: 0, maximum: 1 },
+        reach: { type: 'integer', minimum: 0 },
+        evidence: {
+          type: 'array',
+          maxItems: 12,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              label: { type: 'string', maxLength: 128 },
+              value: { type: 'string', maxLength: 256 },
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
+export const proposalDismissBody = {
+  type: 'object',
+  required: ['id'],
+  additionalProperties: false,
+  properties: { id: { type: 'string', minLength: 1, maxLength: 512 } },
+} as const;
+
 /** What the grid would look like with these actions, before saving them. */
 export const queryRulePreviewBody = {
   type: 'object',

@@ -198,21 +198,42 @@ export class AnalyticsService {
         `DELETE FROM daily_product_stats WHERE site_id = $1 AND day >= (${since})::date`,
         [siteId],
       );
+      // A full outer join, not a lookup off the event side: the product that
+      // was shown a thousand times and clicked never has no events at all, and
+      // an inner join would drop it — the single most useful row there is, and
+      // the one a click-through rate exists to find. Dropping it would also
+      // compute the site average over clicked products only, which is not an
+      // average of anything.
       await client.query(
         `INSERT INTO daily_product_stats
            (site_id, day, sku, impressions, clicks, add_to_carts, purchases, revenue,
             avg_click_position)
          SELECT
-           e.site_id, e.occurred_at::date, e.sku,
-           0 AS impressions,
-           COUNT(*) FILTER (WHERE e.type = 'click'),
-           COUNT(*) FILTER (WHERE e.type = 'add_to_cart'),
-           COUNT(*) FILTER (WHERE e.type = 'purchase'),
-           COALESCE(SUM(e.revenue) FILTER (WHERE e.type = 'purchase'), 0),
-           AVG(e.position) FILTER (WHERE e.type = 'click')
-         FROM events e
-         WHERE e.site_id = $1 AND e.occurred_at >= (${since}) AND e.sku IS NOT NULL
-         GROUP BY e.site_id, e.occurred_at::date, e.sku`,
+           COALESCE(a.site_id, i.site_id),
+           COALESCE(a.day, i.day),
+           COALESCE(a.sku, i.sku),
+           COALESCE(i.impressions, 0),
+           COALESCE(a.clicks, 0),
+           COALESCE(a.carts, 0),
+           COALESCE(a.purchases, 0),
+           COALESCE(a.revenue, 0),
+           a.avg_click_position
+         FROM (
+           SELECT e.site_id, e.occurred_at::date AS day, e.sku,
+                  COUNT(*) FILTER (WHERE e.type = 'click')        AS clicks,
+                  COUNT(*) FILTER (WHERE e.type = 'add_to_cart')  AS carts,
+                  COUNT(*) FILTER (WHERE e.type = 'purchase')     AS purchases,
+                  COALESCE(SUM(e.revenue) FILTER (WHERE e.type = 'purchase'), 0) AS revenue,
+                  AVG(e.position) FILTER (WHERE e.type = 'click') AS avg_click_position
+             FROM events e
+            WHERE e.site_id = $1 AND e.occurred_at >= (${since}) AND e.sku IS NOT NULL
+            GROUP BY e.site_id, e.occurred_at::date, e.sku
+         ) a
+         FULL OUTER JOIN (
+           SELECT site_id, day, sku, impressions
+             FROM daily_impressions
+            WHERE site_id = $1 AND day >= (${since})::date
+         ) i ON i.site_id = a.site_id AND i.day = a.day AND i.sku = a.sku`,
         [siteId],
       );
 

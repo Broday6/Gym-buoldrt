@@ -134,9 +134,20 @@ describe('business ranking', () => {
       doc({ salesVelocity: 1e9, margin: 5000, inventory: 1e6, reviewScore: 99, dateAddedTs: Date.now() }),
       weights,
     );
-    const empty = businessScore(doc({ inventory: 0 }), weights);
     assert.ok(huge.score <= 1 && huge.score >= 0, `got ${huge.score}`);
+
+    // Every signal the catalogue owns is zero for an empty product.
+    const { ctr: _drop, ...catalogueOnly } = weights;
+    const empty = businessScore(doc({ inventory: 0 }), { ...catalogueOnly, ctr: 0 });
     assert.equal(empty.score, 0);
+
+    // Click-through is the exception, and deliberately so: a product nobody
+    // has measured scores the same as an average one rather than last. Ranking
+    // the unmeasured below everything is how a catalogue freezes — nothing new
+    // can ever be seen, so nothing new can ever be clicked.
+    const unmeasured = businessScore(doc({ inventory: 0 }), weights);
+    assert.equal(unmeasured.breakdown.ctr, 0.5);
+    assert.ok(unmeasured.score > 0);
   });
 
   test('a zero weight removes a signal from the breakdown entirely', () => {
