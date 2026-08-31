@@ -10,5 +10,12 @@ ui-mobile.png
 admin.png
 admin-mobile.png
 phone-*.png
+console-*.png
+browser-*.png
+docs-page.png
+history.png
+merchandiser.png
+quality.png
+ssr-nojs.png
 packages/demo/*.d.ts
 packages/demo/*.js.map
