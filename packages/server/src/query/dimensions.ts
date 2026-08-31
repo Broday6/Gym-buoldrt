@@ -123,11 +123,19 @@ export function parseDimensions(query: string): DimensionMatch {
     const n = parseMeasurement(numRaw!);
     if (n === null) continue;
     const inches = quantise(toInches(n, unit));
-    // Feet/metres are length units in this catalogue; inches under 24 are
-    // usually a profile size, so they stay generic and match any dimension.
+    // A lone measurement names a size, not an axis. Feet and metres are the
+    // exception — nobody asks for a twelve-foot-wide medallion — so they mean
+    // length; everything else has to match whichever axis carries it.
+    //
+    // This used to also read any measurement of 24 inches or more as a length,
+    // on the theory that small numbers are profile sizes. That threshold cost
+    // real traffic: "24 inch ceiling medallion" became a strict length filter,
+    // medallions carry their diameter as a size rather than a length, nothing
+    // matched, and the shopper was dropped into catalogue-wide best sellers
+    // with no medallion on the page. The catalogue has 52 of them.
     const isLongForm = /^(ft|foot|feet|'|m)$/i.test(unit!);
     constraints.push({
-      field: isLongForm || inches >= 24 ? 'length_in' : 'any_dimension_in',
+      field: isLongForm ? 'length_in' : 'any_dimension_in',
       value: inches,
       source,
       kind: 'unit',

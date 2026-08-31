@@ -96,7 +96,7 @@ export class SqliteEngine implements SearchEngine {
         inventory INTEGER, in_stock INTEGER, discontinued INTEGER,
         review_score REAL, review_count INTEGER, sales_velocity REAL, margin REAL,
         date_added_ts INTEGER, variant_count INTEGER,
-        width_in REAL, height_in REAL, length_in REAL,
+        width_in REAL, height_in REAL, length_in REAL, size_in REAL,
         parent_ord INTEGER NOT NULL,
         ${DICTIONARY_FACETS.map((a) => `${attributeColumn(a)} INTEGER`).join(', ')},
         doc TEXT NOT NULL,
@@ -188,9 +188,9 @@ export class SqliteEngine implements SearchEngine {
         index_name, idx, id, site, sku, mpn, parent_id, title, variant_title, description, brand,
         category_text, attribute_text, price, sale_price, effective_price, discount_pct,
         inventory, in_stock, discontinued, review_score, review_count, sales_velocity, margin,
-        date_added_ts, variant_count, width_in, height_in, length_in, parent_ord,
+        date_added_ts, variant_count, width_in, height_in, length_in, size_in, parent_ord,
         ${attrColumns.join(', ')}, doc
-      ) VALUES (${new Array(30 + attrColumns.length + 1).fill('?').join(',')})
+      ) VALUES (${new Array(31 + attrColumns.length + 1).fill('?').join(',')})
       ON CONFLICT (index_name, id) DO NOTHING
     `);
     const insertFts = this.db.prepare(`
@@ -227,7 +227,7 @@ export class SqliteEngine implements SearchEngine {
           categoryText, attributeText, d.price, d.salePrice, d.effectivePrice, d.discountPct,
           d.inventory, d.inStock ? 1 : 0, d.discontinued ? 1 : 0, d.reviewScore, d.reviewCount,
           d.salesVelocity, d.margin, d.dateAddedTs, d.variantCount,
-          dims.width, dims.height, dims.length,
+          dims.width, dims.height, dims.length, dims.size,
           encoder.parentOrd(d.parentId),
           ...DICTIONARY_FACETS.map((field) => {
             const value = field === 'brand' ? d.brand : d.attrs?.[field];
@@ -925,8 +925,9 @@ export class SqliteEngine implements SearchEngine {
       if (!Number.isFinite(value)) continue;
       if (c.field === 'any_dimension_in') {
         // A lone size with no axis named matches whichever axis carries it.
-        parts.push('AND (ABS(d.width_in - ?) < 0.03 OR ABS(d.height_in - ?) < 0.03 OR ABS(d.length_in - ?) < 0.03)');
-        params.push(value, value, value);
+        parts.push('AND (ABS(d.width_in - ?) < 0.03 OR ABS(d.height_in - ?) < 0.03'
+          + ' OR ABS(d.length_in - ?) < 0.03 OR ABS(d.size_in - ?) < 0.03)');
+        params.push(value, value, value, value);
       } else if (DIMENSION_COLUMNS[c.field]) {
         parts.push(`AND ABS(d.${DIMENSION_COLUMNS[c.field]} - ?) < 0.03`);
         params.push(value);
@@ -1177,15 +1178,19 @@ const RANGE_COLUMNS: Record<string, string> = {
   width_in: 'width_in',
   height_in: 'height_in',
   length_in: 'length_in',
+  size_in: 'size_in',
 };
 
 const DIMENSION_COLUMNS: Record<string, string> = {
   width_in: 'width_in',
   height_in: 'height_in',
   length_in: 'length_in',
+  size_in: 'size_in',
 };
 
-function numericDimensions(d: VariantDoc): { width: number; height: number; length: number } {
+function numericDimensions(
+  d: VariantDoc,
+): { width: number; height: number; length: number; size: number } {
   const read = (...keys: string[]): number => {
     for (const k of keys) {
       const v = d.attrs?.[k];
@@ -1197,6 +1202,9 @@ function numericDimensions(d: VariantDoc): { width: number; height: number; leng
     width: read('width_in', 'width'),
     height: read('height_in', 'height', 'depth_in'),
     length: read('length_in', 'length'),
+    // Products sold by a single number — a medallion's diameter, a fan's
+    // span — carry it here rather than on an axis.
+    size: read('size_in', 'size', 'diameter_in'),
   };
 }
 

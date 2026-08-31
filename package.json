@@ -30,7 +30,8 @@
     "test": "tsx --test \"packages/server/test/*.test.ts\"",
     "typecheck": "tsc -b --pretty false",
     "ui-smoke": "node packages/demo/ui-smoke.mjs",
-    "ui-smoke:admin": "node packages/admin/ui-smoke.mjs"
+    "ui-smoke:admin": "node packages/admin/ui-smoke.mjs",
+    "relevance": "tsx packages/demo/relevance.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

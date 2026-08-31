@@ -730,7 +730,8 @@ export class SearchService {
     // browse requests — so they are issued through the cached search path. Every
     // failing query on a site shares the same fallback, so the first one pays
     // for it and the rest are served from cache.
-    const category = await this.nearestCategory(site.id, ctx.terms);
+    const category = (await this.namedCategory(site.id, ctx))
+      ?? await this.nearestCategory(site.id, ctx.terms);
     if (category) {
       // Filters go too: they were chosen for a result set that no longer exists.
       const response = await this.search(site, {
@@ -770,6 +771,36 @@ export class SearchService {
       };
     }
     return null;
+  }
+
+  /**
+   * The category the query itself named, if it named one.
+   *
+   * `nearestCategory` guesses from whatever query words survived analysis,
+   * which is the wrong place to look when the analyser has *already*
+   * recognised a category and lifted it out — at that point there are no words
+   * left to guess from. "24 inch ceiling medallion" understood the medallions
+   * category perfectly, found no medallion of that size, and then fell past
+   * the guess to catalogue-wide best sellers: a page of beams and chandeliers
+   * for a shopper who could not have been clearer about what they wanted.
+   *
+   * Falling back inside the category they named is always the better failure.
+   */
+  private async namedCategory(
+    siteId: string,
+    ctx: RescueContext,
+  ): Promise<{ id: string; path: string[] } | null> {
+    const named = ctx.analyzed.constraints.find(
+      (c) => c.kind === 'category' && c.field === 'categoryId',
+    );
+    if (!named) return null;
+    const id = String(named.value);
+    // The directory carries the catalogue's own spelling. Reconstructing a
+    // display path from the slug would put "Ceiling Medallions" on the page as
+    // "Ceiling-medallions".
+    const { categories } = await this.engine.directory(siteId);
+    const match = categories.find((c) => c.id === id);
+    return { id, path: match?.path ?? [id] };
   }
 
   private async nearestCategory(

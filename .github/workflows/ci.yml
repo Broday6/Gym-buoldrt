@@ -31,6 +31,11 @@ jobs:
         run: npx tsc -b --force --pretty false
       - name: Unit tests
         run: npm test
+      - name: Relevance
+        # The judged query set, scored against the committed baseline. Fails
+        # when a change makes any of them worse — the only check here that can
+        # tell a ranking regression from a green test suite.
+        run: npm run relevance
       - name: OpenAPI is current
         # The spec is generated from the route table. Adding an endpoint without
         # regenerating fails here rather than shipping a stale document.

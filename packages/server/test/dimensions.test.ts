@@ -69,8 +69,23 @@ describe('parseDimensions', () => {
     assert.deepEqual(constraintMap('3-1/2 inch crown moulding'), { any_dimension_in: 3.5 });
   });
 
-  test('a long measurement in inches is treated as a length', () => {
-    assert.deepEqual(constraintMap('beam 120 in'), { length_in: 120 });
+  test('a lone measurement in inches matches any axis, however large', () => {
+    // This used to become a strict `length_in` filter above 24 inches, on the
+    // theory that small numbers are profile sizes and large ones are lengths.
+    // The threshold cost real traffic: a ceiling medallion carries its
+    // diameter as a size rather than a length, so "24 inch ceiling medallion"
+    // filtered on an axis medallions do not have, matched nothing, and fell
+    // through to catalogue-wide best sellers.
+    assert.deepEqual(constraintMap('beam 120 in'), { any_dimension_in: 120 });
+    assert.deepEqual(constraintMap('24 inch ceiling medallion'), { any_dimension_in: 24 });
+  });
+
+  test('feet and metres still mean length, because no other axis is spoken of that way', () => {
+    // "12 foot beam" is a length and nothing else. Keeping the narrower filter
+    // where the unit settles it is what stops the change above from making
+    // every measurement vague.
+    assert.deepEqual(constraintMap('12 foot beam'), { length_in: 144 });
+    assert.deepEqual(constraintMap("beam 10'"), { length_in: 120 });
   });
 
   test('the residual keeps the search terms and drops the sizes', () => {

@@ -39,7 +39,9 @@ export interface TypesenseOptions {
 const FACET_ATTRIBUTES = [
   'finish', 'color', 'colour', 'material', 'style', 'size', 'profile', 'species', 'mount',
 ];
-const NUMERIC_ATTRIBUTES = ['width_in', 'height_in', 'length_in', 'depth_in', 'thickness_in'];
+const NUMERIC_ATTRIBUTES = [
+  'width_in', 'height_in', 'length_in', 'depth_in', 'thickness_in', 'size_in',
+];
 
 function collectionSchema(name: string) {
   return {
@@ -500,7 +502,8 @@ function buildFilterBy(query: EngineQuery): string {
     const value = Number(c.value);
     if (!Number.isFinite(value)) continue;
     if (c.field === 'any_dimension_in') {
-      clauses.push(`(width_in:=${value} || height_in:=${value} || length_in:=${value})`);
+      clauses.push(`(width_in:=${value} || height_in:=${value}`
+        + ` || length_in:=${value} || size_in:=${value})`);
     } else {
       clauses.push(`${c.field}:=${value}`);
     }

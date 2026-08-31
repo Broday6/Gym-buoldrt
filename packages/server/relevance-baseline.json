@@ -1,0 +1,98 @@
+{
+  "corpus": {
+    "products": 520,
+    "variants": 2158
+  },
+  "score": 1,
+  "cases": {
+    "noun-shutters": {
+      "precision": 1,
+      "pass": true
+    },
+    "noun-crown-moulding": {
+      "precision": 1,
+      "pass": true
+    },
+    "noun-ceiling-medallion": {
+      "precision": 1,
+      "pass": true
+    },
+    "noun-chandelier": {
+      "precision": 1,
+      "pass": true
+    },
+    "noun-faux-wood-beam": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-black-pvc-shutter": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-walnut-beam": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-primed-white-column": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-hunter-green-shutter": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-oil-rubbed-bronze-chandelier": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-cedar-bracket": {
+      "precision": 1,
+      "pass": true
+    },
+    "feature-black-shutter-not-lighting": {
+      "precision": 1,
+      "pass": true
+    },
+    "dim-4x6-beam": {
+      "precision": 1,
+      "pass": true
+    },
+    "dim-12ft-beam": {
+      "precision": 1,
+      "pass": true
+    },
+    "dim-24in-medallion": {
+      "precision": 1,
+      "pass": true
+    },
+    "style-hand-hewn-beam": {
+      "precision": 1,
+      "pass": true
+    },
+    "style-board-and-batten-shutter": {
+      "precision": 1,
+      "pass": true
+    },
+    "style-shaker-wainscot": {
+      "precision": 1,
+      "pass": true
+    },
+    "typo-chandaleer": {
+      "precision": 1,
+      "pass": true
+    },
+    "typo-crownmoulding": {
+      "precision": 1,
+      "pass": true
+    },
+    "relax-black-polyurethane-shutter": {
+      "precision": 1,
+      "pass": true
+    },
+    "sku-exact": {
+      "precision": 1,
+      "pass": true
+    }
+  },
+  "generatedAt": "2026-08-31T20:19:30.913Z"
+}

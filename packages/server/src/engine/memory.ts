@@ -43,6 +43,7 @@ const RANGE_FIELDS: Record<string, (d: VariantDoc) => number> = {
   width_in: (d) => dimension(d, 'width_in', 'width'),
   height_in: (d) => dimension(d, 'height_in', 'height', 'depth_in'),
   length_in: (d) => dimension(d, 'length_in', 'length'),
+  size_in: (d) => dimension(d, 'size_in', 'size', 'diameter_in'),
 };
 
 const SORT_VALUES: Record<string, (d: VariantDoc) => number> = {
@@ -208,10 +209,13 @@ export class MemoryEngine implements SearchEngine {
       if (!Number.isFinite(wanted)) continue;
       const near = (v: number) => Math.abs(v - wanted) < 0.03;
       if (constraint.field === 'any_dimension_in') {
-        // A lone size with no axis named matches whichever axis carries it.
+        // A lone size with no axis named matches whichever axis carries it —
+        // including `size`, which is the only one a product sold by a single
+        // number (a medallion's diameter) has.
         if (!near(dimension(doc, 'width_in', 'width'))
           && !near(dimension(doc, 'height_in', 'height', 'depth_in'))
-          && !near(dimension(doc, 'length_in', 'length'))) return false;
+          && !near(dimension(doc, 'length_in', 'length'))
+          && !near(dimension(doc, 'size_in', 'size', 'diameter_in'))) return false;
       } else if (RANGE_FIELDS[constraint.field]) {
         if (!near(RANGE_FIELDS[constraint.field]!(doc))) return false;
       }
