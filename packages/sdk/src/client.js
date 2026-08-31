@@ -9,6 +9,8 @@
 const SHOPPER_KEY = 'compass_shopper_id';
 const SESSION_KEY = 'compass_session_id';
 const RECENT_KEY = 'compass_recent_searches';
+/** Session-scoped on purpose: a hint about this visit, not a profile. */
+const AFFINITY_KEY = 'compass_affinity';
 const SESSION_TTL_MS = 30 * 60 * 1000;
 
 function uuid() {
@@ -19,16 +21,20 @@ function uuid() {
   });
 }
 
-/** Storage is wrapped because Safari private mode throws on write. */
-function safeStorage() {
-  // The accessor itself throws where storage is denied — Safari's private mode,
-  // a sandboxed frame, a browser set to block site data — so reading
-  // `globalThis.localStorage` has to be inside the try, not outside it.
-  // Guarding only getItem/setItem left the constructor throwing before either
-  // could run, which took the whole widget down over a remembered search term.
+/**
+ * Storage is wrapped because Safari private mode throws on write.
+ *
+ * `which` names the store rather than taking one, because the accessor itself
+ * throws where storage is denied — Safari's private mode, a sandboxed frame, a
+ * browser set to block site data — so it has to be read inside the try. It
+ * used to take a store and then ignore it, which quietly made the session
+ * store a second handle on localStorage: session state outlived the session,
+ * across tabs and restarts.
+ */
+function safeStorage(which = 'localStorage') {
   let store = null;
   try {
-    store = globalThis.localStorage ?? null;
+    store = globalThis[which] ?? null;
   } catch {
     store = null;
   }
@@ -52,8 +58,9 @@ export class CompassClient {
     this.onError = options.onError ?? ((err) => console.warn('[compass]', err));
 
     const local = safeStorage();
-    const session = safeStorage(globalThis.sessionStorage ?? {});
+    const session = safeStorage('sessionStorage');
     this.local = local;
+    this.session = session;
 
     // A first-party anonymous id; never tied to a customer record.
     this.shopperId = local.get(SHOPPER_KEY) ?? uuid();
@@ -128,6 +135,38 @@ export class CompassClient {
 
   trackClick(hit, position, query) {
     this.track('click', { sku: hit.sku, parentId: hit.parentId, position, query });
+    this.rememberTaste(hit);
+  }
+
+  /**
+   * What this visit seems to be about.
+   *
+   * A shopper who clicks three black products has said something worth acting
+   * on, and the variant label they clicked — "Black / PVC / Joined" — already
+   * names it. Kept in session storage, not sent to the server as identity and
+   * not persisted between visits: it is a hint about right now, and someone
+   * shopping for a bathroom on Tuesday should not still be steered toward it
+   * in October.
+   */
+  rememberTaste(hit) {
+    const parts = String(hit?.variantTitle ?? '')
+      .split('/').map((p) => p.trim()).filter((p) => p.length > 1 && p.length <= 40);
+    if (hit?.brand) parts.push(hit.brand);
+    if (!parts.length) return;
+    // Most recent first, so a change of mind takes effect immediately rather
+    // than being outvoted by everything clicked before it.
+    const next = [...parts, ...this.affinity().filter((a) => !parts.includes(a))].slice(0, 8);
+    this.session.set(AFFINITY_KEY, JSON.stringify(next));
+  }
+
+  /** The attribute values worth tilting this visit's results toward. */
+  affinity() {
+    try {
+      const raw = JSON.parse(this.session.get(AFFINITY_KEY) ?? '[]');
+      return Array.isArray(raw) ? raw.filter((v) => typeof v === 'string') : [];
+    } catch {
+      return [];
+    }
   }
 
   trackAddToCart(sku, quantity = 1, query) {

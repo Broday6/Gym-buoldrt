@@ -276,6 +276,9 @@ export class ResultsWidget {
         page: this.state.page,
         rescue: this.state.exact ? false : undefined,
         entities: this.state.entities === false ? false : undefined,
+        // What this visit has been about. Re-orders the page the shopper was
+        // getting anyway; it never changes which products are on it.
+        affinity: this.client.affinity?.().length ? this.client.affinity() : undefined,
         // Only asked for when the storefront wants the SDK to own its head;
         // otherwise the server skips the work entirely.
         seo: this.seo || undefined,

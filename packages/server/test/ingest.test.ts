@@ -27,9 +27,24 @@ describe('field mapping', () => {
     assert.equal(m.attributes.width, 'Custom Item Field: Width');
   });
 
-  test('unrelated columns are left out rather than guessed at', () => {
+  test('every column is kept, but only product-like ones become filters', () => {
+    // The policy this reverses kept only headings matching a list of sixteen
+    // words, so a ninety-column NetSuite export arrived as six. A field that
+    // was never ingested cannot be searched, filtered or shown, and nobody
+    // discovers the omission until a shopper asks for it.
     const m = inferMapping(NETSUITE_HEADERS);
-    assert.ok(!Object.values(m.attributes).includes('Some Accounting Column'));
+    assert.ok(Object.values(m.attributes).includes('Some Accounting Column'),
+      'unfamiliar columns are still stored');
+    // ...but it is not offered as a facet, and does not reach the search text.
+    assert.ok(!(m.facetable ?? []).includes('some_accounting_column'));
+    assert.ok((m.facetable ?? []).length > 0, 'the product-like ones are');
+  });
+
+  test('plumbing columns are dropped entirely', () => {
+    const m = inferMapping(['sku', 'title', 'Internal ID', 'Date Last Modified', 'Finish']);
+    assert.ok(!Object.keys(m.attributes).includes('internal_id'));
+    assert.ok(!Object.keys(m.attributes).some((k) => k.startsWith('date_last')));
+    assert.ok(Object.keys(m.attributes).includes('finish'));
   });
 
   test('generic feed headings map too', () => {

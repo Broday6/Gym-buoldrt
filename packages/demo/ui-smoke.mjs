@@ -107,6 +107,44 @@ check('a rail always has products, never an empty shell',
 check('a rail says what actually served it', Boolean(
   await desktop.locator('.compass-recs').first().getAttribute('data-served-by')));
 
+// ---- what this visit is about ----
+// A shopper who clicks black products should see more black ones near the top
+// of the next page. Bounded: it re-orders the page they were getting, it never
+// changes which products are on it.
+await desktop.fill('#q', 'shutter');
+await desktop.press('#q', 'Enter');
+await desktop.waitForSelector('.compass-hit', { timeout: 15000 });
+await desktop.waitForTimeout(900);
+const finishOf = (title) => String(title).split('/')[0]?.trim() ?? '';
+const firstPass = await desktop.locator('.compass-hit__variant').allTextContents();
+const target = firstPass.map(finishOf).find((f) => f && f !== finishOf(firstPass[0]));
+
+if (target) {
+  // Click a product in a finish that is not already leading the page.
+  const index = firstPass.findIndex((v) => finishOf(v) === target);
+  await desktop.locator('.compass-hit__link').nth(index).click({ trial: true });
+  await desktop.evaluate((i) => {
+    document.querySelectorAll('.compass-hit')[i]?.querySelector('.compass-hit__link')?.click();
+  }, index);
+  await desktop.waitForTimeout(400);
+
+  const stored = await desktop.evaluate(() => sessionStorage.getItem('compass_affinity'));
+  check('what was clicked is remembered for this visit', Boolean(stored), stored ?? 'nothing');
+  check('and only for this visit',
+    (await desktop.evaluate(() => localStorage.getItem('compass_affinity'))) === null);
+
+  await desktop.fill('#q', '');
+  await desktop.fill('#q', 'shutter');
+  await desktop.press('#q', 'Enter');
+  await desktop.waitForTimeout(1200);
+  const secondPass = await desktop.locator('.compass-hit__variant').allTextContents();
+  check('the next page leads with that finish', finishOf(secondPass[0]) === target,
+    `${finishOf(firstPass[0])} -> ${finishOf(secondPass[0])} (wanted ${target})`);
+  check('and contains exactly the same products',
+    secondPass.length === firstPass.length,
+    `${firstPass.length} -> ${secondPass.length}`);
+}
+
 // ---- instant search ----
 await desktop.fill('#q', 'shutt');
 await desktop.waitForTimeout(1100);

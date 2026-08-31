@@ -201,6 +201,53 @@ describe('searching by brand and product type', () => {
     await close();
   });
 
+  test('a product described by its features finds exactly those', async () => {
+    // "black pvc bracket" is not three words to look for in text — it is a
+    // finish, a material and a product type. Searched as text, a white PVC
+    // bracket whose description mentions black would answer yes.
+    const { search, close } = await service();
+    const r = await search.search(site, { q: 'black pvc bracket' });
+    assert.deepEqual(r.appliedFilters.finish, ['Black']);
+    assert.deepEqual(r.appliedFilters.material, ['PVC']);
+    assert.ok(r.hits.every((h) => /Bracket/.test(h.title)), 'and still brackets');
+    const kinds = r.parsedFilters?.map((c) => c.kind) ?? [];
+    assert.equal(kinds.filter((k) => k === 'attribute').length, 2);
+    await close();
+  });
+
+  test('a brand wins over a feature that shares its name', async () => {
+    // Order matters: a catalogue can easily hold a finish called the same
+    // thing as a brand, and the brand is the stronger reading.
+    const { search, close } = await service();
+    const r = await search.search(site, { q: 'volterra' });
+    assert.deepEqual(r.appliedFilters.brand, ['Volterra']);
+    await close();
+  });
+
+  test('a query naming five features does not filter itself to nothing', async () => {
+    // Every lifted attribute is a filter that can empty the page, and past
+    // three the extra matches are far more likely to be describing words that
+    // collide with a catalogue value than a shopper narrowing five ways.
+    const { search, close } = await service();
+    const r = await search.search(site, { q: 'black pvc rustic farmhouse craftsman bracket' });
+    const attributes = (r.parsedFilters ?? []).filter((c) => c.kind === 'attribute');
+    assert.ok(attributes.length <= 3, `lifted ${attributes.length}`);
+    await close();
+  });
+
+  test('an impossible combination of features relaxes rather than giving up', async () => {
+    // The catalogue has black brackets and it has polyurethane ones, but no
+    // black polyurethane ones. Falling through to best sellers would throw
+    // away two things the shopper said that the catalogue understands.
+    const { search, close } = await service();
+    const r = await search.search(site, { q: 'black polyurethane bracket' });
+    assert.ok(r.totalHits > 0);
+    assert.deepEqual(r.appliedFilters.finish, ['Black'], 'the first feature is kept');
+    assert.equal(r.appliedFilters.material, undefined, 'the second is the one dropped');
+    assert.match(r.rescue!.notice!, /Showing Black/);
+    await close();
+  });
+
   test('a plain keyword query is untouched by any of this', async () => {
     const { search, close } = await service();
     const r = await search.search(site, { q: 'farmhouse' });

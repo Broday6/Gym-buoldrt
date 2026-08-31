@@ -25,11 +25,32 @@ export interface EntityIndex {
   brands: Map<string, string>;
   /** Normalised leaf or full path name -> the most populated matching id. */
   categories: Map<string, { id: string; products: number }>;
+  /**
+   * Normalised attribute value -> the field and value the catalogue holds.
+   *
+   * A shopper describing a product — "black polyurethane corbel" — is naming
+   * two attributes and a product type, and searching those words as free text
+   * asks a far weaker question: does this document mention black anywhere. A
+   * white corbel whose description says "also available in black" answers yes.
+   */
+  attributes: Map<string, { field: string; value: string; products: number }>;
   /** Longest entity name in tokens, so the scanner knows how wide to look. */
   maxTokens: number;
 }
 
-const EMPTY: EntityIndex = { brands: new Map(), categories: new Map(), maxTokens: 0 };
+const EMPTY: EntityIndex = {
+  brands: new Map(), categories: new Map(), attributes: new Map(), maxTokens: 0,
+};
+
+/**
+ * How many attributes one query may name.
+ *
+ * Three is a shopper being specific — "black polyurethane 6 inch". Beyond that
+ * the extra matches are far more likely to be describing words colliding with
+ * a catalogue value than someone genuinely narrowing five ways at once, and
+ * every lifted attribute is a filter that can empty the page.
+ */
+const MAX_ATTRIBUTES = 3;
 
 const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
@@ -50,6 +71,13 @@ function keysFor(name: string): string[] {
 export async function buildEntityIndex(
   engine: SearchEngine,
   site: string,
+  /**
+   * Attribute fields worth recognising by value. Passed in rather than
+   * discovered: the site's own facet list is exactly the set a merchandiser
+   * decided shoppers care about, and recognising every stored column would
+   * match accounting codes.
+   */
+  attributeFields: string[] = [],
 ): Promise<EntityIndex> {
   const directory = await engine.directory(site).catch(() => null);
   if (!directory) return EMPTY;
@@ -72,11 +100,57 @@ export async function buildEntityIndex(
     }
   }
 
+  const attributes = attributeFields.length
+    ? await attributeValues(engine, site, attributeFields)
+    : new Map<string, { field: string; value: string; products: number }>();
+
   const maxTokens = Math.max(
     1,
-    ...[...brands.keys(), ...categories.keys()].map((k) => k.split(' ').length),
+    ...[...brands.keys(), ...categories.keys(), ...attributes.keys()]
+      .map((k) => k.split(' ').length),
   );
-  return { brands, categories, maxTokens };
+  return { brands, categories, attributes, maxTokens };
+}
+
+/**
+ * The values each facet actually holds, read by asking the engine to count
+ * them over the whole site.
+ *
+ * A facet-only query rather than a new engine method: every engine already
+ * computes facets, so this works identically on all three, and there is no
+ * fourth implementation to keep in step.
+ */
+async function attributeValues(
+  engine: SearchEngine,
+  site: string,
+  fields: string[],
+): Promise<Map<string, { field: string; value: string; products: number }>> {
+  const values = new Map<string, { field: string; value: string; products: number }>();
+  const result = await engine.search({
+    site, terms: [], rawQuery: '', filters: {}, ranges: [], constraints: [],
+    facets: fields, sort: 'relevance', groupWindow: 1, candidateLimit: 1,
+    typo: { minWordLengthFor1Typo: 99, minWordLengthFor2Typos: 99 },
+    weights: [], exactOnly: true,
+  }).catch(() => null);
+  if (!result) return values;
+
+  for (const facet of result.facets) {
+    for (const entry of facet.values) {
+      const raw = String(entry.value);
+      // Numbers on their own are dimensions, and the dimension parser already
+      // owns those. Lifting "12" as a size here would fight it.
+      if (!/[a-z]{2,}/i.test(raw)) continue;
+      for (const key of keysFor(raw)) {
+        const existing = values.get(key);
+        // A value can occur under two fields — "Black" as both finish and
+        // colour. The one carrying more products is the better guess.
+        if (!existing || entry.count > existing.products) {
+          values.set(key, { field: facet.field, value: raw, products: entry.count });
+        }
+      }
+    }
+  }
+  return values;
 }
 
 export interface EntityMatch {
@@ -101,6 +175,7 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
   const taken = new Array<boolean>(tokens.length).fill(false);
   let brandFound = false;
   let categoryFound = false;
+  let attributesFound = 0;
 
   for (let width = Math.min(entities.maxTokens, tokens.length); width >= 1; width--) {
     for (let i = 0; i + width <= tokens.length; i++) {
@@ -125,6 +200,21 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
         });
         for (let j = i; j < i + width; j++) taken[j] = true;
         categoryFound = true;
+        continue;
+      }
+
+      // Attributes last, and only after brand and category have had their
+      // chance at this span: "Heritage" is a brand before it is a finish.
+      const attribute = attributesFound < MAX_ATTRIBUTES
+        ? entities.attributes.get(key)
+        : undefined;
+      if (attribute) {
+        constraints.push({
+          field: attribute.field, value: attribute.value,
+          source: span.join(' '), kind: 'attribute',
+        });
+        for (let j = i; j < i + width; j++) taken[j] = true;
+        attributesFound++;
       }
     }
   }

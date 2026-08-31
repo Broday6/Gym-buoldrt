@@ -182,7 +182,38 @@ export function categoryIdsFor(path: string[]): string[] {
 }
 
 /** Flatten products into the variant-level documents the engine stores. */
-export function toVariantDocs(site: string, products: Product[]): VariantDoc[] {
+/**
+ * Which attributes go into the searchable text.
+ *
+ * Everything the source sends is stored and filterable. Not everything belongs
+ * in the text a relevance score is computed from: a carton weight or an
+ * accounting code in the searchable body means a shopper typing "12" can match
+ * a product on a number nobody was looking for. Storage is cheap; relevance is
+ * not, and a field that pollutes it is worse than one that is merely unused.
+ *
+ * A value is searchable when it reads like something a shopper would say —
+ * words, not bare numbers or codes — or when the mapping marked its column
+ * facet-worthy.
+ */
+function searchableAttribute(
+  key: string,
+  value: string | number | undefined,
+  facetable: Set<string>,
+): boolean {
+  if (value === undefined || value === null) return false;
+  if (facetable.has(key)) return true;
+  const text = String(value).trim();
+  if (!text || text.length > 60) return false;
+  // At least one word of two or more letters, and not a pure identifier.
+  return /[a-z]{2,}/i.test(text) && !/^[\w.-]*\d[\w.-]*$/.test(text);
+}
+
+export function toVariantDocs(
+  site: string,
+  products: Product[],
+  facetable: string[] = [],
+): VariantDoc[] {
+  const facetKeys = new Set(facetable);
   const docs: VariantDoc[] = [];
   for (const product of products) {
     const variantCount = product.variants.length;
@@ -190,9 +221,10 @@ export function toVariantDocs(site: string, products: Product[]): VariantDoc[] {
       const price = variant.price ?? 0;
       const salePrice = variant.salePrice && variant.salePrice > 0 ? variant.salePrice : 0;
       const effectivePrice = salePrice > 0 ? salePrice : price;
-      const attributeText = Object.entries(variant.attributes)
+      const searchable = Object.entries(variant.attributes)
         .filter(([key]) => !key.endsWith('_in'))
-        .map(([key, value]) => `${key}:${value}`);
+        .filter(([key, value]) => searchableAttribute(key, value, facetKeys));
+      const attributeText = searchable.map(([key, value]) => `${key}:${value}`);
       docs.push({
         id: `${site}:${variant.sku}`,
         site,
@@ -206,7 +238,7 @@ export function toVariantDocs(site: string, products: Product[]): VariantDoc[] {
         categoryPath: product.categoryPath,
         categoryIds: product.categoryIds,
         // Values are searchable on their own ("walnut"), keys are for facets.
-        attributeText: [...Object.values(variant.attributes).map(String), ...attributeText],
+        attributeText: [...searchable.map(([, value]) => String(value)), ...attributeText],
         attributeKeys: Object.keys(variant.attributes),
         price,
         salePrice,

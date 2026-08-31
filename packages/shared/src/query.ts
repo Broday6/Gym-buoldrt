@@ -60,6 +60,13 @@ export interface SearchRequest {
    */
   entities?: boolean;
   /**
+   * Attribute values this shopper has shown interest in during this visit —
+   * the finishes and materials they have been clicking. Used to re-order the
+   * page they were going to get anyway, never to change which products it
+   * contains, and never part of the cache key.
+   */
+  affinity?: string[];
+  /**
    * Return SEO directives for this result page: canonical URL, robots policy,
    * title, description and schema.org ItemList. Off by default — a storefront
    * that renders its own head does not need the extra work on every request.
@@ -174,6 +181,8 @@ export interface SearchResponse {
   banners?: Banner[];
   rulesApplied?: string[];
   parsedFilters?: ParsedConstraint[];
+  /** True when this page was re-ordered for the shopper who asked for it. */
+  personalised?: boolean;
 }
 
 export interface Banner {
@@ -194,8 +203,10 @@ export interface ParsedConstraint {
   source: string;
   /**
    * `brand` and `category` are entities the query named — a brand the
-   * catalogue carries, a product type the taxonomy has. Lifted out of the text
-   * and applied as filters, so they are precise and the shopper can remove one.
+   * catalogue carries, a product type the taxonomy has. `attribute` is a
+   * product feature it named: a finish, a material, a style the catalogue
+   * actually holds. All three are lifted out of the text and applied as
+   * filters, so they are precise and the shopper can remove one.
    */
   kind: 'dimension' | 'attribute' | 'sku' | 'unit' | 'brand' | 'category';
 }

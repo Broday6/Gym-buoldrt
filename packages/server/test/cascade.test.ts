@@ -150,6 +150,36 @@ describe('business ranking', () => {
     assert.ok(unmeasured.score > 0);
   });
 
+  test('an out-of-stock product cannot outrank a buyable one on business score', () => {
+    // The most expensive result a search can return is a product at the top of
+    // the page that cannot be bought. Every other signal here is a shade of
+    // better-or-worse; this one is a fact, so it multiplies the composite
+    // rather than being averaged into it.
+    const weights: BusinessWeights = {
+      ...NEUTRAL_BUSINESS, salesVelocity: 3, margin: 2, reviewScore: 2,
+    };
+    const excellent = businessScore(
+      doc({ salesVelocity: 900, margin: 70, reviewScore: 5, inventory: 0, inStock: false }),
+      weights);
+    const ordinary = businessScore(
+      doc({ salesVelocity: 200, margin: 30, reviewScore: 4, inventory: 10, inStock: true }),
+      weights);
+    assert.ok(ordinary.score > excellent.score,
+      `in stock ${ordinary.score} should beat out of stock ${excellent.score}`);
+    // Still findable, though: sunk, not hidden.
+    assert.ok(excellent.score > 0);
+    assert.ok(excellent.breakdown.availability !== undefined, 'and the panel says why');
+  });
+
+  test('a discontinued product sinks furthest', () => {
+    const weights: BusinessWeights = { ...NEUTRAL_BUSINESS, margin: 1 };
+    const live = businessScore(doc({ margin: 50, inStock: true }), weights);
+    const oos = businessScore(doc({ margin: 50, inventory: 0, inStock: false }), weights);
+    const gone = businessScore(
+      doc({ margin: 50, inventory: 0, inStock: false, discontinued: true }), weights);
+    assert.ok(live.score > oos.score && oos.score > gone.score);
+  });
+
   test('a zero weight removes a signal from the breakdown entirely', () => {
     const { breakdown } = businessScore(doc({ margin: 60, salesVelocity: 400 }), {
       ...NEUTRAL_BUSINESS, margin: 1,

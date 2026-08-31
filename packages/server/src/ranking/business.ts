@@ -37,6 +37,16 @@ export function businessScore(
     ctr: relativeCtr(clicks?.bySku.get(doc.sku), clicks?.mean ?? 0),
   };
 
+  // Out of stock is not a weak signal to be averaged away.
+  //
+  // Every other signal here is a shade of better-or-worse; this one is a fact
+  // about whether the shopper can buy the thing. A product with excellent
+  // margin, velocity and reviews could out-score an in-stock rival and take
+  // the top slot while being unbuyable, which is the most expensive result a
+  // search can return. So it is a multiplier on the composite rather than a
+  // term in it: still findable, never first.
+  const buyable = doc.discontinued ? 0.15 : doc.inStock ? 1 : 0.35;
+
   let total = 0;
   let weightSum = 0;
   const breakdown: Record<string, number> = {};
@@ -47,7 +57,11 @@ export function businessScore(
     total += contribution;
     weightSum += weight;
   }
-  return { score: weightSum > 0 ? round4(total / weightSum) : 0, breakdown };
+  if (buyable < 1) breakdown.availability = round4(buyable);
+  return {
+    score: weightSum > 0 ? round4((total / weightSum) * buyable) : 0,
+    breakdown,
+  };
 }
 
 /**

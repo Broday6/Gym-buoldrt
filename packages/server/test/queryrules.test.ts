@@ -19,8 +19,8 @@ const hits = (...ids: string[]) => ids.map(hit);
 const ids = (list: Hit[]) => list.map((h) => h.parentId);
 
 const rule = (actions: QueryRule['actions'], over: Partial<QueryRule> = {}): QueryRule => ({
-  id: 1, siteId: 'ekena', query: 'beams', matchType: 'exact', enabled: true,
-  startsAt: null, endsAt: null, priority: 100, note: null, actions, ...over,
+  id: 1, siteId: 'ekena', query: 'beams', categoryId: null, matchType: 'exact',
+  enabled: true, startsAt: null, endsAt: null, priority: 100, note: null, actions, ...over,
 });
 
 describe('applying a rule to a ranked list', () => {

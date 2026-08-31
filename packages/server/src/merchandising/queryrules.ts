@@ -33,7 +33,10 @@ export interface QueryRuleAction {
 export interface QueryRule {
   id: number;
   siteId: string;
+  /** Empty when the rule fires on a category rather than typed text. */
   query: string;
+  /** Set when the rule merchandises a category page instead of a search. */
+  categoryId: string | null;
   matchType: MatchType;
   enabled: boolean;
   startsAt: Date | null;
@@ -44,7 +47,9 @@ export interface QueryRule {
 }
 
 export interface QueryRuleInput {
-  query: string;
+  /** One of these, never neither: a rule has to fire on something. */
+  query?: string;
+  categoryId?: string;
   matchType?: MatchType;
   enabled?: boolean;
   startsAt?: string | null;
@@ -141,7 +146,8 @@ export function applyRule(
 }
 
 interface RuleRow {
-  id: string; site_id: string; query: string; match_type: MatchType;
+  id: string; site_id: string; query: string | null; category_id: string | null;
+  match_type: MatchType;
   enabled: boolean; starts_at: Date | null; ends_at: Date | null;
   priority: number; note: string | null;
   parent_id: string | null; action: RuleAction | null; position: number | null;
@@ -154,7 +160,8 @@ function toRules(rows: RuleRow[]): QueryRule[] {
     let rule = byId.get(id);
     if (!rule) {
       byId.set(id, (rule = {
-        id, siteId: row.site_id, query: row.query, matchType: row.match_type,
+        id, siteId: row.site_id, query: row.query ?? '', categoryId: row.category_id,
+        matchType: row.match_type,
         enabled: row.enabled, startsAt: row.starts_at, endsAt: row.ends_at,
         priority: row.priority, note: row.note, actions: [],
       }));
@@ -170,8 +177,8 @@ function toRules(rows: RuleRow[]): QueryRule[] {
 }
 
 const SELECT = `
-  SELECT r.id, r.site_id, r.query, r.match_type, r.enabled, r.starts_at, r.ends_at,
-         r.priority, r.note, a.parent_id, a.action, a.position
+  SELECT r.id, r.site_id, r.query, r.category_id, r.match_type, r.enabled,
+         r.starts_at, r.ends_at, r.priority, r.note, a.parent_id, a.action, a.position
   FROM query_rules r
   LEFT JOIN query_rule_actions a ON a.rule_id = r.id`;
 
@@ -182,7 +189,8 @@ export class QueryRuleStore {
 
   async list(siteId: string): Promise<QueryRule[]> {
     const { rows } = await this.db.query<RuleRow>(
-      `${SELECT} WHERE r.site_id = $1 ORDER BY r.priority DESC, r.query`, [siteId],
+      `${SELECT} WHERE r.site_id = $1
+        ORDER BY r.priority DESC, coalesce(r.query, r.category_id)`, [siteId],
     );
     return toRules(rows);
   }
@@ -206,11 +214,27 @@ export class QueryRuleStore {
     }
   }
 
+  /**
+   * The highest-priority live rule for what the shopper is looking at.
+   *
+   * A category is checked first and exactly: browsing a category is an
+   * unambiguous statement of where you are, while a query rule is a guess at
+   * what some text meant. When both could fire — a search made inside a
+   * category — the typed words are the more specific intent and win.
+   */
+  async forCategory(siteId: string, categoryId: string): Promise<QueryRule | null> {
+    if (!categoryId) return null;
+    const matching = (await this.live(siteId))
+      .filter((rule) => rule.categoryId === categoryId)
+      .sort((a, b) => b.priority - a.priority);
+    return matching[0] ?? null;
+  }
+
   /** The highest-priority live rule matching this query, or none. */
   async forQuery(siteId: string, query: string): Promise<QueryRule | null> {
     if (!query.trim()) return null;
     const matching = (await this.live(siteId))
-      .filter((rule) => matchesQuery(rule, query))
+      .filter((rule) => rule.query && matchesQuery(rule, query))
       // Priority first, then the most specific trigger: an exact rule for
       // "beams" should beat a contains rule for "beam".
       .sort((a, b) => b.priority - a.priority
@@ -220,8 +244,14 @@ export class QueryRuleStore {
   }
 
   async save(siteId: string, input: QueryRuleInput): Promise<QueryRule> {
-    const query = normaliseQuery(input.query);
-    if (!query) throw new Error('a query rule needs a search term');
+    const query = normaliseQuery(input.query ?? '');
+    const categoryId = (input.categoryId ?? '').trim();
+    if (!query && !categoryId) {
+      throw new Error('a rule needs a search term or a category');
+    }
+    if (query && categoryId) {
+      throw new Error('a rule fires on a search term or a category, not both');
+    }
     const matchType = input.matchType ?? 'exact';
     for (const action of input.actions) {
       if (action.action === 'pin' && (action.position ?? 0) < 1) {
@@ -232,19 +262,38 @@ export class QueryRuleStore {
     const client = await this.db.connect();
     try {
       await client.query('BEGIN');
-      const { rows } = await client.query<{ id: string }>(
-        `INSERT INTO query_rules
-           (site_id, query, match_type, enabled, starts_at, ends_at, priority, note, created_by)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-         ON CONFLICT (site_id, query, match_type) DO UPDATE SET
-           enabled = EXCLUDED.enabled, starts_at = EXCLUDED.starts_at,
-           ends_at = EXCLUDED.ends_at, priority = EXCLUDED.priority,
-           note = EXCLUDED.note, updated_at = now()
-         RETURNING id`,
-        [siteId, query, matchType, input.enabled ?? true,
-         input.startsAt ?? null, input.endsAt ?? null, input.priority ?? 100,
-         input.note ?? null, input.author ?? null],
-      );
+      // Two upserts, because the uniqueness that identifies a rule differs:
+      // typed rules are unique on (query, match type), category rules on the
+      // category. One statement with a shared conflict target would need a
+      // constraint covering both, which would let a query rule and a category
+      // rule collide on NULLs.
+      const params = [siteId, matchType, input.enabled ?? true,
+        input.startsAt ?? null, input.endsAt ?? null, input.priority ?? 100,
+        input.note ?? null, input.author ?? null];
+      const { rows } = categoryId
+        ? await client.query<{ id: string }>(
+            `INSERT INTO query_rules
+               (site_id, match_type, enabled, starts_at, ends_at, priority, note,
+                created_by, category_id)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+             ON CONFLICT (site_id, category_id) WHERE category_id IS NOT NULL
+             DO UPDATE SET
+               enabled = EXCLUDED.enabled, starts_at = EXCLUDED.starts_at,
+               ends_at = EXCLUDED.ends_at, priority = EXCLUDED.priority,
+               note = EXCLUDED.note, updated_at = now()
+             RETURNING id`,
+            [...params, categoryId])
+        : await client.query<{ id: string }>(
+            `INSERT INTO query_rules
+               (site_id, match_type, enabled, starts_at, ends_at, priority, note,
+                created_by, query)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+             ON CONFLICT (site_id, query, match_type) DO UPDATE SET
+               enabled = EXCLUDED.enabled, starts_at = EXCLUDED.starts_at,
+               ends_at = EXCLUDED.ends_at, priority = EXCLUDED.priority,
+               note = EXCLUDED.note, updated_at = now()
+             RETURNING id`,
+            [...params, query]);
       const id = Number(rows[0]!.id);
       // Replaced wholesale: the console sends the arrangement it wants, and a
       // diff would let a dropped tile survive as a stale pin.

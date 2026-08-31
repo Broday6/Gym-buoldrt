@@ -115,6 +115,7 @@ export const searchBody = {
     explain: { type: 'boolean' },
     rescue: { type: 'boolean' },
     entities: { type: 'boolean' },
+    affinity: stringArray(12, 64),
     seo: { type: 'boolean' },
   },
 } as const;
@@ -410,10 +411,14 @@ const ruleActions = {
 /** A rule bound to what the shopper typed, or to the category they are in. */
 export const queryRuleBody = {
   type: 'object',
-  required: ['query', 'actions'],
+  // A rule fires on a typed query or on a category. Which one is checked in
+  // the store, where the message can say so plainly, rather than here where a
+  // schema error would name a keyword nobody typed.
+  required: ['actions'],
   additionalProperties: false,
   properties: {
     query: { type: 'string', minLength: 1, maxLength: 256 },
+    categoryId: { type: 'string', minLength: 1, maxLength: 256 },
     matchType: { type: 'string', enum: ['exact', 'phrase', 'contains'] },
     enabled: { type: 'boolean' },
     startsAt: { type: ['string', 'null'], maxLength: 40 },

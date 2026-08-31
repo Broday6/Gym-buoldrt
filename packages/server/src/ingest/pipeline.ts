@@ -40,6 +40,12 @@ export interface IngestOptions {
    * silently erases it.
    */
   labels?: LabelPlan;
+  /**
+   * Attribute keys worth searching on as free text. Everything else the source
+   * sent is still stored and filterable; this decides what reaches the
+   * relevance score.
+   */
+  facetable?: string[];
 }
 
 export function parseCsv(content: string): SourceRow[] {
@@ -62,7 +68,8 @@ export async function ingestRows(
   const headers = Object.keys(rows[0] ?? {});
   const mapping = mergeMapping(inferMapping(headers), options.mapping);
   const { products, quality } = normalizeRows(site, rows, mapping);
-  const result = await indexProducts(engine, site, products, options);
+  const result = await indexProducts(engine, site, products,
+    { ...options, facetable: mapping.facetable });
   return { ...result, quality, mapping, durationMs: Date.now() - started };
 }
 
@@ -73,7 +80,7 @@ export async function indexProducts(
   options: IngestOptions = {},
 ): Promise<Omit<IngestResult, 'quality' | 'mapping' | 'durationMs'>> {
   const { products: labelled, counts } = applyLabels(products, options.labels ?? EMPTY_LABEL_PLAN);
-  const docs = toVariantDocs(site, labelled);
+  const docs = toVariantDocs(site, labelled, options.facetable);
   const handle = await engine.createIndex(site);
   const batchSize = options.batchSize ?? 2_000;
   for (let i = 0; i < docs.length; i += batchSize) {

@@ -2420,12 +2420,16 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "query",
                   "actions"
                 ],
                 "additionalProperties": false,
                 "properties": {
                   "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "categoryId": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 256
@@ -4415,6 +4419,14 @@
                   },
                   "entities": {
                     "type": "boolean"
+                  },
+                  "affinity": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 64
+                    }
                   },
                   "seo": {
                     "type": "boolean"
@@ -6532,6 +6544,14 @@
                   },
                   "entities": {
                     "type": "boolean"
+                  },
+                  "affinity": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 64
+                    }
                   },
                   "seo": {
                     "type": "boolean"

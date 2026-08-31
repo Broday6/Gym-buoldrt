@@ -1,6 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { SignalStore, shrink } from '../src/services/signals.js';
+import { personalise } from '../src/services/search.js';
 import { businessScore } from '../src/ranking/business.js';
 import type { BusinessWeights, VariantDoc } from '@compass/shared';
 import type { Db } from '../src/db/pool.js';
@@ -127,5 +128,57 @@ describe('click signals', () => {
     const store = new SignalStore(db);
     await Promise.all([store.get('ekena'), store.get('ekena'), store.get('ekena')]);
     assert.equal(calls, 1);
+  });
+});
+
+describe('personalising a page', () => {
+  const hit = (parentId: string, variantTitle: string, brand = 'B') => ({
+    parentId, sku: `${parentId}-A`, title: parentId, variantTitle, brand,
+    categoryPath: [], price: 10, effectivePrice: 10, inStock: true, matchedVariants: [],
+  }) as never;
+
+  const page = (over: Record<string, unknown> = {}) => ({
+    hits: [hit('a', 'White / PVC'), hit('b', 'Black / PVC'), hit('c', 'Black / MDF')],
+    page: 1, hitsPerPage: 24, totalHits: 3, totalPages: 1, processingTimeMs: 1,
+    query: '', effectiveQuery: '', queryType: 'keyword', facets: [], appliedFilters: {},
+    sort: 'relevance', ...over,
+  }) as never;
+
+  test('what the shopper has been clicking moves up', () => {
+    const out = personalise(page(), ['Black']);
+    assert.deepEqual(out.hits.map((h) => h.parentId), ['b', 'c', 'a']);
+    assert.equal(out.personalised, true);
+  });
+
+  test('it re-orders and never re-selects', () => {
+    // The count, the facets and the pagination all have to stay true, and a
+    // shopper must not be walled into a narrower catalogue by their own
+    // history. Same products, different order.
+    const before = page();
+    const out = personalise(before, ['Black', 'MDF']);
+    assert.equal(out.totalHits, before.totalHits);
+    assert.deepEqual(
+      [...out.hits.map((h) => h.parentId)].sort(),
+      [...before.hits.map((h) => h.parentId)].sort(),
+    );
+    // Two matches beats one.
+    assert.equal(out.hits[0]?.parentId, 'c');
+  });
+
+  test('a merchandiser arrangement is never overruled by a guess', () => {
+    const out = personalise(page({ rulesApplied: ['query_rule:1'] }), ['Black']);
+    assert.deepEqual(out.hits.map((h) => h.parentId), ['a', 'b', 'c']);
+    assert.equal(out.personalised, undefined);
+  });
+
+  test('equal affinity keeps relevance order, so the page tilts rather than shuffles', () => {
+    const out = personalise(page(), ['PVC']);
+    assert.deepEqual(out.hits.map((h) => h.parentId), ['a', 'b', 'c']);
+  });
+
+  test('no affinity, and nothing happens at all', () => {
+    const untouched = page();
+    assert.equal(personalise(untouched, []), untouched);
+    assert.equal(personalise(untouched, undefined), untouched);
   });
 });

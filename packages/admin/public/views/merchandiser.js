@@ -291,18 +291,26 @@ export const merchandiser = {
       return true;
     }
     if (event.target.id === 'merch-save') {
-      if (s.mode !== 'query') {
-        toast('Category merchandising saves as a collection — coming next', true);
-        return true;
+      const category = s.mode === 'category';
+      const target = category ? s.categoryId : s.query.trim();
+      if (!target) {
+        return toast(category ? 'Pick a category first' : 'Type a search term first', true), true;
       }
-      if (!s.query.trim()) return toast('Type a search term first', true), true;
       if (!s.actions.length) return toast('Nothing to save yet — move a product first', true), true;
+
+      // The same rule either way — same pins, buries and hides, same history
+      // and undo. Only what makes it fire differs.
       await api('/admin/query-rules', {
-        body: { query: s.query, matchType: 'exact', actions: s.actions },
+        body: category
+          ? { categoryId: s.categoryId, actions: s.actions }
+          : { query: s.query, matchType: 'exact', actions: s.actions },
       });
       s.rules = (await api('/admin/query-rules')).rules;
       s.dirty = false;
-      toast(`Saved. "${s.query}" is now merchandised.`);
+      const name = category
+        ? (s.categories.find((c) => c.id === s.categoryId)?.path?.join(' / ') ?? s.categoryId)
+        : s.query;
+      toast(`Saved. ${name} is now merchandised.`);
       await rerender();
       return true;
     }

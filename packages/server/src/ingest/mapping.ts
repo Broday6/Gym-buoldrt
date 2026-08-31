@@ -13,6 +13,12 @@ export interface FieldMapping {
   fields: Record<string, string>;
   /** Source columns projected into variant attributes, keyed by attribute name. */
   attributes: Record<string, string>;
+  /**
+   * The subset of those worth offering as a filter without anyone asking.
+   * Everything else is still searchable and still filterable by name; it just
+   * does not get a facet group of its own on day one.
+   */
+  facetable?: string[];
   /** Column whose value groups variants into a parent product. */
   parentKey: string;
   /** Delimiter for multi-value columns such as images and tags. */
@@ -52,10 +58,29 @@ const ALIASES: Record<string, string[]> = {
   discontinued: ['discontinued', 'inactive', 'is inactive'],
 };
 
-/** Source headings that should become searchable/facetable variant attributes. */
-const ATTRIBUTE_HINTS = [
+/**
+ * Headings worth putting in front of a shopper as a filter.
+ *
+ * Not a list of what to keep — everything unclaimed is kept. This is the much
+ * narrower question of which attributes are worth a facet group by default: a
+ * shopper filters by finish and material, not by "cubic feet per carton".
+ */
+const FACET_HINTS = [
   'finish', 'color', 'colour', 'material', 'style', 'size', 'length', 'width',
   'height', 'depth', 'thickness', 'profile', 'species', 'texture', 'mount',
+];
+
+/**
+ * Columns that are plumbing rather than product.
+ *
+ * Keeping an internal id or a row timestamp costs nothing but noise: they can
+ * never be searched for usefully, and they crowd the attribute list a
+ * merchandiser reads.
+ */
+const IGNORED = [
+  /^internal ?id$/, /^external ?id$/, /^record ?(id|type)$/,
+  /^(date )?last modified/, /^(date )?created (by|from)/, /^modified by$/,
+  /^_/, /^unnamed/, /^column \d+$/,
 ];
 
 function canonical(header: string): string {
@@ -78,20 +103,30 @@ export function inferMapping(headers: string[]): FieldMapping {
 
   const claimed = new Set(Object.values(fields));
   const attributes: Record<string, string> = {};
+  const facetable: string[] = [];
   for (const header of headers) {
     if (claimed.has(header)) continue;
     const c = canonical(header);
-    // Anything that reads like a product option becomes an attribute; NetSuite
-    // custom item fields are attributes by convention.
-    if (ATTRIBUTE_HINTS.some((h) => c === h || c.startsWith(`${h} `) || c.endsWith(` ${h}`)) ||
-        /^custom item field:/i.test(header)) {
-      attributes[c.replace(/\s+/g, '_')] = header;
+    if (!c || IGNORED.some((rx) => rx.test(c))) continue;
+    // Everything the source sends is kept.
+    //
+    // This used to keep only headings matching a list of sixteen words, which
+    // meant a NetSuite export of ninety columns arrived as six. Whatever the
+    // merchandising team put in a column, a shopper can eventually type — and a
+    // field that was never ingested cannot be searched, filtered, shown or
+    // discovered later. Storage is cheap next to a product nobody can find.
+    const key = c.replace(/\s+/g, '_');
+    if (attributes[key]) continue;
+    attributes[key] = header;
+    if (FACET_HINTS.some((h) => c === h || c.startsWith(`${h} `) || c.endsWith(` ${h}`))) {
+      facetable.push(key);
     }
   }
 
   return {
     fields,
     attributes,
+    facetable,
     parentKey: fields.parentId ?? fields.sku ?? headers[0] ?? 'sku',
     multiValueDelimiter: '|',
     categoryDelimiter: '>',

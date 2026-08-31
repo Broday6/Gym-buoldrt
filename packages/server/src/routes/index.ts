@@ -323,7 +323,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       findings: await analytics.diagnose(
         request.params.site,
         days(request.query.days),
-        (query) => search.understand(request.params.site, query),
+        (query) => search.understand(sites.require(request.params.site), query),
         { limit: Number(request.query.limit ?? 25) },
       ),
     }),
@@ -653,8 +653,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     guard(merchScope, { body: S.queryRuleBody }),
     async (request, reply) => {
       try {
-        const before = (await queryRules.list(request.params.site))
-          .find((r) => r.query === request.body.query.trim().toLowerCase()) ?? null;
+        // The rule this replaces, found the way it will be looked up: by
+        // category when the body names one, by normalised query otherwise.
+        const typed = (request.body.query ?? '').trim().toLowerCase();
+        const before = (await queryRules.list(request.params.site)).find((r) =>
+          request.body.categoryId
+            ? r.categoryId === request.body.categoryId
+            : Boolean(typed) && r.query === typed) ?? null;
         const saved = await queryRules.save(request.params.site, {
           ...request.body, author: actorOf(request),
         });
@@ -721,7 +726,8 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       );
 
       const rule = {
-        id: 0, siteId: site.id, query, matchType: 'exact' as const, enabled: true,
+        id: 0, siteId: site.id, query, categoryId: null,
+        matchType: 'exact' as const, enabled: true,
         startsAt: null, endsAt: null, priority: 100, note: null, actions,
       };
       return {

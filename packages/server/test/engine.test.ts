@@ -77,10 +77,27 @@ describe('variant-level indexing with parent grouping', () => {
     assert.equal(hit.variantCount, 7, 'the card still knows the parent has seven options');
   });
 
-  test('the finish facet shows only finishes that actually matched', async () => {
-    const r = await service.search(site, { q: 'black shutter' });
-    const finish = r.facets.find((f) => f.field === 'finish');
-    assert.deepEqual(finish?.values.map((v) => v.value), ['Black']);
+  test('a finish named in the query behaves exactly like clicking that facet', async () => {
+    // "black" is a finish the catalogue holds, so it is lifted out of the text
+    // and applied as a filter rather than searched as a word. That makes
+    // typing "black shutter" and searching "shutter" then clicking Black the
+    // same operation — including the facet panel still offering the other
+    // finishes, which is what lets a shopper change their mind without
+    // retyping.
+    const typed = await service.search(site, { q: 'black shutter' });
+    const clicked = await service.search(site, { q: 'shutter', filters: { finish: ['Black'] } });
+
+    const finish = typed.facets.find((f) => f.field === 'finish');
+    assert.ok(finish?.values.find((v) => v.value === 'Black')?.selected, 'Black is selected');
+    assert.ok(finish!.values.length > 1, 'the other finishes are still offered');
+    assert.deepEqual(
+      finish?.values.map((v) => v.value),
+      clicked.facets.find((f) => f.field === 'finish')?.values.map((v) => v.value),
+    );
+
+    // And what it narrows is real: the results are black.
+    assert.deepEqual(typed.appliedFilters.finish, ['Black']);
+    assert.equal(typed.hits[0]?.variantTitle, 'Black');
   });
 
   test('an unqualified query returns the product once, with siblings attached', async () => {

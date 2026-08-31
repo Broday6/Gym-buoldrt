@@ -66,6 +66,78 @@ Verified: both smoke suites now pass against a server with no dev flag set, and
 the console's key gate is covered in both directions — no key asks, a pasted key
 gets in and survives a reload.
 
+### ✅ Most of the catalogue never made it into the index
+
+**Found:** `inferMapping` kept a source column only if its heading matched a
+list of sixteen words or carried NetSuite's custom-field prefix. Everything
+else was dropped silently. A ninety-column export arrives as six, and nobody
+discovers the omission until a shopper searches for something that was in the
+feed all along.
+
+**Fixed:** every column is kept. The word list was demoted to deciding which
+attributes get a facet group without being asked, which is a much narrower
+question than what to store. Plumbing columns — internal ids, row timestamps —
+are still dropped, because they can never be searched for usefully.
+
+**And separately:** keeping everything must not mean searching everything. A
+carton weight or an accounting code in the searchable body lets a shopper
+typing "12" match on a number nobody was looking for, so a value reaches the
+relevance score only if it reads like something a shopper would say — words,
+not bare identifiers — or its column was marked facet-worthy. Storage is cheap;
+relevance is not.
+
+### ✅ A shopper describing a product got a text search
+
+**Found:** brands and product types were lifted out of a query and applied as
+filters, but the words shoppers actually use to describe a product — "black",
+"polyurethane", "rustic" — were still matched as free text. That asks a much
+weaker question: does this document mention black anywhere. A white corbel
+whose description says "also available in black" answers yes.
+
+**Fixed:** the entity dictionary now also holds the values each facet actually
+carries, built by asking the engine to count them — a facet-only query, so it
+works identically on all three engines with no fourth implementation. Up to
+three features per query are lifted; past that the extra matches are far more
+likely to be describing words colliding with a catalogue value than a shopper
+narrowing five ways at once, and every lifted feature is a filter that can
+empty the page.
+
+Typing "black shutter" is now the same operation as searching "shutter" and
+clicking Black — including the facet panel still offering the other finishes,
+which is what lets a shopper change their mind without retyping.
+
+**Watch:** the rescue path had to learn about features too. "Black polyurethane
+corbel" in a catalogue with no black polyurethane anything used to fall
+through to best sellers, throwing away the two things the shopper said that the
+catalogue does understand. It now relaxes features one at a time, keeping the
+first named, and says which it dropped.
+
+### ✅ An unbuyable product could hold the top slot
+
+Every other business signal is a shade of better-or-worse; stock is a fact
+about whether the shopper can buy the thing. Averaged into the composite, a
+product with excellent margin, velocity and reviews could outrank an in-stock
+rival and lead the page while being unbuyable — the most expensive result a
+search can return. It is now a multiplier rather than a term: out of stock
+sinks, discontinued sinks further, neither disappears.
+
+### ✅ The merchandiser could arrange a category and not keep it
+
+The Category mode previewed a catcode's grid and let a merchandiser drag it
+into the order they wanted, then refused to save: a rule was keyed by typed
+text and a category page has none. A rule now binds to either, and everything
+else about it is unchanged — the same pins, buries and hides, the same preview,
+the same history and undo. When both could fire, the typed words win: a search
+made inside a category is the more specific intent.
+
+### ✅ Session state outlived the session
+
+`safeStorage()` took a store and then ignored it, always returning
+`localStorage`. The "session" store was a second handle on the persistent one,
+so anything scoped to a visit quietly outlived it, across tabs and restarts.
+Found while adding personalisation, where it would have turned a hint about
+this visit into a permanent profile.
+
 ### ✅ Click-through was measured against nothing
 
 **Found:** the ranking composite has a `ctr` signal, `businessScore` takes a
@@ -253,8 +325,18 @@ What remains:
   at slot one lands on page one. The console merchandises the live grid by
   dragging results, and a pin names a product whether or not the query ever
   reached it.
-- ~~**Personalisation**~~ ◐ Ranking now adapts to what shoppers on the site do,
-  which is the population half of it. Per-shopper personalisation is not built.
+- ~~**Personalisation**~~ ◐ Two halves are built. Ranking adapts to what
+  shoppers on the site do; and within a visit, the page re-orders toward the
+  finishes and materials this shopper has been clicking. Deliberately bounded:
+  it re-orders the page they were getting and never re-selects it, so the
+  count, the facets and the pagination stay true and nobody is walled into a
+  narrower catalogue by their own history. A merchandiser's arrangement is
+  never overruled by it. Cross-visit profiles are not built, and the affinity
+  is session-scoped on purpose.
+- **A/B testing.** Every merchandising change — hand-made or automatic — is
+  still applied on faith. The event pipeline, session ids and rules are all
+  there; splitting traffic and reporting lift is the missing half, and it is
+  what would make the autopilot safe to leave on unattended.
 - **Semantic retrieval.** `semanticWeight` is plumbed and set to 0. The one
   open acceptance criterion depends on it.
 - **Personalisation and A/B testing.**
@@ -294,6 +376,9 @@ What remains:
 | An automatic change is as visible as a manual one | Applied a proposal, then read `audit_log`: one row, actor recorded, before and after captured, revertible from History like any other change |
 | The console explains itself | A Guide screen walks the five jobs with screenshots taken from this console against a real catalogue, and defines every term the UI uses. Its screenshots are asserted to load, so a renamed file fails the suite rather than shipping a broken page |
 | A blank screen offers a way in | The merchandiser lists your busiest searches and the vocabulary screen lists the ones that found nothing; picking either fills the form. Both covered by the console suite |
+| Features typed as words become filters | "black pvc shutter" on a live server: finish and material lifted, category understood, 7 products, all of them black PVC shutters. "black polyurethane corbel", a combination the catalogue does not hold, relaxes to 29 black products and says so |
+| A category can be merchandised and kept | Saved a rule against `exterior/brackets` through the API: the pinned product took slot one, the hidden one left, and a different category was untouched |
+| The page tilts toward this visit | Drove a real browser: clicked a Hunter Green shutter, searched again, and the same products came back led by Hunter Green — stored in sessionStorage, absent from localStorage |
 | One command stands the whole thing up | `npm install && npm run app` in a clean tree with **no database at all**: it created one, applied the schema, seeded, started the API, and printed the admin key. Both browser suites then passed against that instance. Also checked the paths that go wrong — no Postgres anywhere, a port already in use, a second run reusing what is there, and `--reseed` |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 | The hosted demo is a shop, not a harness | 32 checks over `file://` at desktop and phone: the grid, the departments, a misspelling landing on the right products, a brand-plus-type query read as both, and its own axe-core pass in both themes |

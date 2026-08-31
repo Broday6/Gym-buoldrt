@@ -101,18 +101,21 @@ export class SearchService {
     const started = performance.now();
 
     // Shopper identity must never enter the cache key, or the cache degenerates
-    // into one entry per visitor.
-    const { shopperId, sessionId, ...cacheable } = request;
+    // into one entry per visitor. Affinity is left out for the same reason,
+    // which is why personalisation happens after the cache rather than inside
+    // it: one shopper's preferences must never be served to the next.
+    const { shopperId, sessionId, affinity, ...cacheable } = request;
     const key = cacheKey(site.id, cacheable as Record<string, unknown>);
     const cached = this.cache.get(key);
     if (cached) {
-      return { ...cached, processingTimeMs: round(performance.now() - started) };
+      return personalise({ ...cached, processingTimeMs: round(performance.now() - started) },
+        affinity);
     }
 
     const response = await this.execute(site, request, started);
     // A redirect is not worth caching: it is cheap to recompute and short-lived.
     if (!response.redirect) this.cache.set(key, response);
-    return response;
+    return personalise(response, affinity);
   }
 
   /**
@@ -157,7 +160,7 @@ export class SearchService {
     // included, can re-lift what was taken off.
     const entities = request.entities === false
       ? undefined
-      : await this.entityIndex(site.id);
+      : await this.entityIndex(site);
     const analyzed = analyzeQuery(query, { vocabulary, entities });
 
     // Entities the query named become ordinary filters. Going through the same
@@ -279,8 +282,8 @@ export class SearchService {
    * query nothing was clicked on means something different when the catalogue
    * has no concept for the words at all.
    */
-  async understand(siteId: string, query: string): Promise<{ brand?: string; category?: string }> {
-    const entities = await this.entityIndex(siteId);
+  async understand(site: SiteConfig, query: string): Promise<{ brand?: string; category?: string }> {
+    const entities = await this.entityIndex(site);
     const analyzed = analyzeQuery(query, { entities });
     return {
       brand: analyzed.constraints.find((c) => c.kind === 'brand')?.value as string | undefined,
@@ -289,17 +292,25 @@ export class SearchService {
   }
 
   /**
-   * Brands and product types the catalogue carries, cached per site.
+   * The brands, product types and product features the catalogue carries,
+   * cached per site.
    *
-   * Built from the index's own directory, so nothing is configured: a brand is
-   * a brand because products carry it. Rebuilt when the index changes, which
-   * `invalidate` already signals.
+   * Built from the index's own directory and facet counts, so nothing is
+   * configured: a brand is a brand because products carry it, and "walnut" is
+   * a finish because the finish facet holds it. Rebuilt when the index
+   * changes, which `invalidate` already signals.
    */
-  private async entityIndex(siteId: string): Promise<EntityIndex> {
-    const cached = this.entities.get(siteId);
+  private async entityIndex(site: SiteConfig): Promise<EntityIndex> {
+    const cached = this.entities.get(site.id);
     if (cached && cached.expires > Date.now()) return cached.index;
-    const index = await buildEntityIndex(this.engine, siteId);
-    this.entities.set(siteId, { index, expires: Date.now() + 60_000 });
+    // The site's own facets: the fields a merchandiser already decided
+    // shoppers care about. Recognising every stored column would happily match
+    // an accounting code.
+    const fields = site.defaultFacets
+      .filter((f) => f.displayType !== 'slider' && f.field !== 'in_stock')
+      .map((f) => f.field);
+    const index = await buildEntityIndex(this.engine, site.id, fields);
+    this.entities.set(site.id, { index, expires: Date.now() + 60_000 });
     return index;
   }
 
@@ -310,10 +321,15 @@ export class SearchService {
     ruleIds: string[],
   ): Promise<Hit[]> {
     const store = this.options.queryRules;
+    if (!store) return grouped;
     const query = (request.q ?? '').trim();
-    if (!store || !query) return grouped;
+    const categoryId = (request.categoryId ?? '').trim();
+    if (!query && !categoryId) return grouped;
 
-    const rule = await store.forQuery(site.id, query).catch(() => null);
+    // Typed words first: a search made inside a category is a more specific
+    // statement of intent than the category the shopper happens to be in.
+    const rule = (query ? await store.forQuery(site.id, query).catch(() => null) : null)
+      ?? (categoryId ? await store.forCategory(site.id, categoryId).catch(() => null) : null);
     if (!rule) return grouped;
 
     const present = new Set(grouped.map((h) => h.parentId));
@@ -352,7 +368,8 @@ export class SearchService {
   ): Promise<RescueOutcome | null> {
     const brand = ctx.analyzed.constraints.find((c) => c.kind === 'brand');
     const category = ctx.analyzed.constraints.find((c) => c.kind === 'category');
-    if (!brand && !category) return null;
+    const attributes = ctx.analyzed.constraints.filter((c) => c.kind === 'attribute');
+    if (!brand && !category && !attributes.length) return null;
 
     // `q: ''` throughout: leaving the text in would re-lift the same entities
     // and land straight back here.
@@ -363,9 +380,18 @@ export class SearchService {
       hitsPerPage: ctx.hitsPerPage,
       facets: ctx.facetFields,
     };
+    // Everything understood, kept. "black pvc corbel" in a catalogue with no
+    // corbel category is still a shopper asking for something black and PVC,
+    // and answering with the whole catalogue throws away the two things they
+    // said that the catalogue does understand.
+    const understoodFilters: Record<string, string[]> = {};
+    if (brand) understoodFilters.brand = [String(brand.value)];
+    for (const attribute of attributes) {
+      understoodFilters[attribute.field] = [String(attribute.value)];
+    }
     const asFilters = {
       ...(category ? { categoryId: String(category.value) } : {}),
-      ...(brand ? { filters: { brand: [String(brand.value)] } } : {}),
+      ...(Object.keys(understoodFilters).length ? { filters: understoodFilters } : {}),
     };
     const named = (c: typeof brand) => c?.source ?? '';
 
@@ -384,18 +410,46 @@ export class SearchService {
       };
     };
 
-    // 1. The words around the entities were the problem.
+    // 1. The words around what was understood were the problem.
     if (ctx.terms.length > 0) {
-      const names = [brand ? brand.value : null, category ? named(category) : null]
-        .filter(Boolean).join(' ');
+      const names = [
+        brand ? brand.value : null,
+        ...attributes.map((a) => a.value),
+        category ? named(category) : null,
+      ].filter(Boolean).join(' ');
       const outcome = await attempt(
-        asFilters, `No exact matches. Showing ${names}.`, [brand, category]);
+        asFilters, `No exact matches. Showing ${names}.`, [brand, category, ...attributes]);
+      if (outcome) return outcome;
+    }
+
+    // 2. Everything together found nothing, so relax the features one at a
+    //    time. "No black polyurethane corbels" should land on black ones, not
+    //    on the best sellers — the shopper said two things the catalogue
+    //    understands, and dropping both throws away more than it has to. The
+    //    first feature named is kept longest: in "black polyurethane" the
+    //    colour is what they came for and the material is the qualifier.
+    for (let keep = attributes.length - 1; keep >= 1; keep--) {
+      const kept = attributes.slice(0, keep);
+      const dropped = attributes.slice(keep);
+      const filters: Record<string, string[]> = {};
+      if (brand) filters.brand = [String(brand.value)];
+      for (const attribute of kept) filters[attribute.field] = [String(attribute.value)];
+
+      const outcome = await attempt(
+        {
+          ...(category ? { categoryId: String(category.value) } : {}),
+          filters,
+        },
+        `No ${[...kept, ...dropped].map((a) => a.value).join(' ')}. `
+          + `Showing ${kept.map((a) => a.value).join(' ')}.`,
+        [brand, category, ...kept],
+      );
       if (outcome) return outcome;
     }
 
     if (!brand || !category) return null;
 
-    // 2. That brand does not make that thing.
+    // 3. That brand does not make that thing.
     const withoutBrand = await attempt(
       { categoryId: String(category.value) },
       `No ${brand.value} ${named(category)}. Showing all ${named(category)}.`,
@@ -403,7 +457,7 @@ export class SearchService {
     );
     if (withoutBrand) return withoutBrand;
 
-    // 3. Last: keep the brand, show everything it does make.
+    // 4. Last: keep the brand, show everything it does make.
     return attempt(
       { filters: { brand: [String(brand.value)] } },
       `No ${brand.value} ${named(category)}. Showing all ${brand.value}.`,
@@ -864,18 +918,68 @@ interface RescueOutcome {
  * they are inside Exterior and type "beams", the words narrow the text rather
  * than teleporting them out of the category they chose.
  */
+/**
+ * Re-order one page for the shopper looking at it.
+ *
+ * A shopper who has clicked three black products is telling you something, and
+ * the cheapest way to use it is to move the black ones up the page they were
+ * already getting. Deliberately bounded:
+ *
+ *   - **It re-orders, never re-selects.** Nothing enters or leaves the page,
+ *     so the count, the facets and the pagination all stay true, and a shopper
+ *     cannot be quietly walled into a narrower catalogue by their own history.
+ *   - **A merchandiser's arrangement wins.** When a rule pinned something, the
+ *     order is somebody's explicit decision, and a guess does not get to move
+ *     it.
+ *   - **It is stable.** Products with equal affinity keep their relevance
+ *     order, so this tilts the page rather than shuffling it.
+ */
+export function personalise(
+  response: SearchResponse,
+  affinity: string[] | undefined,
+): SearchResponse {
+  if (!affinity?.length || response.rulesApplied?.length || response.hits.length < 2) {
+    return response;
+  }
+  const wanted = new Set(affinity.map((a) => a.trim().toLowerCase()).filter(Boolean));
+  // The variant label already carries the attributes that distinguish it —
+  // "Black / PVC / Joined" — so nothing has to be added to the response to
+  // read them. A shopper's affinity is expressed in exactly these words,
+  // because it was collected from the same labels.
+  const score = (hit: Hit): number => {
+    let n = 0;
+    for (const part of (hit.variantTitle ?? '').split('/')) {
+      if (wanted.has(part.trim().toLowerCase())) n++;
+    }
+    if (hit.brand && wanted.has(hit.brand.toLowerCase())) n++;
+    return n;
+  };
+
+  const scored = response.hits.map((hit, index) => ({ hit, index, score: score(hit) }));
+  if (!scored.some((s) => s.score > 0)) return response;
+  scored.sort((a, b) => b.score - a.score || a.index - b.index);
+  return { ...response, hits: scored.map((s) => s.hit), personalised: true };
+}
+
 function applyEntityConstraints(
   request: SearchRequest,
   constraints: ParsedConstraint[],
 ): SearchRequest {
   const brand = constraints.find((c) => c.kind === 'brand');
   const category = constraints.find((c) => c.kind === 'category');
-  if (!brand && !category) return request;
+  const attributes = constraints.filter((c) => c.kind === 'attribute');
+  if (!brand && !category && !attributes.length) return request;
 
   const next: SearchRequest = { ...request };
-  if (brand && !request.filters?.brand?.length) {
-    next.filters = { ...(request.filters ?? {}), brand: [String(brand.value)] };
+  const filters = { ...(request.filters ?? {}) };
+  if (brand && !filters.brand?.length) filters.brand = [String(brand.value)];
+  // A feature the shopper named — "black", "polyurethane" — narrows exactly as
+  // a facet click does. An explicit selection on the same field always wins:
+  // they are looking at the facet panel, and the words are the older intent.
+  for (const attribute of attributes) {
+    if (!filters[attribute.field]?.length) filters[attribute.field] = [String(attribute.value)];
   }
+  if (Object.keys(filters).length) next.filters = filters;
   if (category && !request.categoryId && !request.collection) {
     next.categoryId = String(category.value);
   }
