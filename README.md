@@ -54,6 +54,13 @@ collections, badges and the rescue path are the same modules the server runs —
 a differential test indexes one catalogue into both engines and asserts they
 return the same products, the same counts and the same top result.
 
+The page is a shop, not a harness: a store header, departments, collections,
+filters and a grid, with a fictional storefront's name on it and a footer that
+says plainly that every listing is generated. Where the engine does something
+a shopper would not expect — reading "volterra beams" as a brand and a product
+type, correcting a misspelling — the page says so above the grid, and offers a
+way back to the literal words.
+
 What genuinely needs a server is absent rather than faked: ingest, the
 merchandiser console, analytics and recommendations.
 
@@ -102,7 +109,14 @@ npx playwright install chromium
 npm run ui-smoke        # 34 storefront checks, desktop and phone
 npm run ui-smoke:admin  # 49 console checks, including every role and phone width
 npm run a11y            # axe-core over both surfaces, light and dark
+
+npm run build:browser   # then:
+npm run browser-smoke   # 32 checks against the single-file demo, over file://
 ```
+
+`browser-smoke` is the only suite that needs neither a database nor a server —
+it drives the built file the way anyone with the link will open it, and carries
+its own axe-core pass in both themes.
 
 All of it runs in CI on every push — see `.github/workflows/ci.yml`.
 

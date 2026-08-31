@@ -47,6 +47,12 @@
   display: grid; gap: var(--compass-gap);
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
+/* A phone-width grid of one card per row shows three products a screen and
+   reads as a list, not a shop. Two columns is what every storefront does. */
+@media (max-width: 560px) {
+  .compass-grid, .compass-skeleton { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .compass-hit__title { font-size: 14px; }
+}
 
 .compass-hit {
   display: flex; flex-direction: column; border: 1px solid var(--compass-border);
@@ -139,6 +145,24 @@
 }
 
 /* ---------------------------------------------------------------- rescue */
+/* How the query was read: brand, product type, dimensions. Sits between the
+   count and the grid, because it explains the grid. */
+.compass-understood {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin: -4px 0 var(--compass-gap); font-size: 13px;
+}
+.compass-understood__lead { color: var(--compass-muted); }
+.compass-understood__tag {
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--compass-border); background: var(--compass-surface);
+  color: var(--compass-fg); font-weight: 600;
+}
+.compass-understood__undo {
+  font: inherit; font-size: 13px; padding: 0; margin-left: 4px;
+  border: 0; background: none; cursor: pointer;
+  color: var(--compass-accent); text-decoration: underline;
+}
+
 .compass-rescue {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px;
   padding: 10px 14px; margin-bottom: var(--compass-gap);

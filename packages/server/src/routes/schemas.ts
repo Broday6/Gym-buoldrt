@@ -114,6 +114,7 @@ export const searchBody = {
     sessionId: { type: 'string', maxLength: 128 },
     explain: { type: 'boolean' },
     rescue: { type: 'boolean' },
+    entities: { type: 'boolean' },
     seo: { type: 'boolean' },
   },
 } as const;

@@ -77,6 +77,9 @@ export class FacetsWidget {
   update(response) {
     this.facets = response.facets ?? [];
     this.applied = cloneFilters(response.appliedFilters ?? {});
+    this.entityFilters = (response.parsedFilters ?? [])
+      .filter((c) => c.kind === 'brand')
+      .map((c) => `${c.field}\u0000${c.value}`);
     this.customFields = new Set(this.facets.filter((f) => f.custom).map((f) => f.field));
     this.totalHits = response.totalHits ?? 0;
     if (!this.modalOpen) {
@@ -144,12 +147,17 @@ export class FacetsWidget {
 
   chipsHtml() {
     const chips = [];
+    // A brand the query itself named is shown above the grid, where the page
+    // explains how the search was read. Chipping it here too would put the
+    // same filter on screen twice with two different explanations for it.
+    const fromQuery = new Set(this.entityFilters ?? []);
     for (const [field, values] of [
       ...Object.entries(this.applied),
       ...Object.entries(this.appliedLabels),
     ]) {
       const facet = this.facets.find((f) => f.field === field);
       for (const value of values) {
+        if (fromQuery.has(`${field}\u0000${value}`)) continue;
         const label = facet?.values.find((v) => String(v.value) === String(value))?.label ?? value;
         chips.push(`<button type="button" class="compass-chip" data-clear-value="${esc(value)}"
           data-field="${esc(field)}">

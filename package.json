@@ -13,6 +13,7 @@
     "a11y": "node packages/demo/a11y.mjs && COMPASS_A11Y_THEME=dark node packages/demo/a11y.mjs",
     "backup": "tsx packages/server/src/cli/backup.ts",
     "bench": "tsx packages/server/src/cli/bench.ts",
+    "browser-smoke": "node packages/demo/browser-smoke.mjs",
     "build": "tsc -b",
     "build:browser": "tsx packages/demo/browser/build.ts",
     "demo": "npm run seed && npm run dev",

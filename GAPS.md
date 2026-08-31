@@ -66,6 +66,26 @@ Verified: both smoke suites now pass against a server with no dev flag set, and
 the console's key gate is covered in both directions — no key asks, a pasted key
 gets in and survives a reload.
 
+### ✅ The results page named a filter the results did not obey
+
+**Found:** searching "timberthane beams" in a catalogue where Timberthane makes
+no beams correctly falls back to showing all beams and says so — but the
+response went on reporting `brand: Timberthane` in both `appliedFilters` and
+`parsedFilters`. The storefront prints those. The page told the shopper it had
+filtered by a brand it had just stopped filtering by, and the brand facet
+beside it disagreed.
+
+**Cause:** the rescue delegates to a fresh search, and the outer response
+overwrote that search's own `appliedFilters` with the *original* request's —
+re-asserting the constraint the rescue existed to drop.
+
+**Fixed:** the rescued response's own filters stand, and a rescue branch
+reports which constraints survived it. Covered by a test and by the hosted
+demo's smoke suite, which asserts the page stops naming the dropped brand.
+
+**Watch:** anything that composes a response from a delegated search has to
+take the filters from the search that ran, not from the one that was asked for.
+
 ### ✅ A "clean" build was silently a no-op
 
 `rm -rf packages/*/dist && tsc -b` exited 0 without emitting anything, because
@@ -184,9 +204,11 @@ scheduling, badges, the analytics dashboard and recommendations all exist.
 
 What remains:
 
-- **Query-triggered rules.** Everything binds to a *product set* today
-  (collections, badges). Binding a consequence to a *query* — pin these three
-  for "beams", swap the facet set, show a banner — is the missing half.
+- ~~**Query-triggered rules.**~~ ✅ A rule binds to a query as well as to a
+  product set: pin, bury and hide, applied to the whole ranked window so a pin
+  at slot one lands on page one. The console merchandises the live grid by
+  dragging results, and a pin names a product whether or not the query ever
+  reached it.
 - **Semantic retrieval.** `semanticWeight` is plumbed and set to 0. The one
   open acceptance criterion depends on it.
 - **Personalisation and A/B testing.**
@@ -220,7 +242,9 @@ What remains:
 | Both themes meet WCAG 2.1 AA | axe-core over 10 states in light and dark |
 | The repository is a complete handoff | Cloned the pushed branch into an empty directory three times, on a fresh database each time: `npm ci`, build, tests, seed, run, every suite. It found two console checks that only passed on an install someone had already used |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
+| The hosted demo is a shop, not a harness | 32 checks over `file://` at desktop and phone: the grid, the departments, a misspelling landing on the right products, a brand-plus-type query read as both, and its own axe-core pass in both themes |
+| The page never claims a filter the results ignore | Searched a brand that makes none of the product asked for; asserted the rescue drops the brand *and* stops reporting it |
 
 Reproduce with `npm test`, `npm run ui-smoke`, `npm run ui-smoke:admin`,
-`npm run a11y`, `npm run openapi -- --check` and `npm run bench` — or push, and
-let CI do all of it.
+`npm run browser-smoke`, `npm run a11y`, `npm run openapi -- --check` and
+`npm run bench` — or push, and let CI do all of it.

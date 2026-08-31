@@ -67,6 +67,44 @@ const DEFAULT_TEMPLATES = {
     </div>`;
   },
 
+  /**
+   * What the search box was understood to mean.
+   *
+   * A query like "heritage beams" is not searched as four words: the brand and
+   * the product type are lifted out and applied as filters, which is why it
+   * returns beams by Heritage rather than everything either word appears in.
+   * That is invisible unless the page says so — and a shopper who disagrees
+   * with the reading needs a way out of it, or the search box has silently
+   * stopped doing what they asked.
+   */
+  understood: (response) => {
+    const parsed = response.parsedFilters ?? [];
+    if (!parsed.length) return '';
+    const tags = [];
+    const seen = new Set();
+    for (const c of parsed) {
+      // A single "4x6" produces a width and a height. The shopper wrote one
+      // thing, so they are shown one thing.
+      const key = `${c.kind}:${c.kind === 'brand' ? c.value : c.source}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (c.kind === 'brand') tags.push(`Brand: ${esc(c.value)}`);
+      else if (c.kind === 'category') tags.push(titleCase(c.source));
+      else if (c.kind === 'sku') tags.push(`Item ${esc(c.value)}`);
+      else tags.push(esc(c.source));
+    }
+    const lifted = parsed.some((c) => c.kind === 'brand' || c.kind === 'category');
+    return `<div class="compass-understood">
+      <span class="compass-understood__lead">Showing</span>
+      ${tags.map((t) => `<span class="compass-understood__tag">${t}</span>`).join('')}
+      ${lifted
+        ? `<button type="button" class="compass-understood__undo" data-drop-entities>
+             Search all products for &ldquo;${esc(response.query)}&rdquo;
+           </button>`
+        : ''}
+    </div>`;
+  },
+
   header: (response, ctx) => `
     <div class="compass-header">
       <p class="compass-header__count">
@@ -134,6 +172,9 @@ export class ResultsWidget {
       sort: options.sort ?? 'relevance',
       page: 1,
       exact: false,
+      // Null until the shopper rejects the reading of their query; false from
+      // then on, for that query only.
+      entities: null,
     };
     this.previewSeq = 0;
     this.formatter = new Intl.NumberFormat(undefined, { style: 'currency', currency: this.currency });
@@ -149,6 +190,8 @@ export class ResultsWidget {
     this.state.q = q;
     this.state.page = 1;
     this.state.exact = false;
+    // A rejected reading belongs to the query it was rejected for.
+    this.state.entities = null;
     return this.render();
   }
 
@@ -159,6 +202,15 @@ export class ResultsWidget {
   }
 
   setFilters(filters, ranges, labelFilters) {
+    // A brand the query named was applied as an ordinary filter. If it is gone
+    // from the incoming selection the shopper took it off, and the analyser
+    // has to be told: otherwise the next search lifts it straight back out of
+    // the text and the control the shopper just used does nothing.
+    for (const c of this.response?.parsedFilters ?? []) {
+      if (c.kind !== 'brand') continue;
+      const kept = (filters?.[c.field] ?? []).some((v) => String(v) === String(c.value));
+      if (!kept) this.state.entities = false;
+    }
     this.state.filters = filters ?? {};
     if (labelFilters) this.state.labelFilters = labelFilters;
     if (ranges) this.state.ranges = ranges;
@@ -223,6 +275,7 @@ export class ResultsWidget {
         sort: this.state.sort,
         page: this.state.page,
         rescue: this.state.exact ? false : undefined,
+        entities: this.state.entities === false ? false : undefined,
         // Only asked for when the storefront wants the SDK to own its head;
         // otherwise the server skips the work entirely.
         seo: this.seo || undefined,
@@ -242,6 +295,7 @@ export class ResultsWidget {
       this.container.innerHTML =
         this.templates.header(response, ctx) +
         this.templates.rescue(response.rescue, response, ctx) +
+        this.templates.understood(response, ctx) +
         (response.hits.length
           ? `<div class="compass-grid">${response.hits.map((h, i) => this.templates.hit(h, i, ctx)).join('')}</div>`
           : this.templates.empty(response.query, ctx)) +
@@ -261,6 +315,23 @@ export class ResultsWidget {
   }
 
   handleClick(event) {
+    if (event.target.closest('[data-drop-entities]')) {
+      this.state.entities = false;
+      // The brand the query named came back in `appliedFilters`, and a facet
+      // click since then may have copied it into the shopper's own selection.
+      // Only the entity's own values are dropped: a material or a price the
+      // shopper picked themselves is theirs, and survives.
+      for (const c of this.response?.parsedFilters ?? []) {
+        if (c.kind !== 'brand') continue;
+        const kept = (this.state.filters[c.field] ?? [])
+          .filter((v) => String(v) !== String(c.value));
+        if (kept.length) this.state.filters[c.field] = kept;
+        else delete this.state.filters[c.field];
+      }
+      this.state.page = 1;
+      void this.render();
+      return;
+    }
     const exact = event.target.closest('[data-exact]');
     if (exact) {
       // Re-run without letting the rescue cascade rewrite it.
@@ -343,6 +414,11 @@ function skeleton(count = 12) {
 function resolve(target) {
   if (!target) return null;
   return typeof target === 'string' ? document.querySelector(target) : target;
+}
+
+/** Category and type names arrive as the shopper typed them, often lowercase. */
+function titleCase(value) {
+  return esc(String(value ?? '').replace(/\b[a-z]/g, (c) => c.toUpperCase()));
 }
 
 function esc(value) {

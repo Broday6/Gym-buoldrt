@@ -6,12 +6,12 @@
  * of contact with the API — `client.request(path, body)` — is redirected to the
  * services that would normally sit behind it.
  *
- * Nothing else is reimplemented. Query analysis, the dimension parser, the
- * tie-breaking cascade, grouping by parent, the business composite, facets,
- * collections, badges and the zero-result rescue are the same modules the
- * server runs, so what a visitor sees is what the product does. The parts that
- * genuinely need a server — ingest, merchandising writes, analytics,
- * recommendations — are absent rather than faked.
+ * Nothing else is reimplemented. Query analysis, entity recognition, the
+ * dimension parser, the tie-breaking cascade, grouping by parent, the business
+ * composite, facets, collections, badges and the zero-result rescue are the
+ * same modules the server runs, so what a shopper sees is what the product
+ * does. The parts that genuinely need a server — ingest, merchandising writes,
+ * analytics, recommendations — are absent rather than faked.
  */
 import { MemoryEngine } from '../../server/src/engine/memory.js';
 import { SearchService } from '../../server/src/services/search.js';
@@ -28,13 +28,20 @@ const noDatabase = {
   end: async () => {},
 };
 
-const EXAMPLES = [
-  ['black shutter', 'variant match'],
-  ['4x6 beam 12ft', 'dimensions'],
-  ['chandaleer', 'typo'],
-  ['crownmoulding', 'compound'],
-  ['3-1/2 inch crown moulding', 'fraction'],
-  ['sofa', 'nothing here'],
+/**
+ * Things a shopper in this catalogue would plausibly type — including the
+ * misspelling and the brand-plus-product-type phrase, because those are the
+ * two the search box has to get right and the two a shopper never thinks to
+ * test. They are labelled as popular searches, not as test cases: what the
+ * engine does with them should be visible in the results, not in a caption.
+ */
+const POPULAR = [
+  'black shutters',
+  'volterra beams',
+  '4x6 beam 12ft',
+  'crownmoulding',
+  'chandaleer',
+  'oil rubbed bronze',
 ];
 
 // The page is rendered inside a host document whose language may be unset,
@@ -107,7 +114,21 @@ function withImages(response) {
 
 const client = new LocalClient({ site: data.site, baseUrl: '' });
 const input = document.querySelector('#q');
-const readout = document.querySelector('#readout');
+const title = document.querySelector('#title');
+const subtitle = document.querySelector('#subtitle');
+
+const directory = await engine.directory(data.site);
+const byId = new Map(directory.categories.map((c) => [c.id, c]));
+const departments = directory.categories.filter((c) => !c.id.includes('/'));
+const collections = new Map(data.collections.map((c) => [c.slug, c]));
+
+// What the shopper is looking at, which is what the page heading has to say.
+// Held here rather than read back off the widget: a heading that lags the grid
+// by one interaction is worse than no heading.
+let place = { kind: 'all' };
+
+let cartCount = 0;
+const cart = document.querySelector('#cart');
 
 const widgets = init({
   client,
@@ -119,82 +140,113 @@ const widgets = init({
   productUrl: () => '#',
   categoryUrl: () => '#',
   searchUrl: (q) => `?q=${encodeURIComponent(q)}`,
-  onStateChange: (response) => {
-    const parsed = (response.parsedFilters ?? [])
-      .map((f) => `<code>${f.field}=${f.value}</code>`).join(' ');
-    const rescue = response.rescue ? ` <code>rescued: ${response.rescue.strategy}</code>` : '';
-    readout.innerHTML = [
-      `<code>${response.queryType}</code>`,
-      `searched <code>${response.effectiveQuery || '—'}</code>`,
-      `${response.totalHits.toLocaleString()} products`,
-      `<span class="readout__ms">${response.processingTimeMs}ms</span>`,
-      parsed,
-      rescue,
-    ].filter(Boolean).join(' ');
+  // A cart the page cannot check out of, but a button that does nothing at all
+  // reads as a broken storefront rather than a demonstration of one.
+  onAddToCart: () => { cart.textContent = String(++cartCount); },
+  onStateChange: (response, state) => {
+    if (state.q) place = { kind: 'search', q: response.query || state.q };
+    heading(response);
   },
 });
 
-// ---- the frame ------------------------------------------------------------
+/** The page heading follows the shopper, not the query pipeline. */
+function heading(response) {
+  const total = response?.totalHits ?? 0;
+  if (place.kind === 'search') {
+    title.textContent = `“${place.q}”`;
+    subtitle.textContent = total
+      ? `${total.toLocaleString()} ${total === 1 ? 'product' : 'products'}`
+      : 'No products matched.';
+    return;
+  }
+  if (place.kind === 'collection') {
+    const collection = collections.get(place.slug);
+    title.textContent = collection?.name ?? 'Collection';
+    subtitle.textContent = collection?.description ?? '';
+    return;
+  }
+  if (place.kind === 'category') {
+    const category = byId.get(place.id);
+    title.textContent = category?.path.at(-1) ?? 'Products';
+    subtitle.textContent = category ? category.path.join(' / ') : '';
+    return;
+  }
+  title.textContent = 'All products';
+  subtitle.textContent = 'Beams, shutters, corbels, moulding and hardware.';
+}
 
-document.querySelector('#examples').innerHTML = EXAMPLES
-  .map(([q, why]) => `<button type="button" data-q="${q}">${q}<em>${why}</em></button>`)
-  .join('');
+// ---- the shop's own navigation --------------------------------------------
+
+document.querySelector('#examples').innerHTML = POPULAR
+  .map((q) => `<button type="button" data-q="${q}">${q}</button>`).join('');
+
+document.querySelector('#collections').innerHTML = data.collections
+  .map((c) => `<button type="button" data-col="${c.slug}">${c.name}</button>`).join('');
+
+document.querySelector('#dept').innerHTML = [
+  '<button type="button" data-cat="" aria-current="true">All products</button>',
+  ...departments.map((c) =>
+    `<button type="button" data-cat="${c.id}">${c.path.at(-1)}</button>`),
+].join('');
+
+const subcats = document.querySelector('#subcats');
+const subcatItems = document.querySelector('#subcat-items');
+
+/** A department's own aisles. Hidden entirely when there are none to show. */
+function showSubcategories(departmentId) {
+  const children = departmentId
+    ? directory.categories.filter((c) =>
+        c.id.startsWith(`${departmentId}/`) && c.id.split('/').length === 2)
+    : [];
+  subcats.hidden = children.length === 0;
+  subcatItems.innerHTML = children
+    .map((c) => `<button type="button" data-cat="${c.id}">${c.path.at(-1)}` +
+      ` (${c.products.toLocaleString()})</button>`).join('');
+}
+
+function mark(active) {
+  for (const b of document.querySelectorAll('#dept button, #collections button, #subcat-items button')) {
+    b.setAttribute('aria-current', String(b === active));
+  }
+}
+
 document.querySelector('#examples').addEventListener('click', (event) => {
   const button = event.target.closest('[data-q]');
   if (!button) return;
   input.value = button.dataset.q;
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+  place = { kind: 'search', q: button.dataset.q };
   void widgets.results.setQuery(button.dataset.q);
+  input.focus();
 });
-
-const directory = await engine.directory(data.site);
-const nav = document.querySelector('#nav');
-const top = directory.categories.filter((c) => !c.id.includes('/'));
-const second = directory.categories.filter((c) => c.id.split('/').length === 2).slice(0, 6);
-
-// Collections and categories are deliberately separate rows: a collection cuts
-// across the taxonomy, and putting the two in one strip would hide the very
-// thing that makes them different.
-document.querySelector('#collections').innerHTML = [
-  '<span class="strip__label">Collections</span>',
-  ...data.collections.map((c) =>
-    `<button type="button" data-col="${c.slug}" title="${c.description ?? ''}">${c.name}</button>`),
-].join('');
-
-nav.innerHTML = [
-  '<button type="button" data-cat="" aria-current="true">All products</button>',
-  ...[...top, ...second].map((c) =>
-    `<button type="button" data-cat="${c.id}">${c.path[c.path.length - 1]}` +
-    `<span class="nav__count">${c.products}</span></button>`),
-].join('');
 
 function onNavClick(event) {
   const button = event.target.closest('[data-cat], [data-col]');
   if (!button) return;
-  for (const b of document.querySelectorAll('#nav button, #collections button')) {
-    b.setAttribute('aria-current', String(b === button));
-  }
+  mark(button);
   input.value = '';
+
   if (button.dataset.col !== undefined) {
+    place = { kind: 'collection', slug: button.dataset.col };
+    subcats.hidden = true;
+    heading();
     void widgets.results.setCollection(button.dataset.col);
-  } else {
-    void widgets.results.setCollection(null);
-    void widgets.results.setCategory(button.dataset.cat || null);
+    return;
   }
+
+  const id = button.dataset.cat || null;
+  place = id ? { kind: 'category', id } : { kind: 'all' };
+  // Only a department resets the aisle strip; picking an aisle keeps it up,
+  // with the chosen one marked.
+  if (!id || !id.includes('/')) showSubcategories(id);
+  heading();
+  void widgets.results.setCollection(null);
+  void widgets.results.setCategory(id);
 }
 
-nav.addEventListener('click', onNavClick);
-document.querySelector('#collections').addEventListener('click', onNavClick);
+for (const id of ['#dept', '#collections', '#subcat-items']) {
+  document.querySelector(id).addEventListener('click', onNavClick);
+}
 
-// The spec strip describes the index this page actually loaded.
-const products = new Set(data.docs.map((d) => d.parentId)).size;
-document.querySelector('#spec').innerHTML = [
-  ['Products', products.toLocaleString()],
-  ['Variants indexed', data.docs.length.toLocaleString()],
-  ['Engine', 'in-memory'],
-  ['Collections', String(data.collections.length)],
-  ['Custom filters', String(data.attributes.length)],
-  ['Badges', String(data.badges.length)],
-].map(([label, value]) =>
-  `<span class="spec__item"><span class="spec__label">${label}</span>` +
-  `<span class="spec__value">${value}</span></span>`).join('');
+// A query in the URL is a shared search; the widget has already read it.
+if (widgets.results.state.q) place = { kind: 'search', q: widgets.results.state.q };
+heading();

@@ -3935,6 +3935,9 @@
                   "rescue": {
                     "type": "boolean"
                   },
+                  "entities": {
+                    "type": "boolean"
+                  },
                   "seo": {
                     "type": "boolean"
                   }
@@ -6047,6 +6050,9 @@
                     "type": "boolean"
                   },
                   "rescue": {
+                    "type": "boolean"
+                  },
+                  "entities": {
                     "type": "boolean"
                   },
                   "seo": {

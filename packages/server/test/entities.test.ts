@@ -156,6 +156,11 @@ describe('searching by brand and product type', () => {
     assert.equal(r.rescue?.strategy, 'drop_entity');
     assert.match(r.rescue!.notice!, /No Timberthane beams\. Showing all beams\./);
     assert.ok(r.hits.every((h) => /Beam/.test(h.title)), 'every result is still a beam');
+    // And it stops claiming the brand it just dropped. A storefront prints
+    // these; naming a filter the results do not obey is a lie about the grid.
+    assert.equal(r.appliedFilters.brand, undefined);
+    assert.ok(!r.parsedFilters?.some((c) => c.kind === 'brand'));
+    assert.ok(r.parsedFilters?.some((c) => c.kind === 'category'));
     await close();
   });
 
@@ -175,6 +180,24 @@ describe('searching by brand and product type', () => {
     const { search, close } = await service();
     const r = await search.search(site, { q: 'volterra beams', categoryId: 'exterior/brackets' });
     assert.ok(r.hits.every((h) => /Bracket/.test(h.title)), 'still inside brackets');
+    await close();
+  });
+
+  test('a shopper can turn the reading off, and it stays off', async () => {
+    // The brand a query names is applied as an ordinary filter, so the
+    // storefront offers a way to take it off. Removing the filter alone would
+    // not survive: the next search re-reads the same words and lifts the same
+    // brand. `entities: false` is what makes the control real.
+    const { search, close } = await service();
+    const lifted = await search.search(site, { q: 'volterra bracket' });
+    assert.deepEqual(lifted.appliedFilters.brand, ['Volterra']);
+    assert.ok(lifted.parsedFilters?.some((c) => c.kind === 'brand'));
+
+    const literal = await search.search(site, { q: 'volterra bracket', entities: false });
+    assert.equal(literal.appliedFilters.brand, undefined);
+    assert.equal(literal.parsedFilters, undefined);
+    assert.ok(literal.totalHits >= lifted.totalHits,
+      'dropping a constraint cannot return fewer products');
     await close();
   });
 

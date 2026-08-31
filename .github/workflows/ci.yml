@@ -63,6 +63,14 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
 
+      - name: Hosted demo
+        # Needs no database and no server: it builds the single-file storefront
+        # and drives it over file://, which is exactly how anyone with the link
+        # will open it.
+        run: |
+          npm run build:browser
+          npm run browser-smoke
+
       - name: Seed the demo catalogues and traffic
         run: npm run seed
 

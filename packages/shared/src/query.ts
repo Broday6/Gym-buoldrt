@@ -53,6 +53,13 @@ export interface SearchRequest {
    */
   rescue?: boolean;
   /**
+   * Set false to stop the analyser lifting brands and product types out of the
+   * text. This is what a shopper sends by taking off a "Brand: Heritage" chip
+   * the query itself produced: without it the next search would re-lift the
+   * same entity and the chip would come straight back.
+   */
+  entities?: boolean;
+  /**
    * Return SEO directives for this result page: canonical URL, robots policy,
    * title, description and schema.org ItemList. Off by default — a storefront
    * that renders its own head does not need the extra work on every request.

@@ -144,7 +144,13 @@ export class SearchService {
     }
 
     const vocabulary = await this.engine.vocabulary(site.id);
-    const entities = await this.entityIndex(site.id);
+    // `entities: false` says the shopper removed a filter the query itself
+    // produced. Withholding the dictionary — rather than stripping the
+    // constraints afterwards — keeps one code path: nothing downstream, rescue
+    // included, can re-lift what was taken off.
+    const entities = request.entities === false
+      ? undefined
+      : await this.entityIndex(site.id);
     const analyzed = analyzeQuery(query, { vocabulary, entities });
 
     // Entities the query named become ordinary filters. Going through the same
@@ -186,16 +192,19 @@ export class SearchService {
       if (rescued?.response) {
         // A delegated fallback is already a complete response; relabel it with
         // the query the shopper actually typed and the path that rescued it.
+        // What the rescue actually searched, not what was asked for: its own
+        // `appliedFilters` is the only record of that, and a branch that
+        // dropped a constraint reports which ones it kept.
+        const kept = rescued.kept ?? analyzed.constraints;
         return {
           ...rescued.response,
           query: request.q ?? '',
           effectiveQuery: '',
           queryType: analyzed.type,
-          appliedFilters: request.filters ?? {},
           // Carried through: a shopper shown a relaxed result set still needs
           // to see what the query was understood to mean, and which part of it
           // was dropped to get here.
-          parsedFilters: analyzed.constraints.length ? analyzed.constraints : undefined,
+          parsedFilters: kept.length ? kept : undefined,
           rescue: rescued.rescue,
           processingTimeMs: round(performance.now() - started),
         };
@@ -352,17 +361,24 @@ export class SearchService {
     const attempt = async (
       overrides: Record<string, unknown>,
       notice: string,
+      kept: (ParsedConstraint | undefined)[],
     ): Promise<RescueOutcome | null> => {
       const response = await this.search(site, { ...base, ...overrides });
       if (response.totalHits === 0) return null;
-      return { response, terms: ctx.terms, rescue: { strategy: 'drop_entity', notice } };
+      return {
+        response,
+        terms: ctx.terms,
+        rescue: { strategy: 'drop_entity', notice },
+        kept: kept.filter((c): c is ParsedConstraint => Boolean(c)),
+      };
     };
 
     // 1. The words around the entities were the problem.
     if (ctx.terms.length > 0) {
-      const kept = [brand ? brand.value : null, category ? named(category) : null]
+      const names = [brand ? brand.value : null, category ? named(category) : null]
         .filter(Boolean).join(' ');
-      const outcome = await attempt(asFilters, `No exact matches. Showing ${kept}.`);
+      const outcome = await attempt(
+        asFilters, `No exact matches. Showing ${names}.`, [brand, category]);
       if (outcome) return outcome;
     }
 
@@ -372,6 +388,7 @@ export class SearchService {
     const withoutBrand = await attempt(
       { categoryId: String(category.value) },
       `No ${brand.value} ${named(category)}. Showing all ${named(category)}.`,
+      [category],
     );
     if (withoutBrand) return withoutBrand;
 
@@ -379,6 +396,7 @@ export class SearchService {
     return attempt(
       { filters: { brand: [String(brand.value)] } },
       `No ${brand.value} ${named(category)}. Showing all ${brand.value}.`,
+      [brand],
     );
   }
 
@@ -810,6 +828,13 @@ interface RescueOutcome {
   response?: SearchResponse;
   terms: string[];
   rescue: { strategy: RescueStrategy; didYouMean?: string; notice?: string };
+  /**
+   * The constraints still in force after the branch dropped what it had to.
+   * A rescue that discards the brand must not go on reporting the brand as
+   * applied: the storefront prints these, and a filter the page names but the
+   * results do not obey is worse than no explanation at all.
+   */
+  kept?: ParsedConstraint[];
 }
 
 /**
