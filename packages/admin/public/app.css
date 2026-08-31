@@ -165,7 +165,10 @@ td.num, th.num { text-align: right; }
 
 /* ------------------------------------------------- query tester / preview */
 .split { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
-@media (max-width: 1080px) { .split { grid-template-columns: 1fr; } }
+/* minmax(0, …) rather than 1fr: a 1fr track's minimum is its content's
+   min-content width, so a wide table inside would push the whole page wider
+   instead of scrolling within its own container. */
+@media (max-width: 1080px) { .split { grid-template-columns: minmax(0, 1fr); } }
 
 .preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
 .pv {
@@ -242,3 +245,67 @@ tr.diff > td { background: var(--surface); padding: 0 10px 12px; }
 .diff__field { white-space: nowrap; width: 1%; }
 .diff__before { color: var(--danger); }
 .diff__after { color: var(--ok); }
+
+/* ---------------------------------------------------------------- mobile.
+   The console is a desktop tool, but a merchandiser checking a number from
+   their phone should not get a 668px-wide page in a 390px viewport — which is
+   what a fixed sidebar column produced. Below 900px the sidebar becomes a
+   drawer and everything else reflows into one column. */
+.topbar__menu { display: none; }
+.scrim { display: none; }
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+
+  .side {
+    position: fixed; inset: 0 auto 0 0; z-index: 60; width: min(84vw, 300px);
+    transform: translateX(-100%); transition: transform .18s ease;
+    box-shadow: 0 0 40px rgb(0 0 0 / 18%);
+  }
+  .side[data-open='true'] { transform: none; }
+  /* Reduced motion is a preference about vestibular safety, not decoration. */
+  @media (prefers-reduced-motion: reduce) { .side { transition: none; } }
+
+  .scrim {
+    display: block; position: fixed; inset: 0; z-index: 50;
+    background: rgb(0 0 0 / 42%);
+  }
+  .scrim[hidden] { display: none; }
+
+  /* Two rows: the screen you are on, then what you can do to it. Side by side
+     they compete for the same 390px and the title loses — it was rendering as
+     a single clipped letter. */
+  .topbar {
+    display: grid; grid-template-columns: auto 1fr; gap: 8px 10px;
+    padding: 10px 14px; align-items: center;
+  }
+  .topbar__actions { grid-column: 1 / -1; flex-wrap: wrap; }
+  .topbar__actions > * { flex: 1 1 auto; min-width: 0; }
+  .topbar__actions select, .topbar__actions .btn { width: 100%; }
+  .topbar__menu {
+    display: flex; align-items: center; justify-content: center; flex: none;
+    width: 38px; height: 38px; padding: 0; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg); color: inherit; cursor: pointer;
+  }
+  .topbar__heading { min-width: 0; }
+  .topbar h1 { font-size: 16px; }
+  /* The subtitle is orientation, and at this width the screen name is enough. */
+  .topbar__sub { display: none; }
+
+  .view { padding: 16px 14px 56px; }
+  .card { padding: 13px; }
+  .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { padding: 11px 12px; }
+  .stat__value { font-size: 21px; }
+  .preview { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  /* Tables scroll inside .table-wrap rather than squeezing to unreadable
+     columns. The wrap is capped so the table can never set the page width. */
+  .table-wrap { max-width: 100%; }
+  .table-wrap table { min-width: 520px; }
+  .row { gap: 8px; }
+  .toast { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+}
+
+@media (max-width: 420px) {
+  .stats { grid-template-columns: 1fr; }
+}

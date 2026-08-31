@@ -138,6 +138,7 @@ export class AutocompleteWidget {
   }
 
   async showEmptyState() {
+    const seq = ++this.requestSeq;
     const recent = this.client.recentSearches(5);
     let trending = [];
     try {
@@ -147,6 +148,9 @@ export class AutocompleteWidget {
     } catch {
       // Trending is a nicety; recent searches alone are still worth showing.
     }
+    // Dismissed while this was in flight: showing it now would reopen a panel
+    // the shopper has already closed.
+    if (seq !== this.requestSeq) return;
     if (recent.length === 0 && trending.length === 0) return this.close();
     this.renderEmptyState(recent, trending);
   }
@@ -155,7 +159,8 @@ export class AutocompleteWidget {
     const seq = ++this.requestSeq;
     try {
       const response = await this.request(query);
-      // A slower earlier request must never overwrite a newer one.
+      // A slower earlier request must never overwrite a newer one — and a
+      // request that outlived a dismissal must not reopen the panel.
       if (seq !== this.requestSeq) return;
       this.response = response;
       this.render(response);
@@ -416,6 +421,18 @@ export class AutocompleteWidget {
   }
 
   close() {
+    // Cancelled unconditionally, even when the panel is already shut: work
+    // scheduled by the last keystroke would otherwise land afterwards and
+    // reopen it. On mobile that is not a cosmetic flicker — the panel is a
+    // full-screen takeover that re-locks the page behind it, so a shopper who
+    // cleared the box and tapped back ended up trapped in it.
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    this.debounceTimer = null;
+    // In-flight requests resolve after close too. Bumping the sequence is what
+    // tells them to discard their result rather than render it.
+    this.requestSeq++;
+    this.controller?.abort();
+
     if (!this.open) return;
     this.open = false;
     this.root.dataset.state = 'closed';

@@ -13,8 +13,11 @@ import { api, esc, html, raw, state, table, toast } from '../lib.js';
  */
 
 const ACTION_TONE = {
-  upsert: '', create: 'pill--ok', delete: 'pill--warn',
+  upsert: '', create: 'pill--ok', delete: 'pill--warn', revert: 'pill--off',
 };
+
+/** What a merchandiser calls it, rather than what the column stores. */
+const ACTION_LABEL = { upsert: 'edited', create: 'created', delete: 'deleted', revert: 'undone' };
 
 const when = (iso) => {
   const then = new Date(iso);
@@ -56,7 +59,7 @@ export const history = {
             <tr data-row="${e.id}">
               <td>${esc(when(e.occurredAt))}</td>
               <td>${esc(e.actor)}</td>
-              <td><span class="pill ${ACTION_TONE[e.action] ?? ''}">${esc(e.action)}</span></td>
+              <td><span class="pill ${ACTION_TONE[e.action] ?? ''}">${esc(ACTION_LABEL[e.action] ?? e.action)}</span></td>
               <td>
                 <span class="mono">${esc(e.entityType)}</span>
                 <strong>${esc(e.entityId ?? '')}</strong>

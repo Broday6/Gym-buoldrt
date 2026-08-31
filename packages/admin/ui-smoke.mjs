@@ -202,6 +202,60 @@ await merch.waitForSelector('.stat__value', { timeout: 10000 });
 check('a merchandiser still cannot rebuild the index',
   (await merch.locator('#reindex').count()) === 0);
 
+// ---- phone ------------------------------------------------------------------
+//
+// The console is a desktop tool, but a merchandiser checking a number from
+// their phone should not get a 668px-wide page in a 390px viewport — which is
+// what the fixed sidebar column used to produce.
+const small = await browser.newPage({
+  viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
+});
+small.on('pageerror', (e) => errors.push(`[phone] pageerror: ${e.message}`));
+await small.addInitScript((stored) => {
+  localStorage.setItem('compass.adminKeys', JSON.stringify(stored));
+}, Object.fromEntries(Object.entries(keys).map(([site, k]) => [site, k.admin])));
+await small.goto(BASE, { waitUntil: 'networkidle' });
+await small.waitForSelector('.stat__value', { timeout: 20000 });
+
+const fits = () => small.evaluate(
+  () => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+check('the dashboard fits a phone', await fits());
+check('the screen name is readable, not crushed by the actions',
+  ((await small.locator('#view-title').boundingBox())?.width ?? 0) > 120);
+check('the sidebar is a drawer, closed by default',
+  ((await small.locator('#side').boundingBox())?.x ?? 0) < 0);
+check('a menu button opens it', await small.locator('#menu').isVisible());
+
+await small.tap('#menu');
+await small.waitForTimeout(400);
+check('the drawer opens', ((await small.locator('#side').boundingBox())?.x ?? -1) === 0);
+// To the right of the drawer: the scrim spans the viewport, but its centre is
+// underneath the panel, which is where a thumb would never aim.
+await small.tap('#scrim', { position: { x: 370, y: 500 } });
+await small.waitForTimeout(400);
+check('tapping outside closes it', await small.locator('#scrim').isHidden());
+
+// Every screen, because one wide table sets the width of the whole page.
+/** The drawer slides; tapping mid-animation lands on whatever is under the point. */
+async function openDrawer() {
+  await small.tap('#menu');
+  await small.waitForFunction(
+    () => document.querySelector('#side')?.getBoundingClientRect().x === 0,
+    null, { timeout: 5000 },
+  );
+}
+
+for (const [nav, ready] of [['tester', '#q'], ['collections', 'table'],
+  ['badges', '.badge'], ['history', 'tbody tr[data-row]'], ['catalog', '.stat__value']]) {
+  await openDrawer();
+  await small.tap(`[data-nav="${nav}"]`);
+  await small.waitForSelector(ready, { timeout: 10000 });
+  await small.waitForTimeout(400);
+  check(`${nav} fits a phone`, await fits());
+}
+check('choosing a destination closes the drawer', await small.locator('#scrim').isHidden());
+await small.screenshot({ path: 'admin-mobile.png' });
+
 await browser.close();
 
 if (errors.length) {

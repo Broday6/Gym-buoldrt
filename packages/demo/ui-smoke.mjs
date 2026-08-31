@@ -148,6 +148,25 @@ check('apply closes the modal', await mobile.locator('.compass-facets__modal').i
 
 await mobile.fill('#q', 'beam');
 await mobile.waitForSelector('.compass-ac[data-state="open"]', { timeout: 10000 });
+
+// Dismissing the takeover has to stick. Work scheduled by the last keystroke
+// used to land after the close and reopen it — and because the panel locks the
+// page behind it, that left a shopper who changed their mind trapped.
+for (const [label, type] of [['after typing', 'shut'], ['after clearing the box', '']]) {
+  await mobile.fill('#q', 'shut');
+  await mobile.waitForSelector('.compass-ac[data-state="open"]', { timeout: 10000 });
+  await mobile.fill('#q', type);
+  await mobile.click('.compass-ac__close');
+  await mobile.waitForTimeout(900);
+  check(`the search takeover stays dismissed ${label}`,
+    (await mobile.locator('.compass-ac').getAttribute('data-state')) === 'closed'
+    && !(await mobile.evaluate(() => document.body.classList.contains('compass-ac-locked'))));
+}
+check('the page behind is usable again once dismissed',
+  await mobile.locator('.compass-facets__trigger').isVisible());
+
+await mobile.fill('#q', 'beam');
+await mobile.waitForSelector('.compass-ac[data-state="open"]', { timeout: 10000 });
 const box = await mobile.boundingBox?.() ?? null;
 const panel = await mobile.locator('.compass-ac').boundingBox();
 check('autocomplete becomes a full-screen takeover',

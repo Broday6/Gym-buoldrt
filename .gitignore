@@ -8,5 +8,7 @@ data/
 ui-desktop.png
 ui-mobile.png
 admin.png
+admin-mobile.png
+phone-*.png
 packages/demo/*.d.ts
 packages/demo/*.js.map

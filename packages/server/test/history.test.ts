@@ -131,6 +131,13 @@ describe('revert', () => {
     assert.match(calls[0]!, /^badge\.create/);
   });
 
+  test('undoing an undo does not compound the label', async () => {
+    // `revert:revert:revert:upsert` is accurate and unreadable.
+    const { history, inserted } = service([entry({ action: 'revert' })]);
+    await history.revert('ekena', 7, 'sarah');
+    assert.equal(inserted[0]![2], 'revert');
+  });
+
   test('the undo is itself recorded, with its sides reversed', async () => {
     // So undoing the undo is the same operation again, and the log stays
     // append-only rather than editing away the thing that went wrong.
@@ -139,7 +146,7 @@ describe('revert', () => {
     const [siteId, actor, action, entityType, entityId, before, after] = inserted[0]!;
     assert.equal(siteId, 'ekena');
     assert.equal(actor, 'sarah');
-    assert.equal(action, 'revert:upsert');
+    assert.equal(action, 'revert');
     assert.equal(entityType, 'badge');
     assert.equal(entityId, 'clearance');
     assert.match(String(before), /Big Clearance/, 'the undo starts from what the change produced');

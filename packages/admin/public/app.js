@@ -46,6 +46,7 @@ async function boot() {
     .join('');
   select.addEventListener('change', async () => {
     state.site = select.value;
+    closeDrawer();
     // Every screen is scoped to the selected site, so switching resets any
     // half-finished editor rather than carrying it across tenants.
     collections.state.editing = null;
@@ -56,9 +57,43 @@ async function boot() {
     void enter();
   });
 
+  bindDrawer();
   window.addEventListener('hashchange', () => navigate(location.hash.slice(1) || 'dashboard'));
   await enter();
 }
+
+/**
+ * The sidebar as a drawer, below 900px.
+ *
+ * Opening is explicit; closing is everything a person might reasonably do to
+ * dismiss it — the scrim, Escape, picking a destination, or switching site. A
+ * drawer that only closes one way is a trap on a touch screen.
+ */
+function bindDrawer() {
+  const side = document.querySelector('#side');
+  const scrim = document.querySelector('#scrim');
+  const button = document.querySelector('#menu');
+
+  const setOpen = (open) => {
+    side.dataset.open = String(open);
+    scrim.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) side.querySelector('[data-nav]')?.focus();
+  };
+  closeDrawer = () => {
+    if (side.dataset.open === 'true') setOpen(false);
+  };
+
+  button.addEventListener('click', () => setOpen(side.dataset.open !== 'true'));
+  scrim.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+}
+
+/** Set by bindDrawer; a no-op until then, and harmless on a wide screen. */
+let closeDrawer = () => {};
 
 /**
  * Establish who we are, then show the console.
@@ -198,6 +233,7 @@ const rerender = () => render();
 document.addEventListener('click', async (event) => {
   const nav = event.target.closest('[data-nav]');
   if (nav) {
+    closeDrawer();
     await navigate(nav.dataset.nav);
     return;
   }

@@ -99,6 +99,42 @@
       .sidebar { position: static; }
     }
 
+    /* On a phone the demo's own scaffolding — the example queries, the keyboard
+       hint, the diagnostics line — filled the first screen and pushed every
+       product below the fold. It is useful to a reviewer and it stays, but the
+       storefront has to be the thing you see first. */
+    @media (max-width: 720px) {
+      .topbar__inner { padding: 10px 14px; gap: 10px; row-gap: 8px; }
+      .brand { font-size: 15px; }
+      .sitepick { margin-left: auto; max-width: 46vw; }
+      .searchbox { flex-basis: 100%; order: 3; }
+
+      .examples { gap: 8px; margin-bottom: 10px; flex-wrap: nowrap; }
+      /* The chips live inside this span, so it has to be the scroller — the
+         flex row above it only controls the label and the span itself. */
+      #examples {
+        display: flex; gap: 6px; min-width: 0; overflow-x: auto;
+        scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      }
+      #examples::-webkit-scrollbar { display: none; }
+      #examples button, .examples__label { white-space: nowrap; flex: none; }
+      /* Same treatment for the diagnostics: one scrollable line, not three
+         stacked ones between the shopper and the products. */
+      .diag {
+        flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+      }
+      .diag::-webkit-scrollbar { display: none; }
+      .diag > * { flex: none; white-space: nowrap; }
+      /* There is no `/` key to press on a phone. */
+      .examples__label[style] { display: none; }
+
+      /* The diagnostics stay available — they are the point of the demo — but
+         folded away, because a shopper's first screen should be products. */
+      .diag { font-size: 11px; gap: 5px 8px; margin-bottom: 10px; }
+      .page { padding: 12px 14px 48px; }
+      .sidebar__title { display: none; }
+    }
+
     /* ---- collections: merchandiser structures, distinct from the taxonomy ---- */
     .colnav { border-bottom: 1px solid var(--compass-border, #e3e5e9); }
     .colnav__inner { max-width: 1280px; margin: 0 auto; padding: 9px 20px; display: flex;

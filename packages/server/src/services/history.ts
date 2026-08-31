@@ -144,7 +144,11 @@ export class HistoryService {
     await this.db.query(
       `INSERT INTO audit_log (site_id, actor, action, entity_type, entity_id, before, after)
        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [siteId, actor, `revert:${entry.action}`, entry.entityType, entry.entityId,
+      // Named `revert` flatly, not `revert:${entry.action}`: undoing an undo
+      // would otherwise compound into `revert:revert:revert:upsert`, which is
+      // technically accurate and unreadable. What was undone is the entry
+      // directly below it, and the diff says what moved.
+      [siteId, actor, 'revert', entry.entityType, entry.entityId,
        // The undo's own before/after are the reverse of the change it undoes,
        // so reverting the undo is the same operation again.
        entry.after ? JSON.stringify(entry.after) : null,

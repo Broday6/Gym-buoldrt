@@ -9,7 +9,8 @@
 </head>
 <body>
   <div class="shell">
-    <nav class="side" aria-label="Sections">
+    <div class="scrim" id="scrim" hidden></div>
+    <nav class="side" id="side" aria-label="Sections">
       <div class="side__brand"><span class="side__mark" aria-hidden="true"></span> Compass</div>
       <div class="side__site">
         <label class="field">
@@ -27,7 +28,14 @@
 
     <main class="main">
       <header class="topbar">
-        <div>
+        <button class="topbar__menu" id="menu" aria-label="Sections" aria-expanded="false"
+          aria-controls="side">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" fill="none"/>
+          </svg>
+        </button>
+        <div class="topbar__heading">
           <h1 id="view-title">Dashboard</h1>
           <p class="topbar__sub" id="view-sub"></p>
         </div>
