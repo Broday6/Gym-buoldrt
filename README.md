@@ -11,13 +11,26 @@ index, rule, synonym set and analytics view is scoped to a site.
 > [GAPS.md](GAPS.md) for an audit of what still stands between this and running
 > a real storefront.
 
-## The demo
+## Run it
+
+Node 22 or newer, and a PostgreSQL you can reach. Then, from the repository:
 
 ```bash
 npm install
-createdb compass && export DATABASE_URL=postgres://compass@localhost:5432/compass
-npm run demo          # seeds two catalogues, merchandising rules, and 30 days of traffic
+npm run app
 ```
+
+That is the whole thing: it finds a database (creating one, or starting the
+Postgres container from `docker-compose.yml` if Docker is running), applies the
+schema, generates and indexes a catalogue if the database is empty, starts the
+API, and prints the URLs and the admin key the console will ask for.
+
+No Postgres anywhere? `npm run app` says so and gives you the one line to fix
+it on your platform, rather than failing with a connection error. Have one
+somewhere else? `DATABASE_URL=postgres://… npm run app`.
+
+Re-running it reuses what is there. `npm run app -- --reseed` starts the demo
+data over.
 
 | | |
 |---|---|
@@ -39,7 +52,8 @@ time you open it; the seed prints one per site:
   archdepot   admin key: ck_admin_…
 ```
 
-Paste it once and it is remembered in that browser. The seed also issues an
+`npm run app` prints one for you. Paste it once and it is remembered in that
+browser. The seed also issues an
 `analyst` and a `merchandiser` key per site — open the console with one of those
 (they are in `data/demo/keys.json`) and the screens and buttons change with the
 role. `npm run keys -- roles` explains what each one can do.
@@ -66,23 +80,30 @@ merchandiser console, analytics and recommendations.
 
 ## Quick start
 
-Needs **Node 22+** (the dev engine uses the built-in `node:sqlite`) and
+Needs **Node 22+** (the dev engine uses the built-in `node:sqlite`) and a
 **PostgreSQL 16**. Nothing else.
 
 ```bash
 git clone <this repo> && cd compass-search
 npm install
-
-# Option A — everything in Docker (Typesense + Postgres + API)
-docker compose up -d
-
-# Option B — no Docker. Postgres only; the SQLite/FTS5 dev engine handles retrieval.
-createdb compass
-export DATABASE_URL=postgres://compass@localhost:5432/compass
-
-npm run seed          # generates a messy 520-product catalogue per site and indexes it
-npm run dev           # http://localhost:3100
+npm run app                     # http://localhost:3100
 ```
+
+The steps `npm run app` takes for you, if you would rather take them yourself:
+
+```bash
+docker compose up -d postgres   # or install Postgres however you like
+export DATABASE_URL=postgres://compass:compass@localhost:5432/compass
+
+npm run migrate                 # apply the schema
+npm run seed                    # a messy 520-product catalogue per site, indexed
+npm run dev                     # the API, with reload
+```
+
+`docker compose up` also runs the API itself in a container. Typesense is
+behind a `--profile typesense` flag: it is the one component here that has
+never been run against a live cluster, so `up` does not quietly make it the
+retrieval core.
 
 Then open **http://localhost:3100/demo/** and try `chandaleer`, `black shutter`,
 `4x6 beam 12ft`, `crownmoulding`.

@@ -1,6 +1,17 @@
 # Development topology. Production topology and runbook: docs/OPERATIONS.md
+#
+# `docker compose up -d postgres` is all most people need: `npm run app` runs
+# the API from source against it and does everything else. The api service here
+# is the container build, and Typesense sits behind a profile because it is the
+# one component in this repository that has never been run against a live
+# cluster — `docker compose up` should not quietly make it the retrieval core.
+#
+#   docker compose up -d postgres            # the database, nothing else
+#   docker compose up                        # database + API in containers
+#   docker compose --profile typesense up    # ...with Typesense as the engine
 services:
   typesense:
+    profiles: ['typesense']
     image: typesense/typesense:27.1
     restart: unless-stopped
     command: >
@@ -39,7 +50,10 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://compass:${POSTGRES_PASSWORD:-compass}@postgres:5432/compass
-      TYPESENSE_HOST: typesense
+      # Empty by default: the engine is chosen by whether this is set, and the
+      # SQLite core is the one that is actually tested. Bring Typesense up with
+      # the profile above and set this to `typesense` to switch.
+      TYPESENSE_HOST: ${TYPESENSE_HOST:-}
       TYPESENSE_PORT: '8108'
       TYPESENSE_PROTOCOL: http
       TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-dev-typesense-key}
@@ -52,8 +66,6 @@ services:
     ports:
       - '3100:3100'
     depends_on:
-      typesense:
-        condition: service_healthy
       postgres:
         condition: service_healthy
 

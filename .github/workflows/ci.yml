@@ -71,19 +71,21 @@ jobs:
           npm run build:browser
           npm run browser-smoke
 
-      - name: Seed the demo catalogues and traffic
-        run: npm run seed
-
-      - name: Start the API
+      - name: Stand the app up
+        # The documented one command, run the documented way: it applies the
+        # schema, seeds the catalogues and traffic, and starts the API. Running
+        # it here rather than the steps it wraps is what stops it rotting —
+        # everything below then drives what a reader would actually have.
+        #
         # No dev flags: the smoke suites authenticate with the keys the seed
         # issued, the same way a deployment does.
         run: |
-          npx tsx packages/server/src/server.ts > server.log 2>&1 &
-          for i in $(seq 1 60); do
+          npm run app > app.log 2>&1 &
+          for i in $(seq 1 180); do
             curl -sf http://localhost:3100/health >/dev/null && exit 0
             sleep 1
           done
-          echo "server did not start"; cat server.log; exit 1
+          echo "the app did not come up"; cat app.log; exit 1
 
       - name: Storefront
         run: npm run ui-smoke
@@ -116,5 +118,5 @@ jobs:
             ui-desktop.png
             ui-mobile.png
             admin.png
-            server.log
+            app.log
           if-no-files-found: ignore

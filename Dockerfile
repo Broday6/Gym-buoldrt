@@ -23,6 +23,9 @@ COPY --from=build /app/packages/server/dist packages/server/dist
 COPY packages/server/src/db/migrations packages/server/dist/db/migrations
 COPY packages/sdk/src packages/sdk/src
 COPY packages/demo/public packages/demo/public
+# The console. Without this the image serves the storefront and 404s every
+# admin screen, which looks like a broken deploy rather than a missing COPY.
+COPY packages/admin/public packages/admin/public
 EXPOSE 3100
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
   CMD node -e "fetch('http://localhost:3100/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"

@@ -66,6 +66,22 @@ Verified: both smoke suites now pass against a server with no dev flag set, and
 the console's key gate is covered in both directions — no key asks, a pasted key
 gets in and survives a reload.
 
+### ✅ The container image had no console in it
+
+**Found:** `Dockerfile` copies `packages/demo/public` and `packages/sdk/src`
+into the runtime image but never `packages/admin/public`. The API resolves the
+console from that directory at boot, so a container built from this file serves
+the storefront and 404s every admin screen — which reads as a broken deploy
+rather than a missing `COPY`.
+
+**Fixed.** Also moved Typesense behind a compose profile: it is the one
+component here that has never run against a live cluster, and `docker compose
+up` should not quietly make it the retrieval core.
+
+**Not verified:** there is no Docker daemon in this environment, so the image
+still has not been built or run. The compose file parses and resolves to the
+right service set; that is all that has been checked.
+
 ### ✅ The results page named a filter the results did not obey
 
 **Found:** searching "timberthane beams" in a catalogue where Timberthane makes
@@ -241,6 +257,7 @@ What remains:
 | Crawlable pages have content | Loaded a category page with JavaScript disabled |
 | Both themes meet WCAG 2.1 AA | axe-core over 10 states in light and dark |
 | The repository is a complete handoff | Cloned the pushed branch into an empty directory three times, on a fresh database each time: `npm ci`, build, tests, seed, run, every suite. It found two console checks that only passed on an install someone had already used |
+| One command stands the whole thing up | `npm install && npm run app` in a clean tree with **no database at all**: it created one, applied the schema, seeded, started the API, and printed the admin key. Both browser suites then passed against that instance. Also checked the paths that go wrong — no Postgres anywhere, a port already in use, a second run reusing what is there, and `--reseed` |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 | The hosted demo is a shop, not a harness | 32 checks over `file://` at desktop and phone: the grid, the departments, a misspelling landing on the right products, a brand-plus-type query read as both, and its own axe-core pass in both themes |
 | The page never claims a filter the results ignore | Searched a brand that makes none of the product asked for; asserted the rescue drops the brand *and* stops reporting it |
