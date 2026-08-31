@@ -4,6 +4,7 @@
  *   npm run relevance                 # demo catalogue, compare to baseline
  *   npm run relevance -- --update     # accept the current numbers as the baseline
  *   npm run relevance -- --csv export.csv
+ *   npm run relevance -- --no-learn   # without attribute recovery, to price it
  *   npm run relevance -- --verbose    # print the top results for every case
  *
  * The comparison is the point. A suite that only reports pass/fail says
@@ -33,9 +34,9 @@ const K_PRODUCTS = Number(value('products') ?? 520);
 
 interface Baseline {
   /** What produced these numbers, so a mismatched baseline is obvious. */
-  corpus: { products: number; variants: number };
+  corpus: { products: number; variants: number; learn: boolean };
   score: number;
-  cases: Record<string, { precision: number; pass: boolean }>;
+  cases: Record<string, { precision: number; coverage: number | null; pass: boolean }>;
   generatedAt: string;
 }
 
@@ -47,11 +48,20 @@ async function main(): Promise<void> {
     ? readFileSync(value('csv')!, 'utf8')
     : generateCatalogCsv({ productCount: K_PRODUCTS, seed: 20260830 });
 
-  const corpus = buildCorpus(csv);
+  const learn = !flag('no-learn');
+  const corpus = buildCorpus(csv, { learn });
   const suite = cases(corpus);
 
   process.stdout.write(`relevance: ${suite.length} judged queries against `
-    + `${corpus.products} products / ${corpus.docs.length} variants\n\n`);
+    + `${corpus.products} products / ${corpus.docs.length} variants`
+    + `${learn ? ', attribute recovery on' : ''}\n\n`);
+
+  if (corpus.learned) {
+    const l = corpus.learned;
+    process.stdout.write(`  recovered ${l.filled} attribute values on ${l.rowsChanged} rows `
+      + `(${Object.entries(l.byKey).map(([k, n]) => `${k} ${n}`).join(', ')}), `
+      + `declined ${l.declined} as ambiguous\n\n`);
+  }
 
   const results: CaseResult[] = [];
   for (const testCase of suite) {
@@ -59,7 +69,7 @@ async function main(): Promise<void> {
       q: testCase.query,
       hitsPerPage: testCase.k ?? 10,
     });
-    results.push(scoreCase(testCase, response, corpus.lookup));
+    results.push(scoreCase(testCase, response, corpus.lookup, corpus.docs));
   }
 
   const result = summarise(results);
@@ -71,10 +81,10 @@ async function main(): Promise<void> {
 
   if (flag('update') || !baseline) {
     const next: Baseline = {
-      corpus: { products: corpus.products, variants: corpus.docs.length },
+      corpus: { products: corpus.products, variants: corpus.docs.length, learn },
       score: result.score,
       cases: Object.fromEntries(results.map((r) => [r.id, {
-        precision: r.precision, pass: r.pass,
+        precision: r.precision, coverage: r.coverage, pass: r.pass,
       }])),
       generatedAt: new Date().toISOString(),
     };
@@ -116,12 +126,20 @@ function compare(baseline: Baseline, results: CaseResult[]) {
     }
     // A tolerance, because precision over ten results moves in tenths and a
     // float comparison would flag noise as a regression.
-    if (r.precision < was.precision - 0.001 || (was.pass && !r.pass)) {
-      regressions.push(`${r.id} — ${was.precision.toFixed(2)} -> ${r.precision.toFixed(2)}`
-        + `${was.pass && !r.pass ? ', was passing' : ''}`);
-    } else if (r.precision > was.precision + 0.001 || (!was.pass && r.pass)) {
-      improvements.push(`${r.id} — ${was.precision.toFixed(2)} -> ${r.precision.toFixed(2)}`
-        + `${!was.pass && r.pass ? ', now passing' : ''}`);
+    const move = (label: string, before: number | null, after: number | null) => (
+      before === null || after === null || Math.abs(after - before) < 0.001
+        ? '' : ` ${label} ${before.toFixed(2)}->${after.toFixed(2)}`
+    );
+    const delta = move('precision', was.precision, r.precision)
+      + move('coverage', was.coverage ?? null, r.coverage);
+    const worse = r.precision < was.precision - 0.001
+      || (r.coverage !== null && was.coverage != null && r.coverage < was.coverage - 0.001);
+    const better = r.precision > was.precision + 0.001
+      || (r.coverage !== null && was.coverage != null && r.coverage > was.coverage + 0.001);
+    if (worse || (was.pass && !r.pass)) {
+      regressions.push(`${r.id} —${delta || ' now failing'}`);
+    } else if (better || (!was.pass && r.pass)) {
+      improvements.push(`${r.id} —${delta}${!was.pass && r.pass ? ' now passing' : ''}`);
     }
   }
   return { regressions, improvements, added };
@@ -132,7 +150,10 @@ function report(results: CaseResult[], verbose: boolean): void {
   for (const r of results) {
     const mark = r.pass ? 'ok  ' : 'FAIL';
     process.stdout.write(`  ${mark} ${r.id.padEnd(width)}  `
-      + `${r.precision.toFixed(2)}  ${String(r.totalHits).padStart(5)} hits  "${r.query}"\n`);
+      + `p ${r.precision.toFixed(2)}  `
+      + `c ${r.coverage === null ? '   -' : r.coverage.toFixed(2)}  `
+      + `${String(r.totalHits).padStart(4)}/${String(r.expected ?? '-').padEnd(4)}  `
+      + `"${r.query}"\n`);
     for (const failure of r.failures) {
       process.stdout.write(`       ${' '.repeat(width)}  ${failure}\n`);
     }

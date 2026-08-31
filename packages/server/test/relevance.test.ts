@@ -1,6 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { matches, scoreCase, summarise, type Judgment } from '../src/relevance/judge.js';
+import { matches, scoreCase, summarise, type CaseResult, type Judgment }
+  from '../src/relevance/judge.js';
 import type { SearchResponse, VariantDoc } from '@compass/shared';
 
 /**
@@ -139,15 +140,30 @@ describe('scoring a case', () => {
 });
 
 describe('summarising a suite', () => {
-  test('the score is the mean precision, so one broken query cannot be hidden', () => {
+  const result = (c: Partial<CaseResult>): CaseResult => ({
+    id: 'c', query: '', intent: '', precision: 1, coverage: null, expected: null,
+    matched: 0, judged: 0, totalHits: 0, pass: true, failures: [], top: [], ...c,
+  });
+
+  test('precision and coverage weigh equally, so neither can hide the other', () => {
+    // Returning one perfect result and missing forty is not a good search, and
+    // a precision-only score would call it one.
+    const suite = summarise([result({ precision: 1, coverage: 0 })]);
+    assert.equal(suite.score, 0.5);
+  });
+
+  test('one broken query cannot be averaged away', () => {
     const suite = summarise([
-      { precision: 1, pass: true }, { precision: 0, pass: false }, { precision: 1, pass: true },
-    ].map((c, i) => ({
-      id: `c${i}`, query: '', intent: '', matched: 0, judged: 0, totalHits: 0,
-      failures: [], top: [], ...c,
-    })));
+      result({ precision: 1, pass: true }),
+      result({ precision: 0, pass: false }),
+      result({ precision: 1, pass: true }),
+    ]);
     assert.equal(suite.score, 0.667);
     assert.equal(suite.passed, 2);
     assert.equal(suite.failed, 1);
+  });
+
+  test('a case with no coverage is scored on precision alone, not as a zero', () => {
+    assert.equal(summarise([result({ precision: 1, coverage: null })]).score, 1);
   });
 });

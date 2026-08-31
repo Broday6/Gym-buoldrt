@@ -932,10 +932,12 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
         labels: await collections.plan(site.id),
       });
       await db.query(
-        `INSERT INTO ingest_runs (site_id, index_name, source, products, variants, duration_ms, quality, mapping)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        `INSERT INTO ingest_runs
+           (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
         [site.id, result.indexName, source ?? 'api', result.productsIndexed, result.variantsIndexed,
-         result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping)],
+         result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping),
+         result.learned ? JSON.stringify(result.learned) : null],
       );
       // A new index invalidates every cached result for the site.
       search.invalidate(site.id);
@@ -1029,8 +1031,9 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const { rows } = await db.query(
-      `SELECT index_name, source, products, variants, duration_ms, quality, status, error, started_at
-       FROM ingest_runs WHERE site_id = $1 ORDER BY started_at DESC LIMIT 10`,
+      `SELECT index_name, source, products, variants, duration_ms, quality, learned,
+              status, error, started_at
+         FROM ingest_runs WHERE site_id = $1 ORDER BY started_at DESC LIMIT 10`,
       [site.id],
     );
     return { site: site.id, documents: await engine.documentCount(site.id), runs: rows };

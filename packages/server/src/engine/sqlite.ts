@@ -1332,7 +1332,10 @@ interface Expansion {
   prefix: boolean;
 }
 
-const SCHEMA_VERSION = 7;
+// 8: docs.size_in, so a lone measurement can match a product sold by a single
+// number. An existing index predates the column and would fail every insert
+// against it; the drop-and-rebuild above is what this counter is for.
+const SCHEMA_VERSION = 8;
 const MAX_EXPANSIONS = 12;
 const MAX_PREFIX_EXPANSIONS = 8;
 

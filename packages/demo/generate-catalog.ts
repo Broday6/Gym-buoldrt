@@ -7,6 +7,19 @@
  * export carries. Every data-quality rule and rescue path needs something to
  * catch, so roughly one product in twelve is missing an image, a description,
  * a category or a price, and a handful of SKUs are duplicated outright.
+ *
+ * It also models the mess that matters most, and which this generator used to
+ * be silent about: **attributes stated in prose but missing from their
+ * column.** A real catalogue adopts custom fields partway through its life, so
+ * newer SKUs carry a Finish column and older ones only say "Walnut" in the
+ * item name. Every product here used to have every attribute filled in, which
+ * made the catalogue an unrealistically easy target — nothing could measure
+ * whether the ingest recovers what the columns leave out.
+ *
+ * A quarter of products are therefore `sparse`: their Material, Finish or
+ * Style columns are blanked while the fact stays in the title, the description
+ * or the keywords. `generateCatalog` returns what it blanked alongside the
+ * CSV, so recovery can be scored against the truth rather than eyeballed.
  */
 
 export interface GeneratorOptions {
@@ -14,6 +27,32 @@ export interface GeneratorOptions {
   seed?: number;
   /** Fraction of products carrying a deliberate data-quality defect. */
   messRate?: number;
+  /**
+   * Fraction of products whose structured attribute columns are blanked while
+   * the fact remains somewhere in the text. Set to 0 for the fully-populated
+   * catalogue this generator used to produce.
+   */
+  sparseRate?: number;
+}
+
+/**
+ * What was blanked, per SKU — the answer key.
+ *
+ * Recovering an attribute from prose is only worth anything if it is right,
+ * and "looks about right" is not a measurement. Every value removed from a
+ * column is recorded here so precision and recall can be computed exactly.
+ */
+export type AttributeTruth = Record<string, Record<string, string>>;
+
+export interface GeneratedCatalog {
+  csv: string;
+  /** Values blanked from their column but still stated in the text. */
+  removed: AttributeTruth;
+  /**
+   * Values blanked from their column with the text scrubbed too. Nothing can
+   * recover these, and anything claiming to have done so is guessing.
+   */
+  unrecoverable: AttributeTruth;
 }
 
 /** Deterministic PRNG so the demo catalogue is reproducible run to run. */
@@ -201,11 +240,18 @@ function csvEscape(value: string | number): string {
 }
 
 export function generateCatalogCsv(options: GeneratorOptions = {}): string {
+  return generateCatalog(options).csv;
+}
+
+export function generateCatalog(options: GeneratorOptions = {}): GeneratedCatalog {
   const productCount = options.productCount ?? 520;
   const messRate = options.messRate ?? 1 / 12;
+  const sparseRate = options.sparseRate ?? 0.25;
   const rand = mulberry32(options.seed ?? 20260830);
   const rows: (string | number)[][] = [];
   const usedSkus = new Set<string>();
+  const removed: AttributeTruth = {};
+  const unrecoverable: AttributeTruth = {};
   let productIndex = 0;
 
   while (productIndex < productCount) {
@@ -226,6 +272,26 @@ export function generateCatalogCsv(options: GeneratorOptions = {}): string {
     const defect = rand() < messRate
       ? pick(rand, ['no_image', 'no_description', 'no_category', 'no_price', 'duplicate_sku'])
       : null;
+
+    // Which structured columns this product leaves empty. The words stay in
+    // the title, the description and the keywords — which is exactly the shape
+    // of a catalogue whose custom fields were adopted late.
+    const sparse = new Set<string>();
+    // ...and whether the keywords were left lazy too, in which case a finish
+    // (the only one of the three not stated in the title) becomes genuinely
+    // unrecoverable. Something has to be unrecoverable, or a recovery rate of
+    // 100% would mean nothing.
+    let lazyKeywords = false;
+    if (defect === null && rand() < sparseRate) {
+      for (const key of ['material', 'finish', 'style'] as const) {
+        if (rand() < 0.6) sparse.add(key);
+      }
+      lazyKeywords = rand() < 0.35;
+      // The cross-section too, which the title always states: a feed that
+      // leaves Width and Height empty is a feed whose dimensional search
+      // silently returns nothing.
+      if (section && rand() < 0.4) sparse.add('section');
+    }
 
     const description = defect === 'no_description'
       ? ''
@@ -264,6 +330,32 @@ export function generateCatalogCsv(options: GeneratorOptions = {}): string {
         const onSale = rand() < 0.18;
         const inventory = rand() < 0.08 ? 0 : Math.floor(rand() * 320);
 
+        // Keywords normally repeat everything; a lazy feed carries the noun
+        // and little else.
+        const keywords = lazyKeywords
+          ? family.noun
+          : [family.noun, style, material, finish].join('|');
+
+        // Record what leaving a column empty actually costs. A value is
+        // recoverable when the word survives somewhere a reader could find it:
+        // material and style are in the title and description, finish only
+        // ever in the keywords.
+        const stated = `${title} ${description} ${keywords}`.toLowerCase();
+        for (const [key, value] of [
+          ['material', material], ['finish', finish], ['style', style],
+          ...(section && sparse.has('section')
+            ? ([['width', `${trim(section[0])} in`],
+              ['height', `${trim(section[1])} in`]] as const)
+            : []),
+        ] as const) {
+          if (!sparse.has(key) && !(sparse.has('section') && (key === 'width' || key === 'height'))) continue;
+          const spoken = key === 'width' || key === 'height'
+            ? `${value.replace(/ in$/, '')}"`
+            : value;
+          const bucket = stated.includes(spoken.toLowerCase()) ? removed : unrecoverable;
+          bucket[sku] = { ...bucket[sku], [key]: value };
+        }
+
         rows.push([
           sku,
           parentId,
@@ -283,13 +375,13 @@ export function generateCatalogCsv(options: GeneratorOptions = {}): string {
           unitsSold,
           margin,
           dateCreated,
-          [family.noun, style, material, finish].join('|'),
+          keywords,
           rand() < 0.03 ? 'T' : 'F',
-          material,
-          finish,
-          style,
-          section ? `${trim(section[0])} in` : '',
-          section ? `${trim(section[1])} in` : '',
+          sparse.has('material') ? '' : material,
+          sparse.has('finish') ? '' : finish,
+          sparse.has('style') ? '' : style,
+          section && !sparse.has('section') ? `${trim(section[0])} in` : '',
+          section && !sparse.has('section') ? `${trim(section[1])} in` : '',
           length ? `${length} in` : '',
           size ?? '',
         ]);
@@ -302,7 +394,11 @@ export function generateCatalogCsv(options: GeneratorOptions = {}): string {
     }
   }
 
-  return [HEADERS, ...rows].map((r) => r.map(csvEscape).join(',')).join('\n');
+  return {
+    csv: [HEADERS, ...rows].map((r) => r.map(csvEscape).join(',')).join('\n'),
+    removed,
+    unrecoverable,
+  };
 }
 
 function trim(n: number): string {

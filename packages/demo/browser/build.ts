@@ -15,6 +15,7 @@ import { DEMO_ATTRIBUTES, DEMO_BADGES, DEMO_COLLECTIONS } from '../merchandising
 import { parseCsv } from '../../server/src/ingest/pipeline.js';
 import { normalizeRows, toVariantDocs } from '../../server/src/ingest/normalize.js';
 import { inferMapping } from '../../server/src/ingest/mapping.js';
+import { learnAttributes } from '../../server/src/ingest/learn.js';
 import { applyLabels, type LabelPlan } from '../../server/src/merchandising/labels.js';
 import type { CollectionDefinition, CustomAttributeDefinition, BadgeDefinition }
   from '../../server/src/merchandising/labels.js';
@@ -66,6 +67,9 @@ const csv = generateCatalogCsv({ productCount: PRODUCTS, seed: 20260830 });
 const rows = parseCsv(csv);
 const headers = Object.keys(rows[0] ?? {});
 const mapping = inferMapping(headers);
+// The same recovery the server's ingest performs, so the hosted page searches
+// the catalogue a real deployment would have rather than a thinner one.
+const learned = learnAttributes(rows, mapping);
 const { products, quality } = normalizeRows(SITE, rows, mapping);
 const plan = labelPlan();
 const { products: labelled, counts } = applyLabels(products, plan);
@@ -75,6 +79,8 @@ const docs = toVariantDocs(SITE, labelled, mapping.facetable);
 
 console.log(`  ${labelled.length} products / ${docs.length} variants`
   + ` (${quality.rejected.length} rows rejected, as the seed does)`);
+console.log(`  recovered ${learned.filled} attribute values the feed left blank`
+  + ` (${Object.entries(learned.byKey).map(([k, n]) => `${k} ${n}`).join(', ')})`);
 console.log(`  labels: ${Object.entries(counts).sort((a, b) => b[1] - a[1])
   .slice(0, 6).map(([k, v]) => `${k}=${v}`).join('  ')}`);
 

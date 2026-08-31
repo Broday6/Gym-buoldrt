@@ -42,10 +42,12 @@ try {
   });
 
   await db.query(
-    `INSERT INTO ingest_runs (site_id, index_name, source, products, variants, duration_ms, quality, mapping)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+    `INSERT INTO ingest_runs
+       (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
     [site.id, result.indexName, path, result.productsIndexed, result.variantsIndexed,
-     result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping)],
+     result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping),
+     result.learned ? JSON.stringify(result.learned) : null],
   );
 
   const issues = summariseQuality(result.quality);
@@ -54,6 +56,17 @@ try {
       `in ${result.durationMs}ms\nindex: ${result.indexName} (promoted)\n` +
       `quality: ${issues.length ? issues.join(', ') : 'no issues'}`,
   );
+  if (result.learned?.filled) {
+    const l = result.learned;
+    console.log(`\nrecovered ${l.filled} attribute values the feed left blank, `
+      + `on ${l.rowsChanged} rows:`);
+    for (const [key, n] of Object.entries(l.byKey).sort((a, b) => b[1] - a[1])) {
+      console.log(`  ${key}: ${n}`);
+    }
+    console.log(`  read from: ${Object.entries(l.bySource).map(([f, n]) => `${f} ${n}`).join(', ')}`);
+    if (l.declined) console.log(`  left ${l.declined} blank: the text named more than one value`);
+    console.log('  review them on the Catalogue screen; nothing stated in the feed was changed.');
+  }
   if (result.quality.rejected.length) {
     console.log('\nfirst rejected rows:');
     for (const r of result.quality.rejected.slice(0, 10)) {

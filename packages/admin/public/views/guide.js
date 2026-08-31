@@ -170,6 +170,7 @@ const GLOSSARY = [
   ['Badge', 'A label on a product card — "Best Seller", "New" — applied by a rule rather than set per product.'],
   ['Product option', 'One buyable variation: a size, a finish, a colour. One product can have dozens; search indexes each, then groups them back into one card.'],
   ['Update now', 'Re-read the catalogue from source. Merchandising changes do not need it — they take effect on the next search.'],
+  ['Details filled in for you', 'Where your feed leaves a field empty but the product\u2019s own name or description says it, the value is read out of the text and filled in — so a beam whose Finish column is blank still appears under the Walnut filter. Only blanks are filled, never anything your feed states, and every one is listed on the Data screen for you to check.'],
 ];
 
 const ROLES = [

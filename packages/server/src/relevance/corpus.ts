@@ -24,6 +24,7 @@ import { SiteRegistry } from '../config/sites.js';
 import { parseCsv } from '../ingest/pipeline.js';
 import { inferMapping } from '../ingest/mapping.js';
 import { normalizeRows, toVariantDocs } from '../ingest/normalize.js';
+import { learnAttributes, type LearnReport } from '../ingest/learn.js';
 
 export interface Corpus {
   site: SiteConfig;
@@ -32,16 +33,25 @@ export interface Corpus {
   /** Resolve a result back to its document, for attribute judging. */
   lookup: (sku: string) => VariantDoc | undefined;
   products: number;
+  /** What attribute learning recovered, when it ran. */
+  learned?: LearnReport;
 }
 
 export interface CorpusOptions {
   siteId?: string;
+  /**
+   * Recover attributes stated in text but missing from their column. Defaults
+   * to what the ingest pipeline does, so the suite measures what ships; pass
+   * false to price the difference.
+   */
+  learn?: boolean;
 }
 
 export function buildCorpus(csv: string, options: CorpusOptions = {}): Corpus {
   const siteId = options.siteId ?? 'ekena';
   const rows = parseCsv(csv);
   const mapping = inferMapping(Object.keys(rows[0] ?? {}));
+  const learned = options.learn === false ? undefined : learnAttributes(rows, mapping);
   const { products } = normalizeRows(siteId, rows, mapping);
   const docs = toVariantDocs(siteId, products, mapping.facetable);
   const engine = new MemoryEngine();
@@ -56,5 +66,6 @@ export function buildCorpus(csv: string, options: CorpusOptions = {}): Corpus {
     docs,
     lookup: (sku) => bySku.get(sku),
     products: products.length,
+    learned,
   };
 }

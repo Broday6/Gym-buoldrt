@@ -109,7 +109,7 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       id: 'feature-black-shutter-not-lighting',
       query: 'black shutter',
       intent: 'A colour shared with another category does not drag that category in',
-      expect: { category: 'Shutters' },
+      expect: { category: 'Shutters', attr: { finish: 'Black' } },
       forbid: { category: 'Chandeliers' },
       minResults: 5,
     },
@@ -182,6 +182,10 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       intent: 'A combination the catalogue does not stock relaxes to the nearest real one'
         + ' rather than returning an empty page',
       expect: { category: 'Shutters' },
+      // A rescue is meant to return something adjacent, not everything that
+      // could have been meant, so there is no complete answer set to measure
+      // coverage against.
+      partial: true,
       minResults: 1,
       rescued: true,
     },
@@ -192,6 +196,7 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       query: anySku,
       intent: 'A SKU returns that one product and nothing near it',
       expect: { title: '.' },
+      partial: true,
       minResults: 1,
       rescued: false,
       k: 3,

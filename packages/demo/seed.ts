@@ -114,10 +114,12 @@ for (const [index, site] of sites.list().entries()) {
     [site.id, site.name, JSON.stringify(site)],
   );
   await db.query(
-    `INSERT INTO ingest_runs (site_id, index_name, source, products, variants, duration_ms, quality, mapping)
-     VALUES ($1,$2,'seed',$3,$4,$5,$6,$7)`,
+    `INSERT INTO ingest_runs
+       (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)
+     VALUES ($1,$2,'seed',$3,$4,$5,$6,$7,$8)`,
     [site.id, result.indexName, result.productsIndexed, result.variantsIndexed,
-     result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping)],
+     result.durationMs, JSON.stringify(result.quality), JSON.stringify(result.mapping),
+     result.learned ? JSON.stringify(result.learned) : null],
   );
 
   // Keys are issued once and then kept, so the console key a merchandiser

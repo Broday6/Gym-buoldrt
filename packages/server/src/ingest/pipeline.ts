@@ -4,6 +4,7 @@ import type { DataQualityReport, Product } from '@compass/shared';
 import type { SearchEngine } from '../engine/types.js';
 import { inferMapping, mergeMapping, type FieldMapping } from './mapping.js';
 import { normalizeRows, toVariantDocs, type SourceRow } from './normalize.js';
+import { learnAttributes, type LearnReport } from './learn.js';
 import { EMPTY_LABEL_PLAN, applyLabels, type LabelPlan } from '../merchandising/labels.js';
 
 /**
@@ -25,6 +26,8 @@ export interface IngestResult {
   mapping: FieldMapping;
   /** How many products each collection and attribute value actually caught. */
   labelCounts: Record<string, number>;
+  /** Attributes recovered from text because their column was empty. */
+  learned?: LearnReport;
 }
 
 export interface IngestOptions {
@@ -46,6 +49,14 @@ export interface IngestOptions {
    * relevance score.
    */
   facetable?: string[];
+  /**
+   * Recover attributes stated in a product's text but missing from their
+   * column. On by default: a catalogue that adopted custom fields late has
+   * half its range unfilterable otherwise, and the alternative is somebody
+   * backfilling two million rows by hand. Everything it infers is reported,
+   * and it only ever fills blanks.
+   */
+  learn?: boolean;
 }
 
 export function parseCsv(content: string): SourceRow[] {
@@ -67,10 +78,13 @@ export async function ingestRows(
   const started = Date.now();
   const headers = Object.keys(rows[0] ?? {});
   const mapping = mergeMapping(inferMapping(headers), options.mapping);
+  // Before normalisation, so a recovered value reaches the index by exactly
+  // the route a stated one does.
+  const learned = options.learn === false ? undefined : learnAttributes(rows, mapping);
   const { products, quality } = normalizeRows(site, rows, mapping);
   const result = await indexProducts(engine, site, products,
     { ...options, facetable: mapping.facetable });
-  return { ...result, quality, mapping, durationMs: Date.now() - started };
+  return { ...result, quality, mapping, learned, durationMs: Date.now() - started };
 }
 
 export async function indexProducts(

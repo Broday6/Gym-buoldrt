@@ -62,6 +62,13 @@ export interface RelevanceCase {
   atLeast?: { n: number; of: Judgment };
   /** None of the top k may satisfy it. */
   forbid?: Judgment;
+  /**
+   * Set when `expect` describes only part of a correct answer — a rescue that
+   * is meant to return something adjacent, a lookup that returns one row.
+   * Coverage is not computed for these, because there is no complete answer
+   * set to compare against.
+   */
+  partial?: boolean;
   minResults?: number;
   /** Constraint values the analyser should have lifted out of the text. */
   understands?: string[];
@@ -79,6 +86,19 @@ export interface CaseResult {
   intent: string;
   /** Share of the top k satisfying `expect`; 1 when the case sets none. */
   precision: number;
+  /**
+   * Share of the products that *should* have matched which the query actually
+   * returned — measured against the corpus, not against a judged list.
+   *
+   * Precision alone cannot see the failure this exists for. A catalogue whose
+   * finish column is half empty returns 24 hunter green shutters instead of
+   * 41: every result correct, seventeen products invisible, and a
+   * precision-only suite reporting a perfect score. Null when the case is
+   * marked partial or sets no expectation.
+   */
+  coverage: number | null;
+  /** Products in the corpus satisfying `expect`. The denominator. */
+  expected: number | null;
   /** How many of the top k satisfied it, and how many were judged. */
   matched: number;
   judged: number;
@@ -92,7 +112,10 @@ export interface CaseResult {
 
 export interface SuiteResult {
   cases: CaseResult[];
-  /** Mean precision across cases. The suite's single number. */
+  /**
+   * Mean of precision and coverage across cases — a query is right when its
+   * results are correct *and* it found the ones that were there.
+   */
   score: number;
   passed: number;
   failed: number;
@@ -128,6 +151,8 @@ export function scoreCase(
   testCase: RelevanceCase,
   response: SearchResponse,
   lookup: DocLookup,
+  /** The whole corpus, for counting how many products should have matched. */
+  universe: VariantDoc[] = [],
 ): CaseResult {
   const k = testCase.k ?? 10;
   const top = response.hits.slice(0, k);
@@ -189,11 +214,30 @@ export function scoreCase(
     }
   }
 
+  // Coverage is measured in parents, the unit `totalHits` counts and the unit
+  // a shopper sees: one card per product however many variants it has.
+  let expected: number | null = null;
+  let coverage: number | null = null;
+  if (testCase.expect && !testCase.partial && universe.length) {
+    const parents = new Set<string>();
+    for (const d of universe) if (matches(d, testCase.expect)) parents.add(d.parentId);
+    expected = parents.size;
+    // Capped at 1: returning more than the correct set is an over-match, and
+    // precision is the measure that already catches it.
+    coverage = expected ? Math.min(1, response.totalHits / expected) : null;
+    if (coverage !== null && coverage < 0.999) {
+      failures.push(`found ${response.totalHits} of the ${expected} products that match`
+        + ` ${describe(testCase.expect)}`);
+    }
+  }
+
   return {
     id: testCase.id,
     query: testCase.query,
     intent: testCase.intent,
     precision: round3(precision),
+    coverage: coverage === null ? null : round3(coverage),
+    expected,
     matched,
     judged: docs.length,
     totalHits: response.totalHits,
@@ -204,9 +248,13 @@ export function scoreCase(
 }
 
 export function summarise(cases: CaseResult[]): SuiteResult {
-  const score = cases.length
-    ? cases.reduce((sum, c) => sum + c.precision, 0) / cases.length
-    : 0;
+  // `== null` rather than `=== null`: a case scored before coverage existed,
+  // or built by hand, carries undefined, and averaging that in yields NaN for
+  // the whole suite.
+  const parts = cases.flatMap((c) => (
+    c.coverage == null ? [c.precision] : [c.precision, c.coverage]
+  ));
+  const score = parts.length ? parts.reduce((sum, n) => sum + n, 0) / parts.length : 0;
   return {
     cases,
     score: round3(score),
