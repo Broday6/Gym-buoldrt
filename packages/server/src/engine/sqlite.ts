@@ -929,7 +929,14 @@ export class SqliteEngine implements SearchEngine {
           + ' OR ABS(d.length_in - ?) < 0.03 OR ABS(d.size_in - ?) < 0.03)');
         params.push(value, value, value, value);
       } else if (DIMENSION_COLUMNS[c.field]) {
-        parts.push(`AND ABS(d.${DIMENSION_COLUMNS[c.field]} - ?) < 0.03`);
+        // Width and height fall back to size, so a product sold by a single
+        // number answers to both. Mirrors the memory engine exactly.
+        const column = DIMENSION_COLUMNS[c.field]!;
+        if (column === 'width_in' || column === 'height_in') {
+          parts.push(`AND ABS(COALESCE(NULLIF(d.${column}, -1), d.size_in) - ?) < 0.03`);
+        } else {
+          parts.push(`AND ABS(d.${column} - ?) < 0.03`);
+        }
         params.push(value);
       }
     }

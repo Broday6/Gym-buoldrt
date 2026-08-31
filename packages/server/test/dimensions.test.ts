@@ -93,6 +93,83 @@ describe('parseDimensions', () => {
     assert.equal(residual, 'walnut beam');
   });
 
+  describe('however the shopper phrases the same size', () => {
+    // The failure this guards is not that one phrasing returns nothing — it is
+    // that they disagree. "12 foot long beam" used to leave the word "long" in
+    // the search text, match no product, and get rescued by dropping the
+    // length filter: every beam in the catalogue, four-foot ones included, for
+    // a shopper who could not have been clearer.
+    const SAME = [
+      '12 ft beam', "12' beam", '12ft beam', '12 foot beam', '12 feet beam',
+      '12 foot long beam', '12 ft long beam', '12 foot long beams',
+      'beam 12 ft long', 'beams that are 12 ft', '12 ft long faux wood beam',
+      'length 12 ft beam', 'beam 12 feet in length',
+    ];
+    for (const query of SAME) {
+      test(`"${query}" is a 144 inch length`, () => {
+        assert.deepEqual(constraintMap(query), { length_in: 144 }, query);
+      });
+    }
+
+    test('and the axis word never survives into the search text', () => {
+      // Whatever is left over is searched for as words, so a stray "long"
+      // there is not merely untidy — it is a term no product matches.
+      for (const query of SAME) {
+        assert.ok(!/\b(long|length|wide|width|tall|high|deep)\b/.test(
+          parseDimensions(query).residual,
+        ), `"${query}" left "${parseDimensions(query).residual}"`);
+      }
+    });
+  });
+
+  describe('naming the axis', () => {
+    test('the word the shopper used picks the axis, over any guess from the unit', () => {
+      assert.deepEqual(constraintMap('6 inch wide beam'), { width_in: 6 });
+      assert.deepEqual(constraintMap('8 inch tall beam'), { height_in: 8 });
+      assert.deepEqual(constraintMap('beam 8 inches in height'), { height_in: 8 });
+      // Feet would otherwise be read as a length; "wide" outranks that.
+      assert.deepEqual(constraintMap('3 foot wide panel'), { width_in: 36 });
+    });
+
+    test('an unnamed axis stays deliberately vague', () => {
+      // Matching whichever axis carries the number is the honest reading of
+      // "6 inch beam", and narrower than it would be to guess one.
+      assert.deepEqual(constraintMap('6 inch beam'), { any_dimension_in: 6 });
+    });
+
+    test('an axis word with no measurement is left alone as a search term', () => {
+      const { constraints, residual } = parseDimensions('long beam');
+      assert.deepEqual(constraints, []);
+      assert.equal(residual, 'long beam');
+    });
+  });
+
+  describe('the labelled cross-section the catalogue writes titles in', () => {
+    test('6"W x 8"H is a cross-section, not two loose numbers', () => {
+      // Pasting a product title into the search box is among the most common
+      // things a shopper does, and this form used to match nothing at all.
+      assert.deepEqual(constraintMap('6"W x 8"H Endurathane Faux Wood Beam'),
+        { width_in: 6, height_in: 8 });
+    });
+
+    test('the letters win over the order they appear in', () => {
+      assert.deepEqual(constraintMap('8"H x 6"W beam'), { height_in: 8, width_in: 6 });
+    });
+
+    test('the unlabelled form still reads by position', () => {
+      assert.deepEqual(constraintMap('4x6 beam'), { width_in: 4, height_in: 6 });
+      assert.deepEqual(constraintMap('4x6x120 beam'),
+        { width_in: 4, height_in: 6, length_in: 120 });
+    });
+
+    test('a labelled section and a length together', () => {
+      assert.deepEqual(constraintMap('6"W x 8"H 12 ft long faux wood beam'),
+        { width_in: 6, height_in: 8, length_in: 144 });
+      assert.equal(parseDimensions('6"W x 8"H 12 ft long faux wood beam').residual,
+        'faux wood beam');
+    });
+  });
+
   test('a bare number stays a search term, not a filter', () => {
     // "beam 12" is ambiguous; guessing a filter here would hide real results.
     assert.deepEqual(parseDimensions('beam 12').constraints, []);

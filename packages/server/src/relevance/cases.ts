@@ -137,6 +137,46 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       minResults: 1,
     },
 
+    // ---- The same size, asked for every way a person asks for it. ----
+    // These exist as a group on purpose: the failure they guard against is not
+    // that one of them returns nothing, it is that they disagree. A shopper
+    // who rephrases and gets a different page has been told the first page was
+    // wrong, and nothing on either page explains which to believe.
+    ...['12 ft beam', "12' beam", '12ft beam', '12 foot long beam',
+      'beam 12 ft long', '12 foot long beams', 'beams that are 12 ft']
+      .map((query, i): RelevanceCase => ({
+        id: `phrasing-12ft-${i}`,
+        query,
+        intent: 'Every way of saying "twelve feet long" finds the same beams',
+        expect: { category: 'Faux Wood Beams', attr: { length: '144 in' } },
+        minResults: 1,
+        rescued: false,
+      })),
+    {
+      id: 'axis-width-named',
+      query: '6 inch wide beam',
+      intent: 'Naming the axis filters that axis, not whichever one happens to carry the number',
+      expect: { category: 'Faux Wood Beams', attr: { width: '6 in' } },
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'axis-medallion-across',
+      query: '24 inch wide ceiling medallion',
+      intent: 'A product sold by one number is that wide, so naming width still finds it',
+      expect: { category: 'Ceiling Medallions', attr: { size: '24 in' } },
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'dim-labelled-cross-section',
+      query: '6"W x 8"H faux wood beam',
+      intent: 'The form the catalogue writes its own titles in, which shoppers paste back',
+      expect: { category: 'Faux Wood Beams', attr: { width: '6 in', height: '8 in' } },
+      minResults: 1,
+      rescued: false,
+    },
+
     // ---- Styles, and words that mean different things in different aisles. ----
     {
       id: 'style-hand-hewn-beam',

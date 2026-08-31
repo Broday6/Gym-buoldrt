@@ -81,6 +81,56 @@
       "coverage": 1,
       "pass": true
     },
+    "phrasing-12ft-0": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-1": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-2": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-3": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-4": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-5": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "phrasing-12ft-6": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "axis-width-named": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "axis-medallion-across": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "dim-labelled-cross-section": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
     "style-hand-hewn-beam": {
       "precision": 1,
       "coverage": 1,
@@ -117,5 +167,5 @@
       "pass": true
     }
   },
-  "generatedAt": "2026-08-31T20:30:32.120Z"
+  "generatedAt": "2026-08-31T20:50:15.675Z"
 }

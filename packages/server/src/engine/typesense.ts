@@ -504,6 +504,10 @@ function buildFilterBy(query: EngineQuery): string {
     if (c.field === 'any_dimension_in') {
       clauses.push(`(width_in:=${value} || height_in:=${value}`
         + ` || length_in:=${value} || size_in:=${value})`);
+    } else if (c.field === 'width_in' || c.field === 'height_in') {
+      // A product sold by one number is that wide and that tall, so `size` is
+      // the last resort on both axes. Mirrors the other two engines.
+      clauses.push(`(${c.field}:=${value} || size_in:=${value})`);
     } else {
       clauses.push(`${c.field}:=${value}`);
     }

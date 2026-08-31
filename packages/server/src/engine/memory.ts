@@ -40,8 +40,12 @@ interface Expansion {
 const RANGE_FIELDS: Record<string, (d: VariantDoc) => number> = {
   price: (d) => d.effectivePrice,
   review_score: (d) => d.reviewScore,
-  width_in: (d) => dimension(d, 'width_in', 'width'),
-  height_in: (d) => dimension(d, 'height_in', 'height', 'depth_in'),
+  // A product sold by one number — a medallion's diameter, a fan's span — is
+  // that wide and that tall, so `size` is the last resort on both axes. Without
+  // it, "24 inch wide ceiling medallion" filters on a column medallions do not
+  // have and finds none of the 52 the catalogue stocks.
+  width_in: (d) => dimension(d, 'width_in', 'width', 'size_in', 'size'),
+  height_in: (d) => dimension(d, 'height_in', 'height', 'depth_in', 'size_in', 'size'),
   length_in: (d) => dimension(d, 'length_in', 'length'),
   size_in: (d) => dimension(d, 'size_in', 'size', 'diameter_in'),
 };
