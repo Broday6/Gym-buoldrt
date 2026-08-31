@@ -253,6 +253,22 @@ export class SearchService {
    * results do not already contain.
    */
   /**
+   * What the analyser makes of a query, without running a search.
+   *
+   * Analytics needs this to tell a ranking problem from a vocabulary one: a
+   * query nothing was clicked on means something different when the catalogue
+   * has no concept for the words at all.
+   */
+  async understand(siteId: string, query: string): Promise<{ brand?: string; category?: string }> {
+    const entities = await this.entityIndex(siteId);
+    const analyzed = analyzeQuery(query, { entities });
+    return {
+      brand: analyzed.constraints.find((c) => c.kind === 'brand')?.value as string | undefined,
+      category: analyzed.constraints.find((c) => c.kind === 'category')?.value as string | undefined,
+    };
+  }
+
+  /**
    * Brands and product types the catalogue carries, cached per site.
    *
    * Built from the index's own directory, so nothing is configured: a brand is

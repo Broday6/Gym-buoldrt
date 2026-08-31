@@ -25,6 +25,7 @@ import { registerRoutes } from './routes/index.js';
 import { AJV_OPTIONS } from './routes/schemas.js';
 import { Scheduler } from './services/scheduler.js';
 import { HistoryService } from './services/history.js';
+import { QueryRuleStore } from './merchandising/queryrules.js';
 import { Metrics, RateLimiter, registerGuards } from './routes/guards.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -99,10 +100,12 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const synonyms = new SynonymStore(db);
   const redirects = new RedirectStore(db);
   const collections = new CollectionStore(db);
+  const queryRules = new QueryRuleStore(db);
   const search = new SearchService(engine, {
     synonyms,
     redirects,
     collections,
+    queryRules,
     cache: new ResultCache({
       maxEntries: Number(process.env.COMPASS_CACHE_ENTRIES ?? 2_000),
       ttlMs: Number(process.env.COMPASS_CACHE_TTL_MS ?? 60_000),
@@ -173,7 +176,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   scheduler.start();
   await registerRoutes(app, {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, sites, collector, db, auth: { keyStore, open }, scheduler,
+    preview, history, queryRules, sites, collector, db, auth: { keyStore, open }, scheduler,
   });
 
   // The demo storefront and the built SDK bundle, when present.

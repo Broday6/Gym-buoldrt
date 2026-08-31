@@ -391,6 +391,50 @@ export const catalogUpdatesBody = {
   },
 } as const;
 
+const ruleActions = {
+  type: 'array',
+  maxItems: 200,
+  items: {
+    type: 'object',
+    required: ['parentId', 'action'],
+    additionalProperties: false,
+    properties: {
+      parentId: { type: 'string', minLength: 1, maxLength: 128 },
+      action: { type: 'string', enum: ['pin', 'bury', 'hide'] },
+      position: { type: ['integer', 'null'], minimum: 1, maximum: 1000 },
+    },
+  },
+} as const;
+
+/** A rule bound to what the shopper typed, or to the category they are in. */
+export const queryRuleBody = {
+  type: 'object',
+  required: ['query', 'actions'],
+  additionalProperties: false,
+  properties: {
+    query: { type: 'string', minLength: 1, maxLength: 256 },
+    matchType: { type: 'string', enum: ['exact', 'phrase', 'contains'] },
+    enabled: { type: 'boolean' },
+    startsAt: { type: ['string', 'null'], maxLength: 40 },
+    endsAt: { type: ['string', 'null'], maxLength: 40 },
+    priority: { type: 'integer', minimum: 0, maximum: 10000 },
+    note: { type: ['string', 'null'], maxLength: 500 },
+    actions: ruleActions,
+  },
+} as const;
+
+/** What the grid would look like with these actions, before saving them. */
+export const queryRulePreviewBody = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    query: { type: 'string', maxLength: 256 },
+    categoryId: { type: 'string', maxLength: 256 },
+    hitsPerPage: { type: 'integer', minimum: 1, maximum: 100 },
+    actions: ruleActions,
+  },
+} as const;
+
 export const rollupBody = {
   type: 'object',
   additionalProperties: false,

@@ -5,6 +5,8 @@ import { badges, collections } from './views/merchandising.js';
 import { vocabulary } from './views/vocabulary.js';
 import { catalog } from './views/catalog.js';
 import { history } from './views/history.js';
+import { merchandiser } from './views/merchandiser.js';
+import { quality } from './views/quality.js';
 
 /**
  * Console shell.
@@ -19,7 +21,9 @@ import { history } from './views/history.js';
 // inside a screen that need more carry their own data-needs.
 const VIEWS = {
   dashboard: { group: 'Insights', view: dashboard, needs: 'analyst' },
+  quality: { group: 'Insights', view: quality, needs: 'analyst' },
   tester: { group: 'Insights', view: tester, needs: 'search' },
+  merchandiser: { group: 'Merchandising', view: merchandiser, needs: 'merchandiser' },
   collections: { group: 'Merchandising', view: collections, needs: 'merchandiser' },
   badges: { group: 'Merchandising', view: badges, needs: 'merchandiser' },
   vocabulary: { group: 'Merchandising', view: vocabulary, needs: 'merchandiser' },
@@ -255,7 +259,24 @@ document.addEventListener('click', async (event) => {
   }
 });
 
+// The merchandiser owns a search box and a category picker inside its view,
+// which the shell's topbar-only handler would never see.
+document.addEventListener('input', debounceInput(async (event) => {
+  if (event.target.id === 'merch-q') {
+    merchandiser.state.query = event.target.value;
+    merchandiser.state.actions = [];
+    await merchandiser.preview();
+    await render();
+  }
+}, 350));
+
 document.addEventListener('change', async (event) => {
+  if (event.target.id === 'merch-cat') {
+    merchandiser.state.categoryId = event.target.value;
+    merchandiser.state.actions = [];
+    await merchandiser.preview();
+    return render();
+  }
   if (!event.target.closest('.topbar__actions')) return;
   const { view } = VIEWS[current];
   try {
@@ -263,6 +284,53 @@ document.addEventListener('change', async (event) => {
   } catch (err) {
     toast(err.message, true);
   }
+});
+
+/** One trailing call per burst of keystrokes, so typing does not queue searches. */
+function debounceInput(handler, wait) {
+  let timer = null;
+  return (event) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => handler(event), wait);
+  };
+}
+
+/**
+ * Drag to reorder, delegated like every other interaction.
+ *
+ * Dropping a card is the whole gesture: the slot it lands in is the position it
+ * pins to, so a merchandiser never types a number.
+ */
+let dragging = null;
+document.addEventListener('dragstart', (event) => {
+  const tile = event.target.closest?.('.mtile');
+  if (!tile) return;
+  dragging = tile.dataset.parent;
+  tile.classList.add('is-dragging');
+  event.dataTransfer.effectAllowed = 'move';
+});
+document.addEventListener('dragend', (event) => {
+  event.target.closest?.('.mtile')?.classList.remove('is-dragging');
+  for (const el of document.querySelectorAll('.mtile.is-over')) el.classList.remove('is-over');
+});
+document.addEventListener('dragover', (event) => {
+  const tile = event.target.closest?.('.mtile');
+  if (!tile || !dragging) return;
+  event.preventDefault();
+  tile.classList.add('is-over');
+});
+document.addEventListener('dragleave', (event) => {
+  event.target.closest?.('.mtile')?.classList.remove('is-over');
+});
+document.addEventListener('drop', async (event) => {
+  const tile = event.target.closest?.('.mtile');
+  if (!tile || !dragging) return;
+  event.preventDefault();
+  const position = Number(tile.dataset.index) + 1;
+  merchandiser.setAction(dragging, 'pin', position);
+  dragging = null;
+  await merchandiser.preview();
+  await render();
 });
 
 // Enter submits the key gate, which is the one form the shell owns itself.

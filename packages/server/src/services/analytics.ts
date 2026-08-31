@@ -64,6 +64,54 @@ export interface TrendRow {
   changePct: number;
 }
 
+/**
+ * A query that is failing, why, and what to do about it.
+ *
+ * A search that returns products and gets no click is a failure the system can
+ * see and the shopper never reports. It is also the one that hides: zero
+ * results are obvious and get fixed, while "we showed twenty things and none of
+ * them were it" looks like healthy traffic on every chart.
+ *
+ * The diagnosis matters as much as the detection, because the fixes differ.
+ * Nothing found is a vocabulary problem. Plenty found, nothing clicked, and no
+ * brand or category in the catalogue matching the words is a *categorisation*
+ * problem — there is no concept for what was asked for. Plenty found,
+ * understood, and still nothing clicked is a merchandising problem: the right
+ * kind of product in the wrong order.
+ */
+export type SearchProblem = 'no_results' | 'uncategorised' | 'wrong_products' | 'rescue_dependent';
+
+export interface QueryDiagnosis {
+  query: string;
+  searches: number;
+  clicks: number;
+  zeroResults: number;
+  rescued: number;
+  avgResults: number;
+  clickRate: number;
+  problem: SearchProblem;
+  /** Volume-weighted, so the largest wasted traffic sorts first. */
+  severity: number;
+  /** What the query analyser recognised, if anything. */
+  understood: { brand?: string; category?: string };
+  evidence: string;
+  suggestion: { action: string; label: string; detail: string };
+}
+
+/** What the analyser made of a query. Supplied by the search side. */
+export type UnderstandQuery =
+  (query: string) => Promise<{ brand?: string; category?: string }>;
+
+export interface TermInsight {
+  term: string;
+  searches: number;
+  clicks: number;
+  clickRate: number;
+  /** How much of the term's clicks land on its single most-clicked product. */
+  concentration: number;
+  products: { parentId: string; clicks: number }[];
+}
+
 export class AnalyticsService {
   constructor(private readonly db: Db) {}
 
@@ -414,6 +462,132 @@ export class AnalyticsService {
     return [headers.join(','), ...rows.map((r) => headers.map((h) => escape(r[h])).join(','))]
       .join('\n');
   }
+
+  /**
+   * Queries that are wasting traffic, with a diagnosis and a next step.
+   *
+   * `minSearches` keeps one curious visitor from generating a to-do list: a
+   * query searched twice and not clicked is noise; the same query searched
+   * ninety times is a problem worth someone's afternoon.
+   */
+  async diagnose(
+    siteId: string,
+    days = 30,
+    understand?: UnderstandQuery,
+    options: { minSearches?: number; limit?: number } = {},
+  ): Promise<QueryDiagnosis[]> {
+    const minSearches = options.minSearches ?? 5;
+    const { rows } = await this.db.query<{
+      query: string; searches: string; clicks: string; zero_results: string;
+      rescued: string; avg_results: string | null;
+    }>(
+      `SELECT query,
+              SUM(searches)::text     AS searches,
+              SUM(clicks)::text       AS clicks,
+              SUM(zero_results)::text AS zero_results,
+              SUM(rescued)::text      AS rescued,
+              AVG(avg_results)::text  AS avg_results
+       FROM daily_query_stats
+       WHERE site_id = $1 AND day >= (now() - ($2 || ' days')::interval)::date
+       GROUP BY query
+       HAVING SUM(searches) >= $3
+       ORDER BY SUM(searches) DESC
+       LIMIT 500`,
+      [siteId, days, minSearches],
+    );
+
+    const out: QueryDiagnosis[] = [];
+    for (const row of rows) {
+      const searches = Number(row.searches);
+      const clicks = Number(row.clicks);
+      const zeroResults = Number(row.zero_results);
+      const rescued = Number(row.rescued);
+      const avgResults = Number(row.avg_results ?? 0);
+      const clickRate = searches ? clicks / searches : 0;
+
+      // A query people click is not a problem, however it got there.
+      if (clicks > 0 && clickRate >= 0.15 && zeroResults === 0) continue;
+
+      const understood = (await understand?.(row.query).catch(() => ({}))) ?? {};
+      const finding = diagnoseQuery({
+        query: row.query, searches, clicks, zeroResults, rescued, avgResults,
+        clickRate, understood,
+      });
+      if (finding) out.push(finding);
+    }
+    return out.sort((a, b) => b.severity - a.severity).slice(0, options.limit ?? 25);
+  }
+
+  /**
+   * What each word in the query log actually means to shoppers.
+   *
+   * A term is defined by what people click after typing it — "farmhouse" is
+   * whatever shoppers pick when they search it, not whatever the catalogue
+   * files under that name. Where the clicks concentrate on a few products, the
+   * merchandiser has a synonym or a pin waiting to be written; where a
+   * well-searched term has no clicks at all, it has a gap.
+   */
+  async termInsights(siteId: string, days = 30, limit = 25): Promise<TermInsight[]> {
+    const { rows } = await this.db.query<{
+      term: string; searches: string; clicks: string;
+      products: { parentId: string; clicks: number }[] | null;
+    }>(
+      `WITH searched AS (
+         SELECT normalised_query AS q, COUNT(*) AS n
+         FROM events
+         WHERE site_id = $1 AND type IN ('search', 'zero_result')
+           AND occurred_at >= now() - ($2 || ' days')::interval
+           AND COALESCE(normalised_query, '') <> ''
+         GROUP BY normalised_query
+       ),
+       search_terms AS (
+         SELECT UNNEST(STRING_TO_ARRAY(q, ' ')) AS term, SUM(n) AS searches
+         FROM searched GROUP BY 1
+       ),
+       per_product AS (
+         SELECT UNNEST(STRING_TO_ARRAY(normalised_query, ' ')) AS term,
+                parent_id, COUNT(*) AS clicks
+         FROM events
+         WHERE site_id = $1 AND type = 'click'
+           AND occurred_at >= now() - ($2 || ' days')::interval
+           AND COALESCE(normalised_query, '') <> '' AND parent_id IS NOT NULL
+         GROUP BY 1, 2
+       )
+       SELECT t.term,
+              t.searches::text,
+              COALESCE(SUM(p.clicks), 0)::text AS clicks,
+              COALESCE(
+                JSONB_AGG(JSONB_BUILD_OBJECT('parentId', p.parent_id, 'clicks', p.clicks)
+                          ORDER BY p.clicks DESC)
+                  FILTER (WHERE p.parent_id IS NOT NULL),
+                '[]'::jsonb) AS products
+       FROM search_terms t
+       LEFT JOIN per_product p ON p.term = t.term
+       WHERE LENGTH(t.term) > 2
+       GROUP BY t.term, t.searches
+       ORDER BY t.searches DESC
+       LIMIT $3`,
+      [siteId, days, limit],
+    );
+
+    return rows.map((row) => {
+      const products = (row.products ?? []).slice(0, 5)
+        .map((p) => ({ parentId: p.parentId, clicks: Number(p.clicks) }));
+      const clicks = Number(row.clicks);
+      const searches = Number(row.searches);
+      const top = products[0]?.clicks ?? 0;
+      return {
+        term: row.term,
+        searches,
+        clicks,
+        clickRate: searches ? round((clicks / searches) * 100, 1) : 0,
+        // How much of this word's meaning sits on one product. A term whose
+        // clicks all land in one place is a synonym or a pin waiting to happen.
+        concentration: clicks ? round(top / clicks, 2) : 0,
+        products,
+      };
+    });
+  }
 }
 
 function toQueryRow(r: Record<string, unknown>): QueryRow {
@@ -443,4 +617,107 @@ function rate(part: number, whole: number): number {
 function round(n: number, places: number): number {
   const factor = 10 ** places;
   return Math.round((Number.isFinite(n) ? n : 0) * factor) / factor;
+}
+
+
+/**
+ * Which problem this is, and what to do about it.
+ *
+ * Ordered by how much the evidence pins down: nothing found is unambiguous;
+ * plenty found and nothing clicked could be several things, so the next test is
+ * whether the catalogue has any concept matching the words at all.
+ */
+function diagnoseQuery(input: {
+  query: string;
+  searches: number;
+  clicks: number;
+  zeroResults: number;
+  rescued: number;
+  avgResults: number;
+  clickRate: number;
+  understood: { brand?: string; category?: string };
+}): QueryDiagnosis | null {
+  const { query, searches, clicks, zeroResults, rescued, avgResults, clickRate, understood } = input;
+  const base = { query, searches, clicks, zeroResults, rescued, avgResults, clickRate, understood };
+
+  if (zeroResults >= searches * 0.5) {
+    return {
+      ...base,
+      problem: 'no_results',
+      severity: searches * 3,
+      evidence: `${zeroResults} of ${searches} searches found nothing.`,
+      suggestion: {
+        action: 'add_synonym',
+        label: 'Teach the engine this word',
+        detail: `Map "${query}" to the words the catalogue uses, or redirect it to a page.`,
+      },
+    };
+  }
+
+  if (clicks === 0 && searches > 0) {
+    const recognised = understood.brand ?? understood.category;
+    if (!recognised) {
+      // No concept in the catalogue for what was asked. This is the one worth
+      // pinging a merchandiser about: a gap in the taxonomy, not a ranking
+      // that needs nudging.
+      return {
+        ...base,
+        problem: 'uncategorised',
+        severity: searches * 2.5,
+        evidence:
+          `${searches} searches, no clicks, and no brand or category matches these words — `
+          + `${Math.round(avgResults)} products shown on average.`,
+        suggestion: {
+          action: 'map_category',
+          label: 'Give this a category',
+          detail:
+            `Shoppers ask for "${query}" and the catalogue has no name for it. `
+            + 'A category, or a synonym pointing at one, makes every future search land.',
+        },
+      };
+    }
+    return {
+      ...base,
+      problem: 'wrong_products',
+      severity: searches * 2,
+      evidence:
+        `${searches} searches, no clicks. Understood as `
+        + `${[understood.brand, understood.category].filter(Boolean).join(' + ')}, `
+        + 'so the right kind of product is being shown in the wrong order.',
+      suggestion: {
+        action: 'merchandise_query',
+        label: 'Merchandise this search',
+        detail: `Pin the products shoppers should see first for "${query}".`,
+      },
+    };
+  }
+
+  if (rescued >= searches * 0.5) {
+    return {
+      ...base,
+      problem: 'rescue_dependent',
+      severity: searches,
+      evidence: `${rescued} of ${searches} searches only worked after the query was relaxed.`,
+      suggestion: {
+        action: 'add_synonym',
+        label: 'Make this work as typed',
+        detail: `"${query}" never matches directly. A synonym stops it depending on a fallback.`,
+      },
+    };
+  }
+
+  if (clickRate < 0.15) {
+    return {
+      ...base,
+      problem: 'wrong_products',
+      severity: searches * (1 - clickRate),
+      evidence: `${searches} searches, ${clicks} clicks — ${Math.round(clickRate * 100)}% click-through.`,
+      suggestion: {
+        action: 'merchandise_query',
+        label: 'Merchandise this search',
+        detail: `Pin the products shoppers should see first for "${query}".`,
+      },
+    };
+  }
+  return null;
 }

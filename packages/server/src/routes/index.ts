@@ -25,6 +25,9 @@ import * as S from './schemas.js';
 import { seoConfigFor, sitemapXml } from '../services/seo.js';
 import { buildSpec, trackRoutes } from './openapi.js';
 import { recordChange as audit } from '../services/history.js';
+import { applyRule, type QueryRuleAction, type QueryRuleInput, type QueryRuleStore }
+  from '../merchandising/queryrules.js';
+import { hitFromDoc } from '../ranking/group.js';
 import type { SourceRow } from '../ingest/normalize.js';
 
 export interface RouteDeps {
@@ -38,6 +41,7 @@ export interface RouteDeps {
   recommend: RecommendService;
   preview: PreviewService;
   history: HistoryService;
+  queryRules: QueryRuleStore;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
@@ -51,7 +55,7 @@ const VERSION = process.env.npm_package_version ?? '0.1.0';
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
   const {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, sites, collector, db, auth, scheduler,
+    preview, history, queryRules, sites, collector, db, auth, scheduler,
   } = deps;
   // Roles are ordered, so each guard names the *least* privilege that endpoint
   // needs and everything above it is admitted automatically.
@@ -303,6 +307,36 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     },
   );
 
+  /**
+   * Searches that are wasting traffic, each with a diagnosis and a next step.
+   *
+   * The search side supplies what it understood of each query, which is what
+   * separates "the catalogue has no word for this" from "the right products
+   * are there in the wrong order" — two findings with different fixes.
+   */
+  app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string } }>(
+    '/v1/:site/analytics/diagnose',
+    guard(analystScope, { querystring: S.reportQuery }),
+    async (request) => ({
+      findings: await analytics.diagnose(
+        request.params.site,
+        days(request.query.days),
+        (query) => search.understand(request.params.site, query),
+        { limit: Number(request.query.limit ?? 25) },
+      ),
+    }),
+  );
+
+  app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string } }>(
+    '/v1/:site/analytics/terms',
+    guard(analystScope, { querystring: S.reportQuery }),
+    async (request) => ({
+      terms: await analytics.termInsights(
+        request.params.site, days(request.query.days), Number(request.query.limit ?? 25),
+      ),
+    }),
+  );
+
   app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
     '/v1/:site/analytics/trending',
     guard(analystScope, { querystring: S.reportQuery }),
@@ -548,6 +582,99 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   );
 
   // ---- synonyms ----------------------------------------------------------
+
+  // ---- query merchandising --------------------------------------------------
+
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/admin/query-rules',
+    guard(analystScope, {}),
+    async (request) => ({ rules: await queryRules.list(request.params.site) }),
+  );
+
+  app.post<{ Params: { site: string }; Body: QueryRuleInput }>(
+    '/v1/:site/admin/query-rules',
+    guard(merchScope, { body: S.queryRuleBody }),
+    async (request, reply) => {
+      try {
+        const before = (await queryRules.list(request.params.site))
+          .find((r) => r.query === request.body.query.trim().toLowerCase()) ?? null;
+        const saved = await queryRules.save(request.params.site, {
+          ...request.body, author: actorOf(request),
+        });
+        await audit(db, request.params.site, actorOf(request), before ? 'upsert' : 'create',
+          'query_rule', String(saved.id), before, saved);
+        // Rules run on the query path, so cached pages are now wrong.
+        search.invalidate(request.params.site);
+        return reply.code(201).send(saved);
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.delete<{ Params: { site: string; id: string } }>(
+    '/v1/:site/admin/query-rules/:id',
+    guard(merchScope, {}, S.ID_PARAM),
+    async (request, reply) => {
+      const before = await queryRules.get(request.params.site, Number(request.params.id));
+      const removed = await queryRules.remove(request.params.site, Number(request.params.id));
+      if (!removed) return reply.code(404).send({ error: 'no such rule' });
+      await audit(db, request.params.site, actorOf(request), 'delete', 'query_rule',
+        request.params.id, before, null);
+      search.invalidate(request.params.site);
+      return { deleted: true };
+    },
+  );
+
+  /**
+   * The grid, with unsaved changes applied.
+   *
+   * The merchandiser never leaves the results they are editing: this returns
+   * exactly what a shopper would get if the arrangement were saved, so the
+   * preview and the outcome cannot disagree.
+   */
+  app.post<{
+    Params: { site: string };
+    Body: { query?: string; categoryId?: string; hitsPerPage?: number; actions?: QueryRuleAction[] };
+  }>(
+    '/v1/:site/admin/query-rules/preview',
+    guard(merchScope, { body: S.queryRulePreviewBody }),
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      const { query = '', categoryId, hitsPerPage = 48, actions = [] } = request.body ?? {};
+      if (!query.trim() && !categoryId) {
+        return reply.code(400).send({ error: 'preview needs a query or a category' });
+      }
+
+      const base = categoryId
+        ? await search.browse(site, { categoryId, hitsPerPage, rescue: false })
+        : await search.search(site, { q: query, hitsPerPage, rescue: false });
+
+      // Pins may name products this query never matched — that is most of the
+      // point of pinning — so they are fetched by id, exactly as the shopper
+      // path does it.
+      const present = new Set(base.hits.map((h) => h.parentId));
+      const missing = actions
+        .filter((a) => a.action === 'pin' && !present.has(a.parentId))
+        .map((a) => a.parentId);
+      const absent = new Map(
+        (missing.length ? await engine.getByParentIds(site.id, missing) : [])
+          .map((doc) => [doc.parentId, hitFromDoc(doc)] as const),
+      );
+
+      const rule = {
+        id: 0, siteId: site.id, query, matchType: 'exact' as const, enabled: true,
+        startsAt: null, endsAt: null, priority: 100, note: null, actions,
+      };
+      return {
+        hits: applyRule(base.hits, rule, absent),
+        totalHits: base.totalHits,
+        understood: base.parsedFilters ?? [],
+        rescue: base.rescue,
+      };
+    },
+  );
 
   // ---- history -------------------------------------------------------------
 
