@@ -41,11 +41,31 @@ const CANDIDATES = [
   'postgres://postgres:postgres@localhost:5432/compass',
 ];
 
-const ok = (label: string, detail: string) => console.log(`  ✓ ${label.padEnd(11)} ${detail}`);
-const info = (label: string, detail: string) => console.log(`  · ${label.padEnd(11)} ${detail}`);
+/**
+ * The classic Windows console renders a codepage, not UTF-8, so a tick mark
+ * arrives as mojibake — and the first thing this command does is tell someone
+ * whether each step worked. Windows Terminal sets WT_SESSION and handles it.
+ */
+const UNICODE = process.platform !== 'win32' || Boolean(process.env.WT_SESSION);
+const MARK = UNICODE ? { good: '✓', note: '·', bad: '✗' } : { good: '+', note: '-', bad: 'x' };
+
+const ok = (label: string, detail: string) =>
+  console.log(`  ${MARK.good} ${label.padEnd(11)} ${detail}`);
+const info = (label: string, detail: string) =>
+  console.log(`  ${MARK.note} ${label.padEnd(11)} ${detail}`);
+
+/**
+ * The same instruction in the reader's own shell. PowerShell does not take
+ * `VAR=value command`, and a line someone cannot paste is not an instruction.
+ */
+function setEnv(name: string, value: string): string[] {
+  return process.platform === 'win32'
+    ? [`  $env:${name}="${value}"`, '  npm run app']
+    : [`  ${name}=${value} npm run app`];
+}
 
 function fail(what: string, lines: string[]): never {
-  console.error(`\n  ✗ ${what}\n`);
+  console.error(`\n  ${MARK.bad} ${what}\n`);
   for (const line of lines) console.error(`    ${line}`);
   console.error('');
   process.exit(1);
@@ -120,7 +140,7 @@ async function database(): Promise<string> {
   }
 
   if (await dockerRunning()) {
-    console.log('  · postgres    not running — starting the one in docker-compose.yml');
+    info('postgres', 'not running — starting the one in docker-compose.yml');
     try {
       await run('docker', ['compose', 'up', '-d', 'postgres'], { timeout: 180_000 });
     } catch (err) {
@@ -137,17 +157,26 @@ async function database(): Promise<string> {
     ]);
   }
 
+  // Only the line for the platform someone is actually on. Three of them and
+  // the reader has to work out which is theirs before they can act.
+  const install = process.platform === 'win32'
+    ? ['  winget install PostgreSQL.PostgreSQL.16',
+       '  ...or install Docker Desktop, then: docker compose up -d postgres']
+    : process.platform === 'darwin'
+      ? ['  brew install postgresql@16 && brew services start postgresql@16',
+         '  ...or, with Docker running: docker compose up -d postgres']
+      : ['  sudo apt install postgresql-16 && sudo service postgresql start',
+         '  ...or, with Docker running: docker compose up -d postgres'];
+
   fail('no PostgreSQL to connect to', [
     'Compass keeps every merchandising decision, API key and analytics event in',
-    'Postgres. Any one of these gets you one:',
+    'Postgres. Install one, then run this again:',
     '',
-    '  Docker      docker compose up -d postgres     (then run this again)',
-    '  macOS       brew install postgresql@16 && brew services start postgresql@16',
-    '  Debian      sudo apt install postgresql-16 && sudo service postgresql start',
+    ...install,
     '',
     'Already have one somewhere else? Point at it:',
     '',
-    '  DATABASE_URL=postgres://user:pass@host:5432/compass npm run app',
+    ...setEnv('DATABASE_URL', 'postgres://user:pass@host:5432/compass'),
   ]);
 }
 
@@ -181,6 +210,18 @@ function portFree(port: number): Promise<boolean> {
     probe.once('listening', () => probe.close(() => settle(true)));
     probe.listen(port, '0.0.0.0');
   });
+}
+
+/**
+ * Run one of this repository's TypeScript entry points.
+ *
+ * `node --import tsx`, not `npx tsx`: on Windows `npx` is `npx.cmd`, and since
+ * the 2024 command-injection fix Node refuses to spawn a `.cmd` without a
+ * shell. Going through the running interpreter needs no shell, no PATH lookup
+ * and no quoting, and behaves the same on every platform.
+ */
+function tsx(entry: string): [string, string[]] {
+  return [process.execPath, ['--import', 'tsx', entry]];
 }
 
 function step(label: string, command: string, argv: string[], env: NodeJS.ProcessEnv) {
@@ -234,10 +275,10 @@ if (RESEED || !(await seeded(url))) {
   info('catalogue', RESEED
     ? 'starting over (--reseed) — this takes a minute'
     : 'empty — generating one, which takes a minute');
-  await step('seed', 'npx', ['tsx', 'packages/demo/seed.ts'], env);
+  await step('seed', ...tsx('packages/demo/seed.ts'), env);
   ok('catalogue', 'generated, indexed and merchandised');
 } else {
-  await step('migrate', 'npx', ['tsx', 'packages/server/src/cli/migrate.ts'], env);
+  await step('migrate', ...tsx('packages/server/src/cli/migrate.ts'), env);
   ok('catalogue', 'already present — reuse it, or start over with --reseed');
 }
 
@@ -254,11 +295,11 @@ if (!(await portFree(PORT))) {
     '',
     'Stop it, or use another port:',
     '',
-    `  PORT=3101 npm run app`,
+    ...setEnv('PORT', '3101'),
   ]);
 }
 
-const server: ChildProcess = spawn('npx', ['tsx', 'packages/server/src/server.ts'], {
+const server: ChildProcess = spawn(...tsx('packages/server/src/server.ts'), {
   stdio: ['ignore', 'inherit', 'inherit'],
   env,
 });

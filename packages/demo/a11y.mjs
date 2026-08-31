@@ -31,7 +31,11 @@ const violations = [];
  * that passes in light says nothing about its dark counterpart — the first run
  * of this audit found exactly that, in the console's warning colour.
  */
-const THEME = process.env.COMPASS_A11Y_THEME ?? 'light';
+// An argument, not an environment variable: `VAR=value npm run …` is not a
+// thing on Windows, and this suite runs twice from one npm script.
+const themeArg = process.argv.indexOf('--theme');
+const THEME = (themeArg >= 0 ? process.argv[themeArg + 1] : process.env.COMPASS_A11Y_THEME)
+  ?? 'light';
 
 /** WCAG 2.1 A and AA. Best-practice rules are advisory and not failed on. */
 const OPTIONS = { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } };

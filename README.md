@@ -13,7 +13,8 @@ index, rule, synonym set and analytics view is scoped to a site.
 
 ## Run it
 
-Node 22 or newer, and a PostgreSQL you can reach. Then, from the repository:
+Two prerequisites: **Node 22 or newer** and a **PostgreSQL** you can reach.
+Then, from the repository:
 
 ```bash
 npm install
@@ -31,6 +32,31 @@ somewhere else? `DATABASE_URL=postgres://… npm run app`.
 
 Re-running it reuses what is there. `npm run app -- --reseed` starts the demo
 data over.
+
+### On Windows
+
+Neither Node nor Postgres ships with Windows, and Windows PowerShell does not
+accept `&&` as a separator — use `;`, or one command per line:
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+winget install PostgreSQL.PostgreSQL.16
+
+# reopen PowerShell so the new PATH takes effect, then:
+cd $HOME\Gym-buoldrt
+git checkout claude/ecommerce-search-platform-59qlo2
+npm install
+npm run app
+```
+
+Nothing else is needed — not `psql`, not a database created by hand. If the
+Postgres installer asked you to set a password for the `postgres` user and it
+was not `postgres`, say so once:
+
+```powershell
+$env:DATABASE_URL="postgres://postgres:YOURPASSWORD@localhost:5432/compass"
+npm run app
+```
 
 | | |
 |---|---|
@@ -84,7 +110,8 @@ Needs **Node 22+** (the dev engine uses the built-in `node:sqlite`) and a
 **PostgreSQL 16**. Nothing else.
 
 ```bash
-git clone <this repo> && cd compass-search
+git clone <this repo>
+cd compass-search
 npm install
 npm run app                     # http://localhost:3100
 ```

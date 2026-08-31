@@ -10,7 +10,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "a11y": "node packages/demo/a11y.mjs && COMPASS_A11Y_THEME=dark node packages/demo/a11y.mjs",
+    "a11y": "node packages/demo/a11y.mjs --theme light && node packages/demo/a11y.mjs --theme dark",
     "app": "tsx packages/server/src/cli/app.ts",
     "backup": "tsx packages/server/src/cli/backup.ts",
     "bench": "tsx packages/server/src/cli/bench.ts",
@@ -26,7 +26,7 @@
     "reindex": "tsx packages/server/src/cli/reindex.ts",
     "seed": "tsx packages/demo/seed.ts",
     "start": "node --experimental-sqlite packages/server/dist/server.js",
-    "test": "tsx --test packages/server/test/*.test.ts",
+    "test": "tsx --test \"packages/server/test/*.test.ts\"",
     "typecheck": "tsc -b --pretty false",
     "ui-smoke": "node packages/demo/ui-smoke.mjs",
     "ui-smoke:admin": "node packages/admin/ui-smoke.mjs"
