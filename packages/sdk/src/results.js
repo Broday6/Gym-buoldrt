@@ -118,6 +118,10 @@ export class ResultsWidget {
     this.currency = options.currency ?? 'USD';
     this.onAddToCart = options.onAddToCart ?? null;
     this.onStateChange = options.onStateChange ?? null;
+    // Off by default: a storefront that renders its own head — most of them,
+    // since the page is usually a template on the site's own platform — should
+    // not have the SDK reaching into it.
+    this.seo = options.seo ?? false;
     this.syncUrl = options.syncUrl !== false;
 
     this.state = {
@@ -219,6 +223,9 @@ export class ResultsWidget {
         sort: this.state.sort,
         page: this.state.page,
         rescue: this.state.exact ? false : undefined,
+        // Only asked for when the storefront wants the SDK to own its head;
+        // otherwise the server skips the work entirely.
+        seo: this.seo || undefined,
       };
       this.state.exact = false;
       const response = this.state.categoryId
@@ -242,6 +249,7 @@ export class ResultsWidget {
 
       if (this.state.q) this.client.rememberSearch(this.state.q);
       if (this.syncUrl) this.writeUrl();
+      if (this.seo) applySeo(response.seo);
       this.onStateChange?.(response, this.state);
       return response;
     } catch (err) {

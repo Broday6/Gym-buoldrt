@@ -8,7 +8,7 @@ import { createEngine } from '../server/src/app.js';
 import { SiteRegistry } from '../server/src/config/sites.js';
 import { createPool, migrate } from '../server/src/db/pool.js';
 import { ingestRows, parseCsv, summariseQuality } from '../server/src/ingest/pipeline.js';
-import { createApiKey } from '../server/src/routes/auth.js';
+import { ROLES, createApiKey, type KeyScope } from '../server/src/routes/auth.js';
 import { CollectionStore } from '../server/src/merchandising/collections.js';
 import { SearchService } from '../server/src/services/search.js';
 import { AnalyticsService } from '../server/src/services/analytics.js';
@@ -144,7 +144,7 @@ mkdirSync('./data/demo', { recursive: true });
  * issued by `npm run keys` and shown once.
  */
 const KEY_FILE = './data/demo/keys.json';
-type DemoKeys = Record<string, { search: string; admin: string }>;
+type DemoKeys = Record<string, Record<KeyScope, string>>;
 
 function readDemoKeys(): DemoKeys {
   try {
@@ -154,7 +154,7 @@ function readDemoKeys(): DemoKeys {
   }
 }
 
-async function issueDemoKeys(siteId: string): Promise<{ search: string; admin: string } | null> {
+async function issueDemoKeys(siteId: string): Promise<Record<KeyScope, string> | null> {
   const file = readDemoKeys();
   const { rows } = await db.query<{ n: string }>(
     'SELECT COUNT(*) AS n FROM api_keys WHERE site_id = $1 AND revoked_at IS NULL',
@@ -170,10 +170,12 @@ async function issueDemoKeys(siteId: string): Promise<{ search: string; admin: s
     'UPDATE api_keys SET revoked_at = now() WHERE site_id = $1 AND revoked_at IS NULL',
     [siteId],
   );
-  const issued = {
-    search: await createApiKey(db, siteId, 'search', 'storefront'),
-    admin: await createApiKey(db, siteId, 'admin', 'console'),
-  };
+  // One key per role, so the demo console can be opened as each of them and
+  // the difference is something you can see rather than read about.
+  const issued = Object.fromEntries(
+    await Promise.all(ROLES.map(async (role) =>
+      [role, await createApiKey(db, siteId, role, `demo ${role}`)] as const)),
+  ) as Record<KeyScope, string>;
   writeFileSync(KEY_FILE, JSON.stringify({ ...file, [siteId]: issued }, null, 2));
   return issued;
 }
@@ -217,7 +219,7 @@ for (const [index, site] of sites.list().entries()) {
   // the only place the plaintext exists, since the database stores hashes.
   const issued = await issueDemoKeys(site.id);
   const keys = issued
-    ? `\n    search key: ${issued.search}\n    admin key:  ${issued.admin}`
+    ? `\n${ROLES.map((r) => `    ${r.padEnd(13)} ${issued[r]}`).join('\n')}`
     : '(existing keys kept)';
 
   console.log(
@@ -284,5 +286,7 @@ console.log(
   '  Console:    http://localhost:3100/admin/  (paste the admin key below when it asks)\n\n' +
   Object.entries(finalKeys)
     .map(([id, k]) => `  ${id.padEnd(11)} admin key: ${k.admin}`)
-    .join('\n') + '\n',
+    .join('\n') +
+  '\n\n  Open the console as an analyst or a merchandiser with the other keys in\n' +
+  '  data/demo/keys.json — the screens and the buttons change with the role.\n',
 );

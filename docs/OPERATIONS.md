@@ -80,18 +80,101 @@ product needs a reindex before shoppers see it. Those endpoints return
 `reindexRequired: true` to say so. Run `npm run reindex` after a batch of
 merchandising work, or let the nightly rebuild pick it up.
 
+## Secrets
+
+Three secrets exist. Nothing else in the system is confidential.
+
+| Secret | Where it lives | If it leaks |
+|---|---|---|
+| `DATABASE_URL` | Environment only, never a file in the repo | Full read/write to every tenant's configuration and analytics |
+| API keys | Only their SHA-256 hashes are stored; the plaintext is shown once at creation | Bounded by the key's role — see below |
+| `TYPESENSE_API_KEY` | Environment only | Direct access to the retrieval index |
+
+A key's role is in its prefix, so a key found in a commit, a log or a support
+ticket announces what it can do without a lookup:
+
+| Prefix | Can | Safe in a browser |
+|---|---|---|
+| `ck_search_…` | Read search endpoints, post shopper events | **Yes** — this is designed to ship in a storefront bundle |
+| `ck_analyst_…` | The above, plus reports and catalogue health. Read-only | No |
+| `ck_merchandiser_…` | The above, plus collections, badges, attributes, synonyms, redirects | No |
+| `ck_admin_…` | Everything, including catalogue pushes and reindexing | No |
+
+Issue the narrowest role that does the job. A reporting integration wants
+`analyst`; the console for a merchandising team wants `merchandiser`; only the
+ingest pipeline needs `admin`.
+
+```bash
+npm run keys -- roles                              # what each role can do
+npm run keys -- create ekena merchandiser "sarah"
+npm run keys -- list ekena                         # includes last-used dates
+```
+
+### Rotation
+
+Rotate on a schedule, and immediately on any suspicion of exposure. `rotate`
+issues a replacement with the same site, role and label, and records which key
+replaced which, so the chain is auditable afterwards.
+
+```bash
+npm run keys -- rotate 7          # old key stays live; deploy the new one
+npm run keys -- list ekena        # confirm traffic has moved (last-used column)
+npm run keys -- revoke 7          # then close the old one
+```
+
+The grace period is the point: revoking first takes the integration down, and an
+operator under that pressure makes worse decisions. On a confirmed leak, skip it:
+
+```bash
+npm run keys -- rotate 7 --now    # revokes immediately
+```
+
+Revocation takes effect within the key cache TTL, 30 seconds by default.
+
 ## Backups
 
 The retrieval index is disposable — it rebuilds from the catalogue at any time.
 **PostgreSQL is not.** It is the only home of every collection, custom
-attribute, synonym, redirect, API key and analytics event.
+attribute, synonym, redirect, badge, API key hash and analytics event — every
+merchandising decision anyone has made.
 
 ```bash
-pg_dump --format=custom "$DATABASE_URL" > compass-$(date +%F).dump
+npm run backup              # dump, verify, prune
+npm run backup -- list
 ```
 
-Nightly, off-host, with restores tested. Losing this database means losing every
-merchandising decision anyone has made.
+Each run dumps in custom format, then **reads the dump back** and checks that
+every table that cannot be recomputed from the catalogue is present. `pg_dump`
+exiting 0 is not proof the file can be restored, and an unreadable backup
+discovered during an incident is the same as no backup. A dump missing a
+required table fails loudly rather than being reported as a smaller success —
+that case is almost always `DATABASE_URL` pointing somewhere unexpected.
+
+Retention is every daily for 14 days, then one per week for eight weeks
+(`COMPASS_BACKUP_KEEP_DAYS`). Corruption and bad merchandising changes are often
+noticed late, so retention has to reach back further than the daily window.
+
+Run it nightly, and **put the output somewhere that is not this host** —
+`data/backups` is a staging area, not a backup:
+
+```
+0 3 * * *  cd /srv/compass && npm run backup && aws s3 sync data/backups s3://…
+```
+
+### Restoring
+
+```bash
+createdb compass_restore
+DATABASE_URL=postgres://…/compass_restore npm run backup -- restore <file>
+npm run reindex                 # rebuild the retrieval index from the catalogue
+```
+
+Restore refuses to run against a database that already has tables unless you
+pass `--force`; it is the one irreversible operation here. It prints the row
+count of every restored table, because a restore that "succeeded" into an empty
+database is the failure mode worth catching early.
+
+**Test this quarterly.** A restore procedure nobody has run is a hypothesis.
 
 ## Monitoring
 
@@ -137,7 +220,13 @@ Beyond `.env.example`:
 | Variable | Default | Notes |
 |---|---|---|
 | `COMPASS_RATE_SEARCH` | `600` | Search requests per minute per client, per instance |
-| `COMPASS_RATE_ADMIN` | `60` | Admin requests per minute |
+| `COMPASS_RATE_ADMIN` | `600` | Admin requests per minute. A console screen is several calls; 60 rate-limited ordinary use. |
+| `COMPASS_SCHEDULE` | on | Set to `off` to run maintenance from your own orchestrator instead |
+| `COMPASS_ROLLUP_HOUR_UTC` | `3` | Hour, UTC, at which the analytics rollup runs |
+| `COMPASS_BACKUP_DIR` | `./data/backups` | Where `npm run backup` writes |
+| `COMPASS_BACKUP_KEEP_DAYS` | `14` | Dailies kept in full; weeklies kept four times as long |
+| `COMPASS_SEO_BASE_URL` | — | Storefront origin used in canonical URLs and the sitemap |
+| `COMPASS_SEO_INDEXABLE_FACETS` | `material,finish,style,color` | Facets whose single-value pages stay indexable |
 | `COMPASS_MAX_SEARCH_BODY_BYTES` | `32768` | Shopper endpoints; catalogue endpoints use the larger limit |
 | `COMPASS_MAX_BODY_BYTES` | `67108864` | Ceiling for a catalogue push |
 | `COMPASS_TRUST_PROXY` | `0` | Set to `1` only behind a proxy that sets `X-Forwarded-For`; otherwise clients can spoof their identity to the rate limiter |

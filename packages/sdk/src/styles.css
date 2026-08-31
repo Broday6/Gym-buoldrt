@@ -9,12 +9,19 @@
    one class left the dropdown with no background colour to paint. */
 :root, .compass-root {
   --compass-fg: #16181d;
-  --compass-muted: #6b7280;
+  --compass-muted: #5c6470;
+  /* The colour that sits ON the accent — see the dark block below. */
+  --compass-accent-ink: #ffffff;
   --compass-bg: #ffffff;
   --compass-surface: #f7f7f8;
   --compass-border: #e3e5e9;
   --compass-accent: #1f5f4f;
   --compass-danger: #b4232a;
+  /* Query-match highlight. Tokenised because it is one of the few places the
+     SDK paints a background from a fixed colour: `color: inherit` over a fixed
+     light yellow becomes light-on-light the moment the page is dark. */
+  --compass-mark-bg: #fdf2ba;
+  --compass-mark-fg: #16181d;
   --compass-radius: 8px;
   --compass-gap: 16px;
   --compass-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -58,7 +65,9 @@
   font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
 }
 .compass-hit__title { margin: 12px 12px 4px; font-size: 14px; line-height: 1.35; font-weight: 600; }
-.compass-hit__title mark { background: #fdf2ba; color: inherit; padding: 0 1px; }
+.compass-hit__title mark {
+  background: var(--compass-mark-bg); color: var(--compass-mark-fg); padding: 0 1px;
+}
 .compass-hit__variant, .compass-hit__options { margin: 0 12px; font-size: 12px; color: var(--compass-muted); }
 .compass-hit__price { margin: 6px 12px 0; font-size: 14px; }
 .compass-hit__price s { color: var(--compass-muted); margin-right: 6px; }
@@ -67,7 +76,8 @@
   /* Pushed to the bottom so buttons line up across cards whose titles wrap to
      different heights. */
   margin: auto 12px 12px; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600;
-  border: 1px solid var(--compass-accent); background: var(--compass-accent); color: #fff;
+  border: 1px solid var(--compass-accent); background: var(--compass-accent);
+  color: var(--compass-accent-ink);
   border-radius: var(--compass-radius); cursor: pointer;
 }
 .compass-hit__cart:hover { filter: brightness(1.08); }
@@ -91,7 +101,11 @@
 @media (prefers-color-scheme: dark) {
   :root, .compass-root {
     --compass-fg: #eceef1; --compass-muted: #9aa2ae; --compass-bg: #16181d;
-    --compass-surface: #1f232a; --compass-border: #2c313a; --compass-accent: #3f9e85;
+    --compass-surface: #1f232a; --compass-border: #2c313a;
+    /* Lightened so it stays readable as text on a dark ground, which then makes
+       white text on it unreadable — hence the separate ink token. */
+    --compass-accent: #6cc9ad; --compass-accent-ink: #04140f;
+    --compass-mark-bg: #4d4218; --compass-mark-fg: #fbf3d6;
   }
   .compass-hit__placeholder {
     background: repeating-linear-gradient(45deg, var(--compass-surface) 0 10px, #262b33 10px 20px);
@@ -280,7 +294,7 @@ body.compass-ac-locked { overflow: hidden; }
   }
   .compass-facets__badge {
     display: inline-flex; align-items: center; justify-content: center; min-width: 19px; height: 19px;
-    padding: 0 5px; border-radius: 999px; background: var(--compass-accent); color: #fff; font-size: 12px;
+    padding: 0 5px; border-radius: 999px; background: var(--compass-accent); color: var(--compass-accent-ink); font-size: 12px;
   }
   .compass-facets__modal {
     position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column;
@@ -305,7 +319,7 @@ body.compass-ac-locked { overflow: hidden; }
   .compass-facets__apply {
     display: block; flex: 1; font: inherit; font-size: 15px; font-weight: 600; padding: 13px 16px;
     border: 0; border-radius: var(--compass-radius); background: var(--compass-accent);
-    color: #fff; cursor: pointer;
+    color: var(--compass-accent-ink); cursor: pointer;
   }
   .compass-facets__groups { display: none; }
 }

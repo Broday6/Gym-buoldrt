@@ -22,7 +22,8 @@ npm run demo          # seeds two catalogues, merchandising rules, and 30 days o
 | | |
 |---|---|
 | **Storefront** | http://localhost:3100/demo/ — instant search, facets, collections, badges, recommendation rails |
-| **Console** | http://localhost:3100/admin/ — analytics, query tester with ranking explainability, visual rule builder |
+| **Console** | http://localhost:3100/admin/ — analytics, query tester with ranking explainability, visual rule builder, change history with undo |
+| **API reference** | http://localhost:3100/docs — generated from the running server's routes |
 
 The seed generates a month of simulated shopper sessions *against the index it
 just built*, so every number on the dashboard is computed from events the system
@@ -38,7 +39,10 @@ time you open it; the seed prints one per site:
   archdepot   admin key: ck_admin_…
 ```
 
-Paste it once and it is remembered in that browser. `npm run keys` issues more.
+Paste it once and it is remembered in that browser. The seed also issues an
+`analyst` and a `merchandiser` key per site — open the console with one of those
+(they are in `data/demo/keys.json`) and the screens and buttons change with the
+role. `npm run keys -- roles` explains what each one can do.
 
 ## Quick start
 
@@ -158,33 +162,58 @@ packages/
 
 ## API
 
-All endpoints are `POST`, JSON in and out, scoped by site.
+JSON in and out, scoped by site. The full description is generated from the
+running server and served at `/docs`, or as OpenAPI 3.1 at `/openapi.json` —
+`docs/openapi.json` is the checked-in copy, and CI fails if it drifts.
 
-| Endpoint | Key scope | Purpose |
+Every endpoint names the least role that may call it.
+
+| Endpoint | Role | Purpose |
 |---|---|---|
 | `/v1/{site}/search` | search | Full search. Query analysis, ranking, facets, rescue. |
-| `/v1/{site}/browse` | search | Category browse through the same pipeline. |
+| `/v1/{site}/browse` | search | Category and collection browse through the same pipeline. |
 | `/v1/{site}/autocomplete` | search | Multi-section suggestions. Sub-50ms. |
 | `/v1/{site}/directory` | search | Categories, brands and collections, for nav. |
 | `/v1/{site}/collections` | search | Collections a shopper may browse right now. |
-| `/v1/{site}/events` | search | Behavioural events, batched (max 500). |
-| `/v1/{site}/synonyms` | admin | Two-way, one-way and phrase synonyms. |
-| `/v1/{site}/redirects` | admin | Query patterns that navigate instead of searching. |
-| `/v1/{site}/admin/collections` | admin | Cross-category collections: rules, membership, scheduling. |
-| `/v1/{site}/admin/attributes` | admin | Merchandiser-defined facets and their values. |
-| `/v1/{site}/admin/badges` | admin | Rule-driven product badges. |
-| `/v1/{site}/admin/collections/preview` | admin | Count what a rule would catch, before saving. |
 | `/v1/{site}/recommend` | search | Similar, bought-together, recently-viewed, trending. |
-| `/v1/{site}/analytics/*` | admin | Overview, top and failing queries, trends, facet usage. |
-| `/v1/{site}/catalog/records` | admin | Upsert or delete individual products, no reindex. |
-| `/metrics`, `/health/ready` | — | Per-route latency and error counts; readiness for a load balancer. |
+| `/v1/{site}/events` | search | Behavioural events, batched (max 100 per call). |
+| `/v1/{site}/sitemap.xml` | search | Landing pages worth ranking. |
+| `/v1/{site}/whoami` | search | What this key may do. |
+| `/v1/{site}/analytics/*` | analyst | Overview, top and failing queries, trends, facet usage. |
+| `/v1/{site}/history` | analyst | Who changed what, when, and what it was before. |
+| `/v1/{site}/catalog/status` | analyst | Recent ingest runs and data-quality reports. |
+| `/v1/{site}/synonyms` | merchandiser | Two-way, one-way and phrase synonyms. |
+| `/v1/{site}/redirects` | merchandiser | Query patterns that navigate instead of searching. |
+| `/v1/{site}/admin/collections` | merchandiser | Cross-category collections: rules, membership, scheduling. |
+| `/v1/{site}/admin/attributes` | merchandiser | Merchandiser-defined facets and their values. |
+| `/v1/{site}/admin/badges` | merchandiser | Rule-driven product badges. |
+| `/v1/{site}/admin/collections/preview` | merchandiser | Count what a rule would catch, before saving. |
+| `/v1/{site}/history/{id}/revert` | merchandiser | Undo one change; recorded as a change of its own. |
 | `/v1/{site}/catalog/batch` | admin | Full ingest from `rows[]` or `csv`. Builds and swaps an index. |
+| `/v1/{site}/catalog/records` | admin | Upsert or delete individual products, no reindex. |
 | `/v1/{site}/catalog/updates` | admin | Price/inventory deltas against the live index. |
-| `/v1/{site}/catalog/status` | admin | Recent ingest runs and data-quality reports. |
-| `/v1/sites`, `/health` | — | Site list, sort options, liveness. |
+| `/v1/sites`, `/health`, `/metrics`, `/openapi.json` | — | No key required. |
 
-Authenticate with `x-compass-key`. A **search** key is safe to ship in a
-storefront bundle; an **admin** key is not. `npm run seed` prints one of each.
+### Roles
+
+Authenticate with `x-compass-key`. Roles are ordered, and each one includes the
+last — so a guard is one comparison, and a key's prefix says what it can do
+without a lookup.
+
+| Prefix | Can | Safe in a browser |
+|---|---|---|
+| `ck_search_…` | Read search endpoints, post shopper events | **Yes** — designed to ship in a storefront bundle |
+| `ck_analyst_…` | The above, plus reports, history and catalogue health. Read-only | No |
+| `ck_merchandiser_…` | The above, plus collections, badges, attributes, synonyms, redirects | No |
+| `ck_admin_…` | Everything, including catalogue pushes and reindexing | No |
+
+Issue the narrowest role that does the job:
+
+```bash
+npm run keys -- roles
+npm run keys -- create ekena merchandiser "merch team"
+npm run keys -- rotate 7        # replacement now, old key live until you revoke it
+```
 
 ```bash
 curl -XPOST localhost:3100/v1/ekena/search \
@@ -192,6 +221,27 @@ curl -XPOST localhost:3100/v1/ekena/search \
   -H 'x-compass-key: ck_search_…' \
   -d '{"q":"black shutter","filters":{"material":["PVC"]},"hitsPerPage":24}'
 ```
+
+Every request body is validated against a schema before it reaches a handler, so
+a malformed request is a `400` naming each problem rather than a `500`.
+
+### SEO
+
+Pass `"seo": true` on a search or browse call and the response carries
+`canonical`, `robots`, `title`, `description` and a schema.org `ItemList`. A
+faceted catalogue generates a combinatorial number of URLs that are the same
+products in a different order; the rules keep a crawler on the pages worth
+ranking:
+
+- internal search results are never indexed;
+- a category or collection with no filters is the canonical page;
+- **one** value from an allow-listed facet stays indexable on its own URL;
+- anything more canonicalises to the clean page as `noindex, follow`;
+- sort never appears in a canonical URL, and page 2+ is self-canonical.
+
+Category and collection URLs are also served as fully rendered HTML, so a
+crawler — or a shopper with JavaScript disabled — gets real content. Set
+`COMPASS_SEO_BASE_URL` to your storefront's origin.
 
 ## Storefront install
 

@@ -10,13 +10,20 @@ import type { AnalyticsService } from '../services/analytics.js';
 import type { RecommendRequest, RecommendService } from '../services/recommend.js';
 import type { Selector } from '../merchandising/selector.js';
 import type { PreviewService } from '../services/preview.js';
+import type { HistoryService } from '../services/history.js';
 import type { SearchEngine } from '../engine/types.js';
 import type { SearchService } from '../services/search.js';
 import type { EventCollector } from '../events/collector.js';
 import type { Db } from '../db/pool.js';
 import { SiteNotFoundError, SORT_OPTIONS, type SiteRegistry } from '../config/sites.js';
 import { ingestRows, summariseQuality, type IngestOptions } from '../ingest/pipeline.js';
-import { requireScope, type AuthOptions } from './auth.js';
+import {
+  ROLE_SUMMARY, requireScope, roleCovers,
+  type AuthOptions, type KeyIdentity, type KeyScope,
+} from './auth.js';
+import * as S from './schemas.js';
+import { seoConfigFor, sitemapXml } from '../services/seo.js';
+import { buildSpec, trackRoutes } from './openapi.js';
 import type { SourceRow } from '../ingest/normalize.js';
 
 export interface RouteDeps {
@@ -29,19 +36,57 @@ export interface RouteDeps {
   analytics: AnalyticsService;
   recommend: RecommendService;
   preview: PreviewService;
+  history: HistoryService;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
   auth: AuthOptions;
+  scheduler?: { status: () => Record<string, { at: string; result: string; ok: boolean }> };
 }
+
+/** Reported in the generated spec, so a consumer can tell versions apart. */
+const VERSION = process.env.npm_package_version ?? '0.1.0';
 
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
   const {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, sites, collector, db, auth,
+    preview, history, sites, collector, db, auth, scheduler,
   } = deps;
-  const searchScope = { preHandler: requireScope('search', auth) };
-  const adminScope = { preHandler: requireScope('admin', auth) };
+  // Roles are ordered, so each guard names the *least* privilege that endpoint
+  // needs and everything above it is admitted automatically.
+  const searchScope = { preHandler: requireScope('search', auth), role: 'search' as const };
+  const analystScope = { preHandler: requireScope('analyst', auth), role: 'analyst' as const };
+  const merchScope = { preHandler: requireScope('merchandiser', auth), role: 'merchandiser' as const };
+  const adminScope = { preHandler: requireScope('admin', auth), role: 'admin' as const };
+
+  // Shared rule fragments, registered once so the selector definition has a
+  // single home rather than a copy inside every schema that accepts a rule.
+  for (const schema of S.SHARED_SCHEMAS) app.addSchema(schema);
+
+  /**
+   * Route options: the role guard, plus the schema that has to hold before the
+   * handler runs. Written as one call so a new endpoint cannot pick up
+   * authentication and forget validation.
+   */
+  const guard = (
+    scope: { preHandler: ReturnType<typeof requireScope>; role: KeyScope },
+    schema: Parameters<typeof S.forSite>[0] = {},
+    extraParams: Parameters<typeof S.forSite>[1] = {},
+  ) => ({
+    preHandler: scope.preHandler,
+    schema: S.forSite(schema, extraParams),
+    // Carried through to the generated spec, so the documented role and the
+    // enforced role are the same value rather than two that agree by habit.
+    config: { role: scope.role },
+  });
+
+  // Recorded as Fastify registers each route, so the spec below is the route
+  // table itself rather than a description of it.
+  const registered = trackRoutes(app);
+
+  app.get('/openapi.json', async (_request, reply) =>
+    reply.header('cache-control', 'public, max-age=300')
+      .send(buildSpec(registered, VERSION, [...S.SHARED_SCHEMAS])));
 
   /**
    * Readiness, for a load balancer. Returns 503 when the instance cannot serve
@@ -73,6 +118,9 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       documents: counts,
       events: collector.stats(),
       cache: search.cacheStats(),
+      // A scheduled job that stops working is otherwise invisible until someone
+      // notices the dashboard has not moved for a week.
+      scheduled: scheduler?.status() ?? {},
     };
   });
 
@@ -81,9 +129,32 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     sortOptions: SORT_OPTIONS,
   }));
 
+  /**
+   * What this key can do.
+   *
+   * The console asks on load and hides what the role cannot use. Showing a
+   * merchandiser buttons that will 403 is worse than not showing them: they
+   * look like bugs.
+   */
+  app.get<{ Params: { site: string } }>('/v1/:site/whoami', guard(searchScope, {}), async (request) => {
+    const identity = (request as typeof request & { identity?: KeyIdentity }).identity;
+    const role: KeyScope = identity?.scope ?? 'admin';
+    return {
+      site: request.params.site,
+      role,
+      description: ROLE_SUMMARY[role],
+      can: {
+        search: roleCovers(role, 'search'),
+        analytics: roleCovers(role, 'analyst'),
+        merchandise: roleCovers(role, 'merchandiser'),
+        administer: roleCovers(role, 'admin'),
+      },
+    };
+  });
+
   app.post<{ Params: { site: string }; Body: SearchRequest }>(
     '/v1/:site/search',
-    searchScope,
+    guard(searchScope, { body: S.searchBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
@@ -113,7 +184,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: SearchRequest }>(
     '/v1/:site/browse',
-    searchScope,
+    guard(searchScope, { body: S.searchBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
@@ -121,13 +192,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       if (!body.categoryId && !body.collection) {
         return reply.code(400).send({ error: 'browse needs a categoryId or a collection' });
       }
-      return search.browse(site, body);
+      return search.seoFor(site, body, await search.browse(site, body));
     },
   );
 
   app.post<{ Params: { site: string }; Body: AutocompleteRequest }>(
     '/v1/:site/autocomplete',
-    searchScope,
+    guard(searchScope, { body: S.autocompleteBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
@@ -135,7 +206,38 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     },
   );
 
-  app.get<{ Params: { site: string } }>('/v1/:site/directory', searchScope, async (request, reply) => {
+  /**
+   * Sitemap of the pages worth ranking.
+   *
+   * Categories and enabled collections only. Filter permutations are
+   * deliberately absent: listing them would ask a crawler to spend its budget
+   * on exactly the URLs the canonical rules tell it to ignore.
+   */
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/sitemap.xml',
+    guard(searchScope, {}),
+    async (request, reply) => {
+      const site = sites.get(request.params.site);
+      if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
+      const directory = await engine.directory(site.id);
+      // Browsable, not merely defined: a scheduled or disabled collection is
+      // not a page, and a sitemap that lists one asks a crawler to 404.
+      const published = await collections.browsable(site.id).catch(() => []);
+      const entries = [
+        ...directory.categories.map((c) => ({
+          kind: 'category' as const, id: c.id, products: c.products,
+        })),
+        ...published.map((c: { slug: string }) =>
+          ({ kind: 'collection' as const, id: c.slug, products: 1 })),
+      ];
+      return reply
+        .type('application/xml')
+        .header('cache-control', 'public, max-age=3600')
+        .send(sitemapXml(entries, seoConfigFor(site.id)));
+    },
+  );
+
+  app.get<{ Params: { site: string } }>('/v1/:site/directory', guard(searchScope, {}), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const directory = await engine.directory(site.id);
@@ -155,7 +257,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: RecommendRequest }>(
     '/v1/:site/recommend',
-    searchScope,
+    guard(searchScope, { body: S.recommendBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
@@ -168,13 +270,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
     '/v1/:site/analytics/overview',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request) => analytics.overview(request.params.site, days(request.query.days)),
   );
 
   app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string; format?: string } }>(
     '/v1/:site/analytics/queries',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request, reply) => {
       const rows = await analytics.topQueries(
         request.params.site, days(request.query.days), Number(request.query.limit ?? 25),
@@ -188,7 +290,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string }; Querystring: { days?: string; limit?: string; format?: string } }>(
     '/v1/:site/analytics/problems',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request, reply) => {
       const rows = await analytics.problemQueries(
         request.params.site, days(request.query.days), Number(request.query.limit ?? 25),
@@ -202,13 +304,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
     '/v1/:site/analytics/trending',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request) => analytics.trending(request.params.site, days(request.query.days, 7)),
   );
 
   app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
     '/v1/:site/analytics/facets',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request) => ({
       facets: await analytics.facetUsage(request.params.site, days(request.query.days)),
     }),
@@ -216,7 +318,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string }; Querystring: { days?: string } }>(
     '/v1/:site/analytics/timeseries',
-    adminScope,
+    guard(analystScope, { querystring: S.reportQuery }),
     async (request) => ({
       points: await analytics.timeseries(request.params.site, days(request.query.days)),
     }),
@@ -224,7 +326,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string }; Querystring: { q: string; days?: string } }>(
     '/v1/:site/analytics/clicked',
-    adminScope,
+    guard(analystScope, { querystring: S.queryDetailQuery }),
     async (request, reply) => {
       if (!request.query.q) return reply.code(400).send({ error: 'q is required' });
       return {
@@ -237,13 +339,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: { days?: number } }>(
     '/v1/:site/analytics/rollup',
-    adminScope,
+    guard(merchScope, { body: S.rollupBody }),
     async (request) => analytics.rollup(request.params.site, request.body?.days ?? 30),
   );
 
   // ---- badges ------------------------------------------------------------
 
-  app.get<{ Params: { site: string } }>('/v1/:site/admin/badges', adminScope, async (request) => ({
+  app.get<{ Params: { site: string } }>('/v1/:site/admin/badges', guard(merchScope, {}), async (request) => ({
     badges: (await collections.listBadges(request.params.site)).map((b) => ({
       key: b.key, label: b.label, tone: b.tone, priority: b.priority, enabled: b.enabled,
     })),
@@ -252,9 +354,19 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string };
     Body: { key: string; label: string; tone?: string; selector: Selector; priority?: number };
-  }>('/v1/:site/admin/badges', adminScope, async (request, reply) => {
+  }>('/v1/:site/admin/badges', guard(merchScope, { body: S.badgeBody }), async (request, reply) => {
     try {
+      const badgeNamed = async (key: string) =>
+        (await collections.listBadges(request.params.site)).find((b) => b.key === key) ?? null;
+      const before = await badgeNamed(request.body.key);
       const created = await collections.createBadge(request.params.site, request.body as never);
+      // Badges were the one merchandising surface with no audit trail — a
+      // change nobody could see the history of, or undo. Both sides are read
+      // back from storage so the diff compares like with like: the request body
+      // and the stored record do not have the same shape, and a diff between
+      // them invents changes to fields nobody touched.
+      await audit(db, request.params.site, actorOf(request), 'upsert', 'badge',
+        created.key, before, await badgeNamed(created.key));
       search.invalidate(request.params.site);
       return reply.code(201).send({ ...created, reindexRequired: true });
     } catch (err) {
@@ -264,10 +376,14 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string; key: string } }>(
     '/v1/:site/admin/badges/:key',
-    adminScope,
+    guard(merchScope, {}, S.KEY_PARAM),
     async (request, reply) => {
+      const before = (await collections.listBadges(request.params.site))
+        .find((b) => b.key === request.params.key) ?? null;
       const removed = await collections.removeBadge(request.params.site, request.params.key);
       if (!removed) return reply.code(404).send({ error: 'no such badge' });
+      await audit(db, request.params.site, actorOf(request), 'delete', 'badge',
+        request.params.key, before, null);
       search.invalidate(request.params.site);
       return { deleted: true, reindexRequired: true };
     },
@@ -279,7 +395,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
    * Shopper-facing: the collections that may be browsed right now. Scheduled
    * and internal ones are built into the index but never listed here.
    */
-  app.get<{ Params: { site: string } }>('/v1/:site/collections', searchScope, async (request, reply) => {
+  app.get<{ Params: { site: string } }>('/v1/:site/collections', guard(searchScope, {}), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     return { collections: await collections.browsable(site.id) };
@@ -287,7 +403,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string } }>(
     '/v1/:site/admin/collections',
-    adminScope,
+    guard(merchScope, {}),
     async (request) => ({ collections: await collections.list(request.params.site) }),
   );
 
@@ -297,7 +413,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
    */
   app.post<{ Params: { site: string }; Body: { selector: Selector } }>(
     '/v1/:site/admin/collections/preview',
-    adminScope,
+    guard(merchScope, { body: S.previewBody }),
     async (request, reply) => {
       try {
         return await preview.preview(request.params.site, request.body?.selector);
@@ -309,13 +425,18 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: CollectionInput }>(
     '/v1/:site/admin/collections',
-    adminScope,
+    guard(merchScope, { body: S.collectionBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
       try {
+        // Read the prior state first. Without it the log records that something
+        // changed but not what it was, which is the half that makes an undo
+        // possible.
+        const before = await collections.get(site.id, request.body.slug ?? '');
         const created = await collections.create(site.id, { ...request.body, author: actorOf(request) });
-        await audit(db, site.id, actorOf(request), 'upsert', 'collection', created.slug, null, created);
+        await audit(db, site.id, actorOf(request), 'upsert', 'collection', created.slug,
+          before, created);
         search.invalidate(site.id);
         return reply.code(201).send(created);
       } catch (err) {
@@ -327,7 +448,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string; slug: string };
     Body: { members: { parentId: string; mode?: 'include' | 'exclude'; position?: number | null }[] };
-  }>('/v1/:site/admin/collections/:slug/members', adminScope, async (request, reply) => {
+  }>('/v1/:site/admin/collections/:slug/members', guard(merchScope, { body: S.membersBody }, S.SLUG_PARAM), async (request, reply) => {
     try {
       const applied = await collections.setMembers(
         request.params.site, request.params.slug, request.body?.members ?? [], actorOf(request),
@@ -344,12 +465,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string; slug: string } }>(
     '/v1/:site/admin/collections/:slug',
-    adminScope,
+    guard(merchScope, {}, S.SLUG_PARAM),
     async (request, reply) => {
+      const before = await collections.get(request.params.site, request.params.slug);
       const removed = await collections.remove(request.params.site, request.params.slug);
       if (!removed) return reply.code(404).send({ error: 'no such collection' });
       await audit(db, request.params.site, actorOf(request), 'delete', 'collection',
-        request.params.slug, null, null);
+        request.params.slug, before, null);
       search.invalidate(request.params.site);
       return { deleted: true, reindexRequired: true };
     },
@@ -357,7 +479,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.get<{ Params: { site: string } }>(
     '/v1/:site/admin/attributes',
-    adminScope,
+    guard(merchScope, {}),
     async (request) => ({
       attributes: (await collections.listAttributes(request.params.site)).map((a) => ({
         key: a.key, label: a.label, displayType: a.displayType, enabled: a.enabled,
@@ -372,15 +494,19 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: CustomAttributeInput }>(
     '/v1/:site/admin/attributes',
-    adminScope,
+    guard(merchScope, { body: S.attributeBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
       try {
+        const attributeNamed = async (key: string) =>
+          (await collections.listAttributes(site.id)).find((a) => a.key === key) ?? null;
+        const before = await attributeNamed(request.body.key);
         const created = await collections.createAttribute(site.id, {
           ...request.body, author: actorOf(request),
         });
-        await audit(db, site.id, actorOf(request), 'upsert', 'attribute', created.key, null, created);
+        await audit(db, site.id, actorOf(request), 'upsert', 'attribute', created.key,
+          before, await attributeNamed(created.key));
         search.invalidate(site.id);
         return reply.code(201).send({ ...created, reindexRequired: true });
       } catch (err) {
@@ -392,7 +518,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string; key: string };
     Body: { value: string; parentIds: string[]; mode?: 'include' | 'exclude' };
-  }>('/v1/:site/admin/attributes/:key/assign', adminScope, async (request, reply) => {
+  }>('/v1/:site/admin/attributes/:key/assign', guard(merchScope, { body: S.assignBody }, S.KEY_PARAM), async (request, reply) => {
     try {
       const applied = await collections.assign(
         request.params.site, request.params.key, request.body.value,
@@ -407,10 +533,14 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string; key: string } }>(
     '/v1/:site/admin/attributes/:key',
-    adminScope,
+    guard(merchScope, {}, S.KEY_PARAM),
     async (request, reply) => {
+      const before = (await collections.listAttributes(request.params.site))
+        .find((a) => a.key === request.params.key) ?? null;
       const removed = await collections.removeAttribute(request.params.site, request.params.key);
       if (!removed) return reply.code(404).send({ error: 'no such attribute' });
+      await audit(db, request.params.site, actorOf(request), 'delete', 'attribute',
+        request.params.key, before, null);
       search.invalidate(request.params.site);
       return { deleted: true, reindexRequired: true };
     },
@@ -418,14 +548,40 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   // ---- synonyms ----------------------------------------------------------
 
-  app.get<{ Params: { site: string } }>('/v1/:site/synonyms', adminScope, async (request) => ({
+  // ---- history -------------------------------------------------------------
+
+  app.get<{ Params: { site: string }; Querystring: { limit?: string } }>(
+    '/v1/:site/history',
+    guard(analystScope, { querystring: S.reportQuery }),
+    async (request) => ({
+      entries: await history.list(request.params.site, Number(request.query.limit ?? 100)),
+    }),
+  );
+
+  app.post<{ Params: { site: string; id: string } }>(
+    '/v1/:site/history/:id/revert',
+    guard(merchScope, {}, S.ID_PARAM),
+    async (request, reply) => {
+      try {
+        const result = await history.revert(
+          request.params.site, Number(request.params.id), actorOf(request),
+        );
+        search.invalidate(request.params.site);
+        return result;
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.get<{ Params: { site: string } }>('/v1/:site/synonyms', guard(merchScope, {}), async (request) => ({
     synonyms: await synonyms.list(request.params.site),
   }));
 
   app.post<{
     Params: { site: string };
     Body: { kind: SynonymKind; fromTerms?: string[]; terms: string[]; note?: string };
-  }>('/v1/:site/synonyms', adminScope, async (request, reply) => {
+  }>('/v1/:site/synonyms', guard(merchScope, { body: S.synonymBody }), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     try {
@@ -441,11 +597,14 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string; id: string } }>(
     '/v1/:site/synonyms/:id',
-    adminScope,
+    guard(merchScope, {}, S.ID_PARAM),
     async (request, reply) => {
+      const before = (await synonyms.list(request.params.site))
+        .find((r) => String(r.id) === request.params.id) ?? null;
       const removed = await synonyms.remove(request.params.site, Number(request.params.id));
       if (!removed) return reply.code(404).send({ error: 'no such synonym' });
-      await audit(db, request.params.site, actorOf(request), 'delete', 'synonym', request.params.id, null, null);
+      await audit(db, request.params.site, actorOf(request), 'delete', 'synonym',
+        request.params.id, before, null);
       search.invalidate(request.params.site);
       return { deleted: true };
     },
@@ -453,14 +612,14 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   // ---- redirects ---------------------------------------------------------
 
-  app.get<{ Params: { site: string } }>('/v1/:site/redirects', adminScope, async (request) => ({
+  app.get<{ Params: { site: string } }>('/v1/:site/redirects', guard(merchScope, {}), async (request) => ({
     redirects: await redirects.list(request.params.site),
   }));
 
   app.post<{
     Params: { site: string };
     Body: { pattern: string; matchType: MatchType; url: string; label?: string; priority?: number };
-  }>('/v1/:site/redirects', adminScope, async (request, reply) => {
+  }>('/v1/:site/redirects', guard(merchScope, { body: S.redirectBody }), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     try {
@@ -475,11 +634,14 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string; id: string } }>(
     '/v1/:site/redirects/:id',
-    adminScope,
+    guard(merchScope, {}, S.ID_PARAM),
     async (request, reply) => {
+      const before = (await redirects.list(request.params.site))
+        .find((r) => String(r.id) === request.params.id) ?? null;
       const removed = await redirects.remove(request.params.site, Number(request.params.id));
       if (!removed) return reply.code(404).send({ error: 'no such redirect' });
-      await audit(db, request.params.site, actorOf(request), 'delete', 'redirect', request.params.id, null, null);
+      await audit(db, request.params.site, actorOf(request), 'delete', 'redirect',
+        request.params.id, before, null);
       search.invalidate(request.params.site);
       return { deleted: true };
     },
@@ -487,7 +649,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.post<{ Params: { site: string }; Body: EventBatch }>(
     '/v1/:site/events',
-    searchScope,
+    guard(searchScope, { body: S.eventsBody }),
     async (request, reply) => {
       const events = (request.body?.events ?? []).map((e) => ({ ...e, site: request.params.site }));
       if (events.length === 0) return reply.code(400).send({ error: 'events array is required' });
@@ -500,7 +662,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string };
     Body: { rows?: SourceRow[]; csv?: string; mapping?: IngestOptions['mapping']; source?: string };
-  }>('/v1/:site/catalog/batch', adminScope, async (request, reply) => {
+  }>('/v1/:site/catalog/batch', guard(adminScope, { body: S.catalogIngestBody }), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const { rows, csv, mapping, source } = request.body ?? {};
@@ -536,7 +698,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string };
     Body: { updates: { sku: string; price?: number; salePrice?: number; inventory?: number }[] };
-  }>('/v1/:site/catalog/updates', adminScope, async (request, reply) => {
+  }>('/v1/:site/catalog/updates', guard(adminScope, { body: S.catalogUpdatesBody }), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const updates = request.body?.updates ?? [];
@@ -558,7 +720,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   app.post<{
     Params: { site: string };
     Body: { rows?: SourceRow[]; csv?: string; mapping?: IngestOptions['mapping'] };
-  }>('/v1/:site/catalog/records', adminScope, async (request, reply) => {
+  }>('/v1/:site/catalog/records', guard(adminScope, { body: S.catalogIngestBody }), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const { rows, csv, mapping } = request.body ?? {};
@@ -591,7 +753,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
 
   app.delete<{ Params: { site: string }; Body: { skus: string[] } }>(
     '/v1/:site/catalog/records',
-    adminScope,
+    guard(adminScope, { body: S.deleteRecordsBody }),
     async (request, reply) => {
       const site = sites.get(request.params.site);
       if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
@@ -607,7 +769,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     },
   );
 
-  app.get<{ Params: { site: string } }>('/v1/:site/catalog/status', adminScope, async (request, reply) => {
+  app.get<{ Params: { site: string } }>('/v1/:site/catalog/status', guard(analystScope, {}), async (request, reply) => {
     const site = sites.get(request.params.site);
     if (!site) return reply.code(404).send({ error: `unknown site "${request.params.site}"` });
     const { rows } = await db.query(
@@ -618,7 +780,12 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     return { site: site.id, documents: await engine.documentCount(site.id), runs: rows };
   });
 
-  /** Who made an admin change. Roles land with the admin console in Phase 3. */
+  /**
+   * Who made an admin change.
+   *
+   * The header is a display name for the audit trail, not an identity claim —
+   * authority comes from the key's role, which the guard has already checked.
+   */
   function actorOf(request: { headers: Record<string, unknown> }): string {
     const header = request.headers['x-compass-actor'];
     return (Array.isArray(header) ? header[0] : (header as string)) || 'api';
@@ -628,10 +795,37 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
     if (error instanceof SiteNotFoundError) {
       return reply.code(404).send({ error: error.message });
     }
-    const err = error as { message?: string; statusCode?: number };
+    const err = error as {
+      message?: string;
+      statusCode?: number;
+      validation?: { instancePath?: string; message?: string; params?: unknown }[];
+      validationContext?: string;
+    };
+
+    // A schema failure is the caller's to fix, so say precisely what is wrong
+    // and where — every problem at once, rather than one per round trip.
+    if (err.validation) {
+      const where = err.validationContext ?? 'request';
+      const details = err.validation.map((v) => ({
+        path: `${where}${v.instancePath ?? ''}`,
+        message: v.message ?? 'is invalid',
+      }));
+      return reply.code(400).send({
+        error: `invalid ${where}: ${details.map((d) => `${d.path} ${d.message}`).join('; ')}`,
+        details,
+      });
+    }
+
+    const status = err.statusCode ?? 500;
     const message = err.message ?? 'internal error';
-    request.log.error({ err: message, url: request.url }, 'request failed');
-    return reply.code(err.statusCode ?? 500).send({ error: message });
+    if (status >= 500) {
+      // The detail goes to the log, not to the caller. An internal message is
+      // no use to a client and can describe the shape of the code that failed.
+      request.log.error({ err: message, url: request.url }, 'request failed');
+      return reply.code(status).send({ error: 'internal error' });
+    }
+    request.log.warn({ err: message, url: request.url }, 'request rejected');
+    return reply.code(status).send({ error: message });
   });
 }
 

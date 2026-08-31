@@ -11,7 +11,31 @@ export const state = {
   site: null,
   sites: [],
   days: 30,
+  /** Filled from /whoami on boot and on every site switch — keys are per site. */
+  role: 'admin',
+  can: { search: true, analytics: true, merchandise: true, administer: true },
 };
+
+/**
+ * Roles are ordered, so permission is one comparison. Mirrors the server's
+ * ranking; the server is still the authority — this only decides what is worth
+ * showing, and a control the role cannot use is never shown at all.
+ */
+const RANK = { search: 0, analyst: 1, merchandiser: 2, admin: 3 };
+export const roleCovers = (needed) => (RANK[state.role] ?? 0) >= (RANK[needed] ?? 0);
+
+/**
+ * Strip every control this role cannot use.
+ *
+ * One rule applied to whatever was just rendered, rather than a permission
+ * check threaded through each view: a button that 403s looks like a bug, and a
+ * view that has to remember to ask will eventually forget.
+ */
+export function applyRole(container) {
+  for (const el of container.querySelectorAll('[data-needs]')) {
+    if (!roleCovers(el.dataset.needs)) el.remove();
+  }
+}
 
 /**
  * Admin keys, held per site.
@@ -62,6 +86,12 @@ export async function api(path, options = {}) {
     payload = text ? JSON.parse(text) : {};
   } catch {
     payload = { raw: text };
+  }
+  if (response.status === 429) {
+    // Say what happened and when to try again. An opaque failure here reads as
+    // the console being broken.
+    const retry = response.headers.get('retry-after');
+    throw new Error(`Too many requests — retry in ${retry ?? 'a few'} second${retry === '1' ? '' : 's'}`);
   }
   if (response.status === 401 || response.status === 403) {
     // A stored key that no longer works is worse than none: it fails every

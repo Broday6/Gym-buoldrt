@@ -15,6 +15,7 @@ import type { SynonymStore } from '../merchandising/synonyms.js';
 import type { BadgeDefinition, CustomAttributeDefinition } from '../merchandising/labels.js';
 import type { RedirectStore } from '../merchandising/redirects.js';
 import { ResultCache, cacheKey } from './cache.js';
+import { seoConfigFor, seoDirectives } from './seo.js';
 
 /**
  * The query pipeline.
@@ -99,6 +100,21 @@ export class SearchService {
     // A redirect is not worth caching: it is cheap to recompute and short-lived.
     if (!response.redirect) this.cache.set(key, response);
     return response;
+  }
+
+  /**
+   * SEO directives for a result page.
+   *
+   * Computed after the cache rather than inside it: the directives depend only
+   * on the request and the totals, so folding them into the cached body would
+   * mean two cache entries for a page that differs by a boolean.
+   */
+  seoFor(site: SiteConfig, request: SearchRequest, response: SearchResponse): SearchResponse {
+    if (!request.seo) return response;
+    return {
+      ...response,
+      seo: seoDirectives(request, response, seoConfigFor(site.id), site.name),
+    };
   }
 
   private async execute(

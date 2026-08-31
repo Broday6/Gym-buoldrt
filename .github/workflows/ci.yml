@@ -1,0 +1,112 @@
+# Everything that had to be run by hand.
+#
+# Two jobs, because they fail for different reasons and a reviewer should be
+# able to tell which at a glance: `check` is fast and needs nothing, `verify`
+# stands the whole system up and drives it in a browser.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Types, tests, spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        # --force, because .tsbuildinfo will happily report a clean build it
+        # never performed.
+        run: npx tsc -b --force --pretty false
+      - name: Unit tests
+        run: npm test
+      - name: OpenAPI is current
+        # The spec is generated from the route table. Adding an endpoint without
+        # regenerating fails here rather than shipping a stale document.
+        run: npm run openapi -- --check
+
+  verify:
+    name: Browser and accessibility
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: compass
+          POSTGRES_PASSWORD: compass
+          POSTGRES_DB: compass
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://compass:compass@localhost:5432/compass
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Seed the demo catalogues and traffic
+        run: npm run seed
+
+      - name: Start the API
+        # No dev flags: the smoke suites authenticate with the keys the seed
+        # issued, the same way a deployment does.
+        run: |
+          npx tsx packages/server/src/server.ts > server.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3100/health >/dev/null && exit 0
+            sleep 1
+          done
+          echo "server did not start"; cat server.log; exit 1
+
+      - name: Storefront
+        run: npm run ui-smoke
+
+      - name: Console
+        run: npm run ui-smoke:admin
+
+      - name: Accessibility (light and dark)
+        run: npm run a11y
+
+      - name: Latency budgets
+        run: npm run bench
+
+      - name: Backup, verify and restore
+        # The restore path is the one that matters and the one nobody exercises.
+        run: |
+          npm run backup
+          createdb -h localhost -U compass compass_restore
+          DATABASE_URL=postgres://compass:compass@localhost:5432/compass_restore \
+            npm run backup -- restore "$(ls -1 data/backups/*.dump | tail -1)"
+        env:
+          PGPASSWORD: compass
+
+      - name: Screenshots and server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-artifacts
+          path: |
+            ui-desktop.png
+            ui-mobile.png
+            admin.png
+            server.log
+          if-no-files-found: ignore

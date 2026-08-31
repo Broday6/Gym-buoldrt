@@ -30,11 +30,18 @@ fixed, what remains, and how each claim was verified.
 | API | search · browse · autocomplete · directory · events · synonyms · redirects · catalog batch/updates/status · health; scoped search vs admin keys | `packages/server/src/routes/` |
 | Analytics | Buffered append-only event collector incl. rescue path and effective query; aggregate + audit schema | `packages/server/src/events/`, `src/db/` |
 | Storefront SDK | Client, results grid, ARIA-combobox autocomplete with mobile takeover, faceted navigation with desktop/mobile split, themable CSS | `packages/sdk/` |
-| Console | Dashboard, query tester with per-hit explainability, visual rule builder, collections, badges, vocabulary, catalog health — plain ES modules, no build step, served by the API process | `packages/admin/` |
+| Console | Dashboard, query tester with per-hit explainability, visual rule builder, collections, badges, vocabulary, change history with undo, catalog health — plain ES modules, no build step, served by the API process | `packages/admin/` |
+| Roles | Four ordered roles enforced per endpoint and reflected in the console; role in the key prefix; rotation with a grace period | `packages/server/src/routes/auth.ts` |
+| Validation | JSON Schema per route: bounded sizes, strict admin writes, permissive shopper endpoints, every problem reported at once | `packages/server/src/routes/schemas.ts` |
+| API description | OpenAPI 3.1 generated from the route table, served at `/openapi.json`, browsable at `/docs`, drift-tested | `packages/server/src/routes/openapi.ts` |
+| SEO | Canonical/robots/title/description and schema.org `ItemList` per page, sitemap of landing pages, server-rendered category and collection pages | `packages/server/src/services/seo.ts` |
+| History | Every merchandising change with its prior state, a field-level diff, and an undo recorded as a new change | `packages/server/src/services/history.ts` |
+| Maintenance | Scheduled rollup leased through the database; backup, verify and restore with row counts | `packages/server/src/services/scheduler.ts`, `cli/backup.ts` |
 | Demo | 520-product messy catalogue per site, placeholder imagery, full storefront, 30 days of simulated traffic generated against the live index | `packages/demo/` |
-| Tooling | `query` (ranking explainer), `bench` (cold + cached latency), `keys`, `reindex`, `ui-smoke` (31 storefront checks), `ui-smoke:admin` (21 console checks) | `packages/server/src/cli/`, `packages/demo/`, `packages/admin/` |
+| Tooling | `query`, `bench`, `keys` (list/create/rotate/revoke/roles), `backup`, `openapi`, `reindex`, `ui-smoke`, `ui-smoke:admin`, `a11y` | `packages/server/src/cli/`, `packages/demo/`, `packages/admin/` |
+| CI | Typecheck, tests and spec drift; then seed, both browser suites, the accessibility audit, the benchmark and a backup/restore round trip | `.github/workflows/ci.yml` |
 
-**154 unit tests + 31 storefront browser checks + 21 console browser checks, all passing.**
+**221 unit tests + 31 storefront browser checks + 36 console browser checks + 20 accessibility audits, all passing.**
 
 ---
 
@@ -162,12 +169,15 @@ DECISIONS.md:
    three" — boosts, buries, banners and query rewrites bound to a query rather
    than to a product set.
 5. **No A/B testing.**
-6. **No admin roles.** One admin key can do anything the console can do. See
-   GAPS.md — this is the blocking item now that a console exists.
-7. **Facet swatch colours are inferred from finish names.** A real deployment
+6. **Facet swatch colours are inferred from finish names.** A real deployment
    should map finishes to hex values in the console.
-8. **Recommendations are co-occurrence and popularity only.** No embeddings, so
+7. **Recommendations are co-occurrence and popularity only.** No embeddings, so
    "similar products" means *bought or viewed alongside*, not *looks like*.
+8. **Roles are coarse.** Four ordered roles, not per-resource permissions: there
+   is no way to express "can edit synonyms but not collections".
+9. **The accessibility audit is automated only.** Clean against WCAG 2.1 A/AA in
+   both themes, but automated rules catch roughly a third of real problems. A
+   screen-reader pass is still owed.
 
 ---
 
@@ -183,6 +193,7 @@ DECISIONS.md:
 | **Recommendations** | Four kinds, each degrading to top sellers rather than vanishing, and each reporting which strategy actually served it. |
 | **Simulated traffic** | 30 days of shopper sessions generated against the live index, head-heavy and position-decayed, so the dashboard shows computed numbers rather than fixtures. |
 | **Real authentication on both surfaces** | The storefront carries a public search key; the console asks for an admin key once. Neither runs with auth disabled. |
+| **Roles, validation, SEO, history and CI** | Delivered in the hardening pass that followed; see GAPS.md for what each one fixed and how it was checked. |
 
 ---
 
@@ -197,9 +208,9 @@ DECISIONS.md:
 2. **Semantic retrieval** — `semanticWeight` is plumbed and set to 0. This is
    what the last open acceptance criterion needs: a natural-language query with
    zero keyword overlap.
-3. **Admin roles** — Admin, Merchandiser, Analyst, against the console that now
-   exists.
-4. **A/B testing** — two ranking configurations, traffic split, measured on the
+3. **A/B testing** — two ranking configurations, traffic split, measured on the
    attribution that is already computed.
-5. **Versioning and rollback** — every change already writes to `audit_log`;
-   this adds the diff view and one-click revert.
+4. **Personalisation** — the event stream and the shopper/session identifiers
+   are already recorded; nothing reads them per shopper yet.
+5. **Scale** — `TypesenseEngine` against a live cluster, and load testing at
+   2.3M SKUs. Still the largest unknown.

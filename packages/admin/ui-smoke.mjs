@@ -90,6 +90,34 @@ await page.waitForTimeout(1000);
 const badgeLabels = await page.locator('.badge').allTextContents();
 check('badges are listed', badgeLabels.length > 0, badgeLabels.join(' | '));
 
+// ---- history and undo -------------------------------------------------------
+await page.click('[data-nav="history"]');
+// Waiting on `tbody tr` would match the table the previous screen left behind.
+await page.waitForSelector('tbody tr[data-row]', { timeout: 10000 });
+const historyRows = await page.locator('tbody tr[data-row]').count();
+check('history lists recorded changes', historyRows > 0, `${historyRows} entries`);
+await page.locator('[data-diff]').first().click();
+await page.waitForTimeout(500);
+const diffRows = await page.locator('.diff__table tbody tr').count();
+check('a change shows which fields moved', diffRows > 0, `${diffRows} fields`);
+check('the diff shows both sides',
+  (await page.locator('.diff__before').count()) > 0 && (await page.locator('.diff__after').count()) > 0);
+check('an undo is offered for changes that have a prior state',
+  (await page.locator('[data-revert]').count()) > 0);
+
+// The round trip, not just the button: undoing has to write a new entry rather
+// than erase the one it undid.
+const topBefore = (await page.locator('tbody tr[data-row]').first().getAttribute('data-row'));
+await page.locator('[data-revert]').first().click();
+await page.waitForTimeout(1200);
+const topAfter = (await page.locator('tbody tr[data-row]').first().getAttribute('data-row'));
+check('undoing records a new entry rather than deleting the old one',
+  Number(topAfter) > Number(topBefore), `${topBefore} -> ${topAfter}`);
+check('the undo is labelled as one',
+  /revert/.test((await page.locator('tbody tr[data-row]').first().textContent()) ?? ''));
+check('history is append-only: the original change is still there',
+  (await page.locator(`tbody tr[data-row="${topBefore}"]`).count()) === 1);
+
 await page.click('[data-nav="catalog"]');
 await page.waitForSelector('.stat__value', { timeout: 10000 });
 const catalogStats = await page.locator('.stat__value').allTextContents();
@@ -126,6 +154,53 @@ check('pasting the admin key opens the console',
 await fresh.reload({ waitUntil: 'networkidle' });
 await fresh.waitForSelector('.stat__value', { timeout: 15000 }).catch(() => {});
 check('the key is remembered across a reload', (await fresh.locator('.connect').count()) === 0);
+
+// ---- roles ------------------------------------------------------------------
+//
+// A control the key cannot use is worse than a missing one: it 403s and reads
+// as a bug. So the check is that lower roles genuinely see less.
+async function openAs(role) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 980 } });
+  page.on('pageerror', (e) => errors.push(`[${role}] pageerror: ${e.message}`));
+  await page.addInitScript(([stored, r]) => {
+    localStorage.setItem('compass.adminKeys', JSON.stringify(
+      Object.fromEntries(Object.entries(stored).map(([site, k]) => [site, k[r]]))));
+  }, [keys, role]);
+  await page.goto(BASE, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(1200);
+  return page;
+}
+
+const analyst = await openAs('analyst');
+check('the console reports the role it is using',
+  (await analyst.locator('#role').textContent())?.trim() === 'analyst');
+const analystNav = (await analyst.locator('[data-nav]').allTextContents()).map((t) => t.trim());
+check('an analyst gets the reports', analystNav.includes('Dashboard'), analystNav.join(', '));
+check('an analyst is not offered merchandising screens',
+  !analystNav.some((t) => ['Collections', 'Badges', 'Vocabulary'].includes(t)), analystNav.join(', '));
+check('an analyst is not offered the one-click synonym fix',
+  (await analyst.locator('[data-fix="synonym"]').count()) === 0);
+await analyst.click('[data-nav="catalog"]');
+await analyst.waitForSelector('.stat__value', { timeout: 10000 });
+check('an analyst can read catalogue health but cannot rebuild the index',
+  (await analyst.locator('#reindex').count()) === 0);
+
+await analyst.click('[data-nav="history"]');
+await analyst.waitForSelector('tbody tr', { timeout: 10000 });
+check('an analyst can read the history but cannot undo anything',
+  (await analyst.locator('tbody tr[data-row]').count()) > 0
+  && (await analyst.locator('[data-revert]').count()) === 0);
+
+const merch = await openAs('merchandiser');
+const merchNav = (await merch.locator('[data-nav]').allTextContents()).map((t) => t.trim());
+check('a merchandiser gets the merchandising screens',
+  ['Collections', 'Badges', 'Vocabulary'].every((t) => merchNav.includes(t)), merchNav.join(', '));
+check('a merchandiser gets the one-click synonym fix',
+  (await merch.locator('[data-fix="synonym"]').count()) > 0);
+await merch.click('[data-nav="catalog"]');
+await merch.waitForSelector('.stat__value', { timeout: 10000 });
+check('a merchandiser still cannot rebuild the index',
+  (await merch.locator('#reindex').count()) === 0);
 
 await browser.close();
 

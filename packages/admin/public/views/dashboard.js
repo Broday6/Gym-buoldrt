@@ -88,7 +88,7 @@ export const dashboard = {
             <td class="num">${q.zeroResults ? `<span class="pill pill--warn">${num(q.zeroResults)}</span>` : '—'}</td>
             <td class="num">${pct(q.clickThroughRate)}</td>
             <td>
-              <button class="btn btn--sm" data-fix="synonym" data-q="${esc(q.query)}">Add synonym</button>
+              <button class="btn btn--sm" data-needs="merchandiser" data-fix="synonym" data-q="${esc(q.query)}">Add synonym</button>
               <button class="btn btn--sm" data-fix="redirect" data-q="${esc(q.query)}">Redirect</button>
               <button class="btn btn--sm" data-fix="test" data-q="${esc(q.query)}">Test</button>
             </td>

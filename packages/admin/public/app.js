@@ -1,9 +1,10 @@
-import { AuthError, api, esc, setAdminKey, state, toast } from './lib.js';
+import { AuthError, api, applyRole, esc, roleCovers, setAdminKey, state, toast } from './lib.js';
 import { dashboard } from './views/dashboard.js';
 import { tester } from './views/tester.js';
 import { badges, collections } from './views/merchandising.js';
 import { vocabulary } from './views/vocabulary.js';
 import { catalog } from './views/catalog.js';
+import { history } from './views/history.js';
 
 /**
  * Console shell.
@@ -14,14 +15,19 @@ import { catalog } from './views/catalog.js';
  * listeners, so a re-render never leaks a handler.
  */
 
+// `needs` is the least role that can make use of the screen at all. Controls
+// inside a screen that need more carry their own data-needs.
 const VIEWS = {
-  dashboard: { group: 'Insights', view: dashboard },
-  tester: { group: 'Insights', view: tester },
-  collections: { group: 'Merchandising', view: collections },
-  badges: { group: 'Merchandising', view: badges },
-  vocabulary: { group: 'Merchandising', view: vocabulary },
-  catalog: { group: 'Catalog', view: catalog },
+  dashboard: { group: 'Insights', view: dashboard, needs: 'analyst' },
+  tester: { group: 'Insights', view: tester, needs: 'search' },
+  collections: { group: 'Merchandising', view: collections, needs: 'merchandiser' },
+  badges: { group: 'Merchandising', view: badges, needs: 'merchandiser' },
+  vocabulary: { group: 'Merchandising', view: vocabulary, needs: 'merchandiser' },
+  history: { group: 'Merchandising', view: history, needs: 'analyst' },
+  catalog: { group: 'Catalog', view: catalog, needs: 'analyst' },
 };
+
+const permitted = (key) => Boolean(VIEWS[key]) && roleCovers(VIEWS[key].needs);
 
 const root = document.querySelector('#view');
 const titleEl = document.querySelector('#view-title');
@@ -38,18 +44,66 @@ async function boot() {
   select.innerHTML = sites
     .map((s) => `<option value="${esc(s.id)}"${s.id === state.site ? ' selected' : ''}>${esc(s.name)}</option>`)
     .join('');
-  select.addEventListener('change', () => {
+  select.addEventListener('change', async () => {
     state.site = select.value;
     // Every screen is scoped to the selected site, so switching resets any
     // half-finished editor rather than carrying it across tenants.
     collections.state.editing = null;
     badges.state.creating = false;
-    void navigate(current);
+    // A key for one tenant says nothing about the next, so the role is re-read
+    // rather than carried across — including the case where there is no key
+    // for the site just selected.
+    void enter();
   });
 
-  drawNav();
   window.addEventListener('hashchange', () => navigate(location.hash.slice(1) || 'dashboard'));
+  await enter();
+}
+
+/**
+ * Establish who we are, then show the console.
+ *
+ * `/whoami` is the authentication probe: it is the cheapest authenticated call
+ * there is, and its failure is exactly the "no usable key" signal. Asking here
+ * means the gate appears immediately rather than on whichever screen happens to
+ * make the first request — a read-only role could otherwise land on a screen
+ * that fetches nothing and see a console that looks broken instead of locked.
+ */
+async function enter() {
+  if (!(await loadRole())) {
+    drawNav();
+    connectPanel('This console needs an admin key');
+    return;
+  }
+  drawNav();
   await navigate(location.hash.slice(1) || 'dashboard');
+}
+
+/**
+ * Ask what this key can do.
+ *
+ * A failure here is not fatal: the key gate will fire on the first real request
+ * and say so properly. Assume the least until told otherwise, so a console that
+ * cannot ask never offers writes it has no authority for.
+ */
+async function loadRole() {
+  const chip = document.querySelector('#role');
+  try {
+    const who = await api('/whoami');
+    state.role = who.role;
+    state.can = who.can;
+    chip.textContent = who.role;
+    chip.title = who.description ?? '';
+    return true;
+  } catch (err) {
+    // Assume the least until told otherwise, so a console that cannot ask
+    // never offers a write it has no authority for.
+    state.role = 'search';
+    state.can = { search: true, analytics: false, merchandise: false, administer: false };
+    chip.textContent = 'not connected';
+    chip.title = '';
+    return !(err instanceof AuthError);
+  }
 }
 
 function drawNav() {
@@ -59,7 +113,10 @@ function drawNav() {
     if (!groups.has(entry.group)) groups.set(entry.group, []);
     groups.get(entry.group).push([key, entry.view]);
   }
-  nav.innerHTML = [...groups.entries()].map(([group, items]) => `
+  nav.innerHTML = [...groups.entries()]
+    .map(([group, items]) => [group, items.filter(([key]) => permitted(key))])
+    .filter(([, items]) => items.length > 0)
+    .map(([group, items]) => `
     <p class="side__group">${esc(group)}</p>
     ${items.map(([key, view]) => `
       <button class="side__link" data-nav="${key}" aria-current="${key === current}">
@@ -69,7 +126,9 @@ function drawNav() {
 }
 
 async function navigate(key, params) {
-  if (!VIEWS[key]) key = 'dashboard';
+  // A deep link into a screen this role cannot use lands on the first one it
+  // can, rather than on an error it can do nothing about.
+  if (!permitted(key)) key = Object.keys(VIEWS).find(permitted) ?? 'tester';
   current = key;
   location.hash = key;
   for (const button of document.querySelectorAll('[data-nav]')) {
@@ -79,6 +138,7 @@ async function navigate(key, params) {
   titleEl.textContent = view.title;
   subEl.textContent = view.subtitle ?? '';
   actionsEl.innerHTML = view.actions?.() ?? '';
+  applyRole(actionsEl);
   await render(params);
 }
 
@@ -86,6 +146,7 @@ async function render(params) {
   const { view } = VIEWS[current];
   try {
     await view.render(root, params);
+    applyRole(root);
   } catch (err) {
     if (err instanceof AuthError) {
       connectPanel(err.message);
@@ -144,7 +205,7 @@ document.addEventListener('click', async (event) => {
     const value = root.querySelector('#adminkey')?.value.trim();
     if (!value) return toast('Paste an admin key first', true);
     setAdminKey(state.site, value);
-    await render();
+    await enter();
     return;
   }
   const { view } = VIEWS[current];

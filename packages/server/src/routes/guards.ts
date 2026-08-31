@@ -146,6 +146,11 @@ export interface GuardOptions {
 
 /** Install rate limiting, body-size checks and metrics on every route. */
 export function registerGuards(app: FastifyInstance, options: GuardOptions): void {
+  // Registered here, beside the collector that fills it, so the endpoint and
+  // its data cannot drift apart — and so it appears in the generated API
+  // description like any other route.
+  app.get('/metrics', async () => options.metrics.snapshot());
+
   app.addHook('onRequest', async (request, reply) => {
     const url = request.url;
     // Static assets — the console and the storefront SDK — are not rate limited:

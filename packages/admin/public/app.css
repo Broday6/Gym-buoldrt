@@ -7,12 +7,16 @@
   --surface: #f7f8f9;
   --surface-2: #eff1f3;
   --fg: #16181d;
-  --muted: #6b7280;
+  --muted: #5c6470;
   --border: #e2e5e9;
   --accent: #1f5f4f;
   --accent-soft: #e7f1ee;
+  /* The colour that sits ON the accent. Separate from --accent because the two
+     jobs pull in opposite directions in a dark theme: the accent has to lighten
+     to stay readable as text, which then makes white text on it unreadable. */
+  --accent-ink: #ffffff;
   --danger: #b4232a;
-  --warn: #a86a12;
+  --warn: #85520f;
   --warn-soft: #fdf3e3;
   --ok: #1f6f43;
   --radius: 8px;
@@ -23,8 +27,9 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #14161a; --surface: #1b1e23; --surface-2: #23272e; --fg: #e9ecef;
-    --muted: #98a1ad; --border: #2c313a; --accent: #47a58a; --accent-soft: #1c3630;
-    --warn-soft: #33280f; --danger: #e06c75;
+    --muted: #98a1ad; --border: #2c313a; --accent: #6cc9ad; --accent-soft: #1c3630;
+    --accent-ink: #04140f; --warn-soft: #33280f; --danger: #ef9a9f;
+    --warn: #e6bd76; --ok: #6ecb92;
   }
 }
 
@@ -89,7 +94,7 @@ a { color: var(--accent); }
   background: var(--bg); cursor: pointer; white-space: nowrap;
 }
 .btn:hover { border-color: var(--accent); }
-.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .btn--primary:hover { filter: brightness(1.08); }
 .btn--danger { color: var(--danger); }
 .btn--sm { padding: 4px 9px; font-size: 12.5px; }
@@ -172,11 +177,11 @@ td.num, th.num { text-align: right; }
 .pv.is-over { outline: 2px solid var(--accent); outline-offset: -2px; }
 .pv__pos {
   position: absolute; top: 6px; left: 6px; z-index: 2; font-size: 11px; font-weight: 700;
-  background: rgb(0 0 0 / 62%); color: #fff; border-radius: 4px; padding: 1px 6px;
+  background: rgb(0 0 0 / 78%); color: #fff; border-radius: 4px; padding: 1px 6px;
 }
 .pv__pin {
   position: absolute; top: 6px; right: 6px; z-index: 2; font-size: 11px;
-  background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 6px;
+  background: var(--accent); color: var(--accent-ink); border-radius: 4px; padding: 1px 6px;
 }
 .pv img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--surface); }
 .pv__body { padding: 8px 9px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
@@ -219,3 +224,21 @@ td.num, th.num { text-align: right; }
 /* -------------------------------------------------------- key gate */
 .connect { max-width: 560px; }
 .connect code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.side__role { margin: 0 0 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.side__role .pill { text-transform: capitalize; }
+
+/* Ranking-score detail. Quieter than the line above it, but still a colour the
+   palette was checked at — not an opacity multiplied against the card. */
+.pv__breakdown { color: var(--muted); }
+
+/* ------------------------------------------------------------- history */
+tr.diff > td { background: var(--surface); padding: 0 10px 12px; }
+.diff__table { margin: 0; font-size: 12.5px; }
+.diff__table th { padding: 6px 8px; }
+.diff__table td { padding: 5px 8px; border-bottom: 0; vertical-align: top; }
+/* Only the values wrap. Breaking a field name mid-word ("selecto / r") makes
+   the column unreadable for no gain. */
+.diff__table .diff__before, .diff__table .diff__after { word-break: break-word; }
+.diff__field { white-space: nowrap; width: 1%; }
+.diff__before { color: var(--danger); }
+.diff__after { color: var(--ok); }

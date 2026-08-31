@@ -181,6 +181,6 @@ export const tester = {
     const breakdown = Object.entries(e.businessBreakdown ?? {})
       .map(([k, v]) => `${k} ${v}`).join(' · ');
     return rows.map(([k, v]) => `${k}: ${esc(String(v))}`).join('<br>') +
-      (breakdown ? `<br><span style="opacity:.75">${esc(breakdown)}</span>` : '');
+      (breakdown ? `<br><span class="pv__breakdown">${esc(breakdown)}</span>` : '');
   },
 };

@@ -545,3 +545,136 @@ empty screens is worse than one that says it cannot get in.
 only copy — the database stores hashes. It is git-ignored, and if the file and
 the database ever disagree the seed revokes what is on record and reissues, so
 the two cannot drift into a state where nobody knows the working key.
+
+---
+
+## D30 — Four ordered roles, not a permission matrix
+
+**Decision.** `search` < `analyst` < `merchandiser` < `admin`. Each endpoint
+names the least role that may call it; a guard is one comparison. The role is in
+the key's prefix — `ck_merchandiser_…` — and the console asks `/whoami` and hides
+what the role cannot use.
+
+**Why.** The jobs are genuinely ordered: an analyst reads what a shopper sees
+plus the reports, a merchandiser also changes what shoppers see, an admin also
+changes the catalogue and the keys. Encoding that as an order rather than a
+matrix of resource×verb means there is no table for someone to forget to update
+when they add an endpoint, and no way to express a role that can write something
+it cannot read.
+
+The prefix carries the role because the prefix is what a human sees. A key found
+in a commit, a log or a support ticket has to announce what it can do without a
+database lookup — and a merchandiser key that read `ck_search_…` would look like
+the one that is safe to publish. That bug existed and this fixed it.
+
+The console's gate is *reactive*: it hides controls the role cannot use, but the
+server is the authority and refuses regardless. Hiding is about not showing
+someone a button that 403s — which reads as a bug, not as a permission.
+
+**Cost.** Four roles is coarser than per-resource permissions. A team that wants
+"can edit synonyms but not collections" cannot express it. That is a real limit,
+and the right time to add resource scoping is when someone asks for it, not
+before.
+
+---
+
+## D31 — Schemas reject bad requests; the API is generated from them
+
+**Decision.** Every endpoint carries a JSON Schema, compiled once by Fastify.
+Bounded sizes on anything that costs work. `additionalProperties: false` on admin
+writes, permissive on shopper endpoints. The OpenAPI document is generated from
+that same route table, and CI fails if the checked-in copy is stale.
+
+**Why.** Reading `request.body` through a TypeScript type is a compile-time claim
+about a value that arrives at runtime from the internet. The consequences were
+real and demonstrable: `{"q": 123}` returned a 500 carrying an internal error
+message, and `{"hitsPerPage": 99999}` was accepted and did the work.
+
+The asymmetry between admin and shopper endpoints is deliberate. A misspelled
+field on an admin write must fail loudly, or it saves a record quietly missing
+that field. A storefront bundle, meanwhile, outlives the server it was built
+against: rejecting a field a newer server no longer reads would break the page
+rather than the request.
+
+Generating the spec from the routes is what makes §4.13's "kept current" true
+rather than aspirational — including `x-required-role`, which reads the guard's
+own value rather than a second copy that agrees by habit until it does not.
+
+---
+
+## D32 — Undo is a new change, never a deletion
+
+**Decision.** Reverting a merchandising change writes the prior state back and
+records the undo as its own audit entry, with its before and after reversed.
+The log is append-only.
+
+**Why.** The alternative — removing the entry being undone — produces a history
+that cannot explain itself: someone sees a rule that is not what they remember
+setting, and there is no record of the correction. Reverting as a new change
+means an undo is itself auditable, itself revertible, and there is never a moment
+where the log disagrees with the state it describes.
+
+Making this work required fixing the trail first: every write recorded who
+changed what, but not what it *was*. A log that says "someone changed the
+clearance rule" without saying what it was is a record of an accident, not a way
+back from one. Both sides are now read back from storage rather than taken from
+the request body, so the diff compares like with like — a request body and a
+stored record do not have the same shape, and diffing them invents changes to
+fields nobody touched.
+
+Entries written before that fix say so, and offer no button. An undo that
+silently deletes what it claims to restore is worse than no undo.
+
+---
+
+## D33 — SEO is a directive the storefront applies, plus a rendered fallback
+
+**Decision.** Search responses can carry `canonical`, `robots`, `title`,
+`description` and a schema.org `ItemList`. The rules: internal search results are
+never indexed; a category or collection with no filters is canonical; **one**
+value from an allow-listed facet stays indexable on its own URL; anything more
+canonicalises to the clean page as `noindex, follow`; sort never appears in a
+canonical URL; page 2+ is self-canonical. Category and collection URLs are also
+served as fully rendered HTML.
+
+**Why.** A faceted catalogue generates a combinatorial number of URLs that are
+the same products in a different order. Left alone, a crawler spends its budget
+on `?material=PVC&finish=Black&sort=price_asc&page=7` and never reaches the
+collection page that was supposed to rank.
+
+`follow` throughout, never `nofollow`: a page not worth indexing is still a path
+to products that are. And page 2 is deliberately *not* canonicalised to page 1 —
+doing so hides every product past the first page from the index, which is the
+most common way this gets it wrong.
+
+The fallback is served at the same URL as the interactive page rather than as a
+crawler-only view. A page served only to crawlers is cloaking; a page served only
+to browsers is invisible.
+
+**Cost.** The storefront has to apply the directives — the SDK does it when asked,
+but a Miva template that renders its own head owns that itself. The alternative,
+having the SDK always write into the document head, reaches into a page it does
+not own.
+
+---
+
+## D34 — Maintenance runs in the API process, leased through the database
+
+**Decision.** The analytics rollup runs on a schedule inside the API process. A
+job claims its slot with an insert against a primary key of (job, site, day), so
+exactly one instance runs it however many are up. A failure releases the claim so
+the next tick retries.
+
+**Why.** The rollup existed as a command nothing ran, so the dashboard went stale
+a day after anyone last ran it by hand. In process rather than as a cron entry
+for the same reason the rate limiter is in process: no second deployment artefact,
+nothing to fall out of sync with the code it maintains, and it cannot itself be
+the thing that is down.
+
+The lease is an insert rather than a lock because there is nothing to leak: if an
+instance dies mid-run there is no lock held open, and the retry-on-failure path
+is a single delete. A job that fails silently once a day is worse than one that
+fails loudly every five minutes, so failures release rather than hold.
+
+`/health` reports the last outcome per job. A scheduled job that stops working is
+otherwise invisible until someone notices the dashboard has not moved for a week.

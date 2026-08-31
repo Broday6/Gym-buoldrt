@@ -52,6 +52,12 @@ export interface SearchRequest {
    * set. This is what "search instead for X" sends after a spelling correction.
    */
   rescue?: boolean;
+  /**
+   * Return SEO directives for this result page: canonical URL, robots policy,
+   * title, description and schema.org ItemList. Off by default — a storefront
+   * that renders its own head does not need the extra work on every request.
+   */
+  seo?: boolean;
 }
 
 export interface FacetValue {
@@ -146,6 +152,14 @@ export interface SearchResponse {
   facets: FacetResult[];
   appliedFilters: FacetFilters;
   sort: string;
+  /** Present when `seo` was requested: what the page's <head> should say. */
+  seo?: {
+    canonical: string;
+    robots: string;
+    title: string;
+    description: string;
+    jsonLd: object;
+  };
   rescue?: { strategy: RescueStrategy; didYouMean?: string; notice?: string };
   redirect?: { url: string; ruleId: string };
   banners?: Banner[];

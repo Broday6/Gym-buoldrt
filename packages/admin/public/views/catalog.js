@@ -10,7 +10,8 @@ import { api, esc, num, table, toast } from '../lib.js';
 export const catalog = {
   title: 'Catalog',
   subtitle: 'Ingest history, data quality, and publishing merchandising changes.',
-  actions: () => '<button class="btn btn--primary" id="reindex">Rebuild index</button>',
+  // The screen is readable by an analyst; rebuilding the index is not.
+  actions: () => '<button class="btn btn--primary" id="reindex" data-needs="admin">Rebuild index</button>',
 
   async render(root) {
     const status = await api('/catalog/status');
