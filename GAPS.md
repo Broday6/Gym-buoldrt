@@ -218,6 +218,7 @@ What remains:
 | The scheduler runs once, not once per instance | Three simulated instances ticking all day; counted the runs |
 | Crawlable pages have content | Loaded a category page with JavaScript disabled |
 | Both themes meet WCAG 2.1 AA | axe-core over 10 states in light and dark |
+| The repository is a complete handoff | Cloned the pushed branch into an empty directory three times, on a fresh database each time: `npm ci`, build, tests, seed, run, every suite. It found two console checks that only passed on an install someone had already used |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 
 Reproduce with `npm test`, `npm run ui-smoke`, `npm run ui-smoke:admin`,

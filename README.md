@@ -46,7 +46,11 @@ role. `npm run keys -- roles` explains what each one can do.
 
 ## Quick start
 
+Needs **Node 22+** (the dev engine uses the built-in `node:sqlite`) and
+**PostgreSQL 16**. Nothing else.
+
 ```bash
+git clone <this repo> && cd compass-search
 npm install
 
 # Option A — everything in Docker (Typesense + Postgres + API)
@@ -63,15 +67,31 @@ npm run dev           # http://localhost:3100
 Then open **http://localhost:3100/demo/** and try `chandaleer`, `black shutter`,
 `4x6 beam 12ft`, `crownmoulding`.
 
+Nothing under `data/` is committed — the catalogues, the retrieval index, the
+demo API keys and the backups are all generated. `npm run seed` rebuilds the lot
+on a new machine, and prints fresh keys.
+
 ```bash
-npm test                # 154 tests: ranking, dimensions, ingestion, discovery, merchandising
-npm run ui-smoke        # 30 storefront checks at desktop and mobile widths
-npm run ui-smoke:admin  # 16 console checks
-npm run bench         # latency, reported uncached and cached
+npm test                # 222 tests: ranking, dimensions, ingestion, discovery, merchandising, roles, history
+npm run bench           # latency, reported uncached and cached
 npm run query -- ekena "black shutter" --explain    # why each hit ranks where it does
-npm run keys -- create ekena search "miva storefront"
+npm run keys -- roles                               # what each role can do
+npm run keys -- create ekena merchandiser "merch team"
 npm run reindex -- ekena ./catalog.csv              # full rebuild, atomic swap
+npm run backup                                      # dump, verify, prune
 ```
+
+The browser suites need a Chromium once per machine:
+
+```bash
+npx playwright install chromium
+
+npm run ui-smoke        # 34 storefront checks, desktop and phone
+npm run ui-smoke:admin  # 49 console checks, including every role and phone width
+npm run a11y            # axe-core over both surfaces, light and dark
+```
+
+All of it runs in CI on every push — see `.github/workflows/ci.yml`.
 
 ## How it works
 
