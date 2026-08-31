@@ -20,13 +20,24 @@ function uuid() {
 }
 
 /** Storage is wrapped because Safari private mode throws on write. */
-function safeStorage(store) {
+function safeStorage() {
+  // The accessor itself throws where storage is denied — Safari's private mode,
+  // a sandboxed frame, a browser set to block site data — so reading
+  // `globalThis.localStorage` has to be inside the try, not outside it.
+  // Guarding only getItem/setItem left the constructor throwing before either
+  // could run, which took the whole widget down over a remembered search term.
+  let store = null;
+  try {
+    store = globalThis.localStorage ?? null;
+  } catch {
+    store = null;
+  }
   return {
     get(key) {
-      try { return store.getItem(key); } catch { return null; }
+      try { return store?.getItem(key) ?? null; } catch { return null; }
     },
     set(key, value) {
-      try { store.setItem(key, value); } catch { /* private mode: skip */ }
+      try { store?.setItem(key, value); } catch { /* storage denied: skip */ }
     },
   };
 }
@@ -40,7 +51,7 @@ export class CompassClient {
     this.hitsPerPage = options.hitsPerPage ?? 24;
     this.onError = options.onError ?? ((err) => console.warn('[compass]', err));
 
-    const local = safeStorage(globalThis.localStorage ?? {});
+    const local = safeStorage();
     const session = safeStorage(globalThis.sessionStorage ?? {});
     this.local = local;
 

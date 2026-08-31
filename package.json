@@ -14,6 +14,7 @@
     "backup": "tsx packages/server/src/cli/backup.ts",
     "bench": "tsx packages/server/src/cli/bench.ts",
     "build": "tsc -b",
+    "build:browser": "tsx packages/demo/browser/build.ts",
     "demo": "npm run seed && npm run dev",
     "dev": "tsx watch packages/server/src/server.ts",
     "keys": "tsx packages/server/src/cli/keys.ts",
@@ -31,6 +32,7 @@
     "@types/node": "^22.10.2",
     "@types/pg": "^8.11.10",
     "axe-core": "^4.13.0",
+    "esbuild": "^0.28.2",
     "playwright": "^1.62.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

@@ -91,7 +91,12 @@
   margin-top: 24px; font-size: 14px; color: var(--compass-muted);
 }
 .compass-pagination button {
-  font: inherit; padding: 8px 16px; border: 1px solid var(--compass-border);
+  /* `color` is not inherited by a button: without this it takes the browser's
+     default button text — black — and disappears against a dark ground on any
+     host page that does not happen to reset it. The SDK drops into someone
+     else's storefront, so it cannot rely on that reset existing. */
+  font: inherit; color: var(--compass-fg);
+  padding: 8px 16px; border: 1px solid var(--compass-border);
   background: var(--compass-bg); border-radius: var(--compass-radius); cursor: pointer;
 }
 .compass-pagination button[disabled] { opacity: .45; cursor: default; }
@@ -363,6 +368,7 @@ body.compass-facets-locked { overflow: hidden; }
   font-size: 12px; color: var(--compass-muted); margin: 0 0 10px;
 }
 kbd {
-  font: inherit; font-size: 11px; padding: 1px 5px; border-radius: 4px;
+  font: inherit; font-size: 11px; color: var(--compass-fg);
+  padding: 1px 5px; border-radius: 4px;
   border: 1px solid var(--compass-border); background: var(--compass-surface);
 }

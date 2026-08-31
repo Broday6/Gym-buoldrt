@@ -1,0 +1,307 @@
+<title>Compass Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* The storefront's own stylesheet, shipped unmodified. Everything below styles
+   the frame around it — the page never restyles a .compass-* class, so what a
+   visitor sees is the storefront as the product renders it. */
+/*STYLES*/
+</style>
+
+<style>
+:root {
+  /* Neutrals biased toward the storefront's green, so the frame and the
+     product read as one thing rather than a wrapper around a screenshot. */
+  --paper: #ffffff;
+  --ink: #16181d;
+  --muted: #5c6470;
+  --rule: #e2e5e9;
+  --frame: #10241f;
+  --frame-ink: #dfeae5;
+  --frame-muted: #8fada4;
+  --frame-rule: #24413a;
+  --accent: #1f5f4f;
+  --accent-soft: #e7f1ee;
+  --display: Archivo, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14161a;
+    --ink: #eceef1;
+    --muted: #9aa2ae;
+    --rule: #262a31;
+    --frame: #0b1a16;
+    --frame-ink: #dfeae5;
+    --frame-muted: #7d9a92;
+    --frame-rule: #1d332d;
+    --accent: #6cc9ad;
+    --accent-soft: #17302a;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14161a;
+  --ink: #eceef1;
+  --muted: #9aa2ae;
+  --rule: #262a31;
+  --frame: #0b1a16;
+  --frame-ink: #dfeae5;
+  --frame-muted: #7d9a92;
+  --frame-rule: #1d332d;
+  --accent: #6cc9ad;
+  --accent-soft: #17302a;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ------------------------------------------------------------- masthead -- */
+.masthead { background: var(--frame); color: var(--frame-ink); }
+.masthead__inner {
+  max-width: 1280px; margin: 0 auto; padding: 18px 20px 16px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 28px;
+  flex-wrap: wrap;
+}
+.wordmark { display: flex; align-items: center; gap: 11px; }
+.wordmark__mark {
+  width: 30px; height: 30px; flex: none; border-radius: 8px;
+  background: linear-gradient(145deg, #2f7a66, #6fb3a0);
+  display: grid; place-items: center;
+}
+.wordmark__mark svg { width: 17px; height: 17px; }
+.wordmark__text { display: flex; flex-direction: column; gap: 1px; }
+.wordmark__name {
+  font-family: var(--display); font-weight: 700; font-size: 19px;
+  letter-spacing: -.015em; line-height: 1;
+}
+.wordmark__kind {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--frame-muted);
+}
+.masthead__note {
+  margin: 0; max-width: 46ch; font-size: 13px; line-height: 1.55; color: var(--frame-muted);
+}
+.masthead__note strong { color: var(--frame-ink); font-weight: 600; }
+
+/* --------------------------------------------------------- spec strip --
+   A spec sheet's header row. Every figure is read off the index this page
+   actually loaded, so the numbers are the demo describing itself. */
+.spec { background: var(--frame); border-top: 1px solid var(--frame-rule); }
+.spec__inner {
+  max-width: 1280px; margin: 0 auto; padding: 0 20px 16px;
+  display: flex; gap: 30px; flex-wrap: wrap;
+}
+.spec__item { display: flex; flex-direction: column; gap: 3px; }
+.spec__label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--frame-muted);
+}
+.spec__value {
+  font-family: var(--mono); font-size: 14px; font-weight: 500;
+  color: var(--frame-ink); font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- try row -- */
+.try {
+  max-width: 1280px; margin: 0 auto; padding: 14px 20px 0;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+}
+.try__label {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--muted); flex: none;
+}
+.try__list { display: flex; gap: 7px; flex-wrap: wrap; min-width: 0; }
+.try button {
+  font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px;
+  border: 1px solid var(--rule); background: transparent; color: var(--muted);
+  cursor: pointer; white-space: nowrap;
+}
+.try button:hover { color: var(--ink); border-color: var(--accent); }
+.try button em {
+  font-style: normal; font-family: var(--mono); font-size: 11px;
+  color: var(--accent); margin-left: 6px;
+}
+
+/* Collections sit on their own row: one cuts across the category tree, and a
+   single mixed strip would hide the difference that makes them worth having. */
+.strip {
+  display: flex; align-items: center; gap: 7px; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none; padding-bottom: 12px;
+}
+.strip::-webkit-scrollbar { display: none; }
+.strip__label {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--muted); flex: none; margin-right: 3px;
+}
+.strip button {
+  font: inherit; font-size: 13px; white-space: nowrap; padding: 5px 13px; flex: none;
+  border: 1px solid var(--accent); border-radius: 999px; background: transparent;
+  color: var(--accent); cursor: pointer;
+}
+.strip button:hover { background: var(--accent-soft); }
+.strip button[aria-current="true"] { background: var(--accent); color: var(--paper); }
+
+/* ----------------------------------------------------------- storefront -- */
+.stage { max-width: 1280px; margin: 0 auto; padding: 16px 20px 8px; }
+.searchbar { position: relative; margin-bottom: 14px; }
+.searchbar input {
+  width: 100%; font: inherit; font-size: 16px; padding: 12px 14px 12px 40px;
+  border: 1px solid var(--rule); border-radius: 10px;
+  background: var(--paper); color: inherit;
+}
+.searchbar input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.searchbar svg {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+}
+.nav {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--rule); margin-bottom: 14px;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav button {
+  font: inherit; font-size: 14px; white-space: nowrap; padding: 9px 12px;
+  border: 0; border-bottom: 2px solid transparent; background: none;
+  color: var(--muted); cursor: pointer;
+}
+.nav button[aria-current="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+/* A colour from the palette, not an opacity multiplied against the ground —
+   opacity produces a computed colour the palette was never checked at. */
+.nav .nav__count {
+  font-family: var(--mono); font-size: 11px; margin-left: 5px;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+
+.readout {
+  display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: center;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  padding: 9px 0 13px; border-bottom: 1px solid var(--rule); margin-bottom: 16px;
+}
+.readout code {
+  font-family: var(--mono); background: var(--accent-soft); color: var(--accent);
+  padding: 2px 7px; border-radius: 4px;
+}
+.readout .readout__ms { color: var(--accent); }
+
+.layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 26px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+
+/* ---------------------------------------------------------------- foot -- */
+.foot {
+  border-top: 1px solid var(--rule); margin-top: 40px;
+  background: var(--paper);
+}
+.foot__inner {
+  max-width: 1280px; margin: 0 auto; padding: 26px 20px 44px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 26px;
+}
+.foot h2 {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 9px; font-weight: 500;
+}
+.foot ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.foot li { font-size: 13px; line-height: 1.5; color: var(--muted); padding-left: 15px; position: relative; }
+.foot li::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 6px; height: 1px; background: var(--accent);
+}
+.foot li strong { color: var(--ink); font-weight: 600; }
+.foot li.absent::before { background: var(--muted); }
+
+.boot { padding: 80px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+</style>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <div class="wordmark">
+      <span class="wordmark__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="10.5" cy="10.5" r="6.5" stroke="#0b1a16" stroke-width="2.4"/>
+          <path d="M15.5 15.5L21 21" stroke="#0b1a16" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="wordmark__text">
+        <span class="wordmark__name">Compass Search</span>
+        <span class="wordmark__kind">Millwork catalogue &middot; live demo</span>
+      </span>
+    </div>
+    <p class="masthead__note">
+      The <strong>real search pipeline</strong>, running in this page. Query analysis,
+      the ranking cascade, faceting and merchandising are the same modules the
+      server runs &mdash; there is just no server.
+    </p>
+  </div>
+  <div class="spec">
+    <div class="spec__inner" id="spec"></div>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="searchbar">
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <input type="search" id="q" placeholder="Search shutters, beams, moulding&hellip;"
+      aria-label="Search the catalogue">
+  </div>
+
+  <div class="try">
+    <span class="try__label">Try</span>
+    <span class="try__list" id="examples"></span>
+  </div>
+
+  <nav class="strip" id="collections" aria-label="Collections"></nav>
+  <nav class="nav" id="nav" aria-label="Categories"></nav>
+  <p class="readout" id="readout"></p>
+
+  <div class="layout compass-root">
+    <aside id="facets"></aside>
+    <div id="results"><p class="boot">Loading the catalogue&hellip;</p></div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="foot__inner">
+    <div>
+      <h2>Running here</h2>
+      <ul>
+        <li><strong>Variant-level index.</strong> One document per buyable SKU, grouped to one card per product &mdash; so &ldquo;black shutter&rdquo; shows the black one.</li>
+        <li><strong>Ranking cascade.</strong> Typos, then words matched, then field weight, then proximity, then exactness. Tie-breaks, not a blended score.</li>
+        <li><strong>Dimension parsing.</strong> <code>4x6</code>, <code>12ft</code>, <code>3-1/2"</code> are lifted out of the query and applied as filters.</li>
+        <li><strong>Merchandising.</strong> Collections and badges from rules that cut across the category tree.</li>
+        <li><strong>Zero-result rescue.</strong> A hopeless query still lands on products, and says what it did.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Needs a server</h2>
+      <ul>
+        <li class="absent"><strong>The merchandiser console</strong> &mdash; rule builder, badges, change history and undo.</li>
+        <li class="absent"><strong>Analytics</strong> &mdash; the dashboard is computed from recorded shopper behaviour.</li>
+        <li class="absent"><strong>Catalogue ingest</strong> &mdash; this page is handed documents a real ingest produced.</li>
+        <li class="absent"><strong>Recommendation rails</strong> &mdash; they read co-occurrence out of the event store.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>About the catalogue</h2>
+      <ul>
+        <li>Generated to be <strong>messy on purpose</strong>: missing images, thin descriptions, uncategorised products, duplicate SKUs &mdash; the conditions a real feed arrives in.</li>
+        <li>Prices, finishes and dimensions are synthetic. The products are not real listings.</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script type="application/json" id="catalog">/*DATA*/</script>
+<script type="module">
+/*BUNDLE*/
+</script>

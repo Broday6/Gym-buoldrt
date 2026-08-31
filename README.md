@@ -44,6 +44,19 @@ Paste it once and it is remembered in that browser. The seed also issues an
 (they are in `data/demo/keys.json`) and the screens and buttons change with the
 role. `npm run keys -- roles` explains what each one can do.
 
+### Hosted, with no install
+
+`npm run build:browser` bakes the storefront into one self-contained HTML file:
+the demo catalogue, plus a browser bundle of the real search pipeline running
+against a third implementation of the engine interface, `MemoryEngine`. Query
+analysis, the ranking cascade, dimension parsing, grouping by parent, facets,
+collections, badges and the rescue path are the same modules the server runs —
+a differential test indexes one catalogue into both engines and asserts they
+return the same products, the same counts and the same top result.
+
+What genuinely needs a server is absent rather than faked: ingest, the
+merchandiser console, analytics and recommendations.
+
 ## Quick start
 
 Needs **Node 22+** (the dev engine uses the built-in `node:sqlite`) and

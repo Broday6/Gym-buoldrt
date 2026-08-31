@@ -27,7 +27,10 @@ import { RecommendWidget } from './recommend.js';
  * that drive it — and connects them to each other.
  */
 export function init(options) {
-  const client = new CompassClient(options);
+  // A caller may supply its own client. The widgets only ever call
+  // `request(path, body)`, so anything satisfying that can drive them — a test
+  // harness, or a self-contained page with no server to talk to.
+  const client = options.client ?? new CompassClient(options);
   const widgets = { client };
 
   if (options.results) {

@@ -40,8 +40,9 @@ fixed, what remains, and how each claim was verified.
 | Demo | 520-product messy catalogue per site, placeholder imagery, full storefront, 30 days of simulated traffic generated against the live index | `packages/demo/` |
 | Tooling | `query`, `bench`, `keys` (list/create/rotate/revoke/roles), `backup`, `openapi`, `reindex`, `ui-smoke`, `ui-smoke:admin`, `a11y` | `packages/server/src/cli/`, `packages/demo/`, `packages/admin/` |
 | CI | Typecheck, tests and spec drift; then seed, both browser suites, the accessibility audit, the benchmark and a backup/restore round trip | `.github/workflows/ci.yml` |
+| Hosted demo | The storefront as one self-contained HTML file, running the real pipeline over a third engine implementation | `packages/server/src/engine/memory.ts`, `packages/demo/browser/` |
 
-**221 unit tests + 31 storefront browser checks + 36 console browser checks + 20 accessibility audits, all passing.**
+**229 unit tests + 31 storefront browser checks + 36 console browser checks + 20 accessibility audits, all passing.**
 
 ---
 

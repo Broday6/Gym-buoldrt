@@ -91,7 +91,7 @@ export interface IndexDirectory {
 }
 
 export interface SearchEngine {
-  readonly kind: 'typesense' | 'sqlite';
+  readonly kind: 'typesense' | 'sqlite' | 'memory';
   /** Create a new physical index to write into. Never serves traffic yet. */
   createIndex(site: string): Promise<IndexHandle>;
   indexBatch(handle: IndexHandle, docs: VariantDoc[]): Promise<void>;
