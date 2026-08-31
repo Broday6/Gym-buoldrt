@@ -26,7 +26,6 @@
  *     arrangement: "did this help" is the question, and answering it against
  *     another guess answers something else.
  */
-import { createHash } from 'node:crypto';
 import type { Db } from '../db/pool.js';
 
 export type ExperimentStatus = 'running' | 'stopped' | 'adopted' | 'discarded';
@@ -64,10 +63,43 @@ export interface ExperimentInput {
  */
 export function assign(experimentId: number, sessionId: string, exposure: number): Variant {
   if (!sessionId) return 'control';
-  const digest = createHash('sha256').update(`${experimentId}:${sessionId}`).digest();
-  // The first four bytes as a fraction of their range: a uniform 0..99.
-  const bucket = digest.readUInt32BE(0) % 100;
-  return bucket < exposure ? 'treatment' : 'control';
+  return bucketOf(experimentId, sessionId) < exposure ? 'treatment' : 'control';
+}
+
+/** Which of a hundred buckets this session falls in for this experiment. */
+export function bucketOf(experimentId: number, sessionId: string): number {
+  return hash32(`${experimentId}:${sessionId}`) % 100;
+}
+
+/**
+ * A 32-bit string hash, in plain arithmetic.
+ *
+ * Not SHA-256, deliberately. Bucketing is not a security problem — nobody
+ * gains anything by predicting which half of an experiment they land in — and
+ * a cryptographic hash costs a platform dependency this does not need. The
+ * same module runs in the hosted browser build, where `node:crypto` does not
+ * exist and pulling it in broke the bundle.
+ *
+ * FNV-1a for accumulation, then MurmurHash3's finalizer to avalanche the
+ * result: FNV alone leaves the low bits correlated for inputs sharing a
+ * prefix, which is exactly what session ids do. The uniformity that matters —
+ * that a 10/50/90 split lands within a point or two of its target across
+ * thousands of sessions — is asserted in the tests.
+ */
+function hash32(value: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    // The FNV prime, as shifts: Math.imul keeps this in 32-bit integer space
+    // where a plain multiply would lose precision past 2^53.
+    h = Math.imul(h, 0x01000193);
+  }
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 
 export class ExperimentStore {

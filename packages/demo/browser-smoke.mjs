@@ -139,6 +139,18 @@ const claimed = await desktop.locator('.compass-understood__tag').allTextContent
 check('and stops claiming the brand it dropped',
   !claimed.some((t) => /Timberthane/i.test(t)), claimed.join(' | '));
 
+// ---- a shopper describing what they want ----------------------------------
+// Features typed as words are lifted into filters rather than matched as text,
+// so a white shutter whose description mentions black cannot answer.
+await searchFor(desktop, 'black pvc shutter');
+const described = await desktop.locator('.compass-understood__tag').allTextContents();
+check('the finish and the material are both understood, as the catalogue spells them',
+  described.includes('Black') && described.includes('PVC'), described.join(' | '));
+const variants2 = await desktop.locator('.compass-hit__variant').allTextContents();
+check('and every result really is one',
+  variants2.length > 0 && variants2.every((v) => /Black/i.test(v) && /PVC/i.test(v)),
+  variants2.slice(0, 2).join(' | '));
+
 // ---- the variant question the whole index shape exists for ----------------
 await searchFor(desktop, 'black shutters');
 const shutters = await desktop.locator('.compass-hit__title').allTextContents();

@@ -65,10 +65,13 @@ console.log(`building the browser demo — ${PRODUCTS} products`);
 const csv = generateCatalogCsv({ productCount: PRODUCTS, seed: 20260830 });
 const rows = parseCsv(csv);
 const headers = Object.keys(rows[0] ?? {});
-const { products, quality } = normalizeRows(SITE, rows, inferMapping(headers));
+const mapping = inferMapping(headers);
+const { products, quality } = normalizeRows(SITE, rows, mapping);
 const plan = labelPlan();
 const { products: labelled, counts } = applyLabels(products, plan);
-const docs = toVariantDocs(SITE, labelled);
+// Same facet-worthy set the server uses, so what the hosted page searches on
+// matches what a real deployment searches on.
+const docs = toVariantDocs(SITE, labelled, mapping.facetable);
 
 console.log(`  ${labelled.length} products / ${docs.length} variants`
   + ` (${quality.rejected.length} rows rejected, as the seed does)`);

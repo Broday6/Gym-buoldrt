@@ -91,6 +91,10 @@ const DEFAULT_TEMPLATES = {
       if (c.kind === 'brand') tags.push(`Brand: ${esc(c.value)}`);
       else if (c.kind === 'category') tags.push(titleCase(c.source));
       else if (c.kind === 'sku') tags.push(`Item ${esc(c.value)}`);
+      // A feature shows the catalogue's own spelling rather than the shopper's:
+      // "PVC", not "pvc". It is what was actually applied, and it reads as a
+      // filter the store chose rather than an echo of the typing.
+      else if (c.kind === 'attribute') tags.push(esc(c.value));
       else tags.push(esc(c.source));
     }
     const lifted = parsed.some((c) => c.kind === 'brand' || c.kind === 'category');
