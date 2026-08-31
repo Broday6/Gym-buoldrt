@@ -63,6 +63,32 @@ export function diff(
   return changes.sort((x, y) => x.field.localeCompare(y.field));
 }
 
+/**
+ * Record one merchandising change.
+ *
+ * Lives here rather than beside the routes because the trail's shape is this
+ * service's contract: `before` is what makes an undo possible, and anything
+ * that writes a change — the API, the seed — has to record it the same way or
+ * the history has holes exactly where someone will look for them.
+ */
+export async function recordChange(
+  db: Db,
+  siteId: string,
+  actor: string,
+  action: string,
+  entityType: string,
+  entityId: string,
+  before: unknown,
+  after: unknown,
+): Promise<void> {
+  await db.query(
+    `INSERT INTO audit_log (site_id, actor, action, entity_type, entity_id, before, after)
+     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+    [siteId, actor, action, entityType, entityId,
+     before ? JSON.stringify(before) : null, after ? JSON.stringify(after) : null],
+  );
+}
+
 /** Entity types an undo knows how to put back. */
 const REVERTIBLE = new Set(['collection', 'attribute', 'badge', 'synonym', 'redirect']);
 

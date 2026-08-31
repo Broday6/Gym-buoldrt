@@ -12,6 +12,7 @@ import { ROLES, createApiKey, type KeyScope } from '../server/src/routes/auth.js
 import { CollectionStore } from '../server/src/merchandising/collections.js';
 import { SearchService } from '../server/src/services/search.js';
 import { AnalyticsService } from '../server/src/services/analytics.js';
+import { recordChange } from '../server/src/services/history.js';
 import { EventCollector } from '../server/src/events/collector.js';
 import { generateTraffic } from './traffic.js';
 
@@ -186,14 +187,24 @@ for (const [index, site] of sites.list().entries()) {
   const path = `./data/demo/${site.id}-catalog.csv`;
   writeFileSync(path, csv);
 
+  // Recorded in the audit trail as the API records its own writes. The seed is
+  // an actor making changes like any other, and a demo whose History screen is
+  // empty until someone edits something teaches the wrong thing about it —
+  // there is no baseline to compare a later change against.
   for (const collection of DEMO_COLLECTIONS) {
     await collections.create(site.id, { ...collection, author: 'seed' } as never);
+    await recordChange(db, site.id, 'seed', 'create', 'collection',
+      (collection as { slug: string }).slug, null, collection);
   }
   for (const attribute of DEMO_ATTRIBUTES) {
     await collections.createAttribute(site.id, attribute as never);
+    await recordChange(db, site.id, 'seed', 'create', 'attribute',
+      (attribute as { key: string }).key, null, attribute);
   }
   for (const badge of DEMO_BADGES) {
     await collections.createBadge(site.id, { ...badge, author: 'seed' } as never);
+    await recordChange(db, site.id, 'seed', 'create', 'badge',
+      (badge as { key: string }).key, null, badge);
   }
 
   const rows = parseCsv(csv);

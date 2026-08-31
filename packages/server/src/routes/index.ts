@@ -24,6 +24,7 @@ import {
 import * as S from './schemas.js';
 import { seoConfigFor, sitemapXml } from '../services/seo.js';
 import { buildSpec, trackRoutes } from './openapi.js';
+import { recordChange as audit } from '../services/history.js';
 import type { SourceRow } from '../ingest/normalize.js';
 
 export interface RouteDeps {
@@ -835,21 +836,3 @@ function days(raw: string | undefined, fallback = 30): number {
   return Number.isFinite(n) ? Math.min(365, Math.max(1, Math.round(n))) : fallback;
 }
 
-/** Every merchandising change is recorded with its author and timestamp. */
-async function audit(
-  db: Db,
-  siteId: string,
-  actor: string,
-  action: string,
-  entityType: string,
-  entityId: string,
-  before: unknown,
-  after: unknown,
-): Promise<void> {
-  await db.query(
-    `INSERT INTO audit_log (site_id, actor, action, entity_type, entity_id, before, after)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [siteId, actor, action, entityType, entityId,
-     before ? JSON.stringify(before) : null, after ? JSON.stringify(after) : null],
-  );
-}
