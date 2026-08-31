@@ -113,8 +113,9 @@ await page.waitForTimeout(1200);
 const topAfter = (await page.locator('tbody tr[data-row]').first().getAttribute('data-row'));
 check('undoing records a new entry rather than deleting the old one',
   Number(topAfter) > Number(topBefore), `${topBefore} -> ${topAfter}`);
+// The console shows the action in a merchandiser's words, not the column's.
 check('the undo is labelled as one',
-  /revert/.test((await page.locator('tbody tr[data-row]').first().textContent()) ?? ''));
+  /undone/i.test((await page.locator('tbody tr[data-row]').first().textContent()) ?? ''));
 check('history is append-only: the original change is still there',
   (await page.locator(`tbody tr[data-row="${topBefore}"]`).count()) === 1);
 
@@ -186,7 +187,8 @@ check('an analyst can read catalogue health but cannot rebuild the index',
   (await analyst.locator('#reindex').count()) === 0);
 
 await analyst.click('[data-nav="history"]');
-await analyst.waitForSelector('tbody tr', { timeout: 10000 });
+// `tbody tr` would match the table the previous screen left behind.
+await analyst.waitForSelector('tbody tr[data-row]', { timeout: 10000 });
 check('an analyst can read the history but cannot undo anything',
   (await analyst.locator('tbody tr[data-row]').count()) > 0
   && (await analyst.locator('[data-revert]').count()) === 0);
