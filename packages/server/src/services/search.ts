@@ -10,6 +10,7 @@ import type {
 import type { EngineFacet, EngineQuery, SearchEngine } from '../engine/types.js';
 import { analyzeQuery, type AnalyzedQuery } from '../query/analyze.js';
 import { buildEntityIndex, type EntityIndex } from '../query/entities.js';
+import { assign, type Variant } from '../merchandising/experiments.js';
 import { relaxTerms, suggestCorrection } from '../query/spelling.js';
 import { rankCandidates } from '../ranking/cascade.js';
 import { groupByParent, highlight, hitFromDoc } from '../ranking/group.js';
@@ -62,6 +63,14 @@ export interface SearchServiceOptions {
   signals?: { get(siteId: string): Promise<{ ctrBySku: Map<string, number>; siteMean: number }> };
   /** Counts what was served, so click-through has a denominator. */
   impressions?: { record(siteId: string, skus: string[]): void };
+  /**
+   * Running experiments. Typed structurally, and optional: without it every
+   * rule simply applies to everyone, which is what happened before there were
+   * experiments at all.
+   */
+  experiments?: {
+    running(siteId: string): Promise<{ id: number; ruleId: number; exposure: number }[]>;
+  };
 }
 
 /**
@@ -105,17 +114,54 @@ export class SearchService {
     // which is why personalisation happens after the cache rather than inside
     // it: one shopper's preferences must never be served to the next.
     const { shopperId, sessionId, affinity, ...cacheable } = request;
-    const key = cacheKey(site.id, cacheable as Record<string, unknown>);
+
+    // The experiment arm *must* be in the key, though, and this is the one
+    // piece of shopper-specific state that belongs there. Assignment happens
+    // deep in the pipeline where the rule fires, so without this the first
+    // session to ask would have its arm cached and served to everyone —
+    // leaving an experiment that reports two arms and measured one. It costs
+    // one extra entry per query per running experiment, not one per visitor.
+    const arms = await this.arms(site.id, sessionId);
+    const key = cacheKey(site.id, {
+      ...cacheable,
+      ...(arms.size
+        ? { ab: [...arms].map(([id, a]) => `${id}:${a.variant}`).sort().join(',') }
+        : {}),
+    } as Record<string, unknown>);
+
     const cached = this.cache.get(key);
     if (cached) {
       return personalise({ ...cached, processingTimeMs: round(performance.now() - started) },
         affinity);
     }
 
-    const response = await this.execute(site, request, started);
+    const response = await this.execute(site, request, started, arms);
     // A redirect is not worth caching: it is cheap to recompute and short-lived.
     if (!response.redirect) this.cache.set(key, response);
     return personalise(response, affinity);
+  }
+
+  /**
+   * This session's arm in every experiment running on the site.
+   *
+   * Computed up front rather than where the rule fires, because the cache key
+   * needs it before any of that happens. Keyed by rule, which is what the
+   * merchandising path has in hand.
+   */
+  private async arms(
+    siteId: string,
+    sessionId: string | undefined,
+  ): Promise<Map<number, { testId: string; variant: Variant }>> {
+    const out = new Map<number, { testId: string; variant: Variant }>();
+    const store = this.options.experiments;
+    if (!store || !sessionId) return out;
+    for (const experiment of await store.running(siteId).catch(() => [])) {
+      out.set(experiment.ruleId, {
+        testId: String(experiment.id),
+        variant: assign(experiment.id, sessionId, experiment.exposure),
+      });
+    }
+    return out;
   }
 
   /**
@@ -137,6 +183,7 @@ export class SearchService {
     site: SiteConfig,
     request: SearchRequest,
     started: number,
+    arms: Map<number, { testId: string; variant: Variant }> = new Map(),
   ): Promise<SearchResponse> {
     const page = Math.max(1, request.page ?? 1);
     const hitsPerPage = Math.min(100, Math.max(1, request.hitsPerPage ?? site.hitsPerPage));
@@ -228,7 +275,9 @@ export class SearchService {
 
     // 4. Merchandising bound to the query itself. Applied to the whole ranked
     //    window rather than the page, so a pin at slot one lands on page one.
-    const merchandised = await this.applyQueryRule(site, request, grouped, ruleIds);
+    const assignment: { testId: string; variant: string }[] = [];
+    const merchandised = await this.applyQueryRule(
+      site, request, grouped, ruleIds, assignment, arms);
 
     const start = (page - 1) * hitsPerPage;
     const pageHits = merchandised.slice(start, start + hitsPerPage);
@@ -263,6 +312,10 @@ export class SearchService {
       rescue,
       rulesApplied: ruleIds.length ? ruleIds : undefined,
       parsedFilters: analyzed.constraints.length ? analyzed.constraints : undefined,
+      // Handed back so the storefront can tag the events this session produces.
+      // Without it the split would exist and nothing would be measurable,
+      // which is the state this replaces.
+      abTest: assignment[0],
     };
   }
 
@@ -319,6 +372,9 @@ export class SearchService {
     request: SearchRequest,
     grouped: Hit[],
     ruleIds: string[],
+    /** Filled in when the rule that fired is under test. */
+    assignment: { testId: string; variant: string }[],
+    arms: Map<number, { testId: string; variant: Variant }>,
   ): Promise<Hit[]> {
     const store = this.options.queryRules;
     if (!store) return grouped;
@@ -331,6 +387,16 @@ export class SearchService {
     const rule = (query ? await store.forQuery(site.id, query).catch(() => null) : null)
       ?? (categoryId ? await store.forCategory(site.id, categoryId).catch(() => null) : null);
     if (!rule) return grouped;
+
+    // The rule may be under test. A session assigned to control sees the page
+    // it would have seen without the rule — that is the whole comparison — and
+    // either way the assignment goes back to the caller, so the events this
+    // session produces can be counted against the right arm.
+    const held = arms.get(rule.id);
+    if (held) {
+      assignment.push(held);
+      if (held.variant === 'control') return grouped;
+    }
 
     const present = new Set(grouped.map((h) => h.parentId));
     const missing = rule.actions

@@ -99,12 +99,13 @@ await audit(admin, 'console: dashboard');
 
 // The rail lists areas; a screen with siblings is a tab inside one.
 const AREA_OF = {
-  quality: 'reporting', autopilot: 'merchandising', merchandiser: 'merchandising',
+  quality: 'reporting', autopilot: 'merchandising', experiments: 'merchandising',
+  merchandiser: 'merchandising',
   collections: 'merchandising', badges: 'merchandising', history: 'merchandising',
   tester: 'preview', vocabulary: 'vocabulary', data: 'data', guide: 'guide',
 };
 for (const [screen, ready] of [['quality', '.finding'], ['autopilot', '.proposal'],
-  ['merchandiser', '#merch-q'],
+  ['experiments', '.card'], ['merchandiser', '#merch-q'],
   ['tester', '#q'], ['collections', 'table'], ['badges', '.badge'], ['data', '.stat__value'],
   ['guide', '.guide__job']]) {
   await admin.click(`[data-area="${AREA_OF[screen]}"]`);

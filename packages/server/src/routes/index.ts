@@ -16,6 +16,8 @@ import type { SearchService } from '../services/search.js';
 import type { EventCollector } from '../events/collector.js';
 import type { Db } from '../db/pool.js';
 import type { AutopilotService, Proposal } from '../services/autopilot.js';
+import type { ExperimentInput, ExperimentStore } from '../merchandising/experiments.js';
+import { experimentResult } from '../services/experiment-results.js';
 import { SiteNotFoundError, SORT_OPTIONS, type SiteRegistry } from '../config/sites.js';
 import { ingestRows, summariseQuality, type IngestOptions } from '../ingest/pipeline.js';
 import {
@@ -44,6 +46,7 @@ export interface RouteDeps {
   history: HistoryService;
   queryRules: QueryRuleStore;
   autopilot: AutopilotService;
+  experiments: ExperimentStore;
   sites: SiteRegistry;
   collector: EventCollector;
   db: Db;
@@ -57,7 +60,7 @@ const VERSION = process.env.npm_package_version ?? '0.1.0';
 export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Promise<void> {
   const {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, queryRules, autopilot, sites, collector, db, auth, scheduler,
+    preview, history, queryRules, autopilot, experiments, sites, collector, db, auth, scheduler,
   } = deps;
   // Roles are ordered, so each guard names the *least* privilege that endpoint
   // needs and everything above it is admitted automatically.
@@ -584,6 +587,68 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
   );
 
   // ---- synonyms ----------------------------------------------------------
+
+  // ---- experiments --------------------------------------------------------------
+
+  app.get<{ Params: { site: string } }>(
+    '/v1/:site/admin/experiments',
+    guard(analystScope, {}),
+    async (request) => {
+      const all = await experiments.list(request.params.site);
+      const rules = await queryRules.list(request.params.site);
+      return {
+        experiments: await Promise.all(all.map(async (experiment) => ({
+          ...await experimentResult(db, experiment),
+          // The rule's own trigger, so the screen can say what is being tested
+          // without a second round trip per row.
+          target: rules.find((r) => r.id === experiment.ruleId)?.query
+            || rules.find((r) => r.id === experiment.ruleId)?.categoryId
+            || 'a deleted rule',
+        }))),
+      };
+    },
+  );
+
+  app.post<{ Params: { site: string }; Body: ExperimentInput }>(
+    '/v1/:site/admin/experiments',
+    guard(merchScope, { body: S.experimentBody }),
+    async (request, reply) => {
+      try {
+        const created = await experiments.create(request.params.site, {
+          ...request.body, author: actorOf(request),
+        });
+        await audit(db, request.params.site, actorOf(request), 'create',
+          'experiment', String(created.id), null, created);
+        return reply.code(201).send(created);
+      } catch (err) {
+        return reply.code(400).send({ error: (err as Error).message });
+      }
+    },
+  );
+
+  app.post<{
+    Params: { site: string; id: string };
+    Body: { status: 'stopped' | 'adopted' | 'discarded'; note?: string };
+  }>(
+    '/v1/:site/admin/experiments/:id/end',
+    guard(merchScope, { body: S.experimentEndBody }, S.ID_PARAM),
+    async (request, reply) => {
+      const before = await experiments.get(request.params.site, Number(request.params.id));
+      const ended = await experiments.end(request.params.site, Number(request.params.id),
+        request.body.status, request.body.note);
+      if (!ended) return reply.code(404).send({ error: 'no such running experiment' });
+
+      // Discarding means the change loses: the rule it was testing goes off,
+      // rather than quietly staying on for everyone once the split ends.
+      if (request.body.status === 'discarded') {
+        await queryRules.setEnabled(request.params.site, ended.ruleId, false);
+      }
+      await audit(db, request.params.site, actorOf(request), 'upsert',
+        'experiment', String(ended.id), before, ended);
+      search.invalidate(request.params.site);
+      return ended;
+    },
+  );
 
   // ---- autopilot --------------------------------------------------------------
 

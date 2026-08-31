@@ -27,6 +27,7 @@ import { Scheduler } from './services/scheduler.js';
 import { HistoryService } from './services/history.js';
 import { QueryRuleStore } from './merchandising/queryrules.js';
 import { SignalStore } from './services/signals.js';
+import { ExperimentStore } from './merchandising/experiments.js';
 import { AutopilotService } from './services/autopilot.js';
 import { ImpressionRecorder } from './services/impressions.js';
 import { Metrics, RateLimiter, registerGuards } from './routes/guards.js';
@@ -105,6 +106,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   const collections = new CollectionStore(db);
   const queryRules = new QueryRuleStore(db);
   const signals = new SignalStore(db);
+  const experiments = new ExperimentStore(db);
   const impressions = new ImpressionRecorder(db);
   impressions.start();
   const search = new SearchService(engine, {
@@ -114,6 +116,7 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
     queryRules,
     signals,
     impressions,
+    experiments,
     cache: new ResultCache({
       maxEntries: Number(process.env.COMPASS_CACHE_ENTRIES ?? 2_000),
       ttlMs: Number(process.env.COMPASS_CACHE_TTL_MS ?? 60_000),
@@ -185,7 +188,8 @@ export async function buildApp(options: AppOptions = {}): Promise<BuiltApp> {
   scheduler.start();
   await registerRoutes(app, {
     engine, search, autocomplete, synonyms, redirects, collections, analytics, recommend,
-    preview, history, queryRules, autopilot, sites, collector, db, auth: { keyStore, open }, scheduler,
+    preview, history, queryRules, autopilot, experiments,
+    sites, collector, db, auth: { keyStore, open }, scheduler,
   });
 
   // The demo storefront and the built SDK bundle, when present.

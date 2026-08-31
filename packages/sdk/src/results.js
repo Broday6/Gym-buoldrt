@@ -289,6 +289,7 @@ export class ResultsWidget {
         : await this.client.search(params);
 
       this.response = response;
+      this.client.rememberExperiment?.(response.abTest);
       if (response.redirect) {
         location.href = response.redirect.url;
         return response;

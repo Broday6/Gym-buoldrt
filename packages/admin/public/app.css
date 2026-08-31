@@ -20,9 +20,10 @@
   --warn-soft: #fdf3e3;
   --ok: #1f6f43;
   --radius: 8px;
-  /* Wide enough for "Merchandising" on one line: hyphenating the rail's own
-     navigation to save twelve pixels is a poor trade. */
-  --sidebar: 108px;
+  /* Wide enough for "Merchandising" on one line at the rail's own font size.
+     Measured, not guessed: a check for clipping passes while a label wraps,
+     which is how this shipped wrapped the first time. */
+  --sidebar: 120px;
   /* The rail keeps its own scale so it stays dark in both themes: it is
      furniture, and furniture that inverts with the page stops being a
      landmark. */
@@ -512,6 +513,13 @@ tr.diff > td { background: var(--surface); padding: 0 10px 12px; }
 @media (max-width: 700px) {
   .guide__glossary div { grid-template-columns: minmax(0, 1fr); gap: 3px; }
 }
+
+/* ------------------------------------------------------------- experiments.
+   The two arms sit in one small table rather than as separate cards, because
+   the only thing anyone is doing here is comparing one row against the other. */
+.exp__table { margin-top: 12px; }
+.exp__table th, .exp__table td { padding: 7px 10px; font-size: 13px; }
+.exp__table tbody tr:first-child { font-weight: 600; }
 
 /* --------------------------------------------------------- starting points.
    A blank screen with an empty text box asks somebody to guess what to type,

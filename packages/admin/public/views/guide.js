@@ -111,8 +111,33 @@ const JOBS = [
     },
   },
   {
-    id: 'check',
+    id: 'test',
     n: 5,
+    title: 'Find out whether the change helped',
+    where: 'Merchandising → Experiments',
+    lead: `A rule you save goes live for everyone, and whether it made any difference
+      is a guess. An experiment shows it to half your visitors and measures both
+      halves against each other.`,
+    shot: 'experiments.png',
+    alt: 'The experiments screen, comparing a change against not making it',
+    steps: [
+      'Pick a rule you have already saved and press <strong>Start</strong>. A visitor gets the same version for their whole visit, so nothing changes underneath them.',
+      'Write down what you expect to happen before you start. It is the only moment you can record that honestly.',
+      'Come back in a week. The screen says <strong>Winning</strong>, <strong>Losing</strong>, <strong>No difference</strong>, or <strong>Too early</strong> — never a percentage it cannot stand behind.',
+      'Then <strong>Keep the change</strong>, or <strong>Discard it</strong> — which switches the rule off but leaves your arrangement saved, so keeping it later is one click.',
+    ],
+    example: {
+      title: 'Why it refuses to give you a number',
+      body: `A test running at 300 visits a side showed 12.7% reaching the cart with
+        the change against 11.7% without — an apparent 8.6% lift. The screen reported
+        <strong>no clear difference</strong>, and that a change that size needs about
+        <strong>16,757 visits per side</strong> to be sure. Shipping on that 8.6%
+        would have been shipping on noise.`,
+    },
+  },
+  {
+    id: 'check',
+    n: 6,
     title: 'Check it worked, and undo it if it did not',
     where: 'Search preview and History',
     lead: `Every change is reversible, and you can see the effect before anyone else does.`,
@@ -156,7 +181,7 @@ const ROLES = [
 
 export const guide = {
   title: 'How to use this',
-  subtitle: 'What the tool does, and the five jobs you will actually do with it',
+  subtitle: 'What the tool does, and the six jobs you will actually do with it',
   needs: 'search',
 
   async render(root) {
@@ -182,7 +207,7 @@ export const guide = {
       </div>
 
       <nav class="guide__toc" aria-label="On this page">
-        <span class="guide__toc-label">The five jobs</span>
+        <span class="guide__toc-label">The six jobs</span>
         ${JOBS.map((j) => `<a href="#guide-${j.id}">${j.n}. ${esc(j.title)}</a>`).join('')}
       </nav>
 

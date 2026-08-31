@@ -183,6 +183,12 @@ export interface SearchResponse {
   parsedFilters?: ParsedConstraint[];
   /** True when this page was re-ordered for the shopper who asked for it. */
   personalised?: boolean;
+  /**
+   * The experiment arm this session is in, when a rule under test could have
+   * fired. Sent back so the storefront tags its events with it — a split
+   * nobody can measure is worse than no split, because it looks like a result.
+   */
+  abTest?: { testId: string; variant: string };
 }
 
 export interface Banner {

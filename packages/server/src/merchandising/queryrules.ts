@@ -318,6 +318,22 @@ export class QueryRuleStore {
     }
   }
 
+  /**
+   * Switch a rule on or off without deleting it.
+   *
+   * Used when an experiment discards the change it was testing: the rule stops
+   * applying, but the arrangement somebody built survives, so adopting it
+   * later is a toggle rather than a rebuild.
+   */
+  async setEnabled(siteId: string, id: number, enabled: boolean): Promise<boolean> {
+    const { rowCount } = await this.db.query(
+      'UPDATE query_rules SET enabled = $3, updated_at = now() WHERE site_id = $1 AND id = $2',
+      [siteId, id, enabled],
+    );
+    this.cache.delete(siteId);
+    return (rowCount ?? 0) > 0;
+  }
+
   async get(siteId: string, id: number): Promise<QueryRule | null> {
     const { rows } = await this.db.query<RuleRow>(
       `${SELECT} WHERE r.site_id = $1 AND r.id = $2`, [siteId, id],

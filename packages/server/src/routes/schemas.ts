@@ -177,6 +177,15 @@ export const eventsBody = {
           shopperId: { type: 'string', maxLength: 128 },
           sessionId: { type: 'string', maxLength: 128 },
           rescueStrategy: { type: 'string', maxLength: 64 },
+          abTest: {
+            type: 'object',
+            required: ['testId', 'variant'],
+            additionalProperties: false,
+            properties: {
+              testId: { type: 'string', maxLength: 64 },
+              variant: { type: 'string', maxLength: 32 },
+            },
+          },
           effectiveQuery: { type: 'string', maxLength: 512 },
           analyticsTags: stringArray(20, 64),
           filters: facetFilters,
@@ -487,6 +496,30 @@ export const proposalBody = {
         },
       },
     },
+  },
+} as const;
+
+export const experimentBody = {
+  type: 'object',
+  required: ['name', 'ruleId'],
+  additionalProperties: false,
+  properties: {
+    name: { type: 'string', minLength: 1, maxLength: 200 },
+    hypothesis: { type: 'string', maxLength: 1000 },
+    ruleId: { type: 'integer', minimum: 1 },
+    // Never 0 or 100: an experiment with no control measures nothing, and one
+    // with no exposure tests nothing.
+    exposure: { type: 'integer', minimum: 1, maximum: 99 },
+  },
+} as const;
+
+export const experimentEndBody = {
+  type: 'object',
+  required: ['status'],
+  additionalProperties: false,
+  properties: {
+    status: { type: 'string', enum: ['stopped', 'adopted', 'discarded'] },
+    note: { type: 'string', maxLength: 1000 },
   },
 } as const;
 

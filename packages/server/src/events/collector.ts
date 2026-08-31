@@ -97,7 +97,9 @@ export class EventCollector {
   }
 
   private async write(events: ShopperEvent[]): Promise<void> {
-    const columns = 18;
+    // Kept beside the value list below, which it has to match exactly: a
+    // mismatch shifts every column of every row in the batch.
+    const columns = 20;
     const values: unknown[] = [];
     const tuples: string[] = [];
     events.forEach((e, i) => {
@@ -124,13 +126,15 @@ export class EventCollector {
         e.analyticsTags ?? null,
         e.rescueStrategy ?? null,
         e.effectiveQuery ?? null,
+        e.abTest?.testId ?? null,
+        e.abTest?.variant ?? null,
       );
     });
     await this.db.query(
       `INSERT INTO events (
          site_id, type, shopper_id, session_id, occurred_at, query, normalised_query,
          position, sku, parent_id, category_id, filters, result_count, revenue, quantity,
-         analytics_tags, rescue_strategy, effective_query
+         analytics_tags, rescue_strategy, effective_query, ab_test_id, ab_variant
        ) VALUES ${tuples.join(',')}`,
       values,
     );

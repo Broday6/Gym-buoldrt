@@ -125,12 +125,26 @@ export class CompassClient {
       shopperId: this.shopperId,
       sessionId: this.sessionId,
       timestamp: new Date().toISOString(),
+      // Every event carries the arm, not only the search that assigned it:
+      // the outcomes worth measuring all happen afterwards.
+      ...(this.abTest ? { abTest: this.abTest } : {}),
       ...payload,
     });
     if (this.queue.length >= 20) this.flush();
     else if (!this.flushTimer) {
       this.flushTimer = setTimeout(() => this.flush(), 1500);
     }
+  }
+
+  /**
+   * Which experiment arm this visit is in.
+   *
+   * Set from whatever the last search reported and attached to every event
+   * afterwards, because the events that matter — a click, an add to cart, a
+   * purchase — happen after the search that assigned the arm.
+   */
+  rememberExperiment(abTest) {
+    if (abTest?.testId && abTest?.variant) this.abTest = abTest;
   }
 
   trackClick(hit, position, query) {

@@ -50,7 +50,7 @@ const AREA_OF = {
   dashboard: 'dashboard', quality: 'reporting', merchandiser: 'merchandising',
   collections: 'merchandising', badges: 'merchandising', history: 'merchandising',
   tester: 'preview', vocabulary: 'vocabulary', data: 'data',
-  autopilot: 'merchandising', guide: 'guide',
+  autopilot: 'merchandising', experiments: 'merchandising', guide: 'guide',
 };
 
 async function goTo(page, screen) {
@@ -136,10 +136,27 @@ await page.locator('.start__item').first().click();
 await page.waitForSelector('.mtile', { timeout: 15000 });
 check('picking one loads that grid', (await page.locator('.mtile').count()) > 0);
 
+// ---- experiments -----------------------------------------------------------
+await goTo(page, 'experiments');
+await page.waitForSelector('.card', { timeout: 10000 });
+await page.waitForTimeout(600);
+const expText = await page.locator('.view').innerText();
+check('the experiments screen loads', /Running/.test(expText));
+// The failure mode this screen exists to prevent: a confident-looking
+// percentage beside a verdict that does not support one.
+const cards = await page.locator('.proposal').all();
+for (const card of cards) {
+  const text = await card.innerText();
+  const hasLift = /[+-]?\d+(\.\d+)?% to cart/.test(text);
+  const decided = /Winning|Losing/.test(text);
+  check('a lift is only shown when the result supports one',
+    !hasLift || decided, text.split('\n').slice(0, 2).join(' · '));
+}
+
 // ---- the guide -------------------------------------------------------------
 await goTo(page, 'guide');
 await page.waitForSelector('.guide__job', { timeout: 10000 });
-check('the guide walks through every job', (await page.locator('.guide__job').count()) === 5);
+check('the guide walks through every job', (await page.locator('.guide__job').count()) === 6);
 // Scrolled into view first: the figures load lazily, so measuring them where
 // they sit tests the viewport height, not whether the files are there.
 const shots = await page.evaluate(async () => {
@@ -155,7 +172,7 @@ const shots = await page.evaluate(async () => {
 });
 // A guide whose screenshots 404 is worse than one with none: it reads as a
 // broken page rather than a missing image.
-check('every screenshot loads', shots.length === 5 && shots.every(Boolean), shots.join(','));
+check('every screenshot loads', shots.length === 6 && shots.every(Boolean), shots.join(','));
 check('the guide defines the words the console uses',
   (await page.locator('#guide-words dt').count()) >= 10);
 

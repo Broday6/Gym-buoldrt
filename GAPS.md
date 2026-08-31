@@ -66,6 +66,27 @@ Verified: both smoke suites now pass against a server with no dev flag set, and
 the console's key gate is covered in both directions — no key asks, a pasted key
 gets in and survives a reload.
 
+### ✅ The result cache would have served one shopper's experiment arm to everyone
+
+**Found:** with an experiment running, all fourteen test sessions saw the
+treatment. Assignment worked; the cache did not know about it. The key
+deliberately excludes shopper identity — otherwise it degenerates into one
+entry per visitor — and an experiment arm is shopper-specific state that had
+been assigned deep in the pipeline, well after the cache had already answered.
+
+This is the worst shape a bug in an experiment can take: the split exists, both
+arms report numbers, and one of them was never shown to anybody. Nothing looks
+broken.
+
+**Fixed:** assignment moved to the top of the request, before the cache is
+consulted, and the arm is part of the key. That costs one extra entry per query
+per running experiment — not one per visitor, which is the thing the exclusion
+was protecting.
+
+**Watch:** anything else that varies a response by shopper has to go in the key
+or after the cache, never in between. Personalisation takes the second route
+for the same reason.
+
 ### ✅ Most of the catalogue never made it into the index
 
 **Found:** `inferMapping` kept a source column only if its heading matched a
@@ -333,10 +354,12 @@ What remains:
   narrower catalogue by their own history. A merchandiser's arrangement is
   never overruled by it. Cross-visit profiles are not built, and the affinity
   is session-scoped on purpose.
-- **A/B testing.** Every merchandising change — hand-made or automatic — is
-  still applied on faith. The event pipeline, session ids and rules are all
-  there; splitting traffic and reporting lift is the missing half, and it is
-  what would make the autopilot safe to leave on unattended.
+- ~~**A/B testing.**~~ ✅ A rule can be split: half the sessions see it, half
+  see the page as it would have been, and both are measured. Assignment is a
+  hash of the session id, so it needs no storage, holds across a visit and
+  across instances. The result is reported as a sentence — winning, losing, no
+  difference, too early — with how many more sessions it would take when the
+  answer is "not yet".
 - **Semantic retrieval.** `semanticWeight` is plumbed and set to 0. The one
   open acceptance criterion depends on it.
 - **Personalisation and A/B testing.**
@@ -379,6 +402,9 @@ What remains:
 | Features typed as words become filters | "black pvc shutter" on a live server: finish and material lifted, category understood, 7 products, all of them black PVC shutters. "black polyurethane corbel", a combination the catalogue does not hold, relaxes to 29 black products and says so |
 | A category can be merchandised and kept | Saved a rule against `exterior/brackets` through the API: the pinned product took slot one, the hidden one left, and a different category was untouched |
 | The page tilts toward this visit | Drove a real browser: clicked a Hunter Green shutter, searched again, and the same products came back led by Hunter Green — stored in sessionStorage, absent from localStorage |
+| An experiment actually splits, and measures | Fourteen sessions against a live server: control saw the natural top result, treatment saw the pinned one, each session stable. 600 sessions of tagged events then produced a per-arm report |
+| It refuses to call a result it cannot support | 300 sessions a side, 12.7% against 11.7% to cart — an apparent 8.6% lift. Reported as no clear difference, with the ~16,757 sessions per arm it would take to be sure, and no percentage shown next to the verdict |
+| Discarding a change switches it off, not away | Ended an experiment as discarded: the rule went disabled, its arrangement survived, and the shopper page returned to the unpinned order |
 | One command stands the whole thing up | `npm install && npm run app` in a clean tree with **no database at all**: it created one, applied the schema, seeded, started the API, and printed the admin key. Both browser suites then passed against that instance. Also checked the paths that go wrong — no Postgres anywhere, a port already in use, a second run reusing what is there, and `--reseed` |
 | Dashboard numbers are computed, not fixtures | Traffic is generated against the live index; the rollup is re-run and the console read back |
 | The hosted demo is a shop, not a harness | 32 checks over `file://` at desktop and phone: the grid, the departments, a misspelling landing on the right products, a brand-plus-type query read as both, and its own axe-core pass in both themes |

@@ -40,7 +40,7 @@ export async function collectRoutes(): Promise<RouteRecord[]> {
   await registerRoutes(app, {
     engine: inert, search: inert, autocomplete: inert, synonyms: inert, redirects: inert,
     collections: inert, analytics: inert, recommend: inert, preview: inert, history: inert,
-    queryRules: inert, autopilot: inert,
+    queryRules: inert, autopilot: inert, experiments: inert,
     sites: SiteRegistry.load(), collector: inert, db: inertDb,
     auth: { keyStore: new KeyStore(inertDb), open: false },
   } as unknown as Parameters<typeof registerRoutes>[1]);
