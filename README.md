@@ -385,6 +385,21 @@ Every ingest returns a data-quality report — missing images, thin descriptions
 uncategorised products, duplicate SKUs, missing prices, and each rejected row
 with its line number. Bad rows are reported, never silently dropped.
 
+## Hosting the database
+
+The search index is disposable — rebuilt from the feed in minutes. The Postgres
+side is not: it holds every merchandising decision, API key and shopper event,
+and none of it can be recovered from a catalogue file. On a laptop it lives and
+dies with that laptop.
+
+Point `DATABASE_URL` at a managed Postgres — Supabase, Neon, RDS — and that
+half stops being tied to a machine. The migrations need no extensions and no
+superuser rights, so they run unmodified. Connections to any non-local host are
+encrypted with the certificate verified, decided in code rather than read from
+the connection string.
+
+See [docs/HOSTED-DATABASE.md](docs/HOSTED-DATABASE.md).
+
 ## Configuration
 
 | Variable | Default | Notes |
