@@ -2,10 +2,15 @@
  * Source-column -> schema-field mapping.
  *
  * A NetSuite saved-search export names columns for accountants, not for search
- * ("Item Name/Number", "Base Price", "Custom Item Field: Finish"). The mapping
- * layer is what the admin field-mapping UI edits; the defaults below already
- * understand the common NetSuite and generic-feed headings, so an unmapped file
- * still ingests.
+ * ("Item Name/Number", "Base Price", "Custom Item Field: Finish"). A
+ * Searchspring feed names them for Searchspring ("category_hierarchy",
+ * "imageUrl", "mfrPartNumber"). The mapping layer is what the admin
+ * field-mapping UI edits; the defaults below understand the common headings of
+ * both, so an unmapped file still ingests.
+ *
+ * Aliases are matched exactly against the canonicalised heading, so a name
+ * this list guesses at that the file does not use costs nothing — the column
+ * simply stays an attribute, which is where everything unclaimed goes anyway.
  */
 
 export interface FieldMapping {
@@ -36,22 +41,28 @@ export const SCHEMA_FIELDS = [
 
 /** Candidate source headings per schema field, matched case/space-insensitively. */
 const ALIASES: Record<string, string[]> = {
-  sku: ['sku', 'item name/number', 'item name', 'itemid', 'internal id', 'item', 'part number'],
-  mpn: ['mpn', 'manufacturer part number', 'mfg part number', 'vendor code'],
+  sku: ['sku', 'item name/number', 'item name', 'itemid', 'internal id', 'item', 'part number',
+    'uid', 'product id'],
+  mpn: ['mpn', 'manufacturer part number', 'mfg part number', 'vendor code', 'mfrpartnumber'],
   parentId: ['parent', 'parent item', 'parent sku', 'matrix parent', 'item group', 'product id'],
   title: ['title', 'display name', 'name', 'product name', 'storedisplayname'],
   variantTitle: ['variant', 'variant title', 'matrix option', 'option'],
   description: ['description', 'sales description', 'store description', 'detailed description'],
   brand: ['brand', 'manufacturer', 'vendor'],
-  categoryPath: ['category', 'category path', 'commerce category', 'class', 'web category'],
+  categoryPath: ['category hierarchy', 'category', 'category path', 'commerce category',
+    'class', 'web category', 'categories'],
   price: ['price', 'base price', 'list price', 'msrp'],
   salePrice: ['sale price', 'online price', 'special price', 'promo price'],
-  inventory: ['inventory', 'quantity available', 'qty available', 'available', 'stock'],
-  image: ['image', 'image url', 'primary image', 'main image'],
-  images: ['images', 'image urls', 'gallery', 'additional images'],
-  reviewScore: ['review score', 'rating', 'avg rating', 'stars'],
-  reviewCount: ['review count', 'reviews', 'num reviews'],
-  salesVelocity: ['sales velocity', 'units sold', 'qty sold', 'sales rank', 'velocity'],
+  inventory: ['inventory', 'quantity available', 'qty available', 'available', 'stock',
+    'quantity', 'stock status'],
+  image: ['image', 'image url', 'imageurl', 'primary image', 'main image',
+    'thumbnailimageurl', 'thumbnail image url'],
+  images: ['images', 'image urls', 'gallery', 'additional images', 'alternate images',
+    'secondary images'],
+  reviewScore: ['review score', 'rating', 'avg rating', 'stars', 'reviewsaverage'],
+  reviewCount: ['review count', 'reviews', 'num reviews', 'reviewscount'],
+  salesVelocity: ['sales velocity', 'units sold', 'qty sold', 'sales rank', 'velocity',
+    'popularity'],
   margin: ['margin', 'margin %', 'gross margin', 'markup'],
   dateAdded: ['date added', 'created date', 'date created', 'first available'],
   tags: ['tags', 'keywords', 'labels'],

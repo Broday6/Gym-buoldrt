@@ -59,12 +59,53 @@ export interface IngestOptions {
   learn?: boolean;
 }
 
-export function parseCsv(content: string): SourceRow[] {
+/**
+ * Which character separates the columns.
+ *
+ * Feeds do not agree, and the file extension does not tell you: a Searchspring
+ * export is a `.txt` of tab-separated values, a NetSuite saved search is comma
+ * -separated, and plenty of European exports use semicolons. Guessing wrong is
+ * not a parse error — every line becomes one enormous single column, the
+ * mapping layer finds no headings it recognises, and the ingest reports a
+ * catalogue of one field rather than saying anything was wrong.
+ *
+ * Decided on the header line alone, by which candidate splits it into the most
+ * columns. A tab in a product description cannot mislead it, and a header row
+ * that genuinely has more commas than tabs is comma-separated.
+ */
+export function sniffDelimiter(content: string): string {
+  const header = content.replace(/^\ufeff/, '').split(/\r?\n/, 1)[0] ?? '';
+  let best = ',';
+  let width = 0;
+  for (const candidate of ['\t', ',', '|', ';']) {
+    // Splitting naively is right here: quoting only matters for values, and a
+    // header carrying a quoted delimiter would still be counted consistently
+    // across candidates.
+    const n = header.split(candidate).length;
+    if (n > width) {
+      width = n;
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+/**
+ * Parse a delimited feed.
+ *
+ * Named for the format it was written against, and now takes whatever the file
+ * actually is. `relax_quotes` is here because product feeds are full of inch
+ * marks — `6"W x 8"H` — and a strict parser treats that as an unterminated
+ * quoted field and swallows the rest of the file into one value.
+ */
+export function parseCsv(content: string, delimiter = sniffDelimiter(content)): SourceRow[] {
   return parse(content, {
     columns: true,
+    delimiter,
     skip_empty_lines: true,
     trim: true,
     relax_column_count: true,
+    relax_quotes: true,
     bom: true,
   }) as SourceRow[];
 }
