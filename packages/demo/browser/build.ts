@@ -21,8 +21,19 @@ import type { CollectionDefinition, CustomAttributeDefinition, BadgeDefinition }
   from '../../server/src/merchandising/labels.js';
 
 const SITE = 'ekena';
-const OUT_DIR = './data/browser';
+const OUT_DIR = process.env.BROWSER_DEMO_OUT ?? './data/browser';
 const PRODUCTS = Number(process.env.BROWSER_DEMO_PRODUCTS ?? 320);
+/**
+ * A real catalogue feed to build from, instead of the generated one.
+ *
+ * The hosted page has always been the demo catalogue, which is the right
+ * thing for showing what the software does and the wrong thing for showing
+ * somebody their own shop. Pointing this at a feed builds the same page over
+ * real products.
+ */
+const FEED = process.env.BROWSER_DEMO_CSV;
+/** Store name shown on the page. The demo one is deliberately fictional. */
+const STORE = process.env.BROWSER_DEMO_STORE;
 
 /**
  * The definitions the database would hold, built from the same source the seed
@@ -30,9 +41,48 @@ const PRODUCTS = Number(process.env.BROWSER_DEMO_PRODUCTS ?? 320);
  * the label engine reads them, so they are filled in plainly rather than faked
  * to look like real rows.
  */
+/**
+ * The searches a visitor is most likely to want, from what the catalogue
+ * actually holds: its busiest aisles, then the features within them.
+ *
+ * Values are offered as they are written rather than glued to a product noun.
+ * Guessing the noun means guessing which of the aisle names is generic, and
+ * getting it wrong reads as gibberish — this catalogue files products under
+ * "Arch Top Gable Vent", so the first attempt suggested "diamond gable vent
+ * arch top gable vent".
+ */
+function popularSearches(all: { categoryPath: string[]; parentId: string;
+  attrs?: Record<string, string | number> }[]): string[] {
+  const count = (pick: (d: typeof all[0]) => string | undefined) => {
+    const seen = new Map<string, Set<string>>();
+    for (const doc of all) {
+      const key = pick(doc);
+      if (!key) continue;
+      if (!seen.has(key)) seen.set(key, new Set());
+      seen.get(key)!.add(doc.parentId);
+    }
+    return [...seen].sort((a, b) => b[1].size - a[1].size).map(([k]) => k);
+  };
+
+  const aisles = count((d) => d.categoryPath[d.categoryPath.length - 1]);
+  const features = count((d) => {
+    for (const key of ['frame', 'style', 'finish', 'material']) {
+      const v = d.attrs?.[key];
+      if (typeof v === 'string' && v.trim()) return v;
+    }
+    return undefined;
+  });
+
+  const phrases = [...aisles.slice(0, 3), ...features.slice(0, 4)]
+    .map((p) => p.toLowerCase());
+  return [...new Set(phrases.filter(Boolean))].slice(0, 6);
+}
+
 function labelPlan(): LabelPlan {
   return {
-    collections: DEMO_COLLECTIONS.map((c, i) => ({
+    // The demo's collections are about the demo's catalogue. A real feed gets
+    // none rather than a rail of groupings that catch nothing it contains.
+    collections: (FEED ? [] : DEMO_COLLECTIONS).map((c, i) => ({
       id: i + 1, siteId: SITE, slug: c.slug, name: c.name, kind: 'marketing',
       parentId: null, selector: c.selector as CollectionDefinition['selector'],
       enabled: true, startsAt: null, endsAt: null, position: i,
@@ -61,9 +111,13 @@ function labelPlan(): LabelPlan {
   };
 }
 
-console.log(`building the browser demo — ${PRODUCTS} products`);
+console.log(FEED
+  ? `building the browser page from ${FEED}`
+  : `building the browser demo — ${PRODUCTS} products`);
 
-const csv = generateCatalogCsv({ productCount: PRODUCTS, seed: 20260830 });
+const csv = FEED
+  ? readFileSync(FEED, 'utf8')
+  : generateCatalogCsv({ productCount: PRODUCTS, seed: 20260830 });
 const rows = parseCsv(csv);
 const headers = Object.keys(rows[0] ?? {});
 const mapping = inferMapping(headers);
@@ -96,6 +150,12 @@ mkdirSync(OUT_DIR, { recursive: true });
 const dataPath = `${OUT_DIR}/catalog.json`;
 writeFileSync(dataPath, JSON.stringify({
   site: SITE,
+  // Searches worth putting in front of a visitor, read off the catalogue
+  // rather than written for one. A page built from a real feed offered the
+  // demo's suggestions — beams and shutters, for a catalogue of gable vents —
+  // which is a worse first impression than offering none.
+  popular: FEED ? popularSearches(docs) : [],
+  store: STORE,
   // What this feed offers as a filter. The page adopts these exactly as a
   // server-side ingest does, so the hosted rail is the rail a deployment gets.
   facetable: mapping.facetable ?? [],
@@ -134,10 +194,11 @@ const html = shell
   .replace('/*DATA*/', () => data)
   .replace('/*BUNDLE*/', () => bundle);
 
-writeFileSync('./data/browser/index.html', html);
+const outFile = `${OUT_DIR}/index.html`;
+writeFileSync(outFile, html);
 rmSync(dataPath);
 rmSync(`${OUT_DIR}/bundle.js`);
 
-const mb = (statSync('./data/browser/index.html').size / 1e6).toFixed(2);
+const mb = (statSync(outFile).size / 1e6).toFixed(2);
 console.log(`  bundle ${(bundle.length / 1024).toFixed(0)}KB · catalogue ${(data.length / 1e6).toFixed(2)}MB`);
-console.log(`\nwrote ./data/browser/index.html (${mb}MB)`);
+console.log(`\nwrote ${outFile} (${mb}MB)`);

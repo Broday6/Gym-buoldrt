@@ -35,7 +35,17 @@ const noDatabase = {
  * test. They are labelled as popular searches, not as test cases: what the
  * engine does with them should be visible in the results, not in a caption.
  */
-const POPULAR = [
+// The page is rendered inside a host document whose language may be unset,
+// and a screen reader needs one to pick a voice.
+if (!document.documentElement.lang) document.documentElement.lang = 'en';
+
+const data = JSON.parse(document.querySelector('#catalog').textContent);
+
+/**
+ * A page built from a real feed suggests searches from that feed, and names
+ * the real shop. The list below is the demo's, and only the demo's.
+ */
+const POPULAR = data.popular?.length ? data.popular : [
   'black shutters',
   'volterra beams',
   '4x6 beam 12ft',
@@ -44,11 +54,13 @@ const POPULAR = [
   'oil rubbed bronze',
 ];
 
-// The page is rendered inside a host document whose language may be unset,
-// and a screen reader needs one to pick a voice.
-if (!document.documentElement.lang) document.documentElement.lang = 'en';
-
-const data = JSON.parse(document.querySelector('#catalog').textContent);
+if (data.store) {
+  document.title = data.store;
+  const brand = document.querySelector('.brand__name');
+  if (brand) brand.textContent = data.store;
+  // The fictional-store disclaimer is about the demo catalogue, not this one.
+  for (const el of document.querySelectorAll('.demo-note')) el.remove();
+}
 
 const engine = new MemoryEngine();
 engine.load(data.site, data.docs);
