@@ -2,6 +2,8 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { learnAttributes } from '../src/ingest/learn.js';
 import { inferMapping } from '../src/ingest/mapping.js';
+import { parseCsv } from '../src/ingest/pipeline.js';
+import { generateCatalogCsv } from '../../demo/generate-catalog.js';
 import type { SourceRow } from '../src/ingest/normalize.js';
 
 /**
@@ -313,5 +315,32 @@ describe('attributes that exist nowhere but in prose', () => {
     learnAttributes(rows, mapping);
     assert.equal(mapping.attributes.material, 'Material');
     assert.equal(rows[0]!.Material, 'Cedar', 'the stated column still wins');
+  });
+});
+
+describe('the whole path, on the catalogue the suites actually run against', () => {
+  /**
+   * The unit tests above prove the rule; this proves it is reached. Nothing
+   * query-shaped can guard it — a description reading "FRAME: Brickmould Sill
+   * Frame" still text-matches a search for brickmould whether or not the
+   * column was ever created — so the guard has to assert the columns exist.
+   */
+  test('the demo catalogue yields attributes that had no column anywhere', () => {
+    const rows = parseCsv(generateCatalogCsv({ productCount: 520, seed: 20260830 }));
+    const mapping = inferMapping(Object.keys(rows[0] ?? {}));
+    assert.equal(mapping.attributes.frame, undefined, 'no column for frame in the feed');
+    assert.equal(mapping.attributes.type, undefined, 'nor for vent type');
+
+    const report = learnAttributes(rows, mapping);
+
+    assert.ok(report.discovered.frame > 50, `frame discovered on ${report.discovered.frame} rows`);
+    assert.ok(report.discovered.type > 50, `type discovered on ${report.discovered.type} rows`);
+    // Created as real columns, and offered as filters — a value nothing can
+    // filter on is only half recovered.
+    assert.ok(mapping.attributes.frame);
+    assert.ok(mapping.facetable?.includes('frame'));
+    // And every row that got one really does state it.
+    const filled = rows.filter((r) => r['learned:frame']);
+    assert.ok(filled.every((r) => (r['Sales Description'] ?? '').includes(r['learned:frame']!)));
   });
 });

@@ -80,6 +80,19 @@ interface Family {
   skuPrefix: string;
   basePrice: [number, number];
   descriptors: string[];
+  /**
+   * Spec fields this family states only as labelled pairs inside its
+   * description, with no column anywhere in the feed.
+   *
+   * Modelled after a real NetSuite export, where the material, style, vent
+   * type and frame of 711 gable vents lived entirely inside prose like
+   * `TYPE: Functional w/Louver Box  MATERIAL: PVC  FRAME: Standard`. The
+   * ingest can create a column for an attribute like that, and until this
+   * existed nothing but a unit test exercised it — the generated catalogue
+   * put every attribute in a tidy column of its own, which no real export
+   * does.
+   */
+  labelled?: Record<string, string[]>;
 }
 
 const FAMILIES: Family[] = [
@@ -199,6 +212,26 @@ const FAMILIES: Family[] = [
     ],
   },
   {
+    // The style is an attribute, not a category level: this family carries
+    // four shapes and filing them all under one style's name would make the
+    // taxonomy lie.
+    category: ['Exterior', 'Gable Vents'],
+    noun: 'Gable Vent',
+    brands: ['TrueCraft'],
+    materials: ['PVC', 'Polyurethane'],
+    finishes: ['Primed White', 'Unfinished'],
+    styles: ['Arch Top', 'Diamond', 'Half Round', 'Octagonal'],
+    sections: [[12, 12], [16, 16], [18, 18], [24, 24], [12, 14]],
+    skuPrefix: 'GV',
+    basePrice: [79, 559],
+    descriptors: ['moulded in one piece with no seams to open up in weather'],
+    // No column carries these. A shopper filters on both.
+    labelled: {
+      type: ['Functional w/Louver Box', 'Non-Functional Decorative'],
+      frame: ['Standard Frame', 'Brickmould Frame', 'Brickmould Sill Frame'],
+    },
+  },
+  {
     category: ['Interior', 'Wall', 'Wall Panels'],
     noun: 'Wainscot Wall Panel',
     brands: ['Ekena Millwork'],
@@ -293,9 +326,19 @@ export function generateCatalog(options: GeneratorOptions = {}): GeneratedCatalo
       if (section && rand() < 0.4) sparse.add('section');
     }
 
+    // A family with labelled specs writes them the way an ERP template does:
+    // shouted keys, run together on one line, values and labels separated by
+    // nothing more reliable than spacing.
+    const labelledSpec = family.labelled
+      ? Object.entries(family.labelled)
+        .map(([key, values]) => `${key.toUpperCase()}: ${pick(rand, values)}`)
+        .join('  ')
+      : '';
     const description = defect === 'no_description'
       ? ''
-      : `${title} in ${material}. ${pick(rand, family.descriptors)}. Sold individually.`;
+      : family.labelled
+        ? `${brand} ${sectionLabel}STYLE: ${style}  ${labelledSpec}  MATERIAL: ${material}.`
+        : `${title} in ${material}. ${pick(rand, family.descriptors)}. Sold individually.`;
     const category = defect === 'no_category' ? '' : family.category.join(' > ');
     const dateCreated = new Date(Date.now() - Math.floor(rand() * 900) * 86_400_000)
       .toISOString()

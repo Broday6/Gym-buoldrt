@@ -1,7 +1,7 @@
 {
   "corpus": {
     "products": 520,
-    "variants": 2187,
+    "variants": 2081,
     "learn": true
   },
   "score": 1,
@@ -27,6 +27,16 @@
       "pass": true
     },
     "noun-faux-wood-beam": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "noun-gable-vent": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "style-arch-top-vent": {
       "precision": 1,
       "coverage": 1,
       "pass": true
@@ -167,5 +177,5 @@
       "pass": true
     }
   },
-  "generatedAt": "2026-08-31T20:50:15.675Z"
+  "generatedAt": "2026-09-01T20:07:51.720Z"
 }

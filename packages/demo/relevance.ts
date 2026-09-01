@@ -60,7 +60,13 @@ async function main(): Promise<void> {
     const l = corpus.learned;
     process.stdout.write(`  recovered ${l.filled} attribute values on ${l.rowsChanged} rows `
       + `(${Object.entries(l.byKey).map(([k, n]) => `${k} ${n}`).join(', ')}), `
-      + `declined ${l.declined} as ambiguous\n\n`);
+      + `declined ${l.declined} as ambiguous\n`);
+    const discovered = Object.keys(l.discovered);
+    if (discovered.length) {
+      process.stdout.write(`  created ${discovered.join(', ')} from prose — `
+        + 'the feed has no column for them\n');
+    }
+    process.stdout.write('\n');
   }
 
   const results: CaseResult[] = [];

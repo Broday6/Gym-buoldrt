@@ -58,6 +58,25 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       rescued: false,
     },
 
+    // ---- A family whose specs are written as prose, not columns. ----
+    {
+      id: 'noun-gable-vent',
+      query: 'gable vent',
+      intent: 'A family whose attributes were recovered from prose is still a normal aisle',
+      expect: { category: 'Gable Vents' },
+      minResults: 20,
+      rescued: false,
+    },
+    {
+      id: 'style-arch-top-vent',
+      query: 'arch top gable vent',
+      intent: 'A style is a filter even when the category does not name it',
+      expect: { category: 'Gable Vents', attr: { style: 'Arch Top' } },
+      understands: ['Arch Top'],
+      minResults: 1,
+      rescued: false,
+    },
+
     // ---- Features typed as free text. The behaviour built for this. ----
     {
       id: 'feature-black-pvc-shutter',
