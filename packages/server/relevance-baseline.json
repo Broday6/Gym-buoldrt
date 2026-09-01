@@ -51,6 +51,21 @@
       "coverage": 1,
       "pass": true
     },
+    "head-noun-ceiling-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "head-noun-exterior-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
+    "head-noun-longer-phrase-wins": {
+      "precision": 1,
+      "coverage": 1,
+      "pass": true
+    },
     "feature-black-pvc-shutter": {
       "precision": 1,
       "coverage": 1,
@@ -187,5 +202,5 @@
       "pass": true
     }
   },
-  "generatedAt": "2026-09-01T20:20:15.392Z"
+  "generatedAt": "2026-09-01T20:30:49.519Z"
 }

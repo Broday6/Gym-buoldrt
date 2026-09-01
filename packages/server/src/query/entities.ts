@@ -174,8 +174,16 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
   const constraints: ParsedConstraint[] = [];
   const taken = new Array<boolean>(tokens.length).fill(false);
   let brandFound = false;
-  let categoryFound = false;
   let attributesFound = 0;
+  /**
+   * Every product type the query names, not just the first one found.
+   *
+   * "ceiling beams" names two — Interior > Ceiling and Millwork > Beams — and
+   * taking the first left-to-right filtered to the ceiling aisle and threw
+   * "beams" away, so a shopper asking for beams got medallions. Which one is
+   * meant is a choice, and it has to be made with both in hand.
+   */
+  const categorySpans: { at: number; width: number; id: string; source: string }[] = [];
 
   for (let width = Math.min(entities.maxTokens, tokens.length); width >= 1; width--) {
     for (let i = 0; i + width <= tokens.length; i++) {
@@ -193,13 +201,12 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
         brandFound = true;
         continue;
       }
-      const category = !categoryFound ? entities.categories.get(key) : undefined;
+      const category = entities.categories.get(key);
       if (category) {
-        constraints.push({
-          field: 'categoryId', value: category.id, source: span.join(' '), kind: 'category',
-        });
+        // Claimed for now so an attribute cannot steal the words while the
+        // candidates are still being gathered; the losers are released below.
+        categorySpans.push({ at: i, width, id: category.id, source: span.join(' ') });
         for (let j = i; j < i + width; j++) taken[j] = true;
-        categoryFound = true;
         continue;
       }
 
@@ -219,8 +226,51 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
     }
   }
 
+  const chosen = chooseCategory(categorySpans);
+  if (chosen) {
+    constraints.push({
+      field: 'categoryId', value: chosen.id, source: chosen.source, kind: 'category',
+    });
+  }
+  // Product types the query named but that lost the choice go back to being
+  // ordinary search terms. That is what makes the answer right rather than
+  // merely different: "ceiling" still has to be matched, and it is matched by
+  // the words in "Faux Wood Ceiling Beam" — so the beams that mention a
+  // ceiling outrank the ones that do not.
+  for (const span of categorySpans) {
+    if (span === chosen) continue;
+    for (let j = span.at; j < span.at + span.width; j++) taken[j] = false;
+  }
+
   return {
     constraints,
     residual: tokens.filter((_, i) => !taken[i]),
   };
+}
+
+/**
+ * Which of the product types a query names is the one being asked for.
+ *
+ * Two rules, in order:
+ *
+ *   - **The longer phrase wins.** "ceiling medallion" is a more specific claim
+ *     than "ceiling", and a shopper who typed the longer one meant it.
+ *   - **Otherwise the last one wins.** English puts the head noun last and the
+ *     modifiers before it: "ceiling beams" are beams, "exterior shutters" are
+ *     shutters, "kitchen lighting" is lighting. The word in front describes
+ *     where the thing goes, not what it is.
+ *
+ * Only one is lifted, because filtering to two aisles at once returns nothing:
+ * no product is both a medallion and a beam.
+ */
+function chooseCategory<T extends { at: number; width: number }>(spans: T[]): T | undefined {
+  let best: T | undefined;
+  for (const span of spans) {
+    if (!best
+      || span.width > best.width
+      || (span.width === best.width && span.at > best.at)) {
+      best = span;
+    }
+  }
+  return best;
 }

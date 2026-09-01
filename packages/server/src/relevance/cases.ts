@@ -97,6 +97,37 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       rescued: false,
     },
 
+    // ---- Two aisles named in one query. ----
+    {
+      id: 'head-noun-ceiling-beams',
+      query: 'ceiling beams',
+      intent: 'A query naming two aisles is asking for the last one; the first describes it',
+      // "Ceiling" is an aisle of its own and comes first, so taking the
+      // earliest match filtered to medallions and threw "beams" away.
+      expect: { category: 'Beams' },
+      forbid: { category: 'Ceiling Medallions' },
+      minResults: 10,
+      rescued: false,
+    },
+    {
+      id: 'head-noun-exterior-shutters',
+      query: 'exterior shutters',
+      intent: 'A department in front of a product type narrows to the product type',
+      expect: { category: 'Shutters' },
+      minResults: 10,
+      rescued: false,
+    },
+    {
+      id: 'head-noun-longer-phrase-wins',
+      query: 'ceiling medallion',
+      intent: 'A longer product name still beats a shorter one inside it',
+      // The fix above must not make "ceiling medallion" resolve to medallions
+      // by accident of word order — it resolves because it is the longer name.
+      expect: { category: 'Ceiling Medallions' },
+      minResults: 10,
+      rescued: false,
+    },
+
     // ---- Features typed as free text. The behaviour built for this. ----
     {
       id: 'feature-black-pvc-shutter',

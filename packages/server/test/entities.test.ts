@@ -256,3 +256,63 @@ describe('searching by brand and product type', () => {
     await close();
   });
 });
+
+describe('a query that names two product types', () => {
+  /**
+   * The bug this covers returned ceiling medallions for "ceiling beams".
+   * "Ceiling" is an aisle in its own right and comes first, so lifting the
+   * earliest match filtered to it and dropped "beams" entirely — the shopper
+   * asked for beams and got the one thing in that aisle which is not one.
+   */
+  function twoAisles(): Product[] {
+    const make = (id: string, title: string, path: string[], ids: string[]): Product => ({
+      parentId: id, title, description: 'A millwork product.', brand: 'Ekena Millwork',
+      categoryPath: path, categoryIds: ids,
+      salesVelocity: 100, margin: 40, reviewScore: 4, reviewCount: 5, dateAdded: '2025-01-01',
+      variants: [{ sku: `${id}-A`, parentId: id, variantTitle: '', price: 100, inventory: 5,
+        attributes: {} }],
+    });
+    return [
+      make('B1', 'Rustic Faux Wood Ceiling Beam', ['Millwork', 'Beams'],
+        ['millwork', 'millwork/beams']),
+      make('M1', 'Acanthus Ceiling Medallion', ['Interior', 'Ceiling', 'Ceiling Medallions'],
+        ['interior', 'interior/ceiling', 'interior/ceiling/ceiling-medallions']),
+    ];
+  }
+
+  async function index(): Promise<EntityIndex> {
+    const sqlite = new SqliteEngine(':memory:');
+    await indexProducts(sqlite, 'ekena', twoAisles());
+    const built = await buildEntityIndex(sqlite, 'ekena');
+    await sqlite.close();
+    return built;
+  }
+
+  test('the last one is the thing being asked for', async () => {
+    const { constraints, residual } = liftEntities(['ceiling', 'beams'], await index());
+    const category = constraints.filter((c) => c.kind === 'category');
+    assert.equal(category.length, 1, 'exactly one aisle: nothing is both a beam and a medallion');
+    assert.equal(category[0]!.value, 'millwork/beams');
+    // And the loser is not thrown away — it still has to be matched, and it is
+    // matched by the words in "Faux Wood Ceiling Beam".
+    assert.deepEqual(residual, ['ceiling']);
+  });
+
+  test('a longer product name beats a shorter one inside it', async () => {
+    const { constraints, residual } = liftEntities(['ceiling', 'medallion'], await index());
+    assert.equal(constraints.find((c) => c.kind === 'category')?.value,
+      'interior/ceiling/ceiling-medallions');
+    assert.deepEqual(residual, [], 'both words are the name, so neither is left over');
+  });
+
+  test('a department in front of a product type narrows to the product type', async () => {
+    const { constraints } = liftEntities(['interior', 'beams'], await index());
+    assert.equal(constraints.find((c) => c.kind === 'category')?.value, 'millwork/beams');
+  });
+
+  test('one aisle on its own is still lifted', async () => {
+    const { constraints, residual } = liftEntities(['beams'], await index());
+    assert.equal(constraints.find((c) => c.kind === 'category')?.value, 'millwork/beams');
+    assert.deepEqual(residual, []);
+  });
+});
