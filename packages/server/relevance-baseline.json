@@ -9,198 +9,741 @@
     "noun-shutters": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "noun-crown-moulding": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "noun-ceiling-medallion": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "noun-chandelier": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "noun-faux-wood-beam": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "noun-gable-vent": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "style-arch-top-vent": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "discovered-attribute-filters": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "discovered-attribute-negation": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "head-noun-ceiling-beams": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "head-noun-exterior-shutters": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "head-noun-longer-phrase-wins": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-black-pvc-shutter": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-walnut-beam": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-primed-white-column": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-hunter-green-shutter": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-oil-rubbed-bronze-chandelier": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-cedar-bracket": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "feature-black-shutter-not-lighting": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "dim-4x6-beam": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "dim-12ft-beam": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "dim-24in-medallion": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-0": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-1": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-2": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-3": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-4": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-5": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "phrasing-12ft-6": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "axis-width-named": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "axis-medallion-across": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "dim-labelled-cross-section": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "style-hand-hewn-beam": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "style-board-and-batten-shutter": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "style-shaker-wainscot": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "typo-chandaleer": {
       "precision": 1,
       "coverage": 1,
+      "focus": 0.829,
       "pass": true
     },
     "typo-crownmoulding": {
       "precision": 1,
       "coverage": 1,
+      "focus": 1,
       "pass": true
     },
     "relax-black-polyurethane-shutter": {
       "precision": 1,
       "coverage": null,
+      "focus": null,
       "pass": true
     },
     "sku-exact": {
       "precision": 1,
       "coverage": null,
+      "focus": null,
+      "pass": true
+    },
+    "cover-category-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-category-wall-panels": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-antique-brass-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-antique-gold-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-black-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-bronze-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-charcoal-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-colonial-red-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-copper-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-espresso-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-hunter-green-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-matte-black-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-natural-pecan-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-oil-rubbed-bronze-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-pewter-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-polished-nickel-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-primed-white-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-sage-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-sand-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-unfinished-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-walnut-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-weathered-gray-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-finish-whitewash-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-frame-brickmould-frame-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-frame-brickmould-sill-frame-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-frame-standard-frame-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-brushed-brass-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-composite-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-crystal-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-douglas-fir-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-endurathane-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-fiberglass-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-mdf-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-polyurethane-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-poplar-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-pvc-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-reclaimed-pine-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-urethane-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-western-red-cedar-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-material-wrought-iron-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-acanthus-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-arch-top-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-art-deco-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-beadboard-wall-panels": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-bedford-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-board-and-batten-wall-panels": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-candelabra-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-contemporary-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-craftsman-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-dentil-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-diamond-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-doric-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-drum-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-egg-and-dart-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-empire-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-farmhouse-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-half-round-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-hand-hewn-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-joined-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-modern-cove-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-octagonal-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-offset-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-olivia-decorative-brackets": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-raised-panel-wall-panels": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-riverwood-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-roman-ionic-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-rustic-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-sandblasted-faux-wood-beams": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-shaker-wall-panels": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-spaced-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-sputnik-chandeliers": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-traditional-crown-moulding": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-tuscan-porch-columns": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-victorian-ceiling-medallions": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-style-z-frame-board-and-batten-shutters": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-type-functional-w-louver-box-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "cover-type-non-functional-decorative-gable-vents": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
       "pass": true
     }
   },
-  "generatedAt": "2026-09-01T20:30:49.519Z"
+  "generatedAt": "2026-09-01T20:36:53.191Z"
 }

@@ -5,6 +5,7 @@
  *   npm run relevance -- --update     # accept the current numbers as the baseline
  *   npm run relevance -- --csv export.csv
  *   npm run relevance -- --no-learn   # without attribute recovery, to price it
+ *   npm run relevance -- --written-only  # skip the generated coverage cases
  *   npm run relevance -- --verbose    # print the top results for every case
  *
  * The comparison is the point. A suite that only reports pass/fail says
@@ -19,6 +20,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { buildCorpus } from '../server/src/relevance/corpus.js';
 import { cases } from '../server/src/relevance/cases.js';
+import { coverageCases } from '../server/src/relevance/coverage.js';
 import { scoreCase, summarise, type CaseResult } from '../server/src/relevance/judge.js';
 import { generateCatalogCsv } from './generate-catalog.js';
 
@@ -36,7 +38,8 @@ interface Baseline {
   /** What produced these numbers, so a mismatched baseline is obvious. */
   corpus: { products: number; variants: number; learn: boolean };
   score: number;
-  cases: Record<string, { precision: number; coverage: number | null; pass: boolean }>;
+  cases: Record<string,
+    { precision: number; coverage: number | null; focus: number | null; pass: boolean }>;
   generatedAt: string;
 }
 
@@ -50,9 +53,15 @@ async function main(): Promise<void> {
 
   const learn = !flag('no-learn');
   const corpus = buildCorpus(csv, { learn });
-  const suite = cases(corpus);
+  // Hand-written cases say what a phrasing means. Generated ones say that
+  // every aisle and every feature the catalogue holds can be found at all —
+  // coverage that follows the data rather than anyone's imagination.
+  const written = cases(corpus);
+  const generated = flag('written-only') ? [] : coverageCases(corpus.docs);
+  const suite = [...written, ...generated];
 
-  process.stdout.write(`relevance: ${suite.length} judged queries against `
+  process.stdout.write(`relevance: ${written.length} judged + ${generated.length} generated `
+    + `queries against `
     + `${corpus.products} products / ${corpus.docs.length} variants`
     + `${learn ? ', attribute recovery on' : ''}\n\n`);
 
@@ -90,7 +99,7 @@ async function main(): Promise<void> {
       corpus: { products: corpus.products, variants: corpus.docs.length, learn },
       score: result.score,
       cases: Object.fromEntries(results.map((r) => [r.id, {
-        precision: r.precision, coverage: r.coverage, pass: r.pass,
+        precision: r.precision, coverage: r.coverage, focus: r.focus, pass: r.pass,
       }])),
       generatedAt: new Date().toISOString(),
     };
@@ -137,11 +146,18 @@ function compare(baseline: Baseline, results: CaseResult[]) {
         ? '' : ` ${label} ${before.toFixed(2)}->${after.toFixed(2)}`
     );
     const delta = move('precision', was.precision, r.precision)
-      + move('coverage', was.coverage ?? null, r.coverage);
+      + move('coverage', was.coverage ?? null, r.coverage)
+      + move('focus', was.focus ?? null, r.focus);
+    const dropped = (before: number | null | undefined, after: number | null) => (
+      after !== null && before != null && after < before - 0.001
+    );
+    const rose = (before: number | null | undefined, after: number | null) => (
+      after !== null && before != null && after > before + 0.001
+    );
     const worse = r.precision < was.precision - 0.001
-      || (r.coverage !== null && was.coverage != null && r.coverage < was.coverage - 0.001);
+      || dropped(was.coverage, r.coverage) || dropped(was.focus, r.focus);
     const better = r.precision > was.precision + 0.001
-      || (r.coverage !== null && was.coverage != null && r.coverage > was.coverage + 0.001);
+      || rose(was.coverage, r.coverage) || rose(was.focus, r.focus);
     if (worse || (was.pass && !r.pass)) {
       regressions.push(`${r.id} —${delta || ' now failing'}`);
     } else if (better || (!was.pass && r.pass)) {
@@ -158,6 +174,7 @@ function report(results: CaseResult[], verbose: boolean): void {
     process.stdout.write(`  ${mark} ${r.id.padEnd(width)}  `
       + `p ${r.precision.toFixed(2)}  `
       + `c ${r.coverage === null ? '   -' : r.coverage.toFixed(2)}  `
+      + `f ${r.focus === null ? '   -' : r.focus.toFixed(2)}  `
       + `${String(r.totalHits).padStart(4)}/${String(r.expected ?? '-').padEnd(4)}  `
       + `"${r.query}"\n`);
     for (const failure of r.failures) {

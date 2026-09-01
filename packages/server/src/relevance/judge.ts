@@ -99,6 +99,20 @@ export interface CaseResult {
   coverage: number | null;
   /** Products in the corpus satisfying `expect`. The denominator. */
   expected: number | null;
+  /**
+   * How much of what came back belongs there, over the whole result set
+   * rather than the first screen.
+   *
+   * Precision reads the top ten and coverage asks whether the right products
+   * were found; between them they miss a filter that has stopped filtering.
+   * With attribute lifting disabled, "walnut beam" returns every beam instead
+   * of the 35 walnut ones — and because relevance still ranks the walnut ones
+   * first, the top ten stays perfect and coverage caps at one. Every generated
+   * case passed a build where filtering did not work at all.
+   *
+   * This is the number that noticed: 35 of 57 belong, so 0.61.
+   */
+  focus: number | null;
   /** How many of the top k satisfied it, and how many were judged. */
   matched: number;
   judged: number;
@@ -218,6 +232,7 @@ export function scoreCase(
   // a shopper sees: one card per product however many variants it has.
   let expected: number | null = null;
   let coverage: number | null = null;
+  let focus: number | null = null;
   if (testCase.expect && !testCase.partial && universe.length) {
     const parents = new Set<string>();
     for (const d of universe) if (matches(d, testCase.expect)) parents.add(d.parentId);
@@ -229,6 +244,7 @@ export function scoreCase(
       failures.push(`found ${response.totalHits} of the ${expected} products that match`
         + ` ${describe(testCase.expect)}`);
     }
+    focus = expected ? Math.min(1, expected / Math.max(response.totalHits, expected)) : null;
   }
 
   return {
@@ -238,6 +254,7 @@ export function scoreCase(
     precision: round3(precision),
     coverage: coverage === null ? null : round3(coverage),
     expected,
+    focus: focus === null ? null : round3(focus),
     matched,
     judged: docs.length,
     totalHits: response.totalHits,
@@ -251,9 +268,11 @@ export function summarise(cases: CaseResult[]): SuiteResult {
   // `== null` rather than `=== null`: a case scored before coverage existed,
   // or built by hand, carries undefined, and averaging that in yields NaN for
   // the whole suite.
-  const parts = cases.flatMap((c) => (
-    c.coverage == null ? [c.precision] : [c.precision, c.coverage]
-  ));
+  const parts = cases.flatMap((c) => [
+    c.precision,
+    ...(c.coverage == null ? [] : [c.coverage]),
+    ...(c.focus == null ? [] : [c.focus]),
+  ]);
   const score = parts.length ? parts.reduce((sum, n) => sum + n, 0) / parts.length : 0;
   return {
     cases,
