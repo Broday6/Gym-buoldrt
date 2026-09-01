@@ -237,3 +237,81 @@ describe('reporting what it did', () => {
     assert.ok(materials.length <= 2, `sampled PVC ${materials.length} times`);
   });
 });
+
+describe('attributes that exist nowhere but in prose', () => {
+  /**
+   * Shaped after a real NetSuite export of gable vents: columns for internal
+   * id, record type, description and name, with the material, style and frame
+   * stated only inside the description as labelled pairs. Four attributes
+   * every shopper filters on, and not a column between them.
+   */
+  const HEADERS = ['Internal ID', 'Type', 'Description', 'Name'];
+  const vent = (id: string, description: string): SourceRow => ({
+    'Internal ID': id, Type: 'Assembly/Bill of Materials',
+    Description: description, Name: `GVP-${id}`,
+  });
+
+  function ventRows(n: number, description: string): SourceRow[] {
+    return Array.from({ length: n }, (_, i) => vent(String(i), description));
+  }
+
+  test('a labelled pair used across the feed becomes a real attribute', () => {
+    const rows = ventRows(20,
+      'TrueCraft STYLE: Arch Top Gable Vent  TYPE: Functional  MATERIAL: PVC'
+      + '  FRAME: 1" x 4" Flat Trim Frame');
+    const mapping = inferMapping(HEADERS);
+    const report = learnAttributes(rows, mapping);
+
+    assert.equal(rows[0]!['learned:material'], 'PVC');
+    assert.equal(rows[0]!['learned:style'], 'Arch Top Gable Vent');
+    assert.equal(rows[0]!['learned:frame'], '1" x 4" Flat Trim Frame');
+    // The column has to exist in the mapping too, or nothing downstream —
+    // facets, filters, merchandising rules — can see it.
+    assert.equal(mapping.attributes.material, 'learned:material');
+    assert.ok(mapping.facetable?.includes('material'));
+    assert.ok(report.discovered.material);
+  });
+
+  test('only the shouted word before the colon is the label', () => {
+    // In "MATERIAL: PVC  FRAME: Standard", PVC is the previous value.
+    const rows = ventRows(20, 'MATERIAL: PVC  FRAME: Standard Frame');
+    learnAttributes(rows, inferMapping(HEADERS));
+    assert.equal(rows[0]!['learned:material'], 'PVC');
+    assert.equal(rows[0]!['learned:frame'], 'Standard Frame');
+    assert.equal(rows[0]!['learned:pvc frame'], undefined);
+  });
+
+  test('a template placeholder is a form, not a value', () => {
+    // 26 of the 711 real rows carry exactly this.
+    const rows = ventRows(20, 'SIZE (RO): __"W X __"H  MATERIAL: PVC');
+    learnAttributes(rows, inferMapping(HEADERS));
+    assert.equal(rows[0]!['learned:size'], undefined);
+    assert.equal(rows[0]!['learned:material'], 'PVC');
+  });
+
+  test('one stray colon does not add a column to the catalogue', () => {
+    const rows = [...ventRows(40, 'A plain description with no labels'),
+      vent('x', 'NOTE: shipped flat')];
+    const mapping = inferMapping(HEADERS);
+    learnAttributes(rows, mapping);
+    assert.equal(mapping.attributes.note, undefined);
+  });
+
+  test('lower-case prose and clock times are not labels', () => {
+    const rows = ventRows(20, 'Ships by 12:30 daily. note: paintable surface.');
+    const mapping = inferMapping(HEADERS);
+    learnAttributes(rows, mapping);
+    assert.deepEqual(Object.keys(mapping.attributes).filter((k) => k.startsWith('learned')), []);
+    assert.equal(Object.keys(mapping.attributes).some((k) => k === 'note'), false);
+  });
+
+  test('an attribute the feed already has a column for is not duplicated', () => {
+    // Otherwise the facet splits in two and neither half is complete.
+    const headers = [...HEADERS, 'Material'];
+    const rows = ventRows(20, 'MATERIAL: PVC').map((r) => ({ ...r, Material: 'Cedar' }));
+    const mapping = inferMapping(headers);
+    learnAttributes(rows, mapping);
+    assert.equal(mapping.attributes.material, 'Material');
+    assert.equal(rows[0]!.Material, 'Cedar', 'the stated column still wins');
+  });
+});

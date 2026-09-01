@@ -68,6 +68,12 @@ export interface LearnOptions {
   samplesPerValue?: number;
   /** Attribute keys to leave alone. */
   skip?: string[];
+  /**
+   * How many products must use a labelled pair before it is treated as part of
+   * the feed's shape and given a column. Defaults to the larger of five rows
+   * and one percent of them.
+   */
+  minLabelledRows?: number;
 }
 
 export interface LearnedValue {
@@ -81,6 +87,13 @@ export interface LearnedValue {
 export interface LearnReport {
   /** Cells filled. */
   filled: number;
+  /**
+   * Attributes that existed nowhere but in prose, and the labelled pairs that
+   * produced them. Counted apart from `filled` because they are a different
+   * claim: filling a blank column asserts a value, while this asserts that a
+   * whole product attribute exists at all.
+   */
+  discovered: Record<string, number>;
   rowsChanged: number;
   byKey: Record<string, number>;
   bySource: Record<string, number>;
@@ -133,7 +146,7 @@ export function learnAttributes(
   const skip = new Set(options.skip ?? []);
 
   const report: LearnReport = {
-    filled: 0, rowsChanged: 0, byKey: {}, bySource: {},
+    filled: 0, discovered: {}, rowsChanged: 0, byKey: {}, bySource: {},
     declined: 0, vocabulary: {}, samples: [],
   };
 
@@ -144,6 +157,11 @@ export function learnAttributes(
 
   const skuColumn = mapping.fields.sku ?? '';
   const categoryColumn = mapping.fields.categoryPath ?? '';
+
+  // Before anything else, because it can create the very columns the rest of
+  // this function then learns a vocabulary from.
+  readLabelledPairs(rows, mapping, textColumns, skuColumn, report, options);
+
   const learnable = Object.entries(mapping.attributes)
     .filter(([key]) => !skip.has(key) && !DIMENSION_KEYS.has(key));
 
@@ -385,3 +403,117 @@ function dimensionsFrom(
 }
 
 const round = (n: number) => Math.round(n * 16) / 16;
+
+/**
+ * `MATERIAL: PVC  FRAME: Standard` — attributes that exist nowhere but prose.
+ *
+ * The pass above recovers a value for a column some products already fill in.
+ * It is helpless when the column does not exist at all, because it induces its
+ * vocabulary from that column: no populated cells anywhere means no vocabulary
+ * and nothing to match.
+ *
+ * That is not a corner case. A real NetSuite export of 711 gable vents has
+ * columns for internal id, record type, description, name and three variant
+ * options — and states the material, the style, the vent type and the frame
+ * only inside the description, as labelled pairs. Four product attributes that
+ * every shopper filters on, invisible to search, with no column to recover
+ * them into. So the column gets created.
+ *
+ * Deliberately narrow, because inventing product attributes out of punctuation
+ * is the most destructive thing in this file:
+ *
+ *   - **The label must be shouted.** ALL CAPS immediately before the colon.
+ *     Prose does not do this; ERP description templates always do. A
+ *     lower-case "note:" or a time like "12:30" cannot become an attribute.
+ *   - **Only the last word before the colon is the label.** In
+ *     `MATERIAL: PVC  FRAME: Standard`, `PVC` is the previous value, not part
+ *     of the next label.
+ *   - **It has to be a pattern, not an accident.** A label is only believed
+ *     once enough products use it, so one stray colon in one description
+ *     cannot add a column to the catalogue.
+ *   - **Template placeholders are not values.** `SIZE: __"W X __"H` is a form
+ *     waiting to be filled in, and 26 of those 711 rows carry it.
+ */
+function readLabelledPairs(
+  rows: SourceRow[],
+  mapping: FieldMapping,
+  textColumns: [string, string][],
+  skuColumn: string,
+  report: LearnReport,
+  options: LearnOptions,
+): void {
+  const minRows = options.minLabelledRows ?? Math.max(5, Math.ceil(rows.length * 0.01));
+
+  // Pass one: which labels are used often enough to be part of the feed's
+  // shape rather than a coincidence.
+  const seen = new Map<string, number>();
+  for (const row of rows) {
+    for (const [, column] of textColumns) {
+      for (const { key } of labelledPairsIn(row[column] ?? '')) {
+        seen.set(key, (seen.get(key) ?? 0) + 1);
+      }
+    }
+  }
+
+  const claimed = new Set(Object.keys(mapping.attributes));
+  const create: string[] = [];
+  for (const [key, n] of seen) {
+    if (n < minRows) continue;
+    // An attribute the feed already has a column for is filled by the pass
+    // above, on its own vocabulary. Creating a second column for the same name
+    // would split the facet in two.
+    if (claimed.has(key)) continue;
+    create.push(key);
+  }
+  if (!create.length) return;
+
+  // Pass two: give each discovered attribute a column, and fill it.
+  for (const key of create) {
+    mapping.attributes[key] = `learned:${key}`;
+    if (!mapping.facetable?.includes(key)) mapping.facetable = [...(mapping.facetable ?? []), key];
+  }
+  const wanted = new Set(create);
+  for (const row of rows) {
+    for (const [field, column] of textColumns) {
+      for (const { key, value } of labelledPairsIn(row[column] ?? '')) {
+        if (!wanted.has(key)) continue;
+        const target = `learned:${key}`;
+        if ((row[target] ?? '').trim()) continue;
+        row[target] = value;
+        report.filled++;
+        report.discovered[key] = (report.discovered[key] ?? 0) + 1;
+        report.byKey[key] = (report.byKey[key] ?? 0) + 1;
+        report.bySource[field] = (report.bySource[field] ?? 0) + 1;
+        if (report.samples.length < (options.maxSamples ?? 500)) {
+          report.samples.push({ sku: (row[skuColumn] ?? '').trim(), key, value, source: field });
+        }
+      }
+    }
+  }
+}
+
+/**
+ * The label is the shouted word immediately before the colon, optionally with
+ * a parenthetical qualifier — `SIZE (RO):`. The value runs to the next label
+ * or the end of the text.
+ */
+const LABELLED_PAIR = /\b([A-Z][A-Z0-9_-]{1,19})(\s*\([A-Z]{1,6}\))?\s*:\s*/g;
+
+function labelledPairsIn(text: string): { key: string; value: string }[] {
+  if (!text || !text.includes(':')) return [];
+  const found = [...text.matchAll(LABELLED_PAIR)];
+  const out: { key: string; value: string }[] = [];
+  for (let i = 0; i < found.length; i++) {
+    const match = found[i]!;
+    const start = match.index! + match[0].length;
+    const end = i + 1 < found.length ? found[i + 1]!.index! : text.length;
+    const value = text.slice(start, end).trim().replace(/\s+/g, ' ');
+    const key = match[1]!.toLowerCase();
+    // A placeholder is a form, not a value; and a value long enough to be a
+    // sentence is prose that happened to follow a colon.
+    if (!value || value.length > 60 || value.includes('__')) continue;
+    if (!/[a-z0-9]/i.test(value)) continue;
+    out.push({ key, value });
+  }
+  return out;
+}
