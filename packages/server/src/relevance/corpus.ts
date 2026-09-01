@@ -58,8 +58,13 @@ export function buildCorpus(csv: string, options: CorpusOptions = {}): Corpus {
   engine.load(siteId, docs);
 
   const bySku = new Map(docs.map((d) => [d.sku, d]));
+  // The ingest offers what the feed carries as filters, and the site adopts
+  // them — the same step a real ingest performs. Without it the suite would
+  // measure a search that cannot recognise any attribute this feed introduced.
+  const registry = new SiteRegistry();
+  registry.adoptFacets(siteId, mapping.facetable ?? []);
   return {
-    site: new SiteRegistry().require(siteId),
+    site: registry.require(siteId),
     // The production defaults. A harness that quietly widened the candidate
     // window would report a quality the storefront does not have.
     service: new SearchService(engine),

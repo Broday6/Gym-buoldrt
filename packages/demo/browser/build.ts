@@ -96,6 +96,9 @@ mkdirSync(OUT_DIR, { recursive: true });
 const dataPath = `${OUT_DIR}/catalog.json`;
 writeFileSync(dataPath, JSON.stringify({
   site: SITE,
+  // What this feed offers as a filter. The page adopts these exactly as a
+  // server-side ingest does, so the hosted rail is the rail a deployment gets.
+  facetable: mapping.facetable ?? [],
   docs: slim,
   attributes: plan.attributes,
   badges: plan.badges,

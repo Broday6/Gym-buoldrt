@@ -113,6 +113,12 @@ for (const [index, site] of sites.list().entries()) {
      ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, updated_at = now()`,
     [site.id, site.name, JSON.stringify(site)],
   );
+  // The same step a real ingest performs: what the feed carries as a filter,
+  // the site offers as one.
+  const facetsAdded = sites.adoptFacets(site.id, result.mapping.facetable ?? [])
+    .map((f) => f.label);
+  if (facetsAdded.length) sites.save();
+
   await db.query(
     `INSERT INTO ingest_runs
        (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)

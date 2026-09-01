@@ -41,6 +41,11 @@ try {
     },
   });
 
+  const registry = SiteRegistry.load();
+  const facetsAdded = registry.adoptFacets(site.id, result.mapping.facetable ?? [])
+    .map((f) => f.field);
+  if (facetsAdded.length) registry.save();
+
   await db.query(
     `INSERT INTO ingest_runs
        (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)
@@ -56,6 +61,10 @@ try {
       `in ${result.durationMs}ms\nindex: ${result.indexName} (promoted)\n` +
       `quality: ${issues.length ? issues.join(', ') : 'no issues'}`,
   );
+  if (facetsAdded.length) {
+    console.log(`\nnew filters offered to shoppers: ${facetsAdded.join(', ')}`);
+    console.log('  this feed carries them and the site did not; remove any you do not want.');
+  }
   if (result.learned?.filled) {
     const l = result.learned;
     console.log(`\nrecovered ${l.filled} attribute values the feed left blank, `

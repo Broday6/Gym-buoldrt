@@ -52,7 +52,12 @@ const data = JSON.parse(document.querySelector('#catalog').textContent);
 
 const engine = new MemoryEngine();
 engine.load(data.site, data.docs);
-const site = new SiteRegistry().require(data.site);
+const registry = new SiteRegistry();
+// Attributes this catalogue carries that the built-in config never listed —
+// a vent's frame and type live only in product prose, and without this they
+// would be searchable text and nothing a shopper can filter on.
+registry.adoptFacets(data.site, data.facetable ?? []);
+const site = registry.require(data.site);
 
 // Merchandiser-defined facets and badges are read structurally rather than from
 // Postgres, which is exactly why the search pipeline types them that way.

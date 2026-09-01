@@ -28,6 +28,8 @@ export interface IngestResult {
   labelCounts: Record<string, number>;
   /** Attributes recovered from text because their column was empty. */
   learned?: LearnReport;
+  /** Attributes newly offered as filters because this feed carries them. */
+  facetsAdded?: string[];
 }
 
 export interface IngestOptions {

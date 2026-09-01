@@ -931,6 +931,13 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
         mapping,
         labels: await collections.plan(site.id),
       });
+      // Anything this feed offers as a filter that the site has not seen
+      // before becomes one, so a recovered attribute is filterable rather
+      // than merely searchable.
+      const facetsAdded = sites.adoptFacets(site.id, result.mapping.facetable ?? [])
+        .map((f) => f.field);
+      if (facetsAdded.length) sites.save();
+
       await db.query(
         `INSERT INTO ingest_runs
            (site_id, index_name, source, products, variants, duration_ms, quality, mapping, learned)
@@ -942,7 +949,7 @@ export async function registerRoutes(app: FastifyInstance, deps: RouteDeps): Pro
       // A new index invalidates every cached result for the site.
       search.invalidate(site.id);
       autocomplete.invalidate(site.id);
-      return { ...result, issues: summariseQuality(result.quality) };
+      return { ...result, facetsAdded, issues: summariseQuality(result.quality) };
     } catch (err) {
       await db.query(
         `INSERT INTO ingest_runs (site_id, index_name, source, status, error) VALUES ($1,'','${'api'}','error',$2)`,

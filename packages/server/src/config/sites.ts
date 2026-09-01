@@ -62,7 +62,10 @@ function site(id: string, name: string): SiteConfig {
       // decide relevance.
       ctr: 2,
     },
-    defaultFacets: DEFAULT_FACETS,
+    // Copied, not shared. Every site held the same array object, so a facet
+    // added for one would have appeared on the other — which nothing did
+    // until facets became something the ingest can add.
+    defaultFacets: DEFAULT_FACETS.map((f) => ({ ...f })),
     defaultSort: 'relevance',
     hitsPerPage: 24,
     currency: 'USD',
@@ -74,13 +77,25 @@ const BUILT_IN: SiteConfig[] = [
   site('archdepot', 'Architectural Depot'),
 ];
 
+/** `vent_type` -> `Vent Type`. */
+function titleCase(key: string): string {
+  return key.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 const CONFIG_PATH = process.env.COMPASS_SITES_PATH ?? './data/sites.json';
 
 export class SiteRegistry {
   private sites = new Map<string, SiteConfig>();
 
   constructor(configs: SiteConfig[] = BUILT_IN) {
-    for (const c of configs) this.sites.set(c.id, c);
+    for (const c of configs) {
+      // The facet rail is the one part of a site config this process mutates,
+      // and the built-in configs are module state shared by every registry
+      // ever constructed. Without this copy, adopting a filter for one site
+      // would leak into the next registry built — including, in the tests,
+      // the one that expects a clean slate.
+      this.sites.set(c.id, { ...c, defaultFacets: c.defaultFacets.map((f) => ({ ...f })) });
+    }
   }
 
   static load(path = CONFIG_PATH): SiteRegistry {
@@ -113,6 +128,52 @@ export class SiteRegistry {
 
   list(): SiteConfig[] {
     return [...this.sites.values()];
+  }
+
+  /**
+   * Offer attributes the ingest found as filters.
+   *
+   * A facet rail is configuration: it lists the fields a merchandiser decided
+   * shoppers care about, and both the rail and the query analyser read it —
+   * which is why an attribute recovered from a product description was, until
+   * now, only half recovered. The value reached the index and could be
+   * searched as text, but nothing offered it as a filter and typing
+   * "brickmould gable vent" narrowed nothing, because `brickmould` was not a
+   * word the analyser had ever been told was a frame.
+   *
+   * The ingest already decides which attributes are facet-worthy — a finish, a
+   * material, a frame, not a carton weight — so that judgement is published
+   * here rather than left stranded. Added at the end of the rail and plainly
+   * labelled, so a merchandiser sees a new filter appear and can remove it;
+   * proposing rather than deciding is how everything else in this system
+   * treats an automatic change.
+   *
+   * Existing facets are never touched: a merchandiser's label, order and
+   * display type outrank anything inferred.
+   */
+  adoptFacets(siteId: string, keys: string[]): FacetConfig[] {
+    const site = this.sites.get(siteId);
+    if (!site) return [];
+    const known = new Set(site.defaultFacets.map((f) => f.field));
+    let order = Math.max(0, ...site.defaultFacets.map((f) => f.order));
+    const added: FacetConfig[] = [];
+    for (const key of keys) {
+      if (known.has(key)) continue;
+      known.add(key);
+      added.push({
+        field: key,
+        label: titleCase(key),
+        displayType: 'checkbox',
+        order: ++order,
+        // Collapsed, because a rail that grows itself should not push the
+        // filters somebody chose off the screen.
+        collapsed: true,
+        truncateAt: 8,
+        sortBy: 'count',
+      });
+    }
+    if (added.length) site.defaultFacets = [...site.defaultFacets, ...added];
+    return added;
   }
 
   upsert(config: SiteConfig): void {

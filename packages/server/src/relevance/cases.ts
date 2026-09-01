@@ -77,6 +77,26 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       rescued: false,
     },
 
+    {
+      id: 'discovered-attribute-filters',
+      query: 'brickmould frame gable vent',
+      intent: 'An attribute that existed only in prose is a filter, not just matching text',
+      expect: { category: 'Gable Vents', attr: { frame: 'Brickmould Frame' } },
+      understands: ['Brickmould Frame'],
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'discovered-attribute-negation',
+      query: 'non-functional decorative gable vent',
+      intent: 'A value whose name contains another value still resolves to itself',
+      // "Functional w/Louver Box" is a substring away, and a text match alone
+      // returns the opposite of what was asked for.
+      expect: { category: 'Gable Vents', attr: { type: 'Non-Functional Decorative' } },
+      minResults: 1,
+      rescued: false,
+    },
+
     // ---- Features typed as free text. The behaviour built for this. ----
     {
       id: 'feature-black-pvc-shutter',
