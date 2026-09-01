@@ -475,7 +475,14 @@ const TYPESENSE_SORT: Record<string, string> = {
 
 function buildFilterBy(query: EngineQuery): string {
   const clauses: string[] = [];
-  if (query.sku) clauses.push(`sku:=${escapeValue(query.sku)}`);
+  if (query.sku) {
+    // Typesense matches a string field by prefix with a trailing `*`, so this
+    // is the same rule as the other two engines: a whole part number resolves
+    // to one product, a partial one to its family, and the manufacturer's
+    // number works as well as ours.
+    const prefix = `${query.sku}*`;
+    clauses.push(`(sku:${escapeValue(prefix)} || mpn:${escapeValue(prefix)})`);
+  }
   if (query.categoryId) clauses.push(`categoryIds:=${escapeValue(query.categoryId)}`);
   if (query.collection) clauses.push(`labels:=${escapeValue(`collection:${query.collection}`)}`);
   for (const [key, values] of Object.entries(query.labelFilters ?? {})) {

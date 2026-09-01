@@ -316,3 +316,77 @@ describe('a query that names two product types', () => {
     assert.deepEqual(residual, []);
   });
 });
+
+describe('what a shopper calls a value the catalogue spells in full', () => {
+  /**
+   * Nobody types "Hunter Green". The words worth accepting are read out of the
+   * catalogue's own values rather than from any list of colours, which is what
+   * makes this work on a catalogue of paint and a catalogue of shoes alike.
+   */
+  function palette(): Product[] {
+    const make = (id: string, title: string, finish: string, material: string,
+      path: string[], ids: string[]): Product => ({
+      parentId: id, title, description: 'A millwork product.', brand: 'Ekena Millwork',
+      categoryPath: path, categoryIds: ids,
+      salesVelocity: 100, margin: 40, reviewScore: 4, reviewCount: 5, dateAdded: '2025-01-01',
+      variants: [{ sku: `${id}-A`, parentId: id, variantTitle: finish, price: 100,
+        inventory: 5, attributes: { finish, material } }],
+    });
+    return [
+      make('S1', 'Board and Batten Shutter', 'Hunter Green', 'PVC',
+        ['Exterior', 'Shutters'], ['exterior', 'exterior/shutters']),
+      make('S2', 'Board and Batten Shutter', 'Colonial Red', 'PVC',
+        ['Exterior', 'Shutters'], ['exterior', 'exterior/shutters']),
+      make('S3', 'Board and Batten Shutter', 'Weathered Gray', 'Western Red Cedar',
+        ['Exterior', 'Shutters'], ['exterior', 'exterior/shutters']),
+      make('P1', 'Wainscot Wall Panel', 'Primed White', 'MDF',
+        ['Interior', 'Wall Panels'], ['interior', 'interior/wall-panels']),
+    ];
+  }
+
+  async function index(): Promise<EntityIndex> {
+    const sqlite = new SqliteEngine(':memory:');
+    await indexProducts(sqlite, 'ekena', palette());
+    const built = await buildEntityIndex(sqlite, 'ekena',
+      ['finish', 'material', 'style']);
+    await sqlite.close();
+    return built;
+  }
+
+  test('the plain colour word resolves to the value spelled in full', async () => {
+    const { constraints } = liftEntities(['green'], await index());
+    assert.deepEqual(
+      constraints.map((c) => [c.field, c.value]),
+      [['finish', 'Hunter Green']],
+    );
+  });
+
+  test('a word belongs to the value it is the head of', async () => {
+    // "Colonial Red" is a red. "Western Red Cedar" is a cedar that happens to
+    // be reddish, and a shopper typing red means the first.
+    const { constraints } = liftEntities(['red'], await index());
+    assert.deepEqual(constraints.map((c) => c.value), ['Colonial Red']);
+  });
+
+  test('both spellings of a colour are the same colour', async () => {
+    for (const spelling of ['gray', 'grey']) {
+      const { constraints } = liftEntities([spelling], await index());
+      assert.deepEqual(constraints.map((c) => c.value), ['Weathered Gray'], spelling);
+    }
+  });
+
+  test('a word the taxonomy uses is a product, not a feature', async () => {
+    // `panel` is a word in "Wall Panels". Letting an attribute claim it turns
+    // a search for panels into a search for something in a panel style.
+    const { constraints, residual } = liftEntities(['panel'], await index());
+    assert.ok(!constraints.some((c) => c.kind === 'attribute'),
+      `panel was claimed as ${JSON.stringify(constraints)}`);
+    void residual;
+  });
+
+  test('one value per attribute: two are a contradiction, not a narrowing', async () => {
+    const { constraints } = liftEntities(['green', 'red', 'shutter'], await index());
+    const finishes = constraints.filter((c) => c.field === 'finish');
+    assert.equal(finishes.length, 1, 'no product is two finishes at once');
+  });
+});

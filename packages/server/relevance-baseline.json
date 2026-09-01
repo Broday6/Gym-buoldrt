@@ -234,6 +234,42 @@
       "focus": null,
       "pass": true
     },
+    "colour-partial-green": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "colour-partial-red-not-cedar": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "colour-spelling-grey": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "colour-product-noun-wins": {
+      "precision": 1,
+      "coverage": 1,
+      "focus": 1,
+      "pass": true
+    },
+    "sku-partial": {
+      "precision": 1,
+      "coverage": null,
+      "focus": null,
+      "pass": true
+    },
+    "sku-manufacturer-number": {
+      "precision": 1,
+      "coverage": null,
+      "focus": null,
+      "pass": true
+    },
     "sku-exact": {
       "precision": 1,
       "coverage": null,
@@ -745,5 +781,5 @@
       "pass": true
     }
   },
-  "generatedAt": "2026-09-01T20:36:53.191Z"
+  "generatedAt": "2026-09-01T20:44:29.074Z"
 }

@@ -826,8 +826,12 @@ export class SqliteEngine implements SearchEngine {
     const params: (string | number)[] = [];
 
     if (query.sku) {
-      parts.push('AND UPPER(d.sku) = ?');
-      params.push(query.sku.toUpperCase());
+      // Prefix, and the manufacturer's number too. A whole part number still
+      // resolves to one product; a partial one resolves to its family rather
+      // than to the whole catalogue by way of the rescue.
+      parts.push('AND (UPPER(d.sku) LIKE ? OR UPPER(d.mpn) LIKE ?)');
+      const prefix = `${query.sku.toUpperCase().replace(/[%_]/g, '')}%`;
+      params.push(prefix, prefix);
     }
     if (query.categoryId && !candidates?.categoryHandled) {
       parts.push(

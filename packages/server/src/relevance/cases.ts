@@ -14,6 +14,7 @@ import type { Corpus } from './corpus.js';
 
 export function cases(corpus: Corpus): RelevanceCase[] {
   const anySku = corpus.docs[0]?.sku ?? '';
+  const anyMpn = corpus.docs.find((d) => d.mpn)?.mpn ?? anySku;
 
   return [
     // ---- Plain nouns. The floor: if these break, nothing else matters. ----
@@ -300,7 +301,71 @@ export function cases(corpus: Corpus): RelevanceCase[] {
       rescued: true,
     },
 
+    // ---- What a shopper calls a colour the catalogue spells in full. ----
+    // Nobody types "Hunter Green". These are read out of the catalogue's own
+    // values, so they hold on any catalogue rather than on a list of colours.
+    {
+      id: 'colour-partial-green',
+      query: 'green shutter',
+      intent: 'The plain colour word finds the finish the catalogue spells in full',
+      expect: { category: 'Shutters', attr: { finish: 'Hunter Green' } },
+      understands: ['Hunter Green'],
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'colour-partial-red-not-cedar',
+      query: 'red shutter',
+      intent: 'A colour word belongs to the value it is the head of, not one it merely sits in',
+      // "Colonial Red" is a red; "Western Red Cedar" is a cedar. Before the
+      // head rule this returned cedar shutters.
+      expect: { category: 'Shutters', attr: { finish: 'Colonial Red' } },
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'colour-spelling-grey',
+      query: 'grey beam',
+      intent: 'Both spellings of the same colour are the same colour',
+      expect: { category: 'Faux Wood Beams', attr: { finish: 'Weathered Gray' } },
+      minResults: 1,
+      rescued: false,
+    },
+    {
+      id: 'colour-product-noun-wins',
+      query: 'shaker wainscot panel',
+      intent: 'A word the taxonomy uses names a product, and a feature may not redefine it',
+      // `panel` is the head of the style "Raised Panel" and also the name of
+      // the aisle. Letting the style claim it asked for two contradictory
+      // styles at once.
+      expect: { category: 'Wall Panels', attr: { style: 'Shaker' } },
+      minResults: 1,
+      rescued: false,
+    },
+
     // ---- Exact lookup. A part number is a lookup, not a search. ----
+    {
+      id: 'sku-partial',
+      query: anySku.slice(0, 8),
+      intent: 'Part of a part number finds its family, not the whole catalogue',
+      // Read off a damaged label, or the prefix a range shares. This used to
+      // match nothing, and the zero-result rescue answered with best sellers.
+      expect: { title: '.' },
+      partial: true,
+      minResults: 1,
+      rescued: false,
+      k: 5,
+    },
+    {
+      id: 'sku-manufacturer-number',
+      query: anyMpn,
+      intent: "The number on the box works as well as the number in our system",
+      expect: { title: '.' },
+      partial: true,
+      minResults: 1,
+      rescued: false,
+      k: 5,
+    },
     {
       id: 'sku-exact',
       query: anySku,

@@ -36,6 +36,29 @@ interface Expansion {
   prefix: boolean;
 }
 
+/**
+ * Does this product answer to the part number typed?
+ *
+ * A part number is a lookup, not a search, and it used to be an exact match on
+ * the SKU alone. Two things a shopper does broke it completely. Typing the
+ * manufacturer's number off the box — the catalogue stores it, and nothing
+ * looked at it. And typing the part of the number they can read off a damaged
+ * label, or the family prefix shared by a range: a partial matched nothing,
+ * the zero-result rescue took over, and the answer to "BM6X8X48" was the
+ * entire catalogue's best sellers.
+ *
+ * Matching by prefix covers both. A whole part number still resolves to one
+ * product, because no other product's number starts with all of it.
+ */
+export function matchesPartNumber(
+  doc: { sku: string; mpn?: string },
+  typed: string,
+): boolean {
+  const wanted = typed.toUpperCase();
+  return doc.sku.toUpperCase().startsWith(wanted)
+    || (doc.mpn ?? '').toUpperCase().startsWith(wanted);
+}
+
 /** Fields a range filter may address, mirroring the SQLite column map. */
 const RANGE_FIELDS: Record<string, (d: VariantDoc) => number> = {
   price: (d) => d.effectivePrice,
@@ -181,7 +204,7 @@ export class MemoryEngine implements SearchEngine {
   }
 
   private matchesFilters(doc: VariantDoc, query: EngineQuery, skipFacet?: string): boolean {
-    if (query.sku && doc.sku.toUpperCase() !== query.sku.toUpperCase()) return false;
+    if (query.sku && !matchesPartNumber(doc, query.sku)) return false;
     if (query.categoryId && !doc.categoryIds.includes(query.categoryId)) return false;
     // Collection membership narrows exactly like a category does.
     if (query.collection && !doc.labels.includes(`collection:${query.collection}`)) return false;

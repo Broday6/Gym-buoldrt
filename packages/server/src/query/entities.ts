@@ -100,8 +100,21 @@ export async function buildEntityIndex(
     }
   }
 
+  // Words the taxonomy already uses. An attribute value that borrows one is
+  // not allowed to redefine it: see `addPartialNames`.
+  const categoryWords = new Set<string>();
+  for (const category of directory.categories) {
+    for (const segment of category.path) {
+      for (const word of normalise(segment).split(' ')) {
+        // Singular and plural both: the aisle is "Wall Panels" and the
+        // shopper types "panel".
+        if (word.length > 2) for (const form of keysFor(word)) categoryWords.add(form);
+      }
+    }
+  }
+
   const attributes = attributeFields.length
-    ? await attributeValues(engine, site, attributeFields)
+    ? await attributeValues(engine, site, attributeFields, categoryWords)
     : new Map<string, { field: string; value: string; products: number }>();
 
   const maxTokens = Math.max(
@@ -124,6 +137,7 @@ async function attributeValues(
   engine: SearchEngine,
   site: string,
   fields: string[],
+  categoryWords: Set<string> = new Set(),
 ): Promise<Map<string, { field: string; value: string; products: number }>> {
   const values = new Map<string, { field: string; value: string; products: number }>();
   const result = await engine.search({
@@ -150,8 +164,109 @@ async function attributeValues(
       }
     }
   }
+
+  addPartialNames(values, result.facets, categoryWords);
   return values;
 }
+
+/**
+ * What a shopper is likely to call a value that the catalogue spells in full.
+ *
+ * Nobody types "Hunter Green". They type green. The catalogue's own words are
+ * the merchandiser's, chosen to be precise on a product page, and a shopper
+ * searching has one of them at best — so "green shutter", "red shutter" and
+ * "white column" all matched nothing and fell through to whatever the aisle
+ * happened to hold.
+ *
+ * The words worth accepting are read out of the values themselves rather than
+ * from any list of colours, which is what makes this work on a catalogue of
+ * paint and a catalogue of shoes alike. A word earns its place only when it
+ * belongs to exactly one value of that attribute:
+ *
+ *   Hunter Green, Colonial Red, Primed White, Sage, Black
+ *     -> hunter, green, colonial, red, primed, white all resolve
+ *
+ *   Standard Frame, Brickmould Frame, Brickmould Sill Frame
+ *     -> "sill" and "standard" resolve; "frame" is in all three and "brickmould"
+ *        in two, so neither is claimed and both stay ordinary search terms
+ *
+ * Refusing the ambiguous ones is the point. Guessing which brickmould someone
+ * meant would filter half the range away on a coin flip, where leaving it as
+ * text lets both through and lets relevance order them.
+ */
+function addPartialNames(
+  values: Map<string, { field: string; value: string; products: number }>,
+  facets: { field: string; values: { value: string | number; count: number }[] }[],
+  /** Words the taxonomy already uses, which a feature may not redefine. */
+  categoryWords: Set<string>,
+): void {
+  /** word -> every attribute value containing it, across every field. */
+  const claims = new Map<string, {
+    field: string; value: string; count: number; head: boolean;
+  }[]>();
+
+  for (const facet of facets) {
+    for (const entry of facet.values) {
+      const raw = String(entry.value);
+      if (!/[a-z]{2,}/i.test(raw)) continue;
+      const words = normalise(raw).split(' ').filter((w) => w.length > 2);
+      // A single-word value is already its own key; splitting it adds nothing.
+      if (words.length < 2) continue;
+      const last = words[words.length - 1];
+      for (const word of new Set(words)) {
+        if (!claims.has(word)) claims.set(word, []);
+        claims.get(word)!.push({
+          field: facet.field, value: raw, count: entry.count, head: word === last,
+        });
+      }
+    }
+  }
+
+  for (const [word, all] of claims) {
+    // A word the taxonomy uses names a kind of thing, not a feature of one.
+    // "Board and Batten" is a style of wall panel *and* a kind of shutter, and
+    // letting the style claim `board` turned "board and batten shutter" into a
+    // search for shutters in a wall-panel style — a combination no product has.
+    // Same for `panel`, which made "shaker wainscot panel" ask for two
+    // contradictory styles at once. A shopper typing a product noun means the
+    // product.
+    if (categoryWords.has(word)) continue;
+    // Ambiguous inside one attribute is ambiguous, full stop: two frames are
+    // brickmould, and picking one would filter half the range away on a coin
+    // flip. Leaving it as text lets both through and lets relevance order them.
+    const byField = new Map<string, typeof all>();
+    for (const claim of all) {
+      if (!byField.has(claim.field)) byField.set(claim.field, []);
+      byField.get(claim.field)!.push(claim);
+    }
+    const candidates = [...byField.values()].filter((c) => c.length === 1).map((c) => c[0]!);
+    if (!candidates.length) continue;
+
+    // Between fields, the value the word is the *head* of wins. "Colonial Red"
+    // is a red; "Western Red Cedar" is a cedar that happens to be reddish, and
+    // a shopper typing "red shutter" means the first. Same rule that reads
+    // "ceiling beams" as beams — the last word is what a name is about.
+    const best = candidates.sort((a, b) => (
+      Number(b.head) - Number(a.head) || b.count - a.count
+    ))[0]!;
+
+    for (const key of keysFor(word)) {
+      // Never over an exact value: a catalogue carrying both "Green" and
+      // "Hunter Green" means the plain word, and says so.
+      if (values.has(key)) continue;
+      values.set(key, { field: best.field, value: best.value, products: best.count });
+    }
+    // British and American spellings of the same colour are the same word.
+    for (const [a, b] of [['gray', 'grey'], ['grey', 'gray']] as const) {
+      if (!word.includes(a)) continue;
+      const variant = normalise(word.replace(a, b));
+      if (variant && !values.has(variant)) {
+        values.set(variant, { field: best.field, value: best.value, products: best.count });
+      }
+    }
+  }
+}
+
 
 export interface EntityMatch {
   constraints: ParsedConstraint[];
@@ -215,7 +330,12 @@ export function liftEntities(tokens: string[], entities: EntityIndex): EntityMat
       const attribute = attributesFound < MAX_ATTRIBUTES
         ? entities.attributes.get(key)
         : undefined;
-      if (attribute) {
+      // One value per attribute. Two are a contradiction, not a narrowing:
+      // "shaker wainscot panel" was asking for a style that is Shaker and a
+      // style that is Raised Panel, and no product is both. The first match
+      // wins because the loop runs widest-span-first, so the longer, more
+      // specific phrase has already had its turn.
+      if (attribute && !constraints.some((c) => c.field === attribute.field)) {
         constraints.push({
           field: attribute.field, value: attribute.value,
           source: span.join(' '), kind: 'attribute',
