@@ -189,10 +189,30 @@ const data = readFileSync(dataPath, 'utf8');
 const css = readFileSync('packages/sdk/src/styles.css', 'utf8');
 const shell = readFileSync('packages/demo/browser/page.html', 'utf8');
 
-const html = shell
+const html = named(shell)
   .replace('/*STYLES*/', () => css)
   .replace('/*DATA*/', () => data)
   .replace('/*BUNDLE*/', () => bundle);
+
+/**
+ * Put the real shop's name in the markup, not only on the rendered page.
+ *
+ * The runtime rename came too late for anything that reads the file: the
+ * artifact host took its title from the `<title>` tag and published a page of
+ * gable vents under the demo store's fictional name.
+ */
+function named(template: string): string {
+  if (!STORE) return template;
+  const safe = STORE.replace(/[&<>]/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] ?? c
+  ));
+  return template
+    .replace('<title>Northgate Millwork</title>', `<title>${safe}</title>`)
+    .replace(
+      '<span class="brand__name">Northgate <span>Millwork</span></span>',
+      `<span class="brand__name">${safe}</span>`,
+    );
+}
 
 const outFile = `${OUT_DIR}/index.html`;
 writeFileSync(outFile, html);
