@@ -31,6 +31,16 @@ jobs:
         run: npx tsc -b --force --pretty false
       - name: Unit tests
         run: npm test
+      - name: Typesense matches SQLite
+        # Typesense is the production engine and every other test runs on
+        # SQLite. This holds it to the same shopper-visible behaviour against a
+        # real server; the suite skips itself anywhere TYPESENSE_HOST is unset.
+        run: |
+          docker run -d --name typesense -p 8108:8108 typesense/typesense:27.1 \
+            --data-dir /tmp --api-key=ci-typesense-key
+          for i in $(seq 1 30); do curl -sf localhost:8108/health && break; sleep 1; done
+          TYPESENSE_HOST=localhost TYPESENSE_API_KEY=ci-typesense-key \
+            npx tsx --test packages/server/test/typesense-engine.test.ts
       - name: Relevance
         # The judged query set, scored against the committed baseline. Fails
         # when a change makes any of them worse — the only check here that can

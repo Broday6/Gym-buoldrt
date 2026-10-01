@@ -42,7 +42,7 @@ fixed, what remains, and how each claim was verified.
 | CI | Typecheck, tests and spec drift; then seed, both browser suites, the accessibility audit, the benchmark and a backup/restore round trip | `.github/workflows/ci.yml` |
 | Hosted demo | The storefront as one self-contained HTML file, running the real pipeline over a third engine implementation | `packages/server/src/engine/memory.ts`, `packages/demo/browser/` |
 
-**229 unit tests + 31 storefront browser checks + 36 console browser checks + 20 accessibility audits, all passing.**
+**393 unit tests (plus 10 Typesense checks against a live server) + 31 storefront browser checks + 36 console browser checks + 20 accessibility audits, all passing.**
 
 ---
 
@@ -156,20 +156,24 @@ DECISIONS.md:
 
 ## Known gaps
 
-1. **Scale is proven to 104k variant documents on the dev engine, not to 2.3M.**
-   See the table above. Typesense is the answer and is untested here.
-2. **`TypesenseEngine` has never run against a live cluster.** No Docker daemon,
-   and the Typesense download host is blocked by this environment's proxy. It is
-   written to the documented API and implements the same interface, which the
-   whole layered design depends on. First task in any environment with Docker:
-   `docker compose up`, then re-run the engine suite against it.
+1. **Search misses its latency target at 98k variant documents on Typesense too.**
+   Measured on one Typesense 27.1 node (4 cores) with 25,000 generated products /
+   98,010 variant documents, uncached: browse passes (p95 120 ms), but search is
+   p50 125 ms / p95 385 ms against a 100 ms target, and a deep browse page is
+   p95 270 ms. The time is spent inside Typesense, not in the service: grouping
+   by parent with up to 8 variants per group is the main cost (see GAPS.md). Nothing
+   has been run at 2.3M SKUs.
+2. ~~**`TypesenseEngine` has never run against a live cluster.**~~ ✅ It now runs
+   against a live Typesense 27.1 in CI (`typesense-engine.test.ts`), held to the
+   same shopper-visible behaviour as SQLite. The first run found four bugs, all
+   fixed: the collection could not be created at all, totals counted variants
+   instead of products, the in-stock filter and facet spoke `true`/`false` where
+   everything else speaks `1`/`0`, and picking one facet value hid the others.
 3. **No semantic retrieval.** `semanticWeight` is plumbed and set to 0.
-4. **No query-triggered rules engine.** Collections, badges, hand-picking,
-   drag-to-reorder and scheduling are built and share one selector language.
-   What is missing is the trigger half: "when the query is *beams*, pin these
-   three" — boosts, buries, banners and query rewrites bound to a query rather
-   than to a product set.
-5. **No A/B testing.**
+4. ~~**No query-triggered rules engine.**~~ ✅ Pin, bury and hide bind to a query
+   as well as to a product set (GAPS.md, P3). Boosts, banners and query rewrites
+   are not built.
+5. ~~**No A/B testing.**~~ ✅ A rule can be split and both arms measured (GAPS.md, P3).
 6. **Facet swatch colours are inferred from finish names.** A real deployment
    should map finishes to hex values in the console.
 7. **Recommendations are co-occurrence and popularity only.** No embeddings, so
@@ -213,5 +217,6 @@ DECISIONS.md:
    attribution that is already computed.
 4. **Personalisation** — the event stream and the shopper/session identifiers
    are already recorded; nothing reads them per shopper yet.
-5. **Scale** — `TypesenseEngine` against a live cluster, and load testing at
-   2.3M SKUs. Still the largest unknown.
+5. **Scale** — `TypesenseEngine` now runs against a live cluster; what remains is
+   bringing search under its target at 98k documents and load testing at 2.3M
+   SKUs. Still the largest unknown.

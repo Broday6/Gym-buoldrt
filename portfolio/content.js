@@ -11,7 +11,7 @@ window.PORTFOLIO = {
 
   // The proof band near the top. `value` is what shows at rest; counters animate up to it.
   proof: [
-    { value: 229, label: "Unit tests passing", note: "plus 67 browser checks", source: "PROGRESS.md" },
+    { value: 393, label: "Unit tests passing", note: "plus 67 browser checks", source: "npm test" },
     { value: 129, of: 129, label: "Relevance cases passing", note: "typos, sizes, synonyms, aisles", source: "relevance-baseline.json" },
     { value: 9.9, decimals: 1, unit: "ms", label: "Median search time", note: "p95 39 ms against a 100 ms target", source: "npm run bench" },
     { value: 96, unit: "%", label: "Cache hit rate", note: "on repeated shopper traffic", source: "npm run bench" },
@@ -33,7 +33,7 @@ window.PORTFOLIO = {
         "Reads “4x6 beam 12ft” as a cross-section and a length",
         "129 of 129 relevance cases pass, from typos to “ceiling beams”",
         "Median search 9.9 ms, p95 39 ms on the demo catalogue",
-        "229 unit tests, 67 browser checks, 20 accessibility audits",
+        "393 unit tests, 67 browser checks, 20 accessibility audits",
         "One deployment serves every brand, each fully scoped",
       ],
       tools: ["TypeScript", "Node", "PostgreSQL", "Typesense", "SQLite FTS5", "Playwright"],
@@ -138,6 +138,7 @@ window.PORTFOLIO = {
     { text: "A failing query on the dashboard has a one-click fix", evidence: "inline “add synonym”" },
     { text: "A collection can span categories", evidence: "“Dark Finishes”: beams, shutters, lighting" },
     { text: "Paging returns every product exactly once", evidence: "category, collection and sorted queries" },
+    { text: "The production engine matches the dev engine on a live server", evidence: "typesense-engine.test.ts, run in CI" },
     { text: "A query with no keyword overlap still finds the product", evidence: "next phase: vector search", open: true },
   ],
 
@@ -163,6 +164,7 @@ window.PORTFOLIO = {
     { title: "Pages came back short and duplicated", text: "A 192-product category showed 19 results, then nothing. The window counted variants; pages count products." },
     { title: "“Price: low to high” was ignored", text: "Ranking re-sorted after the engine had sorted. The browser test caught what a two-product unit test missed." },
     { title: "A settings outage took search down", text: "Search now keeps serving when the database behind the settings is down." },
+    { title: "Picking one filter hid the others", text: "On the production engine, choosing Black removed White from the finish filter. Caught on the first run against a live server." },
     { title: "Missing prices showed as $0.00", text: "A missing price is a data defect, not a free product. It now reads “Price unavailable”." },
   ],
 

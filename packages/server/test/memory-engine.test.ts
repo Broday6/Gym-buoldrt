@@ -1,6 +1,5 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import type { Product } from '@compass/shared';
 import { SqliteEngine } from '../src/engine/sqlite.js';
 import { MemoryEngine } from '../src/engine/memory.js';
 import { SearchService } from '../src/services/search.js';
@@ -8,6 +7,7 @@ import { SiteRegistry } from '../src/config/sites.js';
 import { indexProducts } from '../src/ingest/pipeline.js';
 import { applyLabels, EMPTY_LABEL_PLAN } from '../src/merchandising/labels.js';
 import { toVariantDocs } from '../src/ingest/normalize.js';
+import { catalogue, QUERIES } from './engine-fixture.js';
 
 const site = new SiteRegistry().require('ekena');
 
@@ -21,46 +21,6 @@ const site = new SiteRegistry().require('ekena');
  * everything a shopper can see — which products match, how many, the facet
  * counts, and which product the ranking cascade puts first.
  */
-
-const FINISHES = ['Black', 'White', 'Bronze', 'Hunter Green', 'Sage'];
-const MATERIALS = ['PVC', 'Western Red Cedar', 'Composite'];
-
-function catalogue(): Product[] {
-  const products: Product[] = [];
-  for (let p = 0; p < 40; p++) {
-    const material = MATERIALS[p % MATERIALS.length]!;
-    const exterior = p % 2 === 0;
-    products.push({
-      parentId: `P-${p}`,
-      title: exterior ? `Board and Batten Shutter ${12 + p}"W` : `Crown Moulding Profile ${p}`,
-      description: exterior
-        ? 'Cellular exterior shutter that will not rot, warp or attract insects.'
-        : 'Interior crown moulding, primed and ready to finish.',
-      brand: p % 5 === 0 ? 'Timberthane' : 'Ekena Millwork',
-      categoryPath: exterior ? ['Exterior', 'Shutters'] : ['Interior', 'Moulding'],
-      categoryIds: exterior ? ['exterior', 'exterior/shutters'] : ['interior', 'interior/moulding'],
-      salesVelocity: 500 - p * 7,
-      margin: 30 + (p % 40),
-      reviewScore: 3 + (p % 20) / 10,
-      reviewCount: p * 3,
-      dateAdded: `2025-0${1 + (p % 9)}-01`,
-      variants: FINISHES.slice(0, 2 + (p % 4)).map((finish, i) => ({
-        sku: `P${p}-${finish.slice(0, 2).toUpperCase()}-${i}`,
-        parentId: `P-${p}`,
-        variantTitle: `${finish} / ${material}`,
-        price: 80 + p * 9 + i * 13,
-        salePrice: p % 4 === 0 ? 60 + p * 8 : undefined,
-        inventory: (p + i) % 7,
-        image: `https://x/${p}-${i}.jpg`,
-        attributes: {
-          finish, material,
-          width_in: 12 + p, height_in: 39 + (p % 5) * 12,
-        },
-      })),
-    });
-  }
-  return products;
-}
 
 async function bothEngines() {
   const products = catalogue();
@@ -80,21 +40,7 @@ async function bothEngines() {
   };
 }
 
-const QUERIES = [
-  { label: 'a plain keyword', request: { q: 'shutter' } },
-  { label: 'two words', request: { q: 'board batten' } },
-  { label: 'a misspelling', request: { q: 'shuter' } },
-  { label: 'a brand', request: { q: 'timberthane' } },
-  { label: 'a finish plus a noun', request: { q: 'black shutter' } },
-  { label: 'a facet filter', request: { q: 'shutter', filters: { material: ['PVC'] } } },
-  { label: 'two facet groups', request: { q: '', filters: { material: ['PVC'], finish: ['Black'] } } },
-  { label: 'a category browse', request: { categoryId: 'exterior/shutters' } },
-  { label: 'a price sort', request: { categoryId: 'exterior/shutters', sort: 'price_asc' } },
-  { label: 'best selling', request: { categoryId: 'interior/moulding', sort: 'best_selling' } },
-  { label: 'a price range', request: { q: '', ranges: [{ field: 'price', min: 100, max: 300 }] } },
-  { label: 'a second page', request: { categoryId: 'exterior/shutters', page: 2 } },
-  { label: 'a query that matches nothing', request: { q: 'zzzznothing', rescue: false } },
-];
+
 
 describe('memory engine matches the SQLite engine', () => {
   test('the same products match, and there are the same number of them', async () => {

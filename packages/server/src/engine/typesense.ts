@@ -70,7 +70,9 @@ function collectionSchema(name: string) {
       { name: 'image', type: 'string' as const, optional: true, index: false },
       { name: 'reviewScore', type: 'float' as const, optional: true },
       { name: 'reviewCount', type: 'int32' as const, optional: true },
-      { name: 'salesVelocity', type: 'float' as const, optional: true },
+      // Typesense requires the default sorting field to be present on every
+      // document, so it is not optional; toTypesenseDoc fills a missing one with 0.
+      { name: 'salesVelocity', type: 'float' as const },
       { name: 'margin', type: 'float' as const, optional: true },
       { name: 'dateAddedTs', type: 'int64' as const, optional: true },
       { name: 'tags', type: 'string[]' as const, facet: true, optional: true },
@@ -91,6 +93,7 @@ function toTypesenseDoc(doc: VariantDoc): Record<string, unknown> {
   const flat: Record<string, unknown> = { ...doc };
   delete flat.attrs;
   delete flat.attributeKeys;
+  if (typeof flat.salesVelocity !== 'number' || !Number.isFinite(flat.salesVelocity)) flat.salesVelocity = 0;
   for (const key of [...FACET_ATTRIBUTES, ...NUMERIC_ATTRIBUTES]) {
     const value = doc.attrs?.[key];
     if (value !== undefined && value !== null && value !== '') flat[key] = value;
@@ -353,18 +356,40 @@ export class TypesenseEngine implements SearchEngine {
         }
         continue;
       }
-      facets.push({
-        field: REVERSE_FIELD[f.field_name] ?? f.field_name,
-        values: f.counts.map((c) => ({ value: c.value, count: c.count })),
-        stats: f.stats && f.stats.min !== undefined && f.stats.max !== undefined
-          ? { min: f.stats.min, max: f.stats.max }
-          : undefined,
-      });
+      facets.push(toEngineFacet(f));
+    }
+
+    // Multi-select: a group the shopper has filtered on must still count its
+    // own alternatives, or picking "Black" hides "White". Recount each
+    // filtered group with every filter except its own, as the other engines do.
+    const filtered = Object.entries(query.filters ?? {})
+      .filter(([field, values]) => values?.length && (query.facets ?? []).includes(field));
+    if (filtered.length) {
+      const recounts = await Promise.all(filtered.map(async ([field]) => {
+        const rest = { ...(query.filters ?? {}) };
+        delete rest[field];
+        const r = (await this.client.collections(query.site).documents().search({
+          ...params,
+          filter_by: buildFilterBy({ ...query, filters: rest }),
+          facet_by: TYPESENSE_FIELD[field] ?? field,
+          per_page: 0,
+        } as never)) as TypesenseSearchResponse;
+        return r.facet_counts?.[0];
+      }));
+      for (const counts of recounts) {
+        if (!counts) continue;
+        const facet = toEngineFacet(counts);
+        const at = facets.findIndex((x) => x.field === facet.field);
+        if (at >= 0) facets[at] = facet;
+        else facets.push(facet);
+      }
     }
 
     return {
       candidates,
-      totalGroups: response.found_docs ?? response.found ?? 0,
+      // With group_by, `found` counts groups (products); `found_docs` counts
+      // the variants inside them. Totals and pagination are in products.
+      totalGroups: response.found ?? 0,
       facets,
       tookMs: performance.now() - started,
     };
@@ -496,6 +521,12 @@ function buildFilterBy(query: EngineQuery): string {
   for (const [field, values] of Object.entries(query.filters ?? {})) {
     if (!values?.length) continue;
     const name = TYPESENSE_FIELD[field] ?? field;
+    if (name === 'inStock') {
+      // A bool field only accepts true/false; shoppers' filters arrive as '1'/'0'.
+      const wanted = new Set(values.map((v) => String(v) === '1' || String(v).toLowerCase() === 'true'));
+      if (wanted.size === 1) clauses.push(`inStock:=${[...wanted][0]}`);
+      continue;
+    }
     // `:=[a,b]` is OR within the group; separate clauses AND across groups.
     clauses.push(`${name}:=[${values.map((v) => escapeValue(String(v))).join(',')}]`);
   }
@@ -520,6 +551,22 @@ function buildFilterBy(query: EngineQuery): string {
     }
   }
   return clauses.join(' && ');
+}
+
+/** One Typesense facet count block in the engine's vocabulary. */
+function toEngineFacet(f: NonNullable<TypesenseSearchResponse['facet_counts']>[number]): EngineFacet {
+  return {
+    field: REVERSE_FIELD[f.field_name] ?? f.field_name,
+    // Booleans come back as 'true'/'false'; every other engine and the
+    // storefront speak '1'/'0'.
+    values: f.counts.map((c) => ({
+      value: f.field_name === 'inStock' ? (c.value === 'true' ? '1' : '0') : c.value,
+      count: c.count,
+    })),
+    stats: f.stats && f.stats.min !== undefined && f.stats.max !== undefined
+      ? { min: f.stats.min, max: f.stats.max }
+      : undefined,
+  };
 }
 
 function escapeValue(value: string): string {
