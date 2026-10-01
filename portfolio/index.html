@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brody Simpson</title>
+<meta name="description" content="Brody Simpson builds e-commerce systems: site search, AI creative pipelines, paid media operations and catalog data for an architectural millwork business.">
+<meta name="theme-color" content="#0c0d10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..600;1,8..60,300..600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+<nav class="nav" aria-label="Primary">
+  <a class="mark" href="#top" aria-label="Brody Simpson, back to top">
+    <span class="mark-glyph" aria-hidden="true"></span><span class="mark-name">Brody Simpson</span>
+  </a>
+  <div class="nav-links">
+    <a href="#capabilities" data-nav>Capabilities</a>
+    <a href="#compass" data-nav>Compass</a>
+    <a href="#pipeline" data-nav>Pipelines</a>
+    <a href="#shipped" data-nav>Built</a>
+  </div>
+  <a class="nav-cta" href="#contact">Contact</a>
+</nav>
+
+<main>
+  <!-- HERO ─────────────────────────────────────────────── -->
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span>E-commerce systems · Search · AI · Growth</p>
+      <h1 class="hero-title">
+        <span class="ln"><span>I build the</span></span>
+        <span class="ln"><span>systems that sell</span></span>
+        <span class="ln"><span><em>real</em> things.</span></span>
+      </h1>
+      <p class="hero-lede">I'm Brody Simpson. I design and ship the search engine, AI creative pipelines, ad operations and catalog tooling behind Ekena Millwork and Architectural Depot, and I measure every one of them.</p>
+      <div class="hero-actions">
+        <a class="btn btn-solid" href="#capabilities">What I can do</a>
+        <a class="btn btn-line" href="#compass">See the flagship build <span aria-hidden="true">→</span></a>
+      </div>
+      <dl class="hero-spec">
+        <div><dt>Capabilities</dt><dd data-count-caps>6</dd></div>
+        <div><dt>Systems built</dt><dd data-count-shipped>14</dd></div>
+        <div><dt>Unit tests</dt><dd>229</dd></div>
+      </dl>
+    </div>
+
+    <figure class="hero-stage" data-hero-stage>
+      <canvas class="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-fallback" data-hero-fallback aria-hidden="true"></div>
+      <div class="hero-pins" data-hero-pins></div>
+      <span class="crop crop-tl" aria-hidden="true"></span><span class="crop crop-tr" aria-hidden="true"></span>
+      <span class="crop crop-bl" aria-hidden="true"></span><span class="crop crop-br" aria-hidden="true"></span>
+      <figcaption class="stage-caption">
+        <span>Fig. 01 · The frame</span>
+        <span class="stage-hint">Six capabilities, one structure. Drag to turn it.</span>
+      </figcaption>
+    </figure>
+  </header>
+
+  <div class="marquee" aria-hidden="true"><div class="marquee-track" data-marquee></div></div>
+
+  <!-- CAPABILITIES ─────────────────────────────────────── -->
+  <section class="section" id="capabilities" aria-labelledby="cap-h">
+    <div class="section-head" data-reveal>
+      <p class="kicker">Capabilities</p>
+      <h2 id="cap-h">Six things I do well, each with something shipped behind it.</h2>
+      <p class="section-lede">Every card names the work that proves it. Hover a pin on the frame above and the matching beams light up.</p>
+    </div>
+    <div class="cap-grid" data-cap-grid></div>
+  </section>
+
+  <!-- COMPASS ──────────────────────────────────────────── -->
+  <section class="section compass" id="compass" aria-labelledby="compass-h">
+    <div class="compass-head" data-reveal>
+      <p class="kicker">Flagship build · 2026</p>
+      <h2 id="compass-h">Compass Search</h2>
+      <p class="section-lede">Self-hosted e-commerce search, merchandising and product discovery. A working replacement for Algolia and Searchspring, owned end to end and built for a catalogue where shoppers type sizes, finishes and part numbers.</p>
+    </div>
+
+    <div class="stats" data-reveal>
+      <div class="stat"><span class="stat-n" data-count="229">229</span><span class="stat-l">unit tests</span></div>
+      <div class="stat"><span class="stat-n" data-count="67">67</span><span class="stat-l">browser checks</span></div>
+      <div class="stat"><span class="stat-n" data-count="20">20</span><span class="stat-l">accessibility audits</span></div>
+      <div class="stat"><span class="stat-n" data-count="3">3</span><span class="stat-l">engines, one interface</span></div>
+    </div>
+
+    <div class="analyzer" data-reveal>
+      <div class="analyzer-intro">
+        <h3>Try the query analyzer</h3>
+        <p>A small rebuild of how Compass reads a search before it retrieves anything. Type the way a shopper would: sizes, finishes, typos, part numbers.</p>
+        <div class="examples" data-examples>
+          <button type="button" data-q="4x6 faux beam 12ft walnut">4x6 faux beam 12ft walnut</button>
+          <button type="button" data-q="rustic corbal for a mantle">rustic corbal for a mantle</button>
+          <button type="button" data-q="hand hewn ceiling beams 3 1/2 x 5 1/2">hand hewn ceiling beams 3 1/2 x 5 1/2</button>
+          <button type="button" data-q="black louvered shutters 15 x 52">black louvered shutters 15 x 52</button>
+          <button type="button" data-q="BMHT06X08X144">BMHT06X08X144</button>
+        </div>
+      </div>
+      <div class="console">
+        <div class="console-bar"><span></span><span></span><span></span><b>compass · analyze</b></div>
+        <label class="sr-only" for="q">Search query</label>
+        <div class="console-input">
+          <span class="prompt" aria-hidden="true">›</span>
+          <input id="q" type="text" autocomplete="off" spellcheck="false" value="4x6 faux beam 12ft walnut">
+        </div>
+        <div class="console-out" aria-live="polite">
+          <div class="route" data-route></div>
+          <div class="tokens" data-tokens></div>
+          <pre class="filters" data-filters></pre>
+          <ul class="notes" data-notes></ul>
+        </div>
+      </div>
+    </div>
+
+    <ol class="layers" data-reveal>
+      <li><b>Ingest</b><span>NetSuite-aware mapping, variant rollup, zero-downtime swaps</span></li>
+      <li><b>Understand</b><span>Part numbers, dimensions, fractions, typos, brands, product types</span></li>
+      <li><b>Rank</b><span>A five-step tie-breaking cascade that explains every result</span></li>
+      <li><b>Merchandise</b><span>Synonyms, redirects, collections, badges, undo on every change</span></li>
+      <li><b>Measure</b><span>Nightly rollups, failing queries, revenue attribution</span></li>
+      <li><b>Ship</b><span>Storefront SDK, merchandiser console, OpenAPI, CI</span></li>
+    </ol>
+
+    <div class="commits" data-reveal>
+      <p class="kicker">From the commit log</p>
+      <div class="commit-rail"><div class="commit-track" data-commits></div></div>
+    </div>
+  </section>
+
+  <!-- PIPELINE ─────────────────────────────────────────── -->
+  <section class="section" id="pipeline" aria-labelledby="pipe-h">
+    <div class="section-head" data-reveal>
+      <p class="kicker">AI creative pipeline</p>
+      <h2 id="pipe-h">An image only ships after something with no stake in it says it's right.</h2>
+      <p class="section-lede">Research, brief, generation, evaluation and delivery run as one chain. The evaluator compares every slide with the real product photos and sends failures back with instructions. Below is a simulated run.</p>
+    </div>
+    <div class="pipe" data-reveal data-pipe>
+      <div class="pipe-track" data-pipe-track>
+        <div class="pipe-node" data-stage><b>Research</b><span>Harvest real photos, drawings, install guide</span></div>
+        <div class="pipe-node" data-stage><b>Brief</b><span>A different room and problem per slide</span></div>
+        <div class="pipe-node" data-stage><b>Generate</b><span>Several options per slide</span></div>
+        <div class="pipe-node gate" data-stage><b>Evaluate</b><span>Independent pass or fail</span></div>
+        <div class="pipe-node" data-stage><b>Deliver</b><span>Attached to the product's task</span></div>
+        <span class="packet" data-packet aria-hidden="true"></span>
+      </div>
+      <ol class="pipe-log" data-pipe-log aria-live="off"></ol>
+    </div>
+  </section>
+
+  <!-- SHIPPED ──────────────────────────────────────────── -->
+  <section class="section" id="shipped" aria-labelledby="ship-h">
+    <div class="section-head" data-reveal>
+      <p class="kicker">Built</p>
+      <h2 id="ship-h">Systems I've designed and put into use.</h2>
+    </div>
+    <div class="filters-bar" role="group" aria-label="Filter by capability" data-ship-filters></div>
+    <ul class="ship-list" data-ship-list></ul>
+  </section>
+
+  <!-- PRINCIPLES ───────────────────────────────────────── -->
+  <section class="section principles" aria-labelledby="pr-h">
+    <div class="section-head" data-reveal>
+      <p class="kicker">How I work</p>
+      <h2 id="pr-h">Four rules that show up in everything above.</h2>
+    </div>
+    <div class="pr-grid">
+      <article data-reveal><h3>The real product wins.</h3><p>Generated scenes can change the room, never the product. Finish, count and scale come from real photos.</p></article>
+      <article data-reveal><h3>Measure before claiming.</h3><p>Each claim about Compass has a test, a benchmark or an audit behind it, and the numbers on this page come from those runs.</p></article>
+      <article data-reveal><h3>People make the call.</h3><p>Audits recommend. Spend moves, launches and go-live decisions wait for a person to say yes.</p></article>
+      <article data-reveal><h3>Stop and say why.</h3><p>When a step can't be done properly, the system names what's blocked and what would fix it instead of shipping something lesser.</p></article>
+    </div>
+  </section>
+
+  <!-- CONTACT ──────────────────────────────────────────── -->
+  <section class="contact" id="contact" aria-labelledby="ct-h">
+    <div class="contact-inner" data-reveal>
+      <p class="kicker">Contact</p>
+      <h2 id="ct-h">Have a catalogue that deserves a better engine?</h2>
+      <div class="contact-row">
+        <span class="email" data-email>you@yourdomain.com</span>
+        <button type="button" class="btn btn-solid" data-copy>Copy email</button>
+        <a class="btn btn-line" data-github href="https://github.com/broday6" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="copy-status" data-copy-status aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>© <span data-year>2026</span> Brody Simpson</span>
+  <span>Built by hand: HTML, CSS, JavaScript and three.js.</span>
+</footer>
+
+<script src="content.js"></script>
+<script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="hero3d.js"></script>
+</body>
+</html>
