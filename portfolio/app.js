@@ -18,11 +18,11 @@
   $("[data-cap-grid]").innerHTML = P.capabilities.map((c) => `
     <article class="cap" id="cap-${c.id}" data-cap="${c.id}" data-reveal>
       <div class="cap-top">
-        <svg class="cap-glyph" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" style="color:var(--oak)">${glyphs[c.id] || ""}</svg>
+        <svg class="cap-glyph" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">${glyphs[c.id] || ""}</svg>
         <span class="cap-pin">${esc(c.pin)}</span>
       </div>
       <div><h3>${esc(c.title)}</h3></div>
-      <div style="display:grid;gap:1.1rem;align-content:start"><p>${esc(c.summary)}</p><ul>${c.proof.map((p) => `<li>${esc(p)}</li>`).join("")}</ul></div>
+      <div class="cap-body"><p>${esc(c.summary)}</p><ul>${c.proof.map((p) => `<li>${esc(p)}</li>`).join("")}</ul></div>
       <div class="tags">${c.tools.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
     </article>`).join("");
 
@@ -68,6 +68,111 @@
     });
   });
 
+
+  /* ── proof band ──────────────────────────────────────── */
+  const numText = (v, d) => (d ? v.toFixed(d) : String(Math.round(v)));
+  $("[data-proof]").innerHTML = P.proof.map((p, i) => {
+    const ratio = p.of ? p.value / p.of : p.unit === "%" ? p.value / 100 : null;
+    return `
+    <article class="proof" data-reveal style="transition-delay:${(i % 4) * 70}ms">
+      <div class="proof-n"><span data-count="${p.value}" data-decimals="${p.decimals || 0}">${numText(p.value, p.decimals)}</span>${p.of ? `<small>/${p.of}</small>` : p.unit ? `<small>${esc(p.unit)}</small>` : ""}</div>
+      <div class="proof-l">${esc(p.label)}</div>
+      <p class="proof-note">${esc(p.note)}</p>
+      ${ratio !== null ? `<div class="proof-bar" aria-hidden="true"><i style="width:${ratio * 100}%"></i></div>` : ""}
+      <span class="src">${esc(p.source)}</span>
+    </article>`;
+  }).join("");
+
+  /* ── attributes ──────────────────────────────────────── */
+  $("[data-attributes]").innerHTML = P.attributes.map((a, i) => `
+    <article class="attr" data-reveal style="transition-delay:${(i % 3) * 80}ms">
+      <h3>${esc(a.title)}</h3>
+      <p>${esc(a.text)}</p>
+      <blockquote>${esc(a.evidence)}</blockquote>
+      <span class="src">${esc(a.source)}</span>
+    </article>`).join("");
+
+  /* ── compass: timeline, checks, bugs, toolbox ───────── */
+  $("[data-timeline]").innerHTML = P.timeline.map((t) => `
+    <li class="tl">
+      <div class="tl-day">${esc(t.day)}<span>${t.commits} commits</span></div>
+      <h3>${esc(t.title)}</h3>
+      <p>${esc(t.text)}</p>
+      <div class="tl-meter" aria-hidden="true">${Array.from({ length: t.commits }, (_, k) => `<i style="transition-delay:${k * 35}ms"></i>`).join("")}</div>
+    </li>`).join("");
+
+  $("[data-checks]").innerHTML = P.checks.map((c, i) => `
+    <li class="${c.open ? "is-open" : ""}" style="transition-delay:${i * 60}ms">
+      <span class="${c.open ? "mark-open" : "mark-ok"}" aria-hidden="true">${c.open ? "" : "✓"}</span>
+      <b><span class="sr-only">${c.open ? "Open: " : "Passing: "}</span>${esc(c.text)}</b>
+      <small>${esc(c.evidence)}</small>
+    </li>`).join("");
+
+  $("[data-bugs]").innerHTML = P.bugs.map((b) => `<li><b>${esc(b.title)}</b><p>${esc(b.text)}</p></li>`).join("");
+
+  $("[data-toolbox]").innerHTML = P.toolbox.map((g, i) => `
+    <div class="tool" data-reveal style="transition-delay:${(i % 3) * 70}ms">
+      <h3>${esc(g.group)}</h3>
+      <ul>${g.items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+    </div>`).join("");
+
+  /* ── charts ──────────────────────────────────────────── */
+  const ms = (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)} s` : v < 10 ? `${v} ms` : `${Math.round(v)} ms`);
+  const table = (head, rows) => `<table><thead><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+
+  // latency: p95 bar per path, a tick at its target, shared 0–120 ms axis
+  const LMAX = 120, lticks = [0, 20, 40, 60, 80, 100, 120];
+  const lx = (v) => (v / LMAX) * 100;
+  const gridLines = (ticks, f) => ticks.map((t) => `<span class="grid-line" style="left:${f(t)}%"></span>`).join("");
+  $("[data-latency]").innerHTML = P.latency.map((r) => `
+    <div class="chart-row" data-tip="<b>${esc(r.path)}</b>p95 ${r.p95} ms · p50 ${r.p50} ms<br>target under ${r.target} ms">
+      <span class="chart-label">${esc(r.path)}</span>
+      <div class="track">
+        ${gridLines(lticks, lx)}
+        <span class="bar" style="width:${lx(r.p95)}%"></span>
+        <span class="target" style="left:${lx(r.target)}%"></span>
+        <span class="bar-v" style="left:${lx(r.p95)}%">${Math.round(r.p95)} ms</span>
+      </div>
+    </div>`).join("") + `
+    <div class="axis"><span></span><div class="axis-ticks">${lticks.map((t) => `<span style="left:${lx(t)}%">${t}${t === LMAX ? " ms" : ""}</span>`).join("")}</div></div>
+    <div class="chart-key"><span><i></i>Target for that path</span><span>Cached repeats answer in under 0.1 ms</span></div>`;
+  $("[data-latency-table]").innerHTML = table(["Path", "p50 ms", "p95 ms", "Target ms"], P.latency.map((r) => [esc(r.path), r.p50, r.p95, `< ${r.target}`]));
+
+  // speedups: dumbbell on a log axis, before → after
+  const LO = Math.log10(0.5), HI = Math.log10(10000);
+  const sx = (v) => ((Math.log10(v) - LO) / (HI - LO)) * 100;
+  const sticks = [1, 10, 100, 1000, 10000];
+  const factor = (b, a) => { const f = b / a; return f >= 10 ? Math.round(f) : f.toFixed(1); };
+  $("[data-speedups]").innerHTML = P.speedups.map((r) => `
+    <div class="chart-row" data-tip="<b>${esc(r.what)}</b>${ms(r.before)} → ${ms(r.after)}<br>${factor(r.before, r.after)}× faster">
+      <span class="chart-label">${esc(r.what)}</span>
+      <div class="track">
+        ${gridLines(sticks, sx)}
+        <span class="link" style="left:${sx(r.after)}%;width:${sx(r.before) - sx(r.after)}%"></span>
+        <span class="dot before" style="left:${sx(r.before)}%"></span>
+        <span class="dot after" style="--from:${sx(r.before)}%;--to:${sx(r.after)}%"></span>
+      </div>
+      <span class="x">${factor(r.before, r.after)}×<small>${ms(r.before)} → ${ms(r.after)}</small></span>
+    </div>`).join("") + `
+    <div class="axis"><span></span><div class="axis-ticks">${sticks.map((t) => `<span style="left:${sx(t)}%">${t >= 1000 ? t / 1000 + " s" : t + " ms"}</span>`).join("")}</div><span></span></div>`;
+  $("[data-speedups-table]").innerHTML = table(["Fix", "Before", "After", "Faster"], P.speedups.map((r) => [esc(r.what), ms(r.before), ms(r.after), `${factor(r.before, r.after)}×`]));
+
+  // one tooltip for every chart row
+  const tip = $("[data-tooltip]");
+  const moveTip = (e) => {
+    const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = e.clientX + pad, y = e.clientY + pad;
+    if (x + w > innerWidth - 8) x = e.clientX - w - pad;
+    if (y + h > innerHeight - 8) y = e.clientY - h - pad;
+    tip.style.transform = `translate(${Math.max(8, x)}px, ${Math.max(8, y)}px)`;
+  };
+  $$(".chart-row[data-tip]").forEach((row) => {
+    row.addEventListener("pointerenter", (e) => { tip.innerHTML = row.dataset.tip; tip.hidden = false; moveTip(e); });
+    row.addEventListener("pointermove", moveTip);
+    row.addEventListener("pointerleave", () => { tip.hidden = true; });
+  });
+  addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+
   /* ── reveal on scroll ────────────────────────────────── */
   if (!reduce && "IntersectionObserver" in window) {
     const io = new IntersectionObserver((entries) => {
@@ -83,22 +188,22 @@
     });
   }
 
-  /* counters count up the first time they come into view */
+  /* counters count up the first time they come into view (values are correct at rest) */
   if (!reduce && "IntersectionObserver" in window) {
     const cio = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         if (!en.isIntersecting) return;
         cio.unobserve(en.target);
-        const el = en.target, end = +el.dataset.count, t0 = performance.now(), dur = 1400;
+        const el = en.target, end = +el.dataset.count, d = +(el.dataset.decimals || 0), t0 = performance.now(), dur = 1500;
         const tick = (now) => {
           const k = Math.min(1, (now - t0) / dur);
-          el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3)));
+          el.textContent = numText(end * (1 - Math.pow(1 - k, 3)), d);
           if (k < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
       });
     }, { threshold: 0.6 });
-    $$("[data-count]").forEach((el) => cio.observe(el));
+    $$("[data-count]").forEach((el) => { if (el.getBoundingClientRect().top > innerHeight) cio.observe(el); });
   }
 
   /* spotlight that follows the pointer on capability cards */

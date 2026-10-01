@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Brody Simpson</title>
 <meta name="description" content="Brody Simpson builds e-commerce systems: site search, AI creative pipelines, paid media operations and catalog data for an architectural millwork business.">
-<meta name="theme-color" content="#0c0d10">
+<meta name="theme-color" content="#eef2f8">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Brody Simpson · E-commerce systems">
+<meta property="og:description" content="Search engines, AI creative pipelines, ad operations and catalog tooling, with the proof behind each one.">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..600;1,8..60,300..600&display=swap">
@@ -19,6 +25,7 @@
     <span class="mark-glyph" aria-hidden="true"></span><span class="mark-name">Brody Simpson</span>
   </a>
   <div class="nav-links">
+    <a href="#proof" data-nav>Proof</a>
     <a href="#capabilities" data-nav>Capabilities</a>
     <a href="#compass" data-nav>Compass</a>
     <a href="#pipeline" data-nav>Pipelines</a>
@@ -39,13 +46,13 @@
       </h1>
       <p class="hero-lede">I'm Brody Simpson. I design and ship the search engine, AI creative pipelines, ad operations and catalog tooling behind Ekena Millwork and Architectural Depot, and I measure every one of them.</p>
       <div class="hero-actions">
-        <a class="btn btn-solid" href="#capabilities">What I can do</a>
-        <a class="btn btn-line" href="#compass">See the flagship build <span aria-hidden="true">→</span></a>
+        <a class="btn btn-solid" href="#proof">See the proof</a>
+        <a class="btn btn-line" href="#capabilities">What I can do <span aria-hidden="true">→</span></a>
       </div>
       <dl class="hero-spec">
         <div><dt>Capabilities</dt><dd data-count-caps>6</dd></div>
         <div><dt>Systems built</dt><dd data-count-shipped>14</dd></div>
-        <div><dt>Unit tests</dt><dd>229</dd></div>
+        <div><dt>Relevance checks</dt><dd>129<small>/129</small></dd></div>
       </dl>
     </div>
 
@@ -64,14 +71,38 @@
 
   <div class="marquee" aria-hidden="true"><div class="marquee-track" data-marquee></div></div>
 
+  <!-- PROOF ────────────────────────────────────────────── -->
+  <section class="section" id="proof" aria-labelledby="proof-h">
+    <div class="section-head split" data-reveal>
+      <div>
+        <p class="kicker">The receipts</p>
+        <h2 id="proof-h">Numbers you can check.</h2>
+      </div>
+      <p class="section-lede">Each figure comes from a test run, a benchmark or the commit history, and names its source. Nothing here is a self-rating.</p>
+    </div>
+    <div class="proof-grid" data-proof></div>
+  </section>
+
   <!-- CAPABILITIES ─────────────────────────────────────── -->
   <section class="section" id="capabilities" aria-labelledby="cap-h">
     <div class="section-head" data-reveal>
       <p class="kicker">Capabilities</p>
       <h2 id="cap-h">Six things I do well, each with something shipped behind it.</h2>
-      <p class="section-lede">Every card names the work that proves it. Hover a pin on the frame above and the matching beams light up.</p>
+      <p class="section-lede">Every card lists the work that proves it. Hover a pin on the frame above and the matching beams light up.</p>
     </div>
     <div class="cap-grid" data-cap-grid></div>
+  </section>
+
+  <!-- ATTRIBUTES ───────────────────────────────────────── -->
+  <section class="section" id="attributes" aria-labelledby="attr-h">
+    <div class="section-head split" data-reveal>
+      <div>
+        <p class="kicker">Attributes</p>
+        <h2 id="attr-h">How I work, with the evidence attached.</h2>
+      </div>
+      <p class="section-lede">Traits are easy to claim. Each one here points to something written, measured or committed.</p>
+    </div>
+    <div class="attr-grid" data-attributes></div>
   </section>
 
   <!-- COMPASS ──────────────────────────────────────────── -->
@@ -82,12 +113,7 @@
       <p class="section-lede">Self-hosted e-commerce search, merchandising and product discovery. A working replacement for Algolia and Searchspring, owned end to end and built for a catalogue where shoppers type sizes, finishes and part numbers.</p>
     </div>
 
-    <div class="stats" data-reveal>
-      <div class="stat"><span class="stat-n" data-count="229">229</span><span class="stat-l">unit tests</span></div>
-      <div class="stat"><span class="stat-n" data-count="67">67</span><span class="stat-l">browser checks</span></div>
-      <div class="stat"><span class="stat-n" data-count="20">20</span><span class="stat-l">accessibility audits</span></div>
-      <div class="stat"><span class="stat-n" data-count="3">3</span><span class="stat-l">engines, one interface</span></div>
-    </div>
+    <ol class="timeline" data-reveal data-timeline aria-label="Build timeline"></ol>
 
     <div class="analyzer" data-reveal>
       <div class="analyzer-intro">
@@ -114,6 +140,37 @@
           <pre class="filters" data-filters></pre>
           <ul class="notes" data-notes></ul>
         </div>
+      </div>
+    </div>
+
+    <div class="charts">
+      <figure class="chart" data-reveal>
+        <figcaption>
+          <h3>Fast where shoppers wait</h3>
+          <p>Time to answer, slowest 5% of requests (p95), against each path's target. Demo catalogue: 520 products, 2,158 variant documents.</p>
+        </figcaption>
+        <div class="bullet" data-latency></div>
+        <details class="chart-table"><summary>View as table</summary><div data-latency-table></div></details>
+      </figure>
+      <figure class="chart" data-reveal>
+        <figcaption>
+          <h3>Found by measuring, fixed at the cause</h3>
+          <p>Time before and after each fix, log scale. Each fix is written up in the project's decision log.</p>
+        </figcaption>
+        <div class="legend" aria-hidden="true"><span><i class="sw before"></i>Before</span><span><i class="sw after"></i>After</span></div>
+        <div class="dumbbell" data-speedups></div>
+        <details class="chart-table"><summary>View as table</summary><div data-speedups-table></div></details>
+      </figure>
+    </div>
+
+    <div class="qa">
+      <div class="qa-col" data-reveal>
+        <h3>Acceptance checks</h3>
+        <ul class="checks" data-checks></ul>
+      </div>
+      <div class="qa-col" data-reveal>
+        <h3>Bugs caught before a shopper saw them</h3>
+        <ul class="bugs" data-bugs></ul>
       </div>
     </div>
 
@@ -152,6 +209,15 @@
     </div>
   </section>
 
+  <!-- TOOLBOX ──────────────────────────────────────────── -->
+  <section class="section" id="toolbox" aria-labelledby="tool-h">
+    <div class="section-head" data-reveal>
+      <p class="kicker">Toolbox</p>
+      <h2 id="tool-h">What I build with.</h2>
+    </div>
+    <div class="tool-grid" data-toolbox></div>
+  </section>
+
   <!-- SHIPPED ──────────────────────────────────────────── -->
   <section class="section" id="shipped" aria-labelledby="ship-h">
     <div class="section-head" data-reveal>
@@ -165,7 +231,7 @@
   <!-- PRINCIPLES ───────────────────────────────────────── -->
   <section class="section principles" aria-labelledby="pr-h">
     <div class="section-head" data-reveal>
-      <p class="kicker">How I work</p>
+      <p class="kicker">Rules I hold to</p>
       <h2 id="pr-h">Four rules that show up in everything above.</h2>
     </div>
     <div class="pr-grid">
@@ -195,6 +261,8 @@
   <span>© <span data-year>2026</span> Brody Simpson</span>
   <span>Built by hand: HTML, CSS, JavaScript and three.js.</span>
 </footer>
+
+<div class="tip" data-tooltip role="tooltip" hidden></div>
 
 <script src="content.js"></script>
 <script src="app.js"></script>

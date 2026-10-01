@@ -48,9 +48,9 @@
     for (const [axis, a, b] of edges()) {
       const [p, q] = ends(axis, a, b).map(proj);
       const draft = DRAFT.has(`${axis},${a},${b}`);
-      lines += `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${draft ? "#b4c9ea" : "#9a6a3e"}" stroke-width="${draft ? 1.2 : 9}" stroke-linecap="square" ${draft ? 'stroke-dasharray="6 5"' : ""}/>`;
+      lines += `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${draft ? "#1c3fd6" : "#a8743f"}" stroke-width="${draft ? 1.2 : 9}" stroke-linecap="square" ${draft ? 'stroke-dasharray="6 5"' : ""}/>`;
     }
-    fallbackEl.innerHTML = `<svg viewBox="0 0 400 430" width="100%" height="100%" role="img" aria-label="A timber frame drawing">${lines}<circle cx="200" cy="215" r="40" fill="none" stroke="#e2a55e" stroke-opacity=".6"/></svg>`;
+    fallbackEl.innerHTML = `<svg viewBox="0 0 400 430" width="100%" height="100%" role="img" aria-label="A timber frame drawing">${lines}<circle cx="200" cy="215" r="40" fill="none" stroke="#1c3fd6" stroke-opacity=".5"/></svg>`;
     const svg = fallbackEl.firstChild;
     const layout = () => {
       const m = svg.getScreenCTM(), sr = stage.getBoundingClientRect();
@@ -90,7 +90,7 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.05;
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
@@ -100,14 +100,14 @@
   scene.add(root);
 
   /* lights */
-  scene.add(new THREE.HemisphereLight(0xdfe7ff, 0x2a1c10, 0.55));
-  const key = new THREE.DirectionalLight(0xffd9ad, 2.4);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb9c6dc, 1.0));
+  const key = new THREE.DirectionalLight(0xfff1de, 2.2);
   key.position.set(4, 6, 5);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x9ab9ff, 1.5);
+  const rim = new THREE.DirectionalLight(0x8fb0ff, 1.8);
   rim.position.set(-6, 2, -5);
   scene.add(rim);
-  const inner = new THREE.PointLight(0xffaa5c, 1.6, 5, 2);
+  const inner = new THREE.PointLight(0x8fb0ff, 1.6, 5, 2);
   root.add(inner);
 
   /* wood grain drawn once on a canvas */
@@ -118,7 +118,7 @@
     c.width = 1024; c.height = 256;
     const g = c.getContext("2d");
     const grad = g.createLinearGradient(0, 0, 0, 256);
-    grad.addColorStop(0, "#6f4a2b"); grad.addColorStop(0.5, "#8f643e"); grad.addColorStop(1, "#6a4528");
+    grad.addColorStop(0, "#94653a"); grad.addColorStop(0.5, "#b4824e"); grad.addColorStop(1, "#8d5f36");
     g.fillStyle = grad; g.fillRect(0, 0, 1024, 256);
     for (let i = 0; i < 170; i++) {
       const y = rnd() * 256, amp = 1.5 + rnd() * 7, freq = 0.003 + rnd() * 0.01, ph = rnd() * 6.28;
@@ -148,15 +148,15 @@
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.anisotropy = maxAniso;
     t.offset.set(rnd(), rnd());
-    return new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: 0.012, roughness: 0.58, metalness: 0.04, emissive: 0xe2a55e, emissiveIntensity: 0 });
+    return new THREE.MeshStandardMaterial({ map: t, bumpMap: t, bumpScale: 0.012, roughness: 0.58, metalness: 0.04, emissive: 0xffc98f, emissiveIntensity: 0 });
   }
 
   /* the frame */
   const T = 0.2, L = 2 * S + T;
   const beamGeo = new THREE.BoxGeometry(L, T, T);
   const beamEdges = new THREE.EdgesGeometry(beamGeo);
-  const draftColor = new THREE.Color(0xb4c9ea);
-  const oak = new THREE.Color(0xe2a55e);
+  const draftColor = new THREE.Color(0x1c3fd6);
+  const hotColor = new THREE.Color(0x4f7bff);
   const beams = [];
   const cornerKey = (c) => c.join(",");
 
@@ -206,7 +206,7 @@
 
   /* bronze joints at the corners */
   const jointGeo = new THREE.BoxGeometry(T * 1.18, T * 1.18, T * 1.18);
-  const jointMat = new THREE.MeshStandardMaterial({ color: 0x3a3029, metalness: 0.85, roughness: 0.32 });
+  const jointMat = new THREE.MeshStandardMaterial({ color: 0x5d6b82, metalness: 0.35, roughness: 0.35 });
   const joints = [];
   for (const x of [-1, 1]) for (const y of [-1, 1]) for (const z of [-1, 1]) {
     const j = new THREE.Mesh(jointGeo, jointMat);
@@ -222,17 +222,17 @@
   const core = new THREE.Group();
   root.add(core);
   const ico = new THREE.IcosahedronGeometry(0.62, 1);
-  const coreLines = new THREE.LineSegments(new THREE.EdgesGeometry(ico), new THREE.LineBasicMaterial({ color: oak, transparent: true, opacity: 0.7 }));
+  const coreLines = new THREE.LineSegments(new THREE.EdgesGeometry(ico), new THREE.LineBasicMaterial({ color: draftColor, transparent: true, opacity: 0.7 }));
   core.add(coreLines);
-  const nodes = new THREE.Points(ico, new THREE.PointsMaterial({ color: 0xffd7a3, size: 0.07, transparent: true, opacity: 0.95 }));
+  const nodes = new THREE.Points(ico, new THREE.PointsMaterial({ color: 0x1c3fd6, size: 0.075, transparent: true, opacity: 0.95 }));
   core.add(nodes);
   const glowC = document.createElement("canvas");
   glowC.width = glowC.height = 128;
   const gg = glowC.getContext("2d");
   const rg = gg.createRadialGradient(64, 64, 0, 64, 64, 64);
-  rg.addColorStop(0, "rgba(255,190,120,.9)"); rg.addColorStop(0.35, "rgba(226,165,94,.28)"); rg.addColorStop(1, "rgba(226,165,94,0)");
+  rg.addColorStop(0, "rgba(120,155,255,.55)"); rg.addColorStop(0.4, "rgba(79,123,255,.18)"); rg.addColorStop(1, "rgba(79,123,255,0)");
   gg.fillStyle = rg; gg.fillRect(0, 0, 128, 128);
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowC), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowC), blending: THREE.NormalBlending, depthWrite: false, transparent: true }));
   glow.scale.set(2.4, 2.4, 1);
   core.add(glow);
   const orbit = new THREE.Group();
@@ -241,7 +241,7 @@
     new THREE.LineBasicMaterial({ color: draftColor, transparent: true, opacity: 0.35 })
   );
   orbit.add(ring);
-  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffe2bc }));
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 12), new THREE.MeshBasicMaterial({ color: 0x4f7bff }));
   orbit.add(dot);
   orbit.rotation.set(0.5, 0, 0.35);
   core.add(orbit);
@@ -256,7 +256,7 @@
   }
   const dustGeo = new THREE.BufferGeometry();
   dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
-  const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xf2d6b0, size: 0.022, transparent: true, opacity: 0.45, depthWrite: false }));
+  const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0x1c3fd6, size: 0.024, transparent: true, opacity: 0.28, depthWrite: false }));
   scene.add(dust);
 
   /* ── interaction state ─────────────────────────────── */
@@ -349,7 +349,7 @@
       const target = hotKey && u.corners.includes(hotKey) ? 1 : 0;
       u.heat += (target - u.heat) * 0.12;
       if (u.draft) {
-        u.mats[0].color.copy(draftColor).lerp(oak, u.heat);
+        u.mats[0].color.copy(draftColor).lerp(hotColor, u.heat);
         u.mats[0].opacity = 0.85 * k + 0.15 * u.heat;
         u.mats[1].opacity = 0.05 + 0.18 * u.heat;
       } else {
