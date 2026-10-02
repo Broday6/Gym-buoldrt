@@ -18,7 +18,12 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
+import textwrap
 from pathlib import Path
+
+FONTS = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "C:/Windows/Fonts/arialbd.ttf",
+         "/System/Library/Fonts/Supplemental/Arial Bold.ttf", "/Library/Fonts/Arial Bold.ttf"]
 
 FPS = 60
 SCENES = [
@@ -92,25 +97,49 @@ def scene_layout() -> list[dict]:
     return out
 
 
-def render(path: Path, w: int, h: int, with_freeze: bool, codec: str, ffmpeg: str) -> None:
+def card_filter(s: dict, w: int, h: int, font: str | None, tmp: Path) -> str:
+    """Burn the scene's step card (or the title / end text) in, so the demo reads like an install video."""
+    if not font:
+        return ""
+    portrait = h > w
+    if s["kind"] == "title":
+        text, size, pos = "Faux Beam\nCeiling Install", 30 if portrait else 40, "x=(w-tw)/2:y=(h-th)/2"
+    elif s["kind"] == "end":
+        text, size, pos = "ekena millwork", 26 if portrait else 34, "x=(w-tw)/2:y=(h-th)/2"
+    elif s.get("step_card"):
+        text = "\n".join(textwrap.wrap(s["step_card"], 24 if portrait else 46))
+        size, pos = (17 if portrait else 20), "x=20:y=h-th-40"
+    else:
+        return ""
+    tf = tmp / f"{s['id']}_{w}x{h}.txt"
+    tf.write_text(text, encoding="utf-8")
+    box = "" if s["kind"] in ("title", "end") else ":box=1:boxcolor=0x2f6b3c@0.92:boxborderw=12"
+    return (f",drawtext=fontfile='{font}':textfile='{tf.as_posix()}':fontsize={size}:fontcolor=white"
+            f":line_spacing=6:{pos}{box}")
+
+
+def render(path: Path, w: int, h: int, with_freeze: bool, codec: str, ffmpeg: str, font: str | None = None) -> None:
     layout = scene_layout()
     total = layout[-1]["end_frame"]
     inputs: list[str] = []
     chains: list[str] = []
+    tmpdir = tempfile.TemporaryDirectory()
+    tmp = Path(tmpdir.name)
     for i, s in enumerate(layout):
+        card = card_filter(s, w, h, font, tmp)
         n = s["end_frame"] - s["start_frame"]
         dur = n / FPS
         if s["hue"] is None:
             inputs += ["-f", "lavfi", "-i", f"color=c=0x2f6b3c:s={w}x{h}:r={FPS}:d={dur}"]
-            chains.append(f"[{i}:v]format=yuv420p,setsar=1[v{i}]")
+            chains.append(f"[{i}:v]format=yuv420p,setsar=1{card}[v{i}]")
         elif with_freeze and s["id"] == FREEZE_SCENE:
             half = n // 2
             inputs += ["-f", "lavfi", "-i", f"testsrc2=s={w}x{h}:r={FPS}:d={half / FPS}"]
             chains.append(f"[{i}:v]hue=h={s['hue']},tpad=stop_mode=clone:stop={n - half},"
-                          f"format=yuv420p,setsar=1[v{i}]")
+                          f"format=yuv420p,setsar=1{card}[v{i}]")
         else:
             inputs += ["-f", "lavfi", "-i", f"testsrc2=s={w}x{h}:r={FPS}:d={dur}"]
-            chains.append(f"[{i}:v]hue=h={s['hue']},format=yuv420p,setsar=1[v{i}]")
+            chains.append(f"[{i}:v]hue=h={s['hue']},format=yuv420p,setsar=1{card}[v{i}]")
     a = len(layout)
     inputs += ["-f", "lavfi", "-i",
                f"sine=frequency=220:sample_rate=48000:duration={total / FPS},volume=8dB"]
@@ -120,9 +149,12 @@ def render(path: Path, w: int, h: int, with_freeze: bool, codec: str, ffmpeg: st
             if codec == "h264" else
             ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "40", "-deadline", "realtime", "-cpu-used", "8"])
     aenc = ["-c:a", "aac", "-b:a", "128k"] if codec == "h264" else ["-c:a", "libopus", "-b:a", "96k"]
-    run([ffmpeg, "-y", "-hide_banner", *inputs, "-filter_complex", graph,
-         "-map", "[v]", "-map", f"{a}:a", "-r", str(FPS), "-frames:v", str(total),
-         *venc, "-ac", "2", *aenc, "-shortest", str(path)])
+    try:
+        run([ffmpeg, "-y", "-hide_banner", *inputs, "-filter_complex", graph,
+             "-map", "[v]", "-map", f"{a}:a", "-r", str(FPS), "-frames:v", str(total),
+             *venc, "-ac", "2", *aenc, "-shortest", str(path)])
+    finally:
+        tmpdir.cleanup()
 
 
 def manifest_for(version: str, previous: str | None, files: dict[str, str], changes: list) -> dict:
@@ -162,7 +194,10 @@ def main(argv=None) -> int:
     ap.add_argument("out", type=Path, help="folder to create (replaced if it holds a previous demo)")
     ap.add_argument("--codec", choices=("h264", "vp9"), default="h264")
     ap.add_argument("--ffmpeg", default="ffmpeg")
+    ap.add_argument("--font", help="TTF for the burned-in step cards (default: the first common one found)")
+    ap.add_argument("--no-cards", action="store_true", help="leave the step cards out of the picture")
     args = ap.parse_args(argv)
+    font = None if args.no_cards else (args.font or next((f for f in FONTS if Path(f).exists()), None))
     out: Path = args.out
     if out.exists():
         if not (out / ".demo-project").exists():
@@ -194,7 +229,7 @@ def main(argv=None) -> int:
         for cid, w, h in CUTS:
             rel = f"renders/{version}/demo_{cid}.{ext}"
             (out / rel).parent.mkdir(parents=True, exist_ok=True)
-            render(out / rel, w, h, freeze, args.codec, args.ffmpeg)
+            render(out / rel, w, h, freeze, args.codec, args.ffmpeg, font)
             files[cid] = rel
         s03 = next(s for s in scene_layout() if s["id"] == FREEZE_SCENE)
         changes = [] if version == "v1" else [

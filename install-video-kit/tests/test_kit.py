@@ -11,12 +11,15 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import functools
+import http.server
 import json
 import shutil
 import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.request
 from pathlib import Path
@@ -249,6 +252,17 @@ def main() -> int:
         req = urllib.request.Request(url + "files/renders/v1/demo_16x9.webm", headers={"Range": "bytes=0-99"})
         with urllib.request.urlopen(req) as resp:
             check(resp.status == 206 and len(resp.read()) == 100, "video is served in byte ranges (seeking works)")
+        bundle = root / "bundle"
+        run(PY, KIT / "tools/build_static_review.py", proj, bundle)
+        sj = json.loads((bundle / "studio-static.json").read_text())
+        check(sorted(sj["data"]) == ["v1", "v2"] and (bundle / "renders/v2/demo_9x16.webm").exists()
+              and "window.REVIEW_BUNDLE" in (bundle / "index.html").read_text(), "a project bundles into a static copy")
+        class Quiet(http.server.SimpleHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+        handler = functools.partial(Quiet, directory=str(bundle))
+        static = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        threading.Thread(target=static.serve_forever, daemon=True).start()
         node = shutil.which("node")
         if args.no_browser or not node:
             print("  (browser part skipped)")
@@ -256,7 +270,8 @@ def main() -> int:
             shots = root / "shots"
             shots.mkdir(exist_ok=True)
             p = subprocess.run([node, str(KIT / "tests/studio_e2e.mjs"), url, str(proj),
-                                str(REVIEW / "assets/studio.html"), str(shots)], text=True, capture_output=True)
+                                str(REVIEW / "assets/studio.html"), str(shots),
+                                f"http://127.0.0.1:{static.server_address[1]}/"], text=True, capture_output=True)
             print(p.stdout.rstrip())
             if p.returncode != 0:
                 print(p.stderr[-3000:])
@@ -264,6 +279,7 @@ def main() -> int:
             if "SKIP" not in p.stdout:
                 check((proj / "review/v1/feedback.prev.json").exists(), "saving keeps the previous feedback.json")
                 run(PY, REVIEW / "scripts/validate_review.py", proj / "review/v1/feedback.json")
+        static.shutdown()
     finally:
         server.terminate()
         server.wait(timeout=5)

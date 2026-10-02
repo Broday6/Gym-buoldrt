@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Review Studio</title>
+<title>Install Video Review Studio</title>
 <style>
 :root {
   --bg: #0f1211;
@@ -55,7 +55,7 @@ kbd { font: 11px var(--mono); border: 1px solid var(--line); border-bottom-width
 .hidden { display: none !important; }
 
 /* header */
-.top { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.top { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: 6px; }
 .brand .mark { width: 10px; height: 26px; border-radius: 3px; background: var(--accent); flex: none; }
 .brand .proj { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 34vw; }
@@ -77,18 +77,24 @@ kbd { font: 11px var(--mono); border: 1px solid var(--line); border-bottom-width
 
 /* banners */
 #banners:empty { display: none; }
-.banner { display: flex; align-items: center; gap: 10px; padding: 7px 14px; background: #1f2a22; border-bottom: 1px solid var(--line); font-size: 13px; }
+.banner { display: flex; align-items: center; gap: 10px; padding: 7px 16px; background: #1f2a22; border-bottom: 1px solid var(--line); font-size: 13px; }
 .banner.warn { background: #2d2617; } .banner.err { background: #2e1a18; }
 .banner .msg { flex: 1; }
 .banner ul { margin: 4px 0 0 18px; padding: 0; }
 
 /* layout */
 .layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; min-height: 0; }
-.left { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 14px 10px; gap: 10px; }
+.left { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 16px 10px; gap: 10px; }
 .side { position: relative; display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-left: 1px solid var(--line); }
 @media (max-width: 1100px) {
-  .layout { grid-template-columns: 1fr; overflow: auto; }
-  .side { border-left: 0; border-top: 1px solid var(--line); min-height: 60vh; }
+  /* One column that scrolls as a page: the player gets a fixed height, the panel follows it. */
+  html, body { height: auto; }
+  body { min-height: 100%; }
+  .layout { display: block; }
+  .stages { flex: none; height: clamp(220px, 56vw, 62vh); }
+  .side { border-left: 0; border-top: 1px solid var(--line); min-height: 70vh; }
+  .tabpanel { overflow: visible; }
+  .brand .proj { max-width: 70vw; }
 }
 
 /* stages */
@@ -132,7 +138,7 @@ kbd { font: 11px var(--mono); border: 1px solid var(--line); border-bottom-width
 .tabs button { flex: 1; border: 0; border-radius: 0; background: transparent; color: var(--muted); padding: 10px 6px; border-bottom: 2px solid transparent; }
 .tabs button.on { color: var(--text); border-bottom-color: var(--accent-strong); background: transparent; }
 .tabs .count { font-size: 11px; color: var(--faint); margin-left: 3px; }
-.tabpanel { flex: 1; overflow: auto; padding: 12px 14px 18px; min-height: 0; }
+.tabpanel { flex: 1; overflow: auto; padding: 12px 16px 18px; min-height: 0; }
 .shortcuts { border-top: 1px solid var(--line); padding: 7px 14px; font-size: 11.5px; color: var(--faint); line-height: 1.9; }
 h3 { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }
 h3:first-child { margin-top: 0; }
@@ -173,6 +179,11 @@ table.scores th:first-child, table.scores td:first-child { text-align: left; }
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chips button { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; }
 .label { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+
+/* confirmations */
+.ask { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .55); }
+.ask-box { max-width: 420px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; box-shadow: 0 12px 40px rgba(0, 0, 0, .5); }
+.ask-box p { margin: 0 0 14px; overflow-wrap: anywhere; }
 
 /* file mode */
 .openfiles { position: fixed; inset: 0; background: var(--bg); display: grid; place-items: center; z-index: 20; padding: 16px; }
@@ -317,7 +328,7 @@ const S = {
   frame: 0, sceneId: null, tab: store.get("tab", "scene"),
   selected: null, composer: null, lastCategory: "other",
   dirty: false, saving: false, saveAgain: false, saveTimer: null, lastSaved: null, saveError: null,
-  files: null, rejecting: null, editingText: null,
+  files: null, bundle: null, rejecting: null, editingText: null,
 };
 const va = $("va"), vb = $("vb");
 
@@ -364,6 +375,7 @@ async function api(path, opts) {
 function mediaUrl(path) {
   if (!path) return "";
   if (S.server) return "/files/" + path.split("/").map(encodeURIComponent).join("/");
+  if (S.bundle) return path.split("/").map(encodeURIComponent).join("/");
   const f = S.files && S.files[path.split("/").pop()];
   return f ? URL.createObjectURL(f) : "";
 }
@@ -416,7 +428,7 @@ window.addEventListener("beforeunload", (e) => {
       fetch(`/api/version/${encodeURIComponent(S.vid)}/feedback`, { method: "PUT", keepalive: true,
         headers: { "Content-Type": "application/json" }, body: JSON.stringify(S.fb) });
     } catch { /* the local draft still has it */ }
-  } else if (!S.server && S.dirty) {
+  } else if (!S.server && !S.bundle && S.dirty) {
     e.preventDefault();
   }
 });
@@ -446,8 +458,17 @@ function removeBanner(key) {
 // ---------------------------------------------------------------- loading
 async function init() {
   wireControls();
-  let p;
-  try { p = await api("/api/project"); } catch { return startFileMode(); }
+  if (window.REVIEW_BUNDLE) {
+    // A bundled copy (build_static_review.py): the versions ship next to this page.
+    let b = null;
+    try { const r = await fetch(window.REVIEW_BUNDLE, { cache: "no-store" }); if (r.ok) b = await r.json(); } catch { b = null; }
+    if (b && b.schema === "ekena-install-static/1") return startStatic(b);
+    banner("bundle", "The bundled review data didn't load. Re-publish the bundle with build_static_review.py.", null, "err");
+    return;
+  }
+  let p = null;
+  try { p = await api("/api/project"); } catch { p = null; }
+  if (!p || !Array.isArray(p.versions)) return startFileMode();
   S.server = true;
   S.project = p; S.versions = p.versions;
   $("projName").textContent = p.name;
@@ -466,14 +487,17 @@ async function init() {
 async function loadVersion(vid) {
   if (S.fb) await flushSave();
   let d;
-  try { d = await api(`/api/version/${encodeURIComponent(vid)}`); }
-  catch (e) { banner("load", `Couldn't open ${vid}: ${e.message}`, null, "err"); return; }
+  if (S.bundle) d = S.bundle.data[vid];
+  else {
+    try { d = await api(`/api/version/${encodeURIComponent(vid)}`); }
+    catch (e) { banner("load", `Couldn't open ${vid}: ${e.message}`, null, "err"); return; }
+  }
   const meta = S.versions.find((v) => v.id === vid) || {};
   S.evalMtime = meta.eval_mtime ?? null; S.manifestMtime = meta.manifest_mtime ?? null;
   S.prev = null;
   if (d.manifest && d.manifest.previous) {
     try {
-      const p = await api(`/api/version/${encodeURIComponent(d.manifest.previous)}`);
+      const p = S.bundle ? S.bundle.data[d.manifest.previous] : await api(`/api/version/${encodeURIComponent(d.manifest.previous)}`);
       if (p.manifest && p.manifest.scenes) S.prev = { manifest: p.manifest, feedback: p.feedback };
     } catch { /* previous version missing: compare stays off */ }
   }
@@ -496,7 +520,9 @@ function applyVersion(vid, m, ev, fb, errors) {
   if (S.composer) closeComposer();
   S.selected = null; S.rejecting = null; S.editingText = null; S.dirty = false; S.saveError = null; S.lastSaved = null;
   const draft = store.get(draftKey(), null);
-  if (draft && draft.version === vid && JSON.stringify(draft) !== JSON.stringify(S.fb) &&
+  if (S.bundle && draft && draft.version === vid) {
+    S.fb = normalizeFeedback(draft, m);
+  } else if (draft && draft.version === vid && JSON.stringify(draft) !== JSON.stringify(S.fb) &&
       (!fb || (draft.updated || "") > (fb.updated || ""))) {
     banner("draft", "This browser has unsaved notes for this version from an earlier session.", [
       ["Restore them", () => { S.fb = normalizeFeedback(draft, m); changed(); renderAll(); }],
@@ -507,7 +533,7 @@ function applyVersion(vid, m, ev, fb, errors) {
   document.title = `${m.project} ${vid} — Review Studio`;
   $("projSub").textContent = [vid, m.created ? new Date(m.created).toLocaleString() : null,
     `${(m.frame_count / m.fps).toFixed(2)} s @ ${m.fps} fps`].filter(Boolean).join(" · ");
-  if (S.server) history.replaceState(null, "", "#v=" + encodeURIComponent(vid));
+  if (S.server) { try { history.replaceState(null, "", "#v=" + encodeURIComponent(vid)); } catch { /* sandboxed */ } }
   const prefer = S.cut ? S.cut.id : store.get("cut", null);
   S.cut = m.cuts.find((c) => c.id === prefer) || m.cuts[0];
   S.frame = clamp(S.frame, 0, m.frame_count - 1);
@@ -565,6 +591,21 @@ async function poll() {
   }
 }
 
+// ---------------------------------------------------------------- bundled copy
+function startStatic(b) {
+  S.bundle = b;
+  S.project = { name: b.name, folder: b.folder, versions: b.versions };
+  S.versions = b.versions;
+  const btn = $("btnDownload");
+  btn.textContent = "Copy feedback";
+  btn.title = "Copy this version's feedback as JSON, to hand to the builder";
+  btn.classList.remove("hidden");
+  banner("static", b.note || "This is a shared copy of the review. Your notes stay in this browser; use Copy feedback or Copy summary to hand them over.");
+  renderVersionSel();
+  const pick = b.versions[b.versions.length - 1];
+  if (pick) loadVersion(pick.id);
+}
+
 // ---------------------------------------------------------------- file mode
 function startFileMode() {
   S.server = false;
@@ -599,6 +640,45 @@ async function openLocalFiles(files) {
   m.cuts = m.cuts.filter((c) => S.files[c.file.split("/").pop()]);
   $("openFiles").classList.add("hidden");
   applyVersion(m.version, m, ev, fb, []);
+}
+// Native confirm() is blocked in sandboxed viewers, so confirmations are drawn in the page.
+function ask(message, okLabel, cancelLabel) {
+  return new Promise((resolve) => {
+    const prevFocus = document.activeElement;
+    const close = (v) => {
+      overlay.remove(); document.removeEventListener("keydown", onKey, true);
+      if (prevFocus && prevFocus.focus) prevFocus.focus();
+      resolve(v);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(false); }
+      else if (e.key === "Tab") { e.preventDefault(); (document.activeElement === ok ? no : ok).focus(); }
+    };
+    const ok = h("button", { class: "primary", onclick: () => close(true) }, okLabel || "OK");
+    const no = h("button", { onclick: () => close(false) }, cancelLabel || "Cancel");
+    const overlay = h("div", { class: "ask", role: "dialog", "aria-modal": "true", "aria-label": "Confirm" },
+      h("div", { class: "ask-box" }, h("p", {}, message), h("div", { class: "row" }, ok, no)));
+    document.body.append(overlay);
+    document.addEventListener("keydown", onKey, true);
+    ok.focus();
+  });
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch {
+    const ta = h("textarea", { style: { position: "fixed", top: "0", left: "0", opacity: "0" } }, text);
+    document.body.append(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch { ok = false; }
+    ta.remove();
+    return ok;
+  }
+}
+async function copyFeedbackJson() {
+  const ok = await copyText(JSON.stringify(S.fb, null, 2) + "\n");
+  const b = $("btnDownload");
+  b.textContent = ok ? "Copied ✓" : "Copy failed";
+  setTimeout(() => (b.textContent = "Copy feedback"), 1500);
 }
 function downloadFeedback() {
   const blob = new Blob([JSON.stringify(S.fb, null, 2) + "\n"], { type: "application/json" });
@@ -1216,9 +1296,9 @@ function commitComposer() {
   if (S.fb.submitted) S.fb.submitted = false;
   closeComposer(); changed(); renderTimeline(); renderTabs(); renderHeaderButtons();
 }
-function deleteNote(id) {
+async function deleteNote(id) {
   const n = S.fb.notes.find((x) => x.id === id);
-  if (!n || !confirm(`Delete note ${id}?\n\n${n.text}`)) return;
+  if (!n || !(await ask(`Delete note ${id}? “${n.text}”`, "Delete", "Keep it"))) return;
   S.fb.notes = S.fb.notes.filter((x) => x.id !== id);
   for (const [fid, d] of Object.entries(S.fb.findings)) if (d.note === id) delete S.fb.findings[fid];
   changed(); renderTimeline(); renderTabs(); drawOverlay();
@@ -1278,32 +1358,32 @@ function summaryText() {
   return L.join("\n");
 }
 async function copySummary() {
-  const text = summaryText();
-  try { await navigator.clipboard.writeText(text); }
-  catch {
-    const ta = h("textarea", { style: { position: "fixed", opacity: "0" } }, text);
-    document.body.append(ta); ta.select(); document.execCommand("copy"); ta.remove();
-  }
-  const b = $("btnCopy"); b.textContent = "Copied ✓"; setTimeout(() => (b.textContent = "Copy summary"), 1500);
+  const ok = await copyText(summaryText());
+  const b = $("btnCopy"); b.textContent = ok ? "Copied ✓" : "Copy failed"; setTimeout(() => (b.textContent = "Copy summary"), 1500);
 }
 async function sendToBuilder() {
   if (!S.fb) return;
   const undecided = findings().filter((f) => !decisionOf(f.id) && f.severity !== "minor");
-  if (undecided.length && !confirm(`${undecided.length} evaluator finding(s) are not accepted or rejected yet (${undecided.map((f) => f.id).join(", ")}). Send anyway?`)) return;
+  if (undecided.length && !(await ask(`${undecided.length} evaluator finding(s) are not accepted or rejected yet (${undecided.map((f) => f.id).join(", ")}). Send anyway?`, "Send anyway", "Go back"))) return;
   S.fb.submitted = true; changed(); renderHeaderButtons();
   await flushSave();
-  if (!S.server) downloadFeedback();
+  if (!S.server && !S.bundle) downloadFeedback();
   await copySummary();
   banner("sent", S.server
     ? `Sent. The notes are in review/${S.vid}/feedback.json, and a summary is on your clipboard. Tell the builder in chat: "notes on ${S.vid} are in".`
-    : "Downloaded feedback.json and copied a summary. Give the file to the builder, or paste the summary into the chat.");
+    : S.bundle
+      ? "Marked as sent, and a summary is on your clipboard to paste into the chat. Your notes stay in this browser."
+      : "Downloaded feedback.json and copied a summary. Give the file to the builder, or paste the summary into the chat.");
 }
-function toggleApprove() {
+async function toggleApprove() {
   if (!S.fb) return;
-  if (S.fb.approved) { if (!confirm(`Take back approval of ${S.vid}?`)) return; S.fb.approved = false; S.fb.approved_at = null; }
+  if (S.fb.approved) {
+    if (!(await ask(`Take back approval of ${S.vid}?`, "Take it back", "Keep approved"))) return;
+    S.fb.approved = false; S.fb.approved_at = null;
+  }
   else {
     const must = S.fb.notes.filter((n) => n.priority === "must").length;
-    if (must && !confirm(`${S.vid} has ${must} must-fix note(s). Approve it anyway?`)) return;
+    if (must && !(await ask(`${S.vid} has ${must} must-fix note(s). Approve it anyway?`, "Approve anyway", "Not yet"))) return;
     S.fb.approved = true; S.fb.approved_at = nowIso();
   }
   changed(); renderHeaderButtons();
@@ -1320,7 +1400,7 @@ function wireControls() {
   $("btnCopy").onclick = copySummary;
   $("btnSend").onclick = sendToBuilder;
   $("btnApprove").onclick = toggleApprove;
-  $("btnDownload").onclick = downloadFeedback;
+  $("btnDownload").onclick = () => (S.bundle ? copyFeedbackJson() : downloadFeedback());
   $("versionSel").onchange = (e) => loadVersion(e.target.value);
   for (const b of $("cmpSeg").children) b.onclick = () => setCompare(b.dataset.mode);
   for (const b of $("rateSeg").children) {
@@ -1361,6 +1441,7 @@ function wireControls() {
 
   document.addEventListener("keydown", (e) => {
     const tag = (e.target.tagName || "").toLowerCase();
+    if (document.querySelector(".ask")) return;
     if (tag === "input" || tag === "textarea" || tag === "select" || e.ctrlKey || e.metaKey || e.altKey) return;
     if (tag === "button" && (e.key === " " || e.key === "Enter")) return; // let the focused button act
     if (!S.m) return;

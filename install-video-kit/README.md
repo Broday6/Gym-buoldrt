@@ -39,6 +39,7 @@ render ─► publish v8 ─► evaluator (separate agent) ─► builder fixes 
 | `…/scripts/transcribe_check.py` | Local Whisper on the delivered audio: each line heard in its own scene, key terms heard exactly. Without a speech model it still flags narrated scenes that are silent or as flat as a tone |
 | `…/scripts/assemble_report.py` | Merges it all, applies the pass/fail gates, writes `eval-report.json` |
 | `tools/make_demo_project.py` | Makes a small fake project to try everything on |
+| `tools/build_static_review.py` | Bundles a project's review into a folder the studio opens without the server, for sharing a review as a page. Viewers' notes stay in their browser; they hand them over with *Copy summary* or *Copy feedback* |
 | `tests/` | End-to-end test: the scripts on the demo, plus the studio driven in a real browser |
 | `release/*.skill` | The two skills, packaged for upload (`python tools/package_skills.py` rebuilds them) |
 

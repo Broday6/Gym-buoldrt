@@ -13,7 +13,7 @@ for (const p of [process.env.PLAYWRIGHT_MODULE, "playwright", "/opt/node22/lib/n
 }
 if (!playwright) { console.log("SKIP: playwright not installed"); process.exit(0); }
 
-const [url, project, studioHtml, shots] = process.argv.slice(2);
+const [url, project, studioHtml, shots, bundleUrl] = process.argv.slice(2);
 const report = JSON.parse(fs.readFileSync(path.join(project, "review", "v1", "eval-report.json"), "utf8"));
 const physId = report.findings.find((f) => f.criterion === "physics").id;
 const reframeId = report.findings.find((f) => f.criterion === "reframe").id;
@@ -104,10 +104,11 @@ expect(f.text_changes.length === 1 && f.text_changes[0].field === "step_card" &&
   && f.text_changes[0].from.startsWith("Step 2 — Screw the mounting"), "a wording change keeps the original and the new text");
 expect(f.pace.length === 1 && f.pace[0].delta_s === 0.5 && f.pace[0].scene === "s03", "a pacing request is saved per scene");
 
-// Findings e2–e6 are still undecided, so the studio asks before sending.
-let asked = "";
-page.once("dialog", (d) => { asked = d.message(); d.accept(); });
+// Other findings are still undecided, so the studio asks first, in the page (sandboxed viewers block confirm()).
 await page.click("#btnSend");
+await page.waitForSelector(".ask");
+const asked = await page.locator(".ask p").textContent();
+await page.getByRole("button", { name: "Send anyway" }).click();
 await page.waitForFunction(() => S.fb.submitted === true);
 await waitSaved(page);
 expect(/not accepted or rejected yet/.test(asked), "sending with undecided findings asks first");
@@ -168,6 +169,37 @@ const [dl] = await Promise.all([fpage.waitForEvent("download"), fpage.click("#bt
 const saved = JSON.parse(fs.readFileSync(await dl.path(), "utf8"));
 expect(saved.notes.length === 1 && saved.notes[0].text === "Offline note" && saved.version === "v2", "file mode: notes download as feedback.json");
 expect(ferrors.length === 0, "file mode: no script errors" + (ferrors.length ? ": " + ferrors.join(" | ") : ""));
+
+// ---- a bundled copy (build_static_review.py), as published for sharing
+if (bundleUrl) {
+  const bctx = await browser.newContext({ viewport: { width: 400, height: 860 }, permissions: ["clipboard-read", "clipboard-write"] });
+  const bpage = await bctx.newPage();
+  const berrors = [];
+  bpage.on("pageerror", (e) => berrors.push(e.message));
+  bpage.on("console", (m) => { if (m.type() === "error" && !/media|play|favicon/i.test(m.text())) berrors.push(m.text()); });
+  await bpage.goto(bundleUrl);
+  await bpage.waitForFunction(() => document.querySelectorAll(".tl-scene").length === 6);
+  expect(await bpage.inputValue("#versionSel") === "v2" && (await bpage.locator("#versionSel option").count()) === 2,
+    "bundle: opens on the latest version with both listed");
+  expect(await bpage.locator('.banner[data-key="static"]').count() === 1, "bundle: says notes stay in this browser");
+  const stage = await bpage.locator("#stageA").boundingBox();
+  expect(stage && stage.height >= 200, `bundle: the player keeps its height at phone width (${stage && Math.round(stage.height)} px)`);
+  const sw = await bpage.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(sw <= 0, "bundle: nothing scrolls sideways at phone width");
+  await bpage.evaluate(() => seekFrame(300));
+  await bpage.evaluate(() => openComposer());
+  await bpage.locator("#composer textarea").fill("Bundle note");
+  await bpage.locator("#composer textarea").press("Control+Enter");
+  await bpage.reload();
+  await bpage.waitForFunction(() => document.querySelectorAll(".tl-scene").length === 6);
+  const kept = await bpage.evaluate(() => S.fb.notes.map((n) => n.text));
+  expect(kept.includes("Bundle note"), "bundle: a note survives a reload (kept in this browser)");
+  await bpage.click("#btnDownload");
+  const json = await bpage.evaluate(() => navigator.clipboard.readText()).catch(() => "");
+  expect(/"Bundle note"/.test(json), "bundle: Copy feedback puts the feedback JSON on the clipboard");
+  await bpage.screenshot({ path: path.join(shots, "studio-bundle-phone.png"), fullPage: true });
+  expect(berrors.length === 0, "bundle: no script errors" + (berrors.length ? ": " + berrors.join(" | ") : ""));
+}
 
 await browser.close();
 console.log(failures ? `${failures} FAILED` : "all studio checks passed");
