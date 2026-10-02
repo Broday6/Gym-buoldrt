@@ -1,0 +1,1381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Studio</title>
+<style>
+:root {
+  --bg: #0f1211;
+  --panel: #161a18;
+  --panel-2: #1d2220;
+  --panel-3: #252b28;
+  --line: #2c3430;
+  --text: #e8ece9;
+  --muted: #9ba7a0;
+  --faint: #6c7771;
+  --accent: #3f8a57;
+  --accent-strong: #5fb878;
+  --accent-ink: #08140c;
+  --note: #5aa9ff;
+  --blocker: #ff6b5e;
+  --major: #ffb547;
+  --minor: #9fb0a7;
+  --ok: #5fcf86;
+  --draw: #ffe066;
+  --radius: 8px;
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
+  --mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); display: flex; flex-direction: column; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button {
+  background: var(--panel-3); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px;
+  cursor: pointer; white-space: nowrap;
+}
+button:hover:not(:disabled) { border-color: var(--faint); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover:not(:disabled) { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--accent-ink); }
+button.ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 3px 6px; }
+button.ghost:hover:not(:disabled) { color: var(--text); border-color: var(--line); }
+button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 1px; }
+select, input[type=text], textarea {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px;
+}
+textarea { width: 100%; resize: vertical; min-height: 64px; }
+kbd { font: 11px var(--mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; color: var(--muted); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.hidden { display: none !important; }
+
+/* header */
+.top { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; margin-right: 6px; }
+.brand .mark { width: 10px; height: 26px; border-radius: 3px; background: var(--accent); flex: none; }
+.brand .proj { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 34vw; }
+.brand .sub { font-size: 12px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--panel-2); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accent); color: #fff; }
+.seg-label { font-size: 12px; color: var(--muted); margin-right: -4px; }
+.spacer { flex: 1; }
+.save { font-size: 12px; color: var(--muted); min-width: 110px; text-align: right; }
+.save.err { color: var(--blocker); }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .02em; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; text-transform: uppercase; }
+.pill.pass { color: var(--ok); } .pill.fail { color: var(--blocker); }
+.pill.blocker { color: var(--blocker); } .pill.major { color: var(--major); } .pill.minor { color: var(--minor); }
+.pill.must { color: var(--blocker); } .pill.nice { color: var(--minor); }
+.pill.addressed { color: var(--ok); } .pill.declined { color: var(--major); } .pill.open { color: var(--blocker); }
+.pill.note { color: var(--note); }
+
+/* banners */
+#banners:empty { display: none; }
+.banner { display: flex; align-items: center; gap: 10px; padding: 7px 14px; background: #1f2a22; border-bottom: 1px solid var(--line); font-size: 13px; }
+.banner.warn { background: #2d2617; } .banner.err { background: #2e1a18; }
+.banner .msg { flex: 1; }
+.banner ul { margin: 4px 0 0 18px; padding: 0; }
+
+/* layout */
+.layout { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 400px; min-height: 0; }
+.left { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 14px 10px; gap: 10px; }
+.side { position: relative; display: flex; flex-direction: column; min-height: 0; background: var(--panel); border-left: 1px solid var(--line); }
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; overflow: auto; }
+  .side { border-left: 0; border-top: 1px solid var(--line); min-height: 60vh; }
+}
+
+/* stages */
+.stages { flex: 1; min-height: 240px; display: flex; gap: 10px; position: relative; }
+.stage { position: relative; flex: 1; min-width: 0; background: #000; border-radius: var(--radius); overflow: hidden; }
+.stages.ab .stage#stageB { position: absolute; inset: 0; }
+.stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stage canvas.drawing { pointer-events: auto; cursor: crosshair; }
+.stage-label { position: absolute; left: 10px; top: 8px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 5px; background: rgba(0,0,0,.6); }
+.stage-label:empty { display: none; }
+.stage-hint { position: absolute; right: 10px; top: 8px; font-size: 12px; padding: 2px 8px; border-radius: 5px; background: rgba(0,0,0,.6); color: var(--draw); }
+
+/* transport */
+.transport { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.transport .readout { font: 13px var(--mono); padding: 0 8px; white-space: nowrap; }
+.transport .scene-name { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+#btnPlay { min-width: 72px; }
+
+/* timeline */
+.timeline { position: relative; height: 78px; user-select: none; touch-action: none; cursor: pointer; }
+.tl-marks { position: absolute; left: 0; right: 0; top: 0; height: 18px; }
+.tl-scenes { position: absolute; left: 0; right: 0; top: 20px; bottom: 0; display: block; }
+.tl-scene { position: absolute; top: 0; bottom: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 5px; overflow: hidden; padding: 4px 6px; font-size: 11.5px; }
+.tl-scene .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-scene .id { color: var(--faint); font-family: var(--mono); font-size: 10.5px; }
+.tl-scene.cur { background: var(--panel-3); border-color: var(--accent); }
+.tl-scene.changed::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--ok); opacity: .8; }
+.tl-act { position: absolute; bottom: 0; height: 7px; background: var(--faint); border-radius: 2px 2px 0 0; min-width: 2px; }
+.tl-mark { position: absolute; top: 2px; width: 12px; height: 12px; margin-left: -6px; border-radius: 3px; border: 0; padding: 0; cursor: pointer; }
+.tl-mark.note { background: var(--note); border-radius: 50%; }
+.tl-mark.blocker { background: var(--blocker); transform: rotate(45deg) scale(.85); }
+.tl-mark.major { background: var(--major); transform: rotate(45deg) scale(.85); }
+.tl-mark.minor { background: var(--minor); transform: rotate(45deg) scale(.7); }
+.tl-mark.decided { opacity: .35; }
+.tl-mark.sel { outline: 2px solid #fff; outline-offset: 1px; }
+.tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #fff; pointer-events: none; box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
+
+/* side panel */
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; border: 0; border-radius: 0; background: transparent; color: var(--muted); padding: 10px 6px; border-bottom: 2px solid transparent; }
+.tabs button.on { color: var(--text); border-bottom-color: var(--accent-strong); background: transparent; }
+.tabs .count { font-size: 11px; color: var(--faint); margin-left: 3px; }
+.tabpanel { flex: 1; overflow: auto; padding: 12px 14px 18px; min-height: 0; }
+.shortcuts { border-top: 1px solid var(--line); padding: 7px 14px; font-size: 11.5px; color: var(--faint); line-height: 1.9; }
+h3 { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }
+h3:first-child { margin-top: 0; }
+.scene-title { font-size: 17px; font-weight: 600; margin: 2px 0 2px; }
+.kv { font-size: 12.5px; color: var(--muted); }
+.quote { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; white-space: pre-wrap; }
+.quote.was { text-decoration: line-through; color: var(--faint); margin-bottom: 4px; }
+.quote.now { border-color: var(--accent); }
+.row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.card { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 9px 10px; margin-bottom: 8px; cursor: pointer; }
+.card:hover { border-color: var(--faint); }
+.card.sel { border-color: var(--accent-strong); box-shadow: 0 0 0 1px var(--accent-strong) inset; }
+.card .meta { font-size: 12px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.card .body { margin: 5px 0 2px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.card .fix { font-size: 12.5px; color: var(--muted); margin-top: 3px; overflow-wrap: anywhere; }
+.card .actions { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+.empty { color: var(--faint); font-size: 13px; padding: 8px 0; }
+.list { margin: 0; padding: 0; list-style: none; }
+.list li { padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.list li:last-child { border-bottom: 0; }
+.link { color: var(--note); cursor: pointer; text-decoration: none; background: none; border: 0; padding: 0; }
+.link:hover { text-decoration: underline; }
+details { margin-top: 10px; } summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+table.scores { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+table.scores th, table.scores td { text-align: center; padding: 3px 2px; border-bottom: 1px solid var(--line); }
+table.scores th:first-child, table.scores td:first-child { text-align: left; }
+.s0 { color: var(--blocker); font-weight: 700; } .s1 { color: var(--major); } .s2 { color: var(--muted); }
+.check { display: flex; gap: 8px; font-size: 12.5px; padding: 3px 0; }
+.check .st { width: 16px; flex: none; text-align: center; }
+.check .st.p { color: var(--ok); } .check .st.f { color: var(--blocker); } .check .st.w { color: var(--major); }
+
+/* composer */
+.composer { position: absolute; inset: 0; background: var(--panel); z-index: 5; display: flex; flex-direction: column; }
+.composer .head { padding: 12px 14px 8px; border-bottom: 1px solid var(--line); }
+.composer .inner { padding: 12px 14px; overflow: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.composer .foot { padding: 10px 14px; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chips button { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; }
+.label { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+
+/* file mode */
+.openfiles { position: fixed; inset: 0; background: var(--bg); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.openfiles .box { max-width: 560px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; }
+.openfiles h1 { font-size: 20px; margin: 0 0 8px; }
+.openfiles p { color: var(--muted); }
+.drop { border: 2px dashed var(--line); border-radius: 10px; padding: 22px; text-align: center; margin-top: 14px; }
+.drop.over { border-color: var(--accent-strong); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="mark" aria-hidden="true"></span>
+    <div style="min-width:0"><div class="proj" id="projName">Review Studio</div><div class="sub" id="projSub"></div></div>
+  </div>
+  <select id="versionSel" aria-label="Version"></select>
+  <span class="seg-label">Cut</span><div class="seg" id="cutSeg" role="group" aria-label="Cut"></div>
+  <span class="seg-label">Compare</span>
+  <div class="seg" id="cmpSeg" role="group" aria-label="Compare with previous version">
+    <button data-mode="off" class="on">Off</button><button data-mode="ab" title="Flip with B">A/B</button><button data-mode="side">Side by side</button>
+  </div>
+  <div class="spacer"></div>
+  <span class="save" id="saveState" aria-live="polite"></span>
+  <button id="btnCopy" title="Copy every note as text, ready to paste into the chat">Copy summary</button>
+  <button id="btnDownload" class="hidden">Download feedback.json</button>
+  <button id="btnSend" class="primary" title="Mark this round of notes as ready for the builder">Send to builder</button>
+  <button id="btnApprove" title="Sign off this version">Approve</button>
+</header>
+<div id="banners"></div>
+<main class="layout">
+  <section class="left">
+    <div class="stages" id="stages">
+      <div class="stage" id="stageA">
+        <video id="va" preload="auto" playsinline></video>
+        <canvas id="ovA"></canvas>
+        <div class="stage-label" id="labelA"></div>
+        <div class="stage-hint hidden" id="drawHint">Drag on the picture to box the problem</div>
+      </div>
+      <div class="stage hidden" id="stageB">
+        <video id="vb" preload="auto" playsinline muted></video>
+        <div class="stage-label" id="labelB"></div>
+      </div>
+    </div>
+    <div class="transport">
+      <button id="btnPrevScene" title="Previous scene ( [ )">⏮</button>
+      <button id="btnPrevFrame" title="Back one frame ( ← )">◀ 1f</button>
+      <button id="btnPlay" class="primary" title="Play / pause ( Space )">▶ Play</button>
+      <button id="btnNextFrame" title="Forward one frame ( → )">1f ▶</button>
+      <button id="btnNextScene" title="Next scene ( ] )">⏭</button>
+      <span class="readout" id="readout">0:00.00 / 0:00.00 · f0</span>
+      <span class="scene-name" id="sceneName"></span>
+      <div class="seg" id="rateSeg" role="group" aria-label="Playback speed">
+        <button data-rate="0.25">¼×</button><button data-rate="0.5">½×</button><button data-rate="1" class="on">1×</button>
+      </div>
+      <button id="btnNote" class="primary" title="Add a note at this frame ( N )">+ Note</button>
+    </div>
+    <div class="timeline" id="timeline" aria-label="Timeline">
+      <div class="tl-marks" id="tlMarks"></div>
+      <div class="tl-scenes" id="tlScenes"></div>
+      <div class="tl-playhead" id="tlPlayhead"></div>
+    </div>
+  </section>
+  <aside class="side">
+    <nav class="tabs" role="tablist">
+      <button data-tab="scene" class="on">Scene</button>
+      <button data-tab="notes">Notes<span class="count" id="cNotes"></span></button>
+      <button data-tab="eval">Evaluator<span class="count" id="cEval"></span></button>
+      <button data-tab="changes">Changes<span class="count" id="cChanges"></span></button>
+    </nav>
+    <div class="tabpanel" id="tabpanel"></div>
+    <div class="shortcuts">
+      <kbd>Space</kbd> play · <kbd>←</kbd><kbd>→</kbd> frame · <kbd>Shift</kbd>+<kbd>←</kbd><kbd>→</kbd> 1 s ·
+      <kbd>[</kbd><kbd>]</kbd> scene · <kbd>N</kbd> note · <kbd>B</kbd> flip A/B · <kbd>C</kbd> cut
+    </div>
+    <div class="composer hidden" id="composer"></div>
+  </aside>
+</main>
+<div class="openfiles hidden" id="openFiles">
+  <div class="box">
+    <h1>Open a version</h1>
+    <p>This page is running without the review server, so pick the files yourself: the version's
+      <span class="mono">manifest.json</span>, its videos, and if you have them its
+      <span class="mono">eval-report.json</span> and <span class="mono">feedback.json</span>.</p>
+    <p>Your notes are kept in this browser. Use <b>Download feedback.json</b> to hand them to the builder.
+      To get saving, comparisons and live updates, run <span class="mono">python review_server.py &lt;project&gt;</span> instead.</p>
+    <div class="drop" id="drop">
+      <input type="file" id="fileInput" multiple accept=".json,.mp4,.webm,.mov,.m4v">
+      <div class="muted" style="margin-top:8px">or drop the files here</div>
+    </div>
+    <div id="openErr" class="muted" style="margin-top:10px"></div>
+  </div>
+</div>
+<script>
+"use strict";
+// ---------------------------------------------------------------- helpers
+const $ = (id) => document.getElementById(id);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+    else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (k === "dataset") Object.assign(el.dataset, v);
+    else if (v === true) el.setAttribute(k, "");
+    else el.setAttribute(k, String(v));
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : String(kid));
+  }
+  return el;
+}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("rs:" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("rs:" + k, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  del(k) { try { localStorage.removeItem("rs:" + k); } catch { /* storage unavailable */ } },
+};
+const nowIso = () => new Date().toISOString().replace(/\.\d+Z$/, "Z");
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const CATEGORIES = [
+  ["physics", "Motion / physics"], ["install", "Install step"], ["product", "Product look"],
+  ["graphics", "Graphics"], ["text", "Text"], ["narration", "Narration"], ["timing", "Timing"],
+  ["color", "Color"], ["audio", "Audio"], ["other", "Other"],
+];
+const CAT_LABEL = Object.fromEntries(CATEGORIES);
+const CRITERION_TO_CATEGORY = {
+  product: "product", install: "install", physics: "physics", graphics: "graphics", sync: "narration",
+  reframe: "graphics", craft: "color", technical: "other", narration: "narration", claims: "install",
+};
+const SEV_ORDER = { blocker: 0, major: 1, minor: 2 };
+const CRIT_SHORT = [["product", "Prod"], ["install", "Inst"], ["physics", "Phys"], ["graphics", "Gfx"],
+  ["sync", "Sync"], ["reframe", "9:16"], ["craft", "Craft"]];
+
+// ---------------------------------------------------------------- state
+const S = {
+  server: false, project: null, versions: [], vid: null,
+  m: null, ev: null, fb: null, prev: null,
+  manifestErrors: [], evalMtime: null, manifestMtime: null,
+  cut: null, cmp: store.get("cmp", "off"), flipped: false,
+  frame: 0, sceneId: null, tab: store.get("tab", "scene"),
+  selected: null, composer: null, lastCategory: "other",
+  dirty: false, saving: false, saveAgain: false, saveTimer: null, lastSaved: null, saveError: null,
+  files: null, rejecting: null, editingText: null,
+};
+const va = $("va"), vb = $("vb");
+
+const fps = () => (S.m && S.m.fps) || 60;
+const fcount = () => (S.m && S.m.frame_count) || 1;
+const f2t = (f) => (f + 0.5) / fps();
+const t2f = (t) => clamp(Math.floor(t * fps() + 0.001), 0, fcount() - 1);
+function fmt(f, m) {
+  const t = f / ((m || S.m || {}).fps || 60);
+  const mm = Math.floor(t / 60), ss = t - mm * 60;
+  return `${mm}:${ss.toFixed(2).padStart(5, "0")}`;
+}
+const scenes = (m) => ((m || S.m || {}).scenes || []);
+const sceneAt = (f, m) => scenes(m).find((s) => s.start_frame <= f && f < s.end_frame) || null;
+const sceneById = (id, m) => scenes(m).find((s) => s.id === id) || null;
+const allActions = (m) => scenes(m).flatMap((s) => (s.actions || []).map((a) => ({ ...a, scene: s.id })));
+const actionById = (id, m) => allActions(m).find((a) => a.id === id) || null;
+const findings = () => ((S.ev && S.ev.findings) || []);
+const decisionOf = (fid) => (S.fb.findings || {})[fid] || null;
+
+// Map a frame in one version onto another by scene id, so re-timed scenes still line up.
+function mapFrame(f, from, to) {
+  const s = sceneAt(f, from);
+  const t = s && sceneById(s.id, to);
+  if (t) {
+    const rel = (f - s.start_frame) / Math.max(1, s.end_frame - s.start_frame);
+    return clamp(Math.round(t.start_frame + rel * (t.end_frame - t.start_frame)), t.start_frame, t.end_frame - 1);
+  }
+  return clamp(Math.round((f / from.frame_count) * to.frame_count), 0, to.frame_count - 1);
+}
+
+// ---------------------------------------------------------------- server I/O
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  let j = null;
+  try { j = await r.json(); } catch { /* not JSON */ }
+  if (!r.ok) {
+    const e = new Error((j && (j.errors ? j.errors.join("; ") : j.error)) || `HTTP ${r.status}`);
+    e.status = r.status;
+    throw e;
+  }
+  return j;
+}
+function mediaUrl(path) {
+  if (!path) return "";
+  if (S.server) return "/files/" + path.split("/").map(encodeURIComponent).join("/");
+  const f = S.files && S.files[path.split("/").pop()];
+  return f ? URL.createObjectURL(f) : "";
+}
+function emptyFeedback(m) {
+  return { schema: "ekena-install-feedback/1", project: m.project, version: m.version, updated: nowIso(),
+    submitted: false, approved: false, approved_at: null, notes: [], text_changes: [], pace: [], findings: {} };
+}
+function normalizeFeedback(fb, m) {
+  const out = Object.assign(emptyFeedback(m), fb || {});
+  for (const k of ["notes", "text_changes", "pace"]) if (!Array.isArray(out[k])) out[k] = [];
+  if (!out.findings || typeof out.findings !== "object") out.findings = {};
+  return out;
+}
+const draftKey = () => `draft:${S.project ? S.project.folder : (S.m && S.m.project)}:${S.vid}`;
+
+function changed() {
+  S.fb.updated = nowIso();
+  S.dirty = true;
+  store.set(draftKey(), S.fb);
+  clearTimeout(S.saveTimer);
+  S.saveTimer = setTimeout(save, 600);
+  renderSaveState();
+}
+async function save() {
+  if (!S.dirty || !S.fb) return;
+  if (!S.server) { renderSaveState(); return; }
+  if (S.saving) { S.saveAgain = true; return; }
+  S.saving = true; S.dirty = false; renderSaveState();
+  try {
+    await api(`/api/version/${encodeURIComponent(S.vid)}/feedback`, {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(S.fb),
+    });
+    S.lastSaved = new Date(); S.saveError = null;
+    if (!S.dirty) store.del(draftKey());
+  } catch (e) {
+    S.dirty = true; S.saveError = e.message;
+  } finally {
+    S.saving = false; renderSaveState();
+    if (S.saveAgain) { S.saveAgain = false; save(); }
+  }
+}
+async function flushSave() {
+  clearTimeout(S.saveTimer);
+  if (S.dirty) await save();
+  while (S.saving) await sleep(40);
+}
+window.addEventListener("beforeunload", (e) => {
+  if (S.server && S.dirty && S.fb) {
+    try {
+      fetch(`/api/version/${encodeURIComponent(S.vid)}/feedback`, { method: "PUT", keepalive: true,
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify(S.fb) });
+    } catch { /* the local draft still has it */ }
+  } else if (!S.server && S.dirty) {
+    e.preventDefault();
+  }
+});
+function renderSaveState() {
+  const el = $("saveState");
+  el.classList.toggle("err", !!S.saveError);
+  if (!S.fb) { el.textContent = ""; return; }
+  if (!S.server) { el.textContent = S.dirty ? "Kept in this browser" : ""; return; }
+  if (S.saveError) { el.textContent = "Not saved — " + S.saveError; el.title = S.saveError; return; }
+  if (S.saving || S.dirty) { el.textContent = "Saving…"; return; }
+  el.textContent = S.lastSaved ? "Saved " + S.lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "";
+}
+
+// ---------------------------------------------------------------- banners
+function banner(key, msg, buttons, kind) {
+  removeBanner(key);
+  const el = h("div", { class: "banner " + (kind || ""), dataset: { key } },
+    h("div", { class: "msg" }, msg),
+    (buttons || []).map(([label, fn]) => h("button", { onclick: () => { removeBanner(key); fn(); } }, label)),
+    h("button", { class: "ghost", "aria-label": "Dismiss", onclick: () => removeBanner(key) }, "✕"));
+  $("banners").append(el);
+}
+function removeBanner(key) {
+  for (const el of $("banners").querySelectorAll(".banner")) if (el.dataset.key === key) el.remove();
+}
+
+// ---------------------------------------------------------------- loading
+async function init() {
+  wireControls();
+  let p;
+  try { p = await api("/api/project"); } catch { return startFileMode(); }
+  S.server = true;
+  S.project = p; S.versions = p.versions;
+  $("projName").textContent = p.name;
+  document.title = `${p.name} — Review Studio`;
+  renderVersionSel();
+  if (!p.versions.length) {
+    banner("none", `No versions yet in ${p.folder}/review/. The studio will show them as soon as the builder publishes one.`, null, "warn");
+  } else {
+    const fromHash = new URLSearchParams(location.hash.slice(1)).get("v");
+    const pick = p.versions.find((v) => v.id === fromHash) || p.versions[p.versions.length - 1];
+    await loadVersion(pick.id);
+  }
+  setInterval(poll, 4000);
+}
+
+async function loadVersion(vid) {
+  if (S.fb) await flushSave();
+  let d;
+  try { d = await api(`/api/version/${encodeURIComponent(vid)}`); }
+  catch (e) { banner("load", `Couldn't open ${vid}: ${e.message}`, null, "err"); return; }
+  const meta = S.versions.find((v) => v.id === vid) || {};
+  S.evalMtime = meta.eval_mtime ?? null; S.manifestMtime = meta.manifest_mtime ?? null;
+  S.prev = null;
+  if (d.manifest && d.manifest.previous) {
+    try {
+      const p = await api(`/api/version/${encodeURIComponent(d.manifest.previous)}`);
+      if (p.manifest && p.manifest.scenes) S.prev = { manifest: p.manifest, feedback: p.feedback };
+    } catch { /* previous version missing: compare stays off */ }
+  }
+  applyVersion(vid, d.manifest, d.eval, d.feedback, d.manifest_errors || []);
+}
+
+function applyVersion(vid, m, ev, fb, errors) {
+  for (const k of ["manifest", "manifest-changed", "load", "media", "draft", "none", "sent", "eval"]) removeBanner(k);
+  if (!m || !Array.isArray(m.scenes) || !m.scenes.length || !Array.isArray(m.cuts) || !m.cuts.length) {
+    banner("manifest", h("span", {}, `${vid}/manifest.json can't be used: `,
+      h("ul", {}, (errors.length ? errors : ["it has no scenes or cuts"]).slice(0, 8).map((e) => h("li", {}, e)))), null, "err");
+    return;
+  }
+  if (errors.length) {
+    banner("manifest", h("span", {}, `${vid}/manifest.json has ${errors.length} problem(s). Ask the builder to fix them:`,
+      h("ul", {}, errors.slice(0, 6).map((e) => h("li", {}, e)))), null, "warn");
+  }
+  S.vid = vid; S.m = m; S.ev = ev || null;
+  S.fb = normalizeFeedback(fb, m);
+  if (S.composer) closeComposer();
+  S.selected = null; S.rejecting = null; S.editingText = null; S.dirty = false; S.saveError = null; S.lastSaved = null;
+  const draft = store.get(draftKey(), null);
+  if (draft && draft.version === vid && JSON.stringify(draft) !== JSON.stringify(S.fb) &&
+      (!fb || (draft.updated || "") > (fb.updated || ""))) {
+    banner("draft", "This browser has unsaved notes for this version from an earlier session.", [
+      ["Restore them", () => { S.fb = normalizeFeedback(draft, m); changed(); renderAll(); }],
+      ["Discard", () => store.del(draftKey())],
+    ], "warn");
+  }
+  $("projName").textContent = m.project;
+  document.title = `${m.project} ${vid} — Review Studio`;
+  $("projSub").textContent = [vid, m.created ? new Date(m.created).toLocaleString() : null,
+    `${(m.frame_count / m.fps).toFixed(2)} s @ ${m.fps} fps`].filter(Boolean).join(" · ");
+  if (S.server) history.replaceState(null, "", "#v=" + encodeURIComponent(vid));
+  const prefer = S.cut ? S.cut.id : store.get("cut", null);
+  S.cut = m.cuts.find((c) => c.id === prefer) || m.cuts[0];
+  S.frame = clamp(S.frame, 0, m.frame_count - 1);
+  if (S.cmp !== "off" && !S.prev) S.cmp = "off";
+  setSources();
+  renderAll();
+}
+
+function setSources() {
+  va.src = mediaUrl(S.cut.file);
+  // S.frame, not a captured copy: a seek made while the new file loads must win.
+  va.onloadedmetadata = () => { va.currentTime = f2t(S.frame); drawOverlay(); };
+  va.defaultPlaybackRate = va.playbackRate = Number(store.get("rate", 1));
+  const pc = prevCut();
+  if (S.cmp !== "off" && pc) {
+    vb.src = mediaUrl(pc.file);
+    vb.onloadedmetadata = () => syncCompare(true);
+  } else {
+    vb.removeAttribute("src"); vb.load();
+  }
+  layoutStages();
+}
+const prevCut = () => S.prev && (S.prev.manifest.cuts.find((c) => c.id === S.cut.id) || S.prev.manifest.cuts[0]);
+
+async function poll() {
+  if (!S.server || document.hidden) return;
+  let p;
+  try { p = await api("/api/project"); removeBanner("conn"); }
+  catch { banner("conn", "Lost the review server. Is it still running? Notes are kept in this browser meanwhile.", null, "err"); return; }
+  const known = new Set(S.versions.map((v) => v.id));
+  const fresh = p.versions.filter((v) => !known.has(v.id));
+  S.versions = p.versions; S.project = p;
+  renderVersionSel();
+  if (fresh.length) {
+    const v = fresh[fresh.length - 1];
+    if (!S.m) await loadVersion(v.id);
+    else banner("new", `${v.id} is ready to review.`, [["Open " + v.id, () => loadVersion(v.id)]]);
+  }
+  const cur = p.versions.find((v) => v.id === S.vid);
+  if (!cur || !S.m) return;
+  if ((cur.eval_mtime ?? null) !== S.evalMtime) {
+    S.evalMtime = cur.eval_mtime ?? null;
+    try {
+      const d = await api(`/api/version/${encodeURIComponent(S.vid)}`);
+      const had = !!S.ev;
+      S.ev = d.eval || null;
+      renderTimeline(); renderTabs(); drawOverlay();
+      if (S.ev) banner("eval", had ? "The evaluator report was updated." : "The evaluator report is in.",
+        [["Show it", () => setTab("eval")]]);
+    } catch { /* try again next poll */ }
+  }
+  if ((cur.manifest_mtime ?? null) !== S.manifestMtime) {
+    S.manifestMtime = cur.manifest_mtime ?? null;
+    banner("manifest-changed", `The builder rewrote ${S.vid}'s manifest.`, [["Reload", () => loadVersion(S.vid)]], "warn");
+  }
+}
+
+// ---------------------------------------------------------------- file mode
+function startFileMode() {
+  S.server = false;
+  $("openFiles").classList.remove("hidden");
+  $("btnDownload").classList.remove("hidden");
+  $("versionSel").classList.add("hidden");
+  const take = (list) => openLocalFiles([...list]);
+  $("fileInput").addEventListener("change", (e) => take(e.target.files));
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); take(e.dataTransfer.files); });
+}
+async function openLocalFiles(files) {
+  const err = $("openErr");
+  let m = null, ev = null, fb = null;
+  S.files = {};
+  for (const f of files) {
+    if (/\.json$/i.test(f.name)) {
+      let j;
+      try { j = JSON.parse(await f.text()); } catch { err.textContent = `${f.name} is not valid JSON.`; return; }
+      if (j.schema === "ekena-install-review/1") m = j;
+      else if (j.schema === "ekena-install-eval/1") ev = j;
+      else if (j.schema === "ekena-install-feedback/1") fb = j;
+    } else {
+      S.files[f.name] = f;
+    }
+  }
+  if (!m) { err.textContent = "Include the version's manifest.json."; return; }
+  const missing = (m.cuts || []).filter((c) => !S.files[c.file.split("/").pop()]).map((c) => c.file.split("/").pop());
+  if (missing.length === (m.cuts || []).length) { err.textContent = `Include at least one video: ${missing.join(", ")}.`; return; }
+  m.cuts = m.cuts.filter((c) => S.files[c.file.split("/").pop()]);
+  $("openFiles").classList.add("hidden");
+  applyVersion(m.version, m, ev, fb, []);
+}
+function downloadFeedback() {
+  const blob = new Blob([JSON.stringify(S.fb, null, 2) + "\n"], { type: "application/json" });
+  const a = h("a", { href: URL.createObjectURL(blob), download: "feedback.json" });
+  document.body.append(a); a.click(); a.remove();
+  S.dirty = false; renderSaveState();
+}
+
+// ---------------------------------------------------------------- playback
+function seekFrame(f) {
+  if (!S.m) return;
+  f = clamp(Math.round(f), 0, fcount() - 1);
+  S.frame = f;
+  va.currentTime = f2t(f);
+  onFrame(true);
+}
+function step(df) { va.pause(); seekFrame(S.frame + df); }
+function jumpScene(dir) {
+  const sc = scenes();
+  const i = sc.findIndex((s) => s.id === (sceneAt(S.frame) || {}).id);
+  if (dir < 0) {
+    const s = sc[i];
+    const target = s && S.frame > s.start_frame + 2 ? s : sc[Math.max(0, i - 1)];
+    seekFrame(target.start_frame);
+  } else if (i + 1 < sc.length) seekFrame(sc[i + 1].start_frame);
+}
+function togglePlay() {
+  if (!S.m) return;
+  if (va.paused) { if (S.frame >= fcount() - 1) seekFrame(0); va.play().catch(() => {}); }
+  else va.pause();
+}
+let frameCbOn = false;
+function trackFrames() {
+  if (!("requestVideoFrameCallback" in HTMLVideoElement.prototype) || frameCbOn) return;
+  frameCbOn = true;
+  const cb = (_now, md) => {
+    if (!va.paused) { S.frame = t2f(md.mediaTime); onFrame(); }
+    va.requestVideoFrameCallback(cb);
+  };
+  va.requestVideoFrameCallback(cb);
+}
+function onFrame(force) {
+  if (!S.m) return;
+  renderPlayhead();
+  const s = sceneAt(S.frame);
+  if (force !== false && s && s.id !== S.sceneId) {
+    S.sceneId = s.id;
+    for (const el of $("tlScenes").children) el.classList.toggle("cur", el.dataset.id === s.id);
+    if (S.tab === "scene" && !S.editingText) renderTabs();
+  }
+  syncCompare(false);
+  drawOverlay();
+}
+function syncCompare(force) {
+  if (S.cmp === "off" || !S.prev || !vb.src || vb.readyState < 1) return;
+  const target = (mapFrame(S.frame, S.m, S.prev.manifest) + 0.5) / S.prev.manifest.fps;
+  const tol = va.paused ? 0.5 / S.prev.manifest.fps : 0.1;
+  if (force || Math.abs(vb.currentTime - target) > tol) vb.currentTime = target;
+  vb.playbackRate = va.playbackRate;
+  if (va.paused && !vb.paused) vb.pause();
+  if (!va.paused && vb.paused) vb.play().catch(() => {});
+}
+
+// ---------------------------------------------------------------- rendering
+function renderAll() {
+  renderVersionSel(); renderCutSeg(); renderCmpSeg(); renderTimeline(); renderTabs(); renderHeaderButtons();
+  renderSaveState(); onFrame(true);
+}
+function renderVersionSel() {
+  const sel = $("versionSel");
+  sel.replaceChildren(...S.versions.map((v) => {
+    const bits = [v.id];
+    if (v.has_eval) bits.push(v.eval_overall === "pass" ? "eval ✓" : "eval ✗");
+    if (v.approved) bits.push("approved");
+    else if (v.submitted) bits.push("sent");
+    return h("option", { value: v.id, selected: v.id === S.vid }, bits.join(" · "));
+  }));
+}
+function renderCutSeg() {
+  $("cutSeg").replaceChildren(...S.m.cuts.map((c) => h("button", {
+    class: c.id === S.cut.id ? "on" : "", onclick: () => switchCut(c.id),
+  }, c.id.replace("x", ":"))));
+}
+function switchCut(id) {
+  if (!S.m || id === S.cut.id) return;
+  S.cut = S.m.cuts.find((c) => c.id === id) || S.cut;
+  store.set("cut", S.cut.id);
+  const playing = !va.paused;
+  setSources(); renderCutSeg();
+  if (playing) va.addEventListener("loadeddata", () => va.play().catch(() => {}), { once: true });
+}
+function renderCmpSeg() {
+  for (const b of $("cmpSeg").children) {
+    b.classList.toggle("on", b.dataset.mode === S.cmp);
+    b.disabled = b.dataset.mode !== "off" && !S.prev;
+    b.title = !S.prev && b.dataset.mode !== "off" ? "This version doesn't name a previous version" : (b.dataset.mode === "ab" ? "Flip with B" : "");
+  }
+}
+function setCompare(mode) {
+  if (mode !== "off" && !S.prev) return;
+  S.cmp = mode; S.flipped = false; store.set("cmp", mode);
+  setSources(); renderCmpSeg(); syncCompare(true);
+}
+function layoutStages() {
+  const st = $("stages"), b = $("stageB");
+  st.classList.toggle("ab", S.cmp === "ab");
+  b.classList.toggle("hidden", S.cmp === "off" || (S.cmp === "ab" && !S.flipped));
+  const prevId = S.prev ? S.prev.manifest.version : "";
+  $("labelA").textContent = S.cmp === "off" ? "" : `${S.vid} (this version)`;
+  $("labelB").textContent = S.cmp === "off" ? "" : `${prevId} (previous)`;
+  requestAnimationFrame(drawOverlay);
+}
+function flip() {
+  if (S.cmp !== "ab") return;
+  S.flipped = !S.flipped; layoutStages(); syncCompare(true);
+}
+function renderHeaderButtons() {
+  const a = $("btnApprove"), s = $("btnSend");
+  a.textContent = S.fb.approved ? "Approved ✓" : "Approve";
+  a.classList.toggle("on", !!S.fb.approved);
+  s.textContent = S.fb.submitted ? "Sent ✓" : "Send to builder";
+}
+function renderPlayhead() {
+  const pct = (S.frame / fcount()) * 100;
+  $("tlPlayhead").style.left = pct + "%";
+  const s = sceneAt(S.frame);
+  $("readout").textContent = `${fmt(S.frame)} / ${fmt(fcount())} · f${S.frame}`;
+  $("sceneName").textContent = s ? `${s.id} · ${s.title || ""}` : "";
+  $("btnPlay").textContent = va.paused ? "▶ Play" : "❚❚ Pause";
+}
+function changedScenes() {
+  return new Set(((S.m && S.m.changes) || []).filter((c) => c.status === "addressed" && c.scene).map((c) => c.scene));
+}
+function renderTimeline() {
+  if (!S.m) return;
+  const N = fcount(), chg = changedScenes();
+  $("tlScenes").replaceChildren(...scenes().map((s) => {
+    const el = h("div", {
+      class: "tl-scene" + (chg.has(s.id) ? " changed" : "") + (s.id === S.sceneId ? " cur" : ""),
+      dataset: { id: s.id },
+      title: `${s.id} · ${s.title || ""} · ${fmt(s.start_frame)}–${fmt(s.end_frame)}` + (chg.has(s.id) ? " · changed in this version" : ""),
+      style: { left: (s.start_frame / N) * 100 + "%", width: `calc(${((s.end_frame - s.start_frame) / N) * 100}% - 2px)` },
+    }, h("div", { class: "t" }, s.title || s.id), h("div", { class: "id" }, s.id));
+    for (const a of s.actions || []) {
+      const len = Math.max(1, (a.end_frame || a.frame + 1) - a.frame);
+      el.append(h("div", { class: "tl-act", title: a.label || a.id,
+        style: { left: ((a.frame - s.start_frame) / (s.end_frame - s.start_frame)) * 100 + "%",
+          width: (len / (s.end_frame - s.start_frame)) * 100 + "%" } }));
+    }
+    return el;
+  }));
+  const marks = [];
+  for (const n of S.fb.notes) {
+    marks.push(h("button", { class: "tl-mark note" + (isSel("note", n.id) ? " sel" : ""),
+      style: { left: (n.frame / N) * 100 + "%" }, title: `${n.id}: ${n.text}`,
+      onpointerdown: (e) => e.stopPropagation(), onclick: (e) => { e.stopPropagation(); selectItem("note", n.id, true); } }));
+  }
+  for (const f of findings()) {
+    if (f.frame == null) continue;
+    marks.push(h("button", { class: `tl-mark ${f.severity}` + (decisionOf(f.id) ? " decided" : "") + (isSel("finding", f.id) ? " sel" : ""),
+      style: { left: (f.frame / N) * 100 + "%" }, title: `${f.id} (${f.severity}): ${f.what}`,
+      onpointerdown: (e) => e.stopPropagation(), onclick: (e) => { e.stopPropagation(); selectItem("finding", f.id, true); } }));
+  }
+  $("tlMarks").replaceChildren(...marks);
+}
+const isSel = (type, id) => S.selected && S.selected.type === type && S.selected.id === id;
+function selectItem(type, id, switchTab) {
+  S.selected = { type, id };
+  const item = type === "note" ? S.fb.notes.find((n) => n.id === id) : findings().find((f) => f.id === id);
+  if (item) {
+    va.pause();
+    if (item.cut && item.cut !== S.cut.id && S.m.cuts.some((c) => c.id === item.cut)) switchCut(item.cut);
+    if (item.frame != null) seekFrame(item.frame);
+  }
+  if (switchTab) setTab(type === "note" ? "notes" : "eval");
+  else renderTabs();
+  renderTimeline();
+  const card = document.querySelector(`[data-sel="${type}:${CSS.escape(id)}"]`);
+  if (card) card.scrollIntoView({ block: "nearest" });
+}
+
+// ---------------------------------------------------------------- overlay
+function contentRect(video, box, cut) {
+  const W = box.clientWidth, H = box.clientHeight;
+  const vw = video.videoWidth || cut.width, vh = video.videoHeight || cut.height;
+  const s = Math.min(W / vw, H / vh);
+  return { x: (W - vw * s) / 2, y: (H - vh * s) / 2, w: vw * s, h: vh * s };
+}
+function drawOverlay() {
+  const c = $("ovA"), box = $("stageA");
+  if (!S.m || !S.cut) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = box.clientWidth, H = box.clientHeight;
+  if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+  const ctx = c.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  if (S.cmp === "ab" && S.flipped) return;
+  const r = contentRect(va, box, S.cut);
+  const near = Math.round(fps() * 0.5);
+  const boxAt = (reg, color, label, dashed, width) => {
+    const x = r.x + reg.x * r.w, y = r.y + reg.y * r.h, w = reg.w * r.w, hh = reg.h * r.h;
+    ctx.save();
+    ctx.lineWidth = width || 2; ctx.strokeStyle = color; ctx.setLineDash(dashed ? [7, 5] : []);
+    ctx.shadowColor = "rgba(0,0,0,.7)"; ctx.shadowBlur = 3;
+    ctx.strokeRect(x, y, w, hh);
+    if (label) {
+      ctx.setLineDash([]); ctx.shadowBlur = 0;
+      ctx.font = "600 12px " + getComputedStyle(document.body).fontFamily;
+      const tw = ctx.measureText(label).width + 10;
+      const ly = y > 20 ? y - 19 : y + hh + 1;
+      ctx.fillStyle = color; ctx.fillRect(x - 1, ly, tw, 18);
+      ctx.fillStyle = "#08140c"; ctx.fillText(label, x + 4, ly + 13);
+    }
+    ctx.restore();
+  };
+  for (const n of S.fb.notes) {
+    if (!n.region || n.cut !== S.cut.id) continue;
+    if (Math.abs(n.frame - S.frame) <= near || (isSel("note", n.id) && Math.abs(n.frame - S.frame) <= near * 4)) {
+      boxAt(n.region, getCss("--note"), n.id.replace(/^.*-/, ""), false, isSel("note", n.id) ? 3 : 2);
+    }
+  }
+  for (const f of findings()) {
+    if (!f.region || (f.cut && f.cut !== S.cut.id) || f.frame == null) continue;
+    const end = f.end_frame != null ? f.end_frame : f.frame;
+    if ((S.frame >= f.frame - near && S.frame <= end + near) || (isSel("finding", f.id) && Math.abs(f.frame - S.frame) <= near * 4)) {
+      boxAt(f.region, getCss("--" + f.severity), f.id, true, isSel("finding", f.id) ? 3 : 2);
+    }
+  }
+  if (S.composer && S.composer.region) boxAt(S.composer.region, getCss("--draw"), "new", false, 3);
+}
+const cssCache = {};
+const getCss = (v) => cssCache[v] || (cssCache[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+function wireDrawing() {
+  const c = $("ovA");
+  let start = null;
+  const norm = (e) => {
+    const r = contentRect(va, $("stageA"), S.cut), b = c.getBoundingClientRect();
+    return { x: clamp((e.clientX - b.left - r.x) / r.w, 0, 1), y: clamp((e.clientY - b.top - r.y) / r.h, 0, 1) };
+  };
+  c.addEventListener("pointerdown", (e) => {
+    if (!S.composer) return;
+    c.setPointerCapture(e.pointerId); start = norm(e); S.composer.region = null;
+  });
+  c.addEventListener("pointermove", (e) => {
+    if (!start || !S.composer) return;
+    const p = norm(e);
+    S.composer.region = { x: Math.min(start.x, p.x), y: Math.min(start.y, p.y), w: Math.abs(p.x - start.x), h: Math.abs(p.y - start.y) };
+    drawOverlay();
+  });
+  c.addEventListener("pointerup", () => {
+    if (!start || !S.composer) return;
+    start = null;
+    const reg = S.composer.region;
+    if (reg && (reg.w < 0.01 || reg.h < 0.01)) S.composer.region = null;
+    if (S.composer.region) for (const k of ["x", "y", "w", "h"]) S.composer.region[k] = Math.round(S.composer.region[k] * 1000) / 1000;
+    drawOverlay(); renderComposer();
+  });
+}
+
+// ---------------------------------------------------------------- tabs
+function setTab(t) {
+  S.tab = t; store.set("tab", t);
+  for (const b of document.querySelectorAll(".tabs button")) b.classList.toggle("on", b.dataset.tab === t);
+  renderTabs();
+}
+function renderTabs() {
+  if (!S.m) return;
+  $("cNotes").textContent = S.fb.notes.length ? ` ${S.fb.notes.length}` : "";
+  const open = findings().filter((f) => !decisionOf(f.id)).length;
+  $("cEval").textContent = S.ev ? ` ${open || "✓"}` : "";
+  const prevNotes = (S.prev && S.prev.feedback && S.prev.feedback.notes) || [];
+  $("cChanges").textContent = ((S.m.changes || []).length || prevNotes.length) ? ` ${(S.m.changes || []).length}` : "";
+  const panel = $("tabpanel");
+  const scroll = panel.scrollTop;
+  const body = { scene: renderSceneTab, notes: renderNotesTab, eval: renderEvalTab, changes: renderChangesTab }[S.tab]();
+  panel.replaceChildren(body);
+  panel.scrollTop = scroll;
+}
+
+function textChange(sceneId, field) { return S.fb.text_changes.find((t) => t.scene === sceneId && t.field === field); }
+function paceOf(sceneId) { const p = S.fb.pace.find((x) => x.scene === sceneId); return p ? p.delta_s : 0; }
+
+function renderSceneTab() {
+  const s = sceneAt(S.frame);
+  if (!s) return h("div", { class: "empty" }, "No scene here.");
+  const dur = (s.end_frame - s.start_frame) / fps();
+  const claims = Object.fromEntries(((S.m.claims) || []).map((c) => [c.id, c]));
+  const textBlock = (field, label) => {
+    const orig = s[field];
+    const tc = textChange(s.id, field);
+    if (S.editingText && S.editingText.scene === s.id && S.editingText.field === field) {
+      const ta = h("textarea", { rows: 3 }, tc ? tc.to : (orig || ""));
+      setTimeout(() => ta.focus(), 0);
+      const done = (val) => {
+        S.editingText = null;
+        S.fb.text_changes = S.fb.text_changes.filter((t) => !(t.scene === s.id && t.field === field));
+        if (val != null && val.trim() !== (orig || "").trim()) S.fb.text_changes.push({ scene: s.id, field, from: orig || "", to: val.trim() });
+        changed(); renderTabs();
+      };
+      return [h("h3", {}, label),
+        ta,
+        h("div", { class: "row", style: { marginTop: "6px" } },
+          h("button", { class: "primary", onclick: () => done(ta.value) }, "Request this wording"),
+          h("button", { onclick: () => { S.editingText = null; renderTabs(); } }, "Cancel"),
+          tc ? h("button", { class: "ghost", onclick: () => done(null) }, "Keep the original") : null)];
+    }
+    if (orig == null && !tc) return null;
+    return [h("div", { class: "row between" }, h("h3", {}, label),
+        h("button", { class: "ghost", onclick: () => { S.editingText = { scene: s.id, field }; renderTabs(); } }, tc ? "Edit request" : "Change wording")),
+      tc ? [h("div", { class: "quote was" }, orig || "(none)"), h("div", { class: "quote now" }, tc.to)]
+        : h("div", { class: "quote" }, orig)];
+  };
+  const pace = paceOf(s.id);
+  const net = S.fb.pace.reduce((a, p) => a + p.delta_s, 0);
+  const setPace = (d) => {
+    const v = Math.round((pace + d) * 100) / 100;
+    S.fb.pace = S.fb.pace.filter((p) => p.scene !== s.id);
+    if (v !== 0) S.fb.pace.push({ scene: s.id, delta_s: v });
+    changed(); renderTabs();
+  };
+  return h("div", {},
+    h("div", { class: "kv" }, `${s.id}${s.kind ? " · " + s.kind : ""} · ${fmt(s.start_frame)}–${fmt(s.end_frame)} (${dur.toFixed(2)} s) · frames ${s.start_frame}–${s.end_frame - 1}`),
+    h("div", { class: "scene-title" }, s.title || s.id),
+    textBlock("step_card", "Step card"),
+    textBlock("narration", "Narration"),
+    (s.claims || []).length ? [h("h3", {}, "Backed by"),
+      h("ul", { class: "list" }, s.claims.map((id) => h("li", {}, h("b", {}, id + " "),
+        claims[id] ? [claims[id].text, h("div", { class: "faint" }, claims[id].source || "no source")] : h("span", { class: "faint" }, "not in the claims table"))))]
+      : (s.kind === "step" ? [h("h3", {}, "Backed by"), h("div", { class: "empty" }, "No claim listed for this step.")] : null),
+    (s.actions || []).length ? [h("h3", {}, "Actions"),
+      h("ul", { class: "list" }, s.actions.map((a) => h("li", {},
+        h("button", { class: "link", onclick: () => { va.pause(); seekFrame(a.frame); } }, a.label || a.id),
+        h("span", { class: "faint mono" }, `  ${fmt(a.frame)} · f${a.frame}`))))] : null,
+    h("h3", {}, "Pacing"),
+    h("div", { class: "row" },
+      h("button", { onclick: () => setPace(-0.5) }, "− 0.5 s"),
+      h("button", { onclick: () => setPace(+0.5) }, "+ 0.5 s"),
+      h("span", { class: pace ? "" : "faint" }, pace ? `Asked for ${pace > 0 ? "+" : ""}${pace} s` : "No change asked")),
+    S.fb.pace.length && S.m.target_duration_s ? h("div", { class: "faint", style: { fontSize: "12px", marginTop: "4px" } },
+      `Net ${net > 0 ? "+" : ""}${net} s across scenes. Length is locked at ${S.m.target_duration_s} s, so the builder takes it back from other scenes.`) : null,
+    s.source ? [h("h3", {}, "In the code"),
+      h("div", { class: "mono" }, (s.source.files || []).join(", ") || "—"),
+      (s.source.timeline_keys || []).length ? h("div", { class: "faint mono" }, "timeline: " + s.source.timeline_keys.join(", ")) : null] : null,
+    h("div", { style: { marginTop: "16px" } }, h("button", { class: "primary", onclick: () => openComposer() }, "+ Note at this frame")),
+  );
+}
+
+function noteCard(n, opts) {
+  const s = sceneById(n.scene);
+  const a = n.action && actionById(n.action);
+  return h("div", { class: "card" + (isSel("note", n.id) ? " sel" : ""), dataset: { sel: "note:" + n.id },
+      onclick: () => selectItem("note", n.id, false) },
+    h("div", { class: "meta" },
+      h("span", { class: "mono" }, `${fmt(n.frame)} · f${n.frame}`),
+      h("span", {}, `${n.scene}${s && s.title ? " " + s.title : ""}`),
+      a ? h("span", { class: "faint" }, "· " + (a.label || a.id)) : null,
+      S.m.cuts.length > 1 ? h("span", { class: "faint" }, "· " + n.cut.replace("x", ":")) : null),
+    h("div", { class: "meta", style: { marginTop: "4px" } },
+      h("span", { class: "pill " + n.priority }, n.priority === "must" ? "must fix" : "nice to have"),
+      h("span", { class: "pill note" }, CAT_LABEL[n.category] || n.category),
+      n.region ? h("span", { class: "faint" }, "▭ boxed") : null,
+      n.from_finding ? h("span", { class: "faint" }, "from " + n.from_finding) : null),
+    h("div", { class: "body" }, n.text),
+    opts && opts.readonly ? null : h("div", { class: "actions" },
+      h("button", { class: "ghost", onclick: (e) => { e.stopPropagation(); openComposer(n); } }, "Edit"),
+      h("button", { class: "ghost", onclick: (e) => { e.stopPropagation(); deleteNote(n.id); } }, "Delete")));
+}
+function renderNotesTab() {
+  const notes = [...S.fb.notes].sort((a, b) => a.frame - b.frame);
+  return h("div", {},
+    h("div", { class: "row between" }, h("h3", { style: { margin: 0 } }, `Notes on ${S.vid}`),
+      h("button", { class: "primary", onclick: () => openComposer() }, "+ Note")),
+    notes.length ? h("div", { style: { marginTop: "10px" } }, notes.map((n) => noteCard(n)))
+      : h("div", { class: "empty" }, "No notes yet. Pause on the problem, press N, describe it, and drag a box around it."),
+    S.fb.text_changes.length ? [h("h3", {}, "Wording changes"),
+      h("ul", { class: "list" }, S.fb.text_changes.map((t) => h("li", {},
+        h("div", { class: "row between" }, h("b", {}, `${t.scene} · ${t.field === "step_card" ? "step card" : "narration"}`),
+          h("button", { class: "ghost", onclick: () => { S.fb.text_changes = S.fb.text_changes.filter((x) => x !== t); changed(); renderTabs(); } }, "Remove")),
+        h("div", { class: "faint" }, t.from || "(none)"), h("div", {}, "→ " + t.to))))] : null,
+    S.fb.pace.length ? [h("h3", {}, "Pacing"),
+      h("ul", { class: "list" }, S.fb.pace.map((p) => h("li", { class: "row between" },
+        h("span", {}, `${p.scene} · ${p.delta_s > 0 ? "+" : ""}${p.delta_s} s`),
+        h("button", { class: "ghost", onclick: () => { S.fb.pace = S.fb.pace.filter((x) => x !== p); changed(); renderTabs(); } }, "Remove"))))] : null,
+  );
+}
+
+function findingCard(f) {
+  const d = decisionOf(f.id);
+  const s = f.scene && sceneById(f.scene);
+  let actions;
+  if (S.rejecting === f.id) {
+    const inp = h("input", { type: "text", placeholder: "Why is this fine? (optional)", style: { flex: "1", minWidth: "160px" } });
+    setTimeout(() => inp.focus(), 0);
+    const go = () => { S.fb.findings[f.id] = { decision: "reject", reason: inp.value.trim() }; S.rejecting = null; changed(); renderTabs(); renderTimeline(); };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); if (e.key === "Escape") { S.rejecting = null; renderTabs(); } e.stopPropagation(); });
+    actions = h("div", { class: "actions", onclick: (e) => e.stopPropagation() }, inp,
+      h("button", { onclick: go }, "Reject"), h("button", { class: "ghost", onclick: () => { S.rejecting = null; renderTabs(); } }, "Cancel"));
+  } else if (d) {
+    actions = h("div", { class: "actions", onclick: (e) => e.stopPropagation() },
+      h("span", { class: "muted" }, d.decision === "accept" ? `Accepted → note ${d.note || ""}` : `Rejected${d.reason ? ": " + d.reason : ""}`),
+      h("button", { class: "ghost", onclick: () => undoDecision(f.id) }, "Undo"));
+  } else {
+    actions = h("div", { class: "actions", onclick: (e) => e.stopPropagation() },
+      h("button", { class: "primary", onclick: () => acceptFinding(f) }, "Accept → note"),
+      h("button", { onclick: () => { S.rejecting = f.id; renderTabs(); } }, "Reject"));
+  }
+  return h("div", { class: "card" + (isSel("finding", f.id) ? " sel" : ""), dataset: { sel: "finding:" + f.id },
+      onclick: () => selectItem("finding", f.id, false), style: d ? { opacity: ".7" } : null },
+    h("div", { class: "meta" },
+      h("span", { class: "pill " + f.severity }, f.severity),
+      h("span", {}, f.criterion),
+      f.scope === "systemic" ? h("span", { class: "pill major" }, "systemic") : null,
+      h("span", { class: "faint" }, f.id)),
+    h("div", { class: "meta", style: { marginTop: "3px" } },
+      f.frame != null ? h("span", { class: "mono" }, `${fmt(f.frame)} · f${f.frame}`) : null,
+      s ? h("span", {}, `${s.id} ${s.title || ""}`) : null,
+      f.cut ? h("span", { class: "faint" }, "· " + f.cut.replace("x", ":")) : null),
+    h("div", { class: "body" }, f.what),
+    f.fix ? h("div", { class: "fix" }, "Fix: " + f.fix) : null,
+    f.rule ? h("div", { class: "fix" }, "Rule: " + f.rule) : null,
+    f.source ? h("div", { class: "fix" }, "Source: " + f.source) : null,
+    actions);
+}
+function renderEvalTab() {
+  if (!S.ev) {
+    return h("div", { class: "empty" }, S.server
+      ? "No evaluator report for this version yet. It shows up here by itself when the evaluator finishes."
+      : "No eval-report.json was opened with this version.");
+  }
+  const ev = S.ev;
+  const fs = [...findings()].sort((a, b) => (SEV_ORDER[a.severity] - SEV_ORDER[b.severity]) || ((a.frame ?? 0) - (b.frame ?? 0)));
+  const tech = (ev.technical && ev.technical.checks) || [];
+  const narr = ev.narration || null;
+  return h("div", {},
+    h("div", { class: "row" }, h("span", { class: "pill " + ev.overall }, ev.overall),
+      h("span", { class: "muted" }, ev.evaluated_at ? "evaluated " + new Date(ev.evaluated_at).toLocaleString() : "")),
+    ev.summary ? h("p", {}, ev.summary) : null,
+    h("h3", {}, `Findings (${fs.length})`),
+    fs.length ? fs.map(findingCard) : h("div", { class: "empty" }, "Nothing found."),
+    tech.length ? h("details", { open: tech.some((c) => !c.pass) },
+      h("summary", {}, `Technical checks — ${tech.filter((c) => c.pass).length}/${tech.length} pass`),
+      tech.map((c) => h("div", { class: "check" },
+        h("span", { class: "st " + (c.pass ? (c.severity === "warning" ? "w" : "p") : "f") }, c.pass ? (c.severity === "warning" ? "!" : "✓") : "✗"),
+        h("span", {}, h("b", {}, (c.cut ? c.cut + " · " : "") + c.id), " ", h("span", { class: "muted" }, c.detail || ""))))) : null,
+    (ev.scenes || []).length ? h("details", {},
+      h("summary", {}, "Scene scores"),
+      h("table", { class: "scores" },
+        h("tr", {}, h("th", {}, "Scene"), CRIT_SHORT.map(([, l]) => h("th", {}, l)), h("th", {}, "Σ"), h("th", {}, "")),
+        ev.scenes.map((sc) => h("tr", {},
+          h("td", {}, h("button", { class: "link", onclick: () => { const s = sceneById(sc.scene); if (s) seekFrame(s.start_frame); } }, sc.scene),
+            sc.carried ? h("span", { class: "faint", title: "Unchanged since the last report" }, " ↺") : null),
+          CRIT_SHORT.map(([k]) => { const v = (sc.scores || {})[k]; return h("td", { class: v == null ? "faint" : "s" + v }, v == null ? "–" : v); }),
+          h("td", {}, sc.total ?? ""),
+          h("td", {}, h("span", { class: "pill " + (sc.pass ? "pass" : "fail") }, sc.pass ? "pass" : "fail")))))) : null,
+    narr && narr.available && (narr.scenes || []).length ? h("details", {},
+      h("summary", {}, "Narration as heard"),
+      h("ul", { class: "list" }, narr.scenes.map((n) => h("li", {},
+        h("div", { class: "row between" }, h("b", {}, n.scene), h("span", { class: "muted" }, n.match != null ? `${Math.round(n.match * 100)}% match` : "")),
+        n.heard ? h("div", { class: "muted" }, "“" + n.heard + "”") : null,
+        (n.missing_terms || []).length ? h("div", { style: { color: "var(--blocker)" } }, "Not heard: " + n.missing_terms.join(", ")) : null)))) : null,
+    narr && narr.available === false ? h("div", { class: "faint", style: { marginTop: "10px", fontSize: "12px" } }, "Narration check skipped: " + (narr.reason || "")) : null,
+  );
+}
+
+function renderChangesTab() {
+  const ch = S.m.changes || [];
+  const prevNotes = (S.prev && S.prev.feedback && S.prev.feedback.notes) || [];
+  const byNote = {};
+  for (const c of ch) if (c.note) byNote[c.note] = c;
+  const jump = (c) => {
+    if (c.frames) seekFrame(c.frames[0]);
+    else if (c.scene && sceneById(c.scene)) seekFrame(sceneById(c.scene).start_frame);
+  };
+  const other = ch.filter((c) => !c.note || !prevNotes.some((n) => n.id === c.note));
+  const prevId = S.prev ? S.prev.manifest.version : S.m.previous;
+  return h("div", {},
+    !S.m.previous ? h("div", { class: "empty" }, "This is a first version, so there's nothing to compare yet.") : null,
+    prevNotes.length ? [h("h3", {}, `Your notes on ${prevId}`),
+      [...prevNotes].sort((a, b) => a.frame - b.frame).map((n) => {
+        const c = byNote[n.id];
+        const st = c ? c.status : "open";
+        return h("div", { class: "card", onclick: () => (c ? jump(c) : seekFrame(mapFrame(n.frame, S.prev.manifest, S.m))) },
+          h("div", { class: "meta" },
+            h("span", { class: "pill " + st }, st === "open" ? "not mentioned" : st),
+            h("span", { class: "faint" }, n.id), h("span", {}, n.scene)),
+          h("div", { class: "body muted" }, n.text),
+          c && c.summary ? h("div", { class: "body" }, (st === "declined" ? "Builder: " : "Done: ") + c.summary) : null,
+          h("div", { class: "actions" },
+            h("button", { class: "ghost", onclick: (e) => { e.stopPropagation(); c ? jump(c) : seekFrame(mapFrame(n.frame, S.prev.manifest, S.m)); setCompare("ab"); } }, "Check it in A/B")));
+      })] : (S.m.previous ? h("div", { class: "empty" }, `No notes were saved on ${prevId}.`) : null),
+    other.length ? [h("h3", {}, "Other changes"),
+      other.map((c) => h("div", { class: "card", onclick: () => jump(c) },
+        h("div", { class: "meta" }, h("span", { class: "pill " + c.status }, c.status),
+          c.finding ? h("span", { class: "faint" }, "finding " + c.finding) : null,
+          c.scene ? h("span", {}, c.scene) : null,
+          c.frames ? h("span", { class: "mono faint" }, `f${c.frames[0]}–${c.frames[1]}`) : null),
+        h("div", { class: "body" }, c.summary || "")))] : null,
+  );
+}
+
+// ---------------------------------------------------------------- notes
+function nearestAction(f) {
+  const s = sceneAt(f);
+  if (!s) return null;
+  const acts = s.actions || [];
+  const inside = acts.find((a) => a.frame <= f && f <= (a.end_frame ?? a.frame));
+  if (inside) return inside.id;
+  let best = null, dist = fps() * 0.5;
+  for (const a of acts) { const d = Math.abs(a.frame - f); if (d <= dist) { dist = d; best = a.id; } }
+  return best;
+}
+function openComposer(note) {
+  if (!S.m) return;
+  va.pause();
+  if (note) {
+    if (note.cut !== S.cut.id) switchCut(note.cut);
+    seekFrame(note.frame);
+    S.composer = { id: note.id, frame: note.frame, scene: note.scene, action: note.action, category: note.category,
+      priority: note.priority, text: note.text, region: note.region ? { ...note.region } : null, from_finding: note.from_finding || null };
+  } else {
+    const s = sceneAt(S.frame);
+    S.composer = { id: null, frame: S.frame, scene: s.id, action: nearestAction(S.frame), category: S.lastCategory,
+      priority: "must", text: "", region: null, from_finding: null };
+  }
+  $("ovA").classList.add("drawing");
+  $("drawHint").classList.remove("hidden");
+  renderComposer();
+  setTimeout(() => { const ta = $("composer").querySelector("textarea"); if (ta) ta.focus(); }, 0);
+}
+function closeComposer() {
+  S.composer = null;
+  $("composer").classList.add("hidden");
+  $("ovA").classList.remove("drawing");
+  $("drawHint").classList.add("hidden");
+  drawOverlay();
+}
+function renderComposer() {
+  const C = S.composer, el = $("composer");
+  if (!C) { el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
+  const s = sceneById(C.scene);
+  const ta = h("textarea", { rows: 5, placeholder: "What's wrong, and what should it do instead?" }, C.text);
+  ta.addEventListener("input", () => { C.text = ta.value; saveBtn.disabled = !C.text.trim(); });
+  ta.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); commitComposer(); }
+    if (e.key === "Escape") { e.preventDefault(); closeComposer(); }
+  });
+  const saveBtn = h("button", { class: "primary", disabled: !C.text.trim(), onclick: commitComposer }, C.id ? "Save changes" : "Add note");
+  const acts = (s && s.actions) || [];
+  el.replaceChildren(
+    h("div", { class: "head" },
+      h("div", { style: { fontWeight: 600 } }, C.id ? `Edit ${C.id}` : "New note"),
+      h("div", { class: "kv" }, `${fmt(C.frame)} · frame ${C.frame} · ${S.cut.id.replace("x", ":")} · ${s ? s.id + " " + (s.title || "") : ""}`)),
+    h("div", { class: "inner" },
+      h("div", {}, h("div", { class: "label" }, "What kind of problem"),
+        h("div", { class: "chips" }, CATEGORIES.map(([k, l]) => h("button", { class: C.category === k ? "on" : "",
+          onclick: () => { C.category = k; renderComposer(); } }, l)))),
+      h("div", {}, h("div", { class: "label" }, "Priority"),
+        h("div", { class: "seg" },
+          h("button", { class: C.priority === "must" ? "on" : "", onclick: () => { C.priority = "must"; renderComposer(); } }, "Must fix"),
+          h("button", { class: C.priority === "nice" ? "on" : "", onclick: () => { C.priority = "nice"; renderComposer(); } }, "Nice to have"))),
+      acts.length ? h("div", {}, h("div", { class: "label" }, "About this action"),
+        h("select", { onchange: (e) => { C.action = e.target.value || null; } },
+          h("option", { value: "" }, "— the scene in general —"),
+          acts.map((a) => h("option", { value: a.id, selected: a.id === C.action }, `${a.label || a.id} (f${a.frame})`)))) : null,
+      h("div", {}, h("div", { class: "label" }, "Note"), ta),
+      h("div", { class: "row" },
+        C.region ? h("span", { style: { color: "var(--draw)" } }, "▭ Box drawn") : h("span", { class: "muted" }, "Drag on the picture to box the spot (optional)"),
+        C.region ? h("button", { class: "ghost", onclick: () => { C.region = null; drawOverlay(); renderComposer(); } }, "Clear box") : null),
+      C.id && S.frame !== C.frame ? h("button", { onclick: () => {
+        C.frame = S.frame; C.scene = sceneAt(S.frame).id;
+        if (C.action && !(sceneById(C.scene).actions || []).some((a) => a.id === C.action)) C.action = nearestAction(S.frame);
+        renderComposer();
+      } }, `Move to the current frame (f${S.frame})`) : null),
+    h("div", { class: "foot" }, saveBtn, h("button", { onclick: closeComposer }, "Cancel"),
+      h("span", { class: "faint", style: { marginLeft: "auto", fontSize: "12px" } }, "Ctrl+Enter to save")));
+}
+function nextNoteId() {
+  const re = new RegExp("^" + S.vid.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "-n(\\d+)$");
+  let max = 0;
+  for (const n of S.fb.notes) { const m = re.exec(n.id); if (m) max = Math.max(max, Number(m[1])); }
+  for (const d of Object.values(S.fb.findings)) { const m = d.note && re.exec(d.note); if (m) max = Math.max(max, Number(m[1])); }
+  return `${S.vid}-n${max + 1}`;
+}
+function commitComposer() {
+  const C = S.composer;
+  if (!C || !C.text.trim()) return;
+  S.lastCategory = C.category;
+  const base = { cut: S.cut.id, frame: C.frame, scene: C.scene, action: C.action || null, category: C.category,
+    priority: C.priority, text: C.text.trim(), region: C.region, from_finding: C.from_finding || null };
+  if (C.id) {
+    const n = S.fb.notes.find((x) => x.id === C.id);
+    Object.assign(n, base);
+  } else {
+    const id = nextNoteId();
+    S.fb.notes.push({ id, ...base, created: nowIso() });
+    S.selected = { type: "note", id };
+  }
+  if (S.fb.submitted) S.fb.submitted = false;
+  closeComposer(); changed(); renderTimeline(); renderTabs(); renderHeaderButtons();
+}
+function deleteNote(id) {
+  const n = S.fb.notes.find((x) => x.id === id);
+  if (!n || !confirm(`Delete note ${id}?\n\n${n.text}`)) return;
+  S.fb.notes = S.fb.notes.filter((x) => x.id !== id);
+  for (const [fid, d] of Object.entries(S.fb.findings)) if (d.note === id) delete S.fb.findings[fid];
+  changed(); renderTimeline(); renderTabs(); drawOverlay();
+}
+function acceptFinding(f) {
+  const s = (f.scene && sceneById(f.scene)) || sceneAt(f.frame ?? 0);
+  const frame = f.frame ?? s.start_frame;
+  const id = nextNoteId();
+  const cut = f.cut && S.m.cuts.some((c) => c.id === f.cut) ? f.cut : S.cut.id;
+  S.fb.notes.push({ id, cut, frame, scene: (sceneAt(frame) || s).id, action: f.action || null,
+    category: CRITERION_TO_CATEGORY[f.criterion] || "other", priority: f.severity === "minor" ? "nice" : "must",
+    text: f.what + (f.fix ? `\nFix: ${f.fix}` : ""), region: f.region || null, from_finding: f.id, created: nowIso() });
+  S.fb.findings[f.id] = { decision: "accept", reason: "", note: id };
+  if (S.fb.submitted) S.fb.submitted = false;
+  changed(); renderTimeline(); renderTabs(); renderHeaderButtons();
+}
+function undoDecision(fid) {
+  const d = S.fb.findings[fid];
+  if (d && d.note) S.fb.notes = S.fb.notes.filter((n) => n.id !== d.note);
+  delete S.fb.findings[fid];
+  changed(); renderTimeline(); renderTabs(); drawOverlay();
+}
+
+// ---------------------------------------------------------------- summary / send / approve
+function summaryText() {
+  const L = [];
+  const m = S.m, fb = S.fb;
+  L.push(`Review of ${m.project} — ${S.vid}`);
+  if (S.server) L.push(`Saved at review/${S.vid}/feedback.json`);
+  if (fb.approved) L.push("APPROVED");
+  const line = (n) => {
+    const s = sceneById(n.scene), a = n.action && actionById(n.action);
+    const where = `${fmt(n.frame)} f${n.frame} · ${n.scene}${s && s.title ? " " + s.title : ""}${a ? " · " + (a.label || a.id) : ""}${m.cuts.length > 1 ? " · " + n.cut : ""}`;
+    const box = n.region ? ` [box x${Math.round(n.region.x * 100)}% y${Math.round(n.region.y * 100)}% w${Math.round(n.region.w * 100)}% h${Math.round(n.region.h * 100)}%]` : "";
+    return `- (${n.id}, ${CAT_LABEL[n.category] || n.category}) ${where}${box}: ${n.text.replace(/\n/g, " ")}`;
+  };
+  const sorted = [...fb.notes].sort((a, b) => a.frame - b.frame);
+  const must = sorted.filter((n) => n.priority === "must"), nice = sorted.filter((n) => n.priority !== "must");
+  if (must.length) { L.push("", `Must fix (${must.length})`); must.forEach((n) => L.push(line(n))); }
+  if (nice.length) { L.push("", `Nice to have (${nice.length})`); nice.forEach((n) => L.push(line(n))); }
+  if (fb.text_changes.length) {
+    L.push("", "Wording");
+    fb.text_changes.forEach((t) => L.push(`- ${t.scene} ${t.field === "step_card" ? "step card" : "narration"}: "${t.from}" → "${t.to}"`));
+  }
+  if (fb.pace.length) {
+    L.push("", "Pacing" + (m.target_duration_s ? ` (length locked at ${m.target_duration_s} s)` : ""));
+    fb.pace.forEach((p) => L.push(`- ${p.scene}: ${p.delta_s > 0 ? "+" : ""}${p.delta_s} s`));
+  }
+  const dec = Object.entries(fb.findings);
+  if (dec.length) {
+    L.push("", "Evaluator findings");
+    dec.forEach(([fid, d]) => L.push(`- ${fid}: ${d.decision === "accept" ? "accepted → " + d.note : "rejected" + (d.reason ? " — " + d.reason : "")}`));
+  }
+  const undecided = findings().filter((f) => !decisionOf(f.id));
+  if (undecided.length) L.push("", `${undecided.length} evaluator finding(s) not reviewed yet: ${undecided.map((f) => f.id).join(", ")}`);
+  if (!fb.notes.length && !fb.text_changes.length && !fb.pace.length) L.push("", "No changes requested.");
+  return L.join("\n");
+}
+async function copySummary() {
+  const text = summaryText();
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = h("textarea", { style: { position: "fixed", opacity: "0" } }, text);
+    document.body.append(ta); ta.select(); document.execCommand("copy"); ta.remove();
+  }
+  const b = $("btnCopy"); b.textContent = "Copied ✓"; setTimeout(() => (b.textContent = "Copy summary"), 1500);
+}
+async function sendToBuilder() {
+  if (!S.fb) return;
+  const undecided = findings().filter((f) => !decisionOf(f.id) && f.severity !== "minor");
+  if (undecided.length && !confirm(`${undecided.length} evaluator finding(s) are not accepted or rejected yet (${undecided.map((f) => f.id).join(", ")}). Send anyway?`)) return;
+  S.fb.submitted = true; changed(); renderHeaderButtons();
+  await flushSave();
+  if (!S.server) downloadFeedback();
+  await copySummary();
+  banner("sent", S.server
+    ? `Sent. The notes are in review/${S.vid}/feedback.json, and a summary is on your clipboard. Tell the builder in chat: "notes on ${S.vid} are in".`
+    : "Downloaded feedback.json and copied a summary. Give the file to the builder, or paste the summary into the chat.");
+}
+function toggleApprove() {
+  if (!S.fb) return;
+  if (S.fb.approved) { if (!confirm(`Take back approval of ${S.vid}?`)) return; S.fb.approved = false; S.fb.approved_at = null; }
+  else {
+    const must = S.fb.notes.filter((n) => n.priority === "must").length;
+    if (must && !confirm(`${S.vid} has ${must} must-fix note(s). Approve it anyway?`)) return;
+    S.fb.approved = true; S.fb.approved_at = nowIso();
+  }
+  changed(); renderHeaderButtons();
+}
+
+// ---------------------------------------------------------------- wiring
+function wireControls() {
+  $("btnPlay").onclick = togglePlay;
+  $("btnPrevFrame").onclick = () => step(-1);
+  $("btnNextFrame").onclick = () => step(1);
+  $("btnPrevScene").onclick = () => { va.pause(); jumpScene(-1); };
+  $("btnNextScene").onclick = () => { va.pause(); jumpScene(1); };
+  $("btnNote").onclick = () => openComposer();
+  $("btnCopy").onclick = copySummary;
+  $("btnSend").onclick = sendToBuilder;
+  $("btnApprove").onclick = toggleApprove;
+  $("btnDownload").onclick = downloadFeedback;
+  $("versionSel").onchange = (e) => loadVersion(e.target.value);
+  for (const b of $("cmpSeg").children) b.onclick = () => setCompare(b.dataset.mode);
+  for (const b of $("rateSeg").children) {
+    b.classList.toggle("on", Number(b.dataset.rate) === Number(store.get("rate", 1)));
+    b.onclick = () => {
+      va.defaultPlaybackRate = va.playbackRate = Number(b.dataset.rate); store.set("rate", va.playbackRate);
+      for (const x of $("rateSeg").children) x.classList.toggle("on", x === b);
+      syncCompare(true);
+    };
+  }
+  for (const b of document.querySelectorAll(".tabs button")) b.onclick = () => setTab(b.dataset.tab);
+  for (const b of document.querySelectorAll(".tabs button")) b.classList.toggle("on", b.dataset.tab === S.tab);
+  $("stageA").addEventListener("click", () => { if (!S.composer) togglePlay(); });
+  $("stageB").addEventListener("click", () => { if (!S.composer) togglePlay(); });
+  wireDrawing();
+
+  const tl = $("timeline");
+  let scrubbing = false;
+  const scrub = (e) => {
+    if (!S.m) return;
+    const r = tl.getBoundingClientRect();
+    seekFrame(((e.clientX - r.left) / r.width) * fcount());
+  };
+  tl.addEventListener("pointerdown", (e) => { if (!S.m) return; scrubbing = true; tl.setPointerCapture(e.pointerId); va.pause(); scrub(e); });
+  tl.addEventListener("pointermove", (e) => { if (scrubbing) scrub(e); });
+  tl.addEventListener("pointerup", () => { scrubbing = false; });
+
+  va.addEventListener("play", () => { trackFrames(); renderPlayhead(); syncCompare(true); });
+  va.addEventListener("pause", () => { S.frame = t2f(va.currentTime); onFrame(true); syncCompare(true); });
+  va.addEventListener("seeked", () => { if (va.paused) { S.frame = t2f(va.currentTime); onFrame(true); } });
+  va.addEventListener("timeupdate", () => { if (!("requestVideoFrameCallback" in HTMLVideoElement.prototype) && !va.paused) { S.frame = t2f(va.currentTime); onFrame(); } });
+  va.addEventListener("ended", () => renderPlayhead());
+  va.addEventListener("error", () => mediaError(va, S.cut && S.cut.file));
+  vb.addEventListener("error", () => { const pc = prevCut(); if (S.cmp !== "off" && pc) mediaError(vb, pc.file); });
+  window.addEventListener("resize", () => drawOverlay());
+  // Drop focus after a mouse click so Space goes back to play/pause instead of re-pressing the button.
+  document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("button"); if (b && e.detail > 0) b.blur(); });
+
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select" || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (tag === "button" && (e.key === " " || e.key === "Enter")) return; // let the focused button act
+    if (!S.m) return;
+    if (S.composer && e.key === "Escape") { closeComposer(); return; }
+    switch (e.key) {
+      case " ": e.preventDefault(); togglePlay(); break;
+      case "ArrowLeft": e.preventDefault(); e.shiftKey ? (va.pause(), seekFrame(S.frame - fps())) : step(-1); break;
+      case "ArrowRight": e.preventDefault(); e.shiftKey ? (va.pause(), seekFrame(S.frame + fps())) : step(1); break;
+      case "[": va.pause(); jumpScene(-1); break;
+      case "]": va.pause(); jumpScene(1); break;
+      case "n": case "N": e.preventDefault(); if (!S.composer) openComposer(); break;
+      case "b": case "B": flip(); break;
+      case "c": case "C": {
+        const i = S.m.cuts.findIndex((c) => c.id === S.cut.id);
+        switchCut(S.m.cuts[(i + 1) % S.m.cuts.length].id); break;
+      }
+      default: break;
+    }
+  });
+}
+async function mediaError(video, path) {
+  let why = "This browser can't play it. The builder's renders are H.264 MP4, which Edge and Chrome play.";
+  if (S.server && path) {
+    try { const r = await fetch(mediaUrl(path), { method: "HEAD" }); if (r.status === 404) why = "The file isn't there. Check the path in manifest.json."; }
+    catch { /* keep the codec message */ }
+  }
+  banner("media", `Couldn't play ${path || "the video"}. ${why}`, null, "err");
+}
+
+init();
+</script>
+</body>
+</html>
