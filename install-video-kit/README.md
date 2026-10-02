@@ -29,13 +29,14 @@ render ─► publish v8 ─► evaluator (separate agent) ─► builder fixes 
 | `skills/ekena-install-video-review/` | Skill for the **builder**: publish each version, get it evaluated, open the studio, turn your notes into changes |
 | `…/assets/studio.html` | The Review Studio page |
 | `…/scripts/review_server.py` | Serves the studio for one project and saves your notes (Python standard library only) |
+| `…/scripts/note_frames.py` | For the builder: the exact frame of each of your notes, with your box drawn on it, plus a strip of frames around it |
 | `…/scripts/validate_review.py` | Checks a manifest, feedback or report file |
 | `…/references/schemas.md` | The three files that carry everything: `manifest.json`, `feedback.json`, `eval-report.json` |
 | `…/references/publishing.md` | How the builder writes `manifest.json` from `timeline.json` and the scene map |
 | `skills/ekena-install-video-evaluator/` | Skill for the **evaluator**: what to check, how to score, how to write findings |
 | `…/scripts/tech_checks.py` | Frame count, length, fps, codec, loudness/true peak, decode errors, black frames, freezes, cuts on frame |
 | `…/scripts/extract_frames.py` | Exact frames by number, contact sheet per scene, motion strip per action, 16:9/9:16 reframe pairs |
-| `…/scripts/transcribe_check.py` | Local Whisper on the delivered audio: each line heard in its own scene, key terms heard exactly |
+| `…/scripts/transcribe_check.py` | Local Whisper on the delivered audio: each line heard in its own scene, key terms heard exactly. Without a speech model it still flags narrated scenes that are silent or as flat as a tone |
 | `…/scripts/assemble_report.py` | Merges it all, applies the pass/fail gates, writes `eval-report.json` |
 | `tools/make_demo_project.py` | Makes a small fake project to try everything on |
 | `tests/` | End-to-end test: the scripts on the demo, plus the studio driven in a real browser |

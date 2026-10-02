@@ -21,6 +21,7 @@ REPORT_SCHEMA = "ekena-install-eval/1"
 SCENE_KINDS = {"title", "step", "diagram", "end", "other"}
 TRANSITIONS = {"cut", "dissolve", "continuous"}
 CHANGE_STATUSES = {"addressed", "declined"}
+CHANGE_KINDS = {"note", "finding", "text", "pace", "other"}
 NOTE_CATEGORIES = {"product", "install", "physics", "graphics", "text", "narration",
                    "timing", "color", "audio", "other"}
 PRIORITIES = {"must", "nice"}
@@ -235,12 +236,12 @@ def validate_manifest(m, version_dir: str | None = None) -> Result:
                 res.error(f"{aw}.frame must be an integer")
             elif not st <= af < en:
                 res.error(f"{aw}: frame {af} is outside its scene ({st}–{en - 1})")
-            ae = a.get("end_frame")
+            ae = a.get("end_frame")  # inclusive: the action's last frame
             if ae is not None:
                 if not _is_int(ae) or (_is_int(af) and ae < af):
                     res.error(f"{aw}.end_frame must be an integer ≥ frame")
-                elif ae > en:
-                    res.warn(f"{aw}: end_frame {ae} runs past its scene end ({en})")
+                elif ae >= en:
+                    res.warn(f"{aw}: end_frame {ae} runs past its scene's last frame ({en - 1})")
         src = s.get("source")
         if src is not None:
             if not isinstance(src, dict):
@@ -281,6 +282,13 @@ def validate_manifest(m, version_dir: str | None = None) -> Result:
             continue
         if ch.get("status") not in CHANGE_STATUSES:
             res.error(f"{w}.status must be one of {sorted(CHANGE_STATUSES)}")
+        kind = ch.get("kind")
+        if kind is not None and kind not in CHANGE_KINDS:
+            res.error(f"{w}.kind must be one of {sorted(CHANGE_KINDS)}")
+        if kind in ("text", "pace") and not ch.get("scene"):
+            res.error(f"{w}: a {kind} change must name its scene")
+        if kind == "text" and ch.get("field") not in TEXT_FIELDS:
+            res.error(f"{w}.field must be one of {sorted(TEXT_FIELDS)} for a text change")
         if not ch.get("note") and not ch.get("finding") and not ch.get("summary"):
             res.error(f"{w} must name a note, a finding, or at least carry a summary")
         if ch.get("status") == "declined" and not ch.get("summary"):
@@ -292,8 +300,8 @@ def validate_manifest(m, version_dir: str | None = None) -> Result:
             if (not isinstance(fr, list) or len(fr) != 2 or not all(_is_int(x) for x in fr)
                     or fr[0] > fr[1]):
                 res.error(f"{w}.frames must be [first, last] frame numbers")
-            elif fc is not None and (fr[0] < 0 or fr[1] > fc):
-                res.error(f"{w}.frames {fr} is outside the video (0–{fc})")
+            elif fc is not None and (fr[0] < 0 or fr[1] >= fc):
+                res.error(f"{w}.frames {fr} is outside the video (0–{fc - 1}; the last frame is included)")
     return res
 
 
@@ -425,9 +433,19 @@ def validate_report(r, manifest: dict | None = None) -> Result:
         fr = f.get("frame")
         if fr is not None and (not _is_int(fr) or fr < 0 or (fc is not None and fr >= fc)):
             res.error(f"{w}.frame must be a frame number inside the video")
+        fe = f.get("end_frame")  # inclusive
+        if fe is not None and (not _is_int(fe) or (_is_int(fr) and fe < fr) or (fc is not None and fe >= fc)):
+            res.error(f"{w}.end_frame must be a frame number ≥ frame, inside the video")
+        many = f.get("scenes")
+        if many is not None and (not isinstance(many, list) or not all(isinstance(x, str) for x in many)):
+            res.error(f"{w}.scenes must be a list of scene ids")
+            many = None
         if manifest:
             if f.get("scene") is not None and f.get("scene") not in scenes:
                 res.error(f"{w}.scene {f.get('scene')!r} is not in this version")
+            for x in many or []:
+                if x not in scenes:
+                    res.error(f"{w}.scenes: {x!r} is not in this version")
             if f.get("action") is not None and f.get("action") not in actions:
                 res.error(f"{w}.action {f.get('action')!r} is not in this version")
             if f.get("cut") is not None and f.get("cut") not in cuts:

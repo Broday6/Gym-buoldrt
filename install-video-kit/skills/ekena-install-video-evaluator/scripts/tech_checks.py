@@ -27,7 +27,7 @@ from evalkit import (EvalError, cut_path, ffprobe_json, frac, load_version, run,
 BLACK_RE = re.compile(r"black_start:\s*([\d.]+)\s+black_end:\s*([\d.]+)")
 FREEZE_START_RE = re.compile(r"freeze_start:\s*([\d.]+)")
 FREEZE_END_RE = re.compile(r"freeze_end:\s*([\d.]+)")
-SHOWINFO_RE = re.compile(r"Parsed_showinfo.*?\bn:\s*\d+\s+pts:\s*\d+\s+pts_time:\s*([\d.]+)")
+SCORE_RE = re.compile(r"frame:(\d+)\s+pts:\S+\s+pts_time:\S+\s*\n[^\n]*lavfi\.scene_score=([\d.]+)")
 LUFS_RE = re.compile(r"^\s*I:\s*(-?[\d.]+|-inf)\s*LUFS", re.M)
 PEAK_RE = re.compile(r"True peak:\s*\n\s*Peak:\s*(-?[\d.]+|-inf)\s*dBFS", re.M)
 
@@ -48,11 +48,11 @@ def scenes_covering(m: dict, a: int, b: int) -> list[dict]:
     return [s for s in m["scenes"] if s["start_frame"] <= b and a < s["end_frame"]]
 
 
-def analyse(ffmpeg: str, path: Path, scene_threshold: float, black_s: float, black_pix: float,
-            freeze_s: float, freeze_noise: str) -> dict:
+def analyse(ffmpeg: str, path: Path, black_s: float, black_pix: float, freeze_s: float, freeze_noise: str) -> dict:
+    # Every frame's scene-change score is logged, so cuts can be judged against their surroundings.
     vf = (f"blackdetect=d={black_s}:pix_th={black_pix},"
           f"freezedetect=n={freeze_noise}:d={freeze_s},"
-          f"select='gt(scene\\,{scene_threshold})',showinfo")
+          f"select='gte(scene\\,0)',metadata=print:key=lavfi.scene_score")
     proc = run([ffmpeg, "-hide_banner", "-nostats", "-i", str(path),
                 "-filter_complex", f"[0:v]{vf}[v];[0:a]ebur128=peak=true:framelog=verbose[a]",
                 "-map", "[v]", "-map", "[a]", "-f", "null", "-"], check=False)
@@ -60,21 +60,73 @@ def analyse(ffmpeg: str, path: Path, scene_threshold: float, black_s: float, bla
     if proc.returncode != 0 and "Integrated loudness" not in log:
         raise EvalError(f"ffmpeg could not analyse {path.name}:\n" + "\n".join(log.splitlines()[-10:]))
     blacks = [(float(a), float(b)) for a, b in BLACK_RE.findall(log)]
-    starts = [float(x) for x in FREEZE_START_RE.findall(log)]
-    ends = [float(x) for x in FREEZE_END_RE.findall(log)]
-    freezes = []
-    for i, st in enumerate(starts):
-        freezes.append((st, ends[i] if i < len(ends) else None))  # None: frozen until the end
-    cuts = [float(t) for t in SHOWINFO_RE.findall(log)]
+    freezes = parse_freezes(log)
+    scores: dict[int, float] = {int(n): float(v) for n, v in SCORE_RE.findall(log)}
     summary = log[log.rfind("Summary:"):] if "Summary:" in log else ""
     lufs = LUFS_RE.search(summary)
     peak = PEAK_RE.search(summary)
     tofloat = lambda v: float("-inf") if v == "-inf" else float(v)  # noqa: E731
     return {
-        "blacks": blacks, "freezes": freezes, "cuts": cuts,
+        "blacks": blacks, "freezes": freezes, "scores": [scores.get(i, 0.0) for i in range(max(scores) + 1 if scores else 0)],
         "lufs": tofloat(lufs.group(1)) if lufs else None,
         "true_peak": tofloat(peak.group(1)) if peak else None,
     }
+
+
+def parse_freezes(log: str) -> list[tuple[float, float | None]]:
+    starts = [float(x) for x in FREEZE_START_RE.findall(log)]
+    ends = [float(x) for x in FREEZE_END_RE.findall(log)]
+    return [(st, ends[i] if i < len(ends) else None) for i, st in enumerate(starts)]  # None: frozen to the end
+
+
+def refine_freezes(ffmpeg: str, path: Path, strict: list, noise: str) -> list:
+    """Widen each strict freeze to the run a looser threshold sees around it, and join runs that touch.
+    An encoder keeps refining a held frame for a while, so at the strict threshold a 2.5 s hold can
+    show up as a late, shorter run; the loose pass finds where it really starts."""
+    if not strict:
+        return []
+    proc = run([ffmpeg, "-hide_banner", "-nostats", "-i", str(path), "-an",
+                "-vf", f"freezedetect=n={noise}:d=0.1", "-f", "null", "-"], check=False)
+    loose = parse_freezes(proc.stderr)
+    big = 1e9
+    out = []
+    for a, b in strict:
+        a2, b2 = a, (big if b is None else b)
+        for la, lb in loose:
+            lb = big if lb is None else lb
+            if la <= b2 and a2 <= lb:  # overlapping
+                a2, b2 = min(a2, la), max(b2, lb)
+        out.append([a2, b2])
+    out.sort()
+    merged = []
+    for a, b in out:
+        if merged and a <= merged[-1][1] + 0.05:
+            merged[-1][1] = max(merged[-1][1], b)
+        else:
+            merged.append([a, b])
+    return [(a, None if b >= big else b) for a, b in merged]
+
+
+def detect_cuts(scores: list[float], hard: float, floor: float = 0.015, ratio: float = 5.0) -> list[int]:
+    """Frames that start a new shot. A score over `hard` always counts. A smaller jump counts when it
+    is the peak of its neighbourhood and several times the surrounding motion, which catches cuts
+    between shots that look alike (same layout, different step)."""
+    cuts = []
+    n = len(scores)
+    for i in range(1, n):
+        s = scores[i]
+        if s >= hard:
+            cuts.append(i)
+            continue
+        if s < floor or s < max(scores[max(0, i - 3):i + 4]):
+            continue
+        around = scores[max(0, i - 15):max(0, i - 3)] + scores[i + 4:i + 16]
+        if not around:
+            continue
+        med = sorted(around)[len(around) // 2]
+        if s >= ratio * max(med, 0.002):
+            cuts.append(i)
+    return cuts
 
 
 def check_cut(args, project: Path, m: dict, cut: dict, ffmpeg: str, ffprobe: str, ck: Checks) -> dict:
@@ -128,7 +180,8 @@ def check_cut(args, project: Path, m: dict, cut: dict, ffmpeg: str, ffprobe: str
     ck.add("decode", dec.returncode == 0 and not errs,
            "decodes cleanly" if not errs else f"{len(errs)} decoder error(s): {errs[0][:160]}", cid)
 
-    an = analyse(ffmpeg, path, args.cut_threshold, args.black_s, args.black_pix, args.freeze_s, args.freeze_noise)
+    an = analyse(ffmpeg, path, args.black_s, args.black_pix, args.freeze_s, args.freeze_noise)
+    an["freezes"] = refine_freezes(ffmpeg, path, an["freezes"], args.freeze_extent_noise)
 
     if astreams:
         lufs, peak = an["lufs"], an["true_peak"]
@@ -166,7 +219,7 @@ def check_cut(args, project: Path, m: dict, cut: dict, ffmpeg: str, ffprobe: str
            frames=bad_freeze[0][:2] if bad_freeze else None)
 
     boundaries = {s["start_frame"]: s for s in m["scenes"] if s["start_frame"] > 0}
-    detected = sorted({to_f(t) for t in an["cuts"] if to_f(t) > 0})
+    detected = detect_cuts(an["scores"], args.cut_threshold)
     off, stray = [], []
     for c in detected:
         near = min(boundaries, key=lambda b: abs(b - c)) if boundaries else None
@@ -210,8 +263,11 @@ def main(argv=None) -> int:
     ap.add_argument("--black-s", type=float, default=0.1, help="shortest black run to report")
     ap.add_argument("--black-pix", type=float, default=0.10, help="pixel level that counts as black (0–1)")
     ap.add_argument("--freeze-s", type=float, default=1.0, help="shortest freeze to report")
-    ap.add_argument("--freeze-noise", default="-60dB", help="freezedetect noise tolerance")
-    ap.add_argument("--cut-threshold", type=float, default=0.35, help="scene-change score that counts as a hard cut")
+    ap.add_argument("--freeze-noise", default="-60dB", help="freezedetect noise tolerance for finding a freeze")
+    ap.add_argument("--freeze-extent-noise", default="-45dB",
+                    help="looser tolerance used only to find where a found freeze really starts and ends")
+    ap.add_argument("--cut-threshold", type=float, default=0.35,
+                    help="scene-change score that always counts as a hard cut (smaller jumps count when they stand out)")
     ap.add_argument("--cut-window", type=int, default=3, help="frames either side of a boundary that count as 'meant for it'")
     ap.add_argument("--ffmpeg")
     ap.add_argument("--ffprobe")
@@ -224,6 +280,19 @@ def main(argv=None) -> int:
         for cut in m["cuts"]:
             print(f"checking {cut['id']} ({cut['file']}) …", flush=True)
             cuts[cut["id"]] = check_cut(args, args.project, m, cut, ffmpeg, ffprobe, ck)
+        slow = []
+        for s in m["scenes"]:
+            if s.get("step_card"):
+                words = sum(1 for w in s["step_card"].split() if any(c.isalnum() for c in w))
+                need = 1.0 + words / 3.0
+                have = (s["end_frame"] - s["start_frame"]) / m["fps"]
+                if have < need:
+                    slow.append((s, words, need, have))
+        if any(s.get("step_card") for s in m["scenes"]):
+            ck.add("card_reading_time", not slow,
+                   "every step card has its scene long enough to read (1 s + 1 s per 3 words)" if not slow else
+                   "; ".join(f"{s['id']}: {w}-word card needs {need:.1f} s, scene is {have:.1f} s" for s, w, need, have in slow),
+                   frames=[slow[0][0]["start_frame"], slow[0][0]["end_frame"] - 1] if slow else None, warn_only=True)
         readable = [c for c in cuts.values() if c.get("readable")]
         if len(readable) > 1:
             frames = {c["frames"] for c in readable}

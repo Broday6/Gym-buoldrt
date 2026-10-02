@@ -53,10 +53,18 @@ def judgments_v1(m: dict) -> dict:
     full = {k: 2 for k in ("product", "install", "physics", "graphics", "sync", "reframe", "craft")}
     scenes = [{"scene": s["id"], "scores": dict(full)} for s in m["scenes"]]
     by = {s["scene"]: s for s in scenes}
+    for card in ("s01", "s06"):  # title and end cards: no product or action to judge
+        by[card]["scores"].update(product=None, install=None, physics=None)
     by["s03"]["scores"]["physics"] = 0
     by["s04"]["scores"]["sync"] = 1
     by["s05"]["scores"]["reframe"] = 1
+    for sid in ("s02", "s03", "s05"):
+        by[sid]["scores"]["graphics"] = 1
     return {"scenes": scenes, "findings": [
+        {"scene": "s02", "scenes": ["s02", "s03", "s05"], "cut": None, "frame": 130, "end_frame": 1079,
+         "severity": "blocker", "criterion": "graphics", "scope": "systemic",
+         "what": "Step cards sit on the timecode box in every step scene.",
+         "fix": "One cause: the card anchor in graphics/cards.js ignores the safe area."},
         {"scene": "s03", "action": "drill_2", "cut": "16x9", "frame": 570, "end_frame": 719, "severity": "blocker",
          "criterion": "physics", "what": "The screw-in stops dead halfway through the scene.",
          "fix": "Re-render s03 from f570.", "evidence": ["review/v1/eval/strips/16x9_drill_2.jpg"],
@@ -105,7 +113,11 @@ def main() -> int:
     check(failed == {"frozen_frames"}, f"v1 fails only on the planted freeze (failed: {sorted(failed)})")
     fr = next(c for c in tech["checks"] if c["id"] == "frozen_frames")["frames"]
     # The freeze starts at f570. Encoders keep refining a still frame for a while, so detection can lag a little.
-    check(570 <= fr[0] <= 640 and fr[1] - fr[0] >= 60, f"the freeze is placed in the second half of s03 (f{fr[0]}–{fr[1]})")
+    check(565 <= fr[0] <= 572 and fr[1] == 719, f"the freeze is found from where it really starts (f{fr[0]}–{fr[1]}; held from f569/570)")
+    cuts = next(c for c in tech["checks"] if c["id"] == "cuts_on_frame" and c["cut"] == "16x9")
+    check(cuts["pass"] and cuts["detail"].startswith("5 hard cut"), f"cuts between look-alike shots are found ({cuts['detail']})")
+    card = next((c for c in tech["checks"] if c["id"] == "card_reading_time"), None)
+    check(card is not None and card["severity"] == "warning" and "s05" in card["detail"], "a card too long for its scene is warned about")
     run(PY, EVAL / "scripts/tech_checks.py", proj, "v2", "--expect-codec", "any", expect=0)
     p = run(PY, EVAL / "scripts/tech_checks.py", proj, "v2", expect=1)
     check("codec" in p.stdout and "expected h264" in p.stdout, "the codec check holds the line at H.264 by default")
@@ -145,38 +157,78 @@ def main() -> int:
     check(nar["s04"]["flag"] and "s05" in nar["s04"]["flag"], "a line that drifts into the next scene is caught")
     check(nar["s02"]["flag"] is None and not nar["s02"]["missing_terms"], "a correct line passes (joist/joists match)")
 
+    print("narration without a speech model")
+    run(PY, EVAL / "scripts/transcribe_check.py", proj, "v2")
+    v2n = json.loads((proj / "review/v2/eval/narration.json").read_text())
+    flagged = [r["scene"] for r in (v2n.get("audio_activity") or {}).get("scenes", []) if r["flag"]]
+    check(v2n["available"] is False and flagged == ["s02", "s03", "s04", "s05"],
+          f"with no model, a steady tone where narration should be is still caught ({flagged})")
+
     print("report")
     jpath = proj / "review/v1/eval/judgments.json"
     j = judgments_v1(m1)
     bad = json.loads(json.dumps(j))
     bad["scenes"] = bad["scenes"][:-1]
-    bad["findings"] = bad["findings"][1:]
+    bad["findings"] = [f for f in bad["findings"] if f["criterion"] != "physics"]
+    bad["scenes"][3]["scores"]["craft"] = 0  # s04
+    bad["findings"].append({"scene": "s04", "frame": 800, "severity": "major", "criterion": "craft", "what": "Flicker."})
+    bad["scenes"][2]["scores"]["product"] = None  # s03 is a step: product can't be skipped
     jpath.write_text(json.dumps(bad))
     p = run(PY, EVAL / "scripts/assemble_report.py", proj, "v1", expect=1)
     check("s06 was not judged" in p.stderr and "physics scored 0" in p.stderr, "incomplete judgments are refused with reasons")
+    check("craft scored 0" in p.stderr, "a 0 explained only by a major is refused: whatever fails a scene is a blocker")
+    check("scene s03: score product must be" in p.stderr, "a step scene can't mark product as not applicable")
     jpath.write_text(json.dumps(j))
+    run(PY, EVAL / "scripts/assemble_report.py", proj, "v1")
     run(PY, EVAL / "scripts/assemble_report.py", proj, "v1")
     r1 = json.loads((proj / "review/v1/eval-report.json").read_text())
     check(r1["overall"] == "fail", "v1 fails")
-    check([f["id"] for f in r1["findings"]][:2] == ["e1", "e2"] and r1["findings"][0]["severity"] == "blocker",
+    check(all(f["id"] == f"e{i}" for i, f in enumerate(r1["findings"], 1)) and r1["findings"][0]["severity"] == "blocker",
           "findings are numbered with blockers first")
+    sysf = [f for f in r1["findings"] if f.get("scope") == "systemic"]
+    check(len(sysf) == 1 and sysf[0]["scenes"] == ["s02", "s03", "s05"], "one systemic finding explains the same defect in three scenes")
+    titles = {s["scene"]: s for s in r1["scenes"]}
+    check(titles["s01"]["scores"]["product"] is None and titles["s01"]["pass"], "title cards can leave product/install/physics unscored")
+    check(not any(f["what"].startswith("expected_cuts") for f in r1["findings"]), "an undetected cut is not reported as a fault")
+    check((proj / "review/eval-log.md").read_text().count("## v1 —") == 1, "re-running the report replaces its log entry")
     check(any(f["criterion"] == "technical" and "frozen" in f["what"] for f in r1["findings"]), "failed technical checks become findings")
     check(any(f["criterion"] == "narration" for f in r1["findings"]), "narration problems become findings")
     run(PY, REVIEW / "scripts/validate_review.py", proj / "review/v1/eval-report.json")
 
-    (proj / "review/v2/eval/judgments.json").write_text(json.dumps({"carry_from": "v1", "scenes": [
-        {"scene": "s03", "scores": {k: 2 for k in ("product", "install", "physics", "graphics", "sync", "reframe", "craft")}}]}))
+    v2_judgments = {"carry_from": "v1", "scenes": [{"scene": "s03", "scores": {
+        k: 2 for k in ("product", "install", "physics", "graphics", "sync", "reframe", "craft")}}]}
+    (proj / "review/v2/eval/judgments.json").write_text(json.dumps(v2_judgments))
+    p = run(PY, EVAL / "scripts/assemble_report.py", proj, "v2", expect=1)
+    check("s02 failed in v1 and nothing in it changed" in p.stderr, "a scene that failed can't carry its verdict forward")
+    full = {k: 2 for k in ("product", "install", "physics", "graphics", "sync", "reframe", "craft")}
+    v2_judgments["scenes"] = [{"scene": sid, "scores": dict(full)} for sid in ("s02", "s03", "s05")]
+    (proj / "review/v2/eval/judgments.json").write_text(json.dumps(v2_judgments))
     run(PY, EVAL / "scripts/assemble_report.py", proj, "v2")
     r2 = json.loads((proj / "review/v2/eval-report.json").read_text())
     carried = sorted(s["scene"] for s in r2["scenes"] if s["carried"])
-    check(r2["overall"] == "pass" and carried == ["s01", "s02", "s04", "s05", "s06"], f"v2 passes and carries unchanged scenes ({carried})")
-    (proj / "review/v2/eval/judgments.json").write_text(json.dumps({"carry_from": "v1", "scenes": []}))
+    check(r2["overall"] == "pass" and carried == ["s01", "s04", "s06"], f"v2 passes and carries unchanged, passing scenes ({carried})")
+    (proj / "review/v2/eval/judgments.json").write_text(json.dumps({"carry_from": "v1", "scenes": v2_judgments["scenes"][::2]}))
     p = run(PY, EVAL / "scripts/assemble_report.py", proj, "v2", expect=1)
     check("s03 can't keep v1's verdict" in p.stderr, "a changed scene cannot carry the old verdict")
-    (proj / "review/v2/eval/judgments.json").write_text(json.dumps({"carry_from": "v1", "scenes": [
-        {"scene": "s03", "scores": {k: 2 for k in ("product", "install", "physics", "graphics", "sync", "reframe", "craft")}}]}))
+    (proj / "review/v2/eval/judgments.json").write_text(json.dumps(v2_judgments))
     run(PY, EVAL / "scripts/assemble_report.py", proj, "v2")
-    check((proj / "review/eval-log.md").read_text().count("## v") >= 2, "eval-log.md gets an entry per report")
+    r2 = json.loads((proj / "review/v2/eval-report.json").read_text())
+    check(sum(1 for f in r2["findings"] if f["criterion"] == "narration" and f["severity"] == "major") == 4,
+          "the no-model audio flags become findings for Brody")
+    check((proj / "review/eval-log.md").read_text().count("## v") == 2, "eval-log.md has one entry per version")
+    guide = proj / "research/install-guide.pdf"
+    guide.rename(guide.with_suffix(".bak"))
+    run(PY, EVAL / "scripts/assemble_report.py", proj, "v2")
+    r2 = json.loads((proj / "review/v2/eval-report.json").read_text())
+    check(r2["overall"] == "fail" and any("install guide" in f["what"] and f["severity"] == "blocker" for f in r2["findings"]),
+          "a missing install guide is a blocker")
+    guide.with_suffix(".bak").rename(guide)
+    run(PY, EVAL / "scripts/assemble_report.py", proj, "v2")
+
+    print("note frames")
+    p = run(PY, REVIEW / "scripts/note_frames.py", proj, "v1")
+    check((proj / "review/v1/builder/v1-n1.jpg").exists() and (proj / "review/v1/builder/v1-n1_strip.jpg").exists()
+          and "scenes/s03.js" in p.stdout, "each note's exact frame and strip come out with its code pointer")
 
     print("server and studio")
     port = free_port()

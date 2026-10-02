@@ -30,9 +30,12 @@ Three JSON files carry everything between the three parties of an install-video 
 - A version's video files must **not be overwritten later**. Point each manifest at the copy that
   stays put (a versioned render folder, or the backup the build already makes before overwriting).
   Otherwise comparing with an earlier version shows the new video twice.
-- Frames are the unit of time. `start_frame` is inclusive and `end_frame` is exclusive, so a
-  scene with `start_frame: 600, end_frame: 1140` holds frames 600–1139. Frame `n` is shown at
-  `n / fps` seconds. Frame numbers start at 0.
+- Frames are the unit of time. Frame numbers start at 0, and frame `n` is shown at `n / fps`
+  seconds.
+- **A scene's `end_frame` is exclusive**, so a scene with `start_frame: 600, end_frame: 1140`
+  holds frames 600–1139 and the next scene starts at 1140. **Every other end is inclusive**: an
+  action's `end_frame`, a finding's `end_frame`, and the `[first, last]` pair in `changes[].frames`
+  all name the last frame itself.
 
 ---
 
@@ -66,9 +69,10 @@ Three JSON files carry everything between the three parties of an install-video 
       "static_ok": false,
       "black_ok": false,
       "actions": [
-        {"id": "drill_1", "label": "Drill pilot hole 1", "frame": 720, "end_frame": 780}
+        {"id": "drill_1", "label": "Drill pilot hole 1", "frame": 720, "end_frame": 779}
       ],
-      "source": {"files": ["scenes/joists.js"], "timeline_keys": ["mark_joists", "drill_1"]}
+      "source": {"files": ["scenes/joists.js"], "timeline_keys": ["mark_joists", "drill_1"],
+                 "card": "cards.json#s03", "narration": "narration/lines.json#s03"}
     }
   ],
   "claims": [
@@ -79,11 +83,19 @@ Three JSON files carry everything between the three parties of an install-video 
     "install_guide": "research/timberthane-install-guide.pdf",
     "product_images": ["research/renders/rough-sawn-hero.jpg"],
     "house_rules": "HOUSE_RULES.md",
-    "readme": "README.md"
+    "readme": "README.md",
+    "timeline": "timeline.json",
+    "scene_map": "build/scene_map.json"
   },
   "changes": [
-    {"note": "v6-n3", "finding": null, "scene": "s04", "frames": [1500, 1620],
-     "status": "addressed", "summary": "Hammer now swings toward the wall, not away from it"}
+    {"kind": "note", "note": "v6-n3", "scene": "s04", "frames": [1500, 1619],
+     "status": "addressed", "summary": "Hammer now swings toward the wall, not away from it"},
+    {"kind": "note", "note": "v6-n5", "finding": "e2", "scene": "s03", "frames": [720, 779],
+     "status": "addressed", "summary": "Drill squared to the beam face"},
+    {"kind": "text", "scene": "s05", "field": "step_card", "status": "addressed",
+     "summary": "Card now reads 'Step 4 — Apply adhesive'"},
+    {"kind": "pace", "scene": "s06", "status": "addressed",
+     "summary": "+0.5 s, taken from the title card so the total stays 75 s"}
   ]
 }
 ```
@@ -94,7 +106,7 @@ Three JSON files carry everything between the three parties of an install-video 
 | `project` | yes | Display name. |
 | `version` | yes | Must equal the folder name. |
 | `created` | no | ISO-8601 time of the render. |
-| `previous` | no | The version this one revises. Turns on compare mode and the "Previous notes" list. |
+| `previous` | no | **The version whose notes this one answers**, usually the one Brody last reviewed. It isn't necessarily the newest older version: if v8 fixed blockers before Brody looked and Brody then reviewed v7, v9 names `v7`. Turns on compare mode and the Changes tab's list of earlier notes. |
 | `fps` | yes | Frames per second of every cut (60 for this pipeline). |
 | `frame_count` | yes | Exact frame count of every cut. |
 | `target_duration_s` | no | The length the user asked for. Tells the studio a pace change has to be rebalanced. |
@@ -107,12 +119,12 @@ Three JSON files carry everything between the three parties of an install-video 
 | `scenes[].transition_in` | no | `cut`, `dissolve` or `continuous`. With `cut`, the technical check expects a hard cut on `start_frame`. |
 | `scenes[].static_ok` | no | The picture may hold still here (title or end card), so a freeze is not a fault. |
 | `scenes[].black_ok` | no | Black frames are intended here (fade from or to black). |
-| `scenes[].actions[]` | no | Timeline events worth checking on their own. `id` is unique in the manifest. Reuse the `timeline.json` key when there is one. |
-| `scenes[].source` | no | Where the scene lives in code. This is what turns a note into a targeted change. |
+| `scenes[].actions[]` | no | Timeline events worth checking on their own. `id` is unique in the manifest. Reuse the `timeline.json` key when there is one. `end_frame` is the action's last frame. |
+| `scenes[].source` | no | Where the scene lives in code: `files` (its modules), `timeline_keys` (its events), and optionally `card` and `narration` (where its card text and spoken line are defined, as `path#key`). This is what turns a note into a targeted change. |
 | `claims[]` | no | The README claims table, as data. |
 | `key_terms[]` | no | Words that must be heard clearly in the narration. A plain string, or `{"term", "heard_as"}` when the spoken form is spelled differently from the product name (`Shutter-Loks` is said "shutter locks"). Matching is exact, so a near miss such as "mountain block" fails. |
-| `references` | no | Ground truth for the evaluator. |
-| `changes[]` | no | What this version did about notes (`note`) and evaluator findings (`finding`) on the previous version. `status` is `addressed` or `declined`. A declined item must say why in `summary`. |
+| `references` | no | Ground truth for the evaluator: `install_guide` (the evaluator raises a blocker if a version with step scenes has none), `product_images`, `house_rules`, `readme`. `timeline` and `scene_map` point the builder's future self at the build data. |
+| `changes[]` | no | What this version did about everything on `previous`: one entry per note, per wording request and per pacing request. `kind` is `note`, `finding`, `text`, `pace` or `other`. An accepted finding is already a note, so it gets one entry carrying both `note` and `finding`. `text` entries name `scene` and `field`; `pace` entries name `scene`. `status` is `addressed` or `declined`; a declined item says why in `summary`. `frames` is `[first, last]` of what was re-rendered. Finding ids (`e1` …) are numbered per report, so `finding` always refers to the previous version's report. |
 
 ---
 
@@ -185,7 +197,7 @@ cannot drift.
      "total": 12, "gate_reasons": ["physics scored 0"]}
   ],
   "findings": [
-    {"id": "e1", "scene": "s03", "action": "drill_1", "cut": "16x9", "frame": 734, "end_frame": 780,
+    {"id": "e1", "scene": "s03", "action": "drill_1", "cut": "16x9", "frame": 734, "end_frame": 779,
      "severity": "blocker", "criterion": "physics", "scope": "local",
      "rule": null, "source": "Install guide p.2, fig. 3",
      "what": "Drill bit enters the beam at ~20° off square; the guide shows it square to the face.",
@@ -196,9 +208,15 @@ cannot drift.
 }
 ```
 
-- `severity`: `blocker` must be fixed before the user sees the version. `major` goes to the user
-  to accept or reject. `minor` is polish.
-- `scope`: `local` is one moment. `systemic` is the same defect in three or more scenes: fix the
-  shared cause once (material, colour lock, a shared tool path), not scene by scene.
+- `severity`: `blocker` fails the version and is fixed before Brody sees it (when Brody does see
+  one, Brody can accept or reject it like any other). `major` is a real problem Brody decides on.
+  `minor` is polish.
+- `scope`: `local` is one moment. `systemic` is the same defect in three or more scenes, with a
+  `scenes` list naming every one: fix the shared cause once (material, colour lock, a shared tool
+  path), not scene by scene.
+- `cut`: the cut it was seen in, or `null` when it applies to every cut.
+- `end_frame` is the last frame it covers (inclusive).
+- A scene's score may be `null` when the criterion doesn't apply: `reframe` with a single cut, and
+  `product`, `install`, `physics` on title and end cards.
 - `carried: true` on a scene means it was not re-judged because nothing in it changed since the
   previous version. Its scores are copied from that report.

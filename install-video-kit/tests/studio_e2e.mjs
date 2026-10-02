@@ -14,6 +14,10 @@ for (const p of [process.env.PLAYWRIGHT_MODULE, "playwright", "/opt/node22/lib/n
 if (!playwright) { console.log("SKIP: playwright not installed"); process.exit(0); }
 
 const [url, project, studioHtml, shots] = process.argv.slice(2);
+const report = JSON.parse(fs.readFileSync(path.join(project, "review", "v1", "eval-report.json"), "utf8"));
+const physId = report.findings.find((f) => f.criterion === "physics").id;
+const reframeId = report.findings.find((f) => f.criterion === "reframe").id;
+const sysId = report.findings.find((f) => f.scope === "systemic").id;
 const fb = (v) => JSON.parse(fs.readFileSync(path.join(project, "review", v, "feedback.json"), "utf8"));
 let failures = 0;
 function expect(cond, msg) {
@@ -39,24 +43,27 @@ expect((await page.inputValue("#versionSel")) === "v1", "opens the version named
 expect(await page.locator(".tl-mark.blocker").count() >= 2, "blocker findings are marked on the timeline");
 
 await page.click('.tabs button[data-tab="eval"]');
-const e1 = page.locator('[data-sel="finding:e1"]');
+const e1 = page.locator(`[data-sel="finding:${physId}"]`);
 await e1.click();
 await page.waitForTimeout(300);
 const frameAfterClick = await page.evaluate(() => S.frame);
-expect(frameAfterClick === 570, `clicking finding e1 jumps to its frame (got ${frameAfterClick})`);
+expect(frameAfterClick === 570, `clicking a finding jumps to its frame (got ${frameAfterClick})`);
+expect(/scenes s02, s03, s05/.test(await page.locator(`[data-sel="finding:${sysId}"]`).textContent()),
+  "a systemic finding lists every scene it covers");
 await page.screenshot({ path: path.join(shots, "studio-evaluator.png") });
 await e1.getByRole("button", { name: "Accept → note" }).click();
-const e7 = page.locator('[data-sel="finding:e7"]');
+const e7 = page.locator(`[data-sel="finding:${reframeId}"]`);
 await e7.getByRole("button", { name: "Reject" }).click();
 await e7.locator("input").fill("Beam end is meant to run off frame here");
 await e7.locator("input").press("Enter");
 await waitSaved(page);
 let f = fb("v1");
-const accepted = f.notes.find((n) => n.from_finding === "e1");
-expect(accepted && f.findings.e1 && f.findings.e1.decision === "accept" && f.findings.e1.note === accepted.id,
+const accepted = f.notes.find((n) => n.from_finding === physId);
+expect(accepted && f.findings[physId] && f.findings[physId].decision === "accept" && f.findings[physId].note === accepted.id,
   "accepting a finding turns it into a linked note");
 expect(accepted && accepted.region && accepted.priority === "must" && accepted.category === "physics", "the note keeps the finding's box, priority and kind");
-expect(f.findings.e7 && f.findings.e7.decision === "reject" && /meant to run off/.test(f.findings.e7.reason), "rejecting a finding records the reason");
+expect(f.findings[reframeId] && f.findings[reframeId].decision === "reject" && /meant to run off/.test(f.findings[reframeId].reason),
+  "rejecting a finding records the reason");
 
 // Seek to s03 with the keyboard and add a boxed note.
 await page.click("#tlPlayhead", { force: true }).catch(() => {});
@@ -107,7 +114,8 @@ expect(/not accepted or rejected yet/.test(asked), "sending with undecided findi
 f = fb("v1");
 expect(f.submitted === true, "Send to builder marks the feedback submitted");
 const clip = await page.evaluate(() => navigator.clipboard.readText()).catch(() => "");
-expect(/Must fix/.test(clip) && /ceiling joists/.test(clip) && /e7: rejected/.test(clip), "the summary on the clipboard lists notes and decisions");
+expect(/Must fix/.test(clip) && /ceiling joists/.test(clip) && new RegExp(reframeId + ": rejected").test(clip),
+  "the summary on the clipboard lists notes and decisions");
 
 // ---- v2: what changed, compare, cuts
 await page.selectOption("#versionSel", "v2");
@@ -117,6 +125,8 @@ const cards = await page.locator("#tabpanel .card").allTextContents();
 expect(cards.some((t) => /addressed/i.test(t) && /freezes/.test(t)), "a note the builder addressed shows as addressed");
 expect(cards.some((t) => /declined/i.test(t) && /Builder:/.test(t)), "a declined note shows the builder's reason");
 expect(cards.some((t) => /not mentioned/i.test(t)), "a note the builder skipped is called out");
+expect(cards.some((t) => /s03 · step card/.test(t) && /not mentioned/i.test(t)) && cards.some((t) => /s03 · pacing/.test(t)),
+  "wording and pacing requests on the previous version are tracked too");
 
 await page.evaluate(() => seekFrame(600));
 await page.click('#cmpSeg button[data-mode="ab"]');

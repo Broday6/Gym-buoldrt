@@ -10,8 +10,9 @@ Reads from review/<version>/eval/:
                    findings that explain them (format in the evaluator's SKILL.md)
 
 It applies the gates, so the pass bar is the same on every run:
-  - any criterion at 0 fails the scene
-  - product, install, physics or graphics below 2 fails the scene
+  - any criterion at 0 fails the scene, and must be explained by a blocker finding
+  - product, install, physics or graphics below 2 fails the scene, and must be explained by a blocker
+  - product, install and physics may be null ("doesn't apply") on title and end cards only
   - a total below 75% of the points available fails the scene
   - the version fails if any scene fails, any finding is a blocker, or a technical check fails
 
@@ -25,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +37,7 @@ from evalkit import EvalError, load_version, write_json  # noqa: E402
 
 CRITERIA = ("product", "install", "physics", "graphics", "sync", "reframe", "craft")
 AUTO_FAIL = ("product", "install", "physics", "graphics")
+NULLABLE_ON_CARDS = ("product", "install", "physics")
 SEV_RANK = {"blocker": 0, "major": 1, "minor": 2}
 TECH_FIX = {
     "file": "Re-export the cut and point the manifest at the file that stays put.",
@@ -134,7 +137,7 @@ def main(argv=None) -> int:
             return None
 
     tech = load(edir / "technical.json", True)
-    narr = load(edir / "narration.json", False) or {"available": False, "reason": "narration check was not run"}
+    narr = load(edir / "narration.json", True)
     jpath = args.judgments or (edir / "judgments.json")
     judg = load(jpath, True)
     if problems:
@@ -155,10 +158,14 @@ def main(argv=None) -> int:
             problems.append(f"judgments: scene {sid} is judged twice")
         sc = s.get("scores") or {}
         clean = {}
+        kind = next((x.get("kind") for x in m["scenes"] if x["id"] == sid), None)
         for k in CRITERIA:
             v = sc.get(k)
             if k == "reframe" and not multi_cut:
                 clean[k] = None
+                continue
+            if v is None and k in NULLABLE_ON_CARDS and kind in ("title", "end"):
+                clean[k] = None  # nothing to judge: no product or action on a title/end card
                 continue
             if not isinstance(v, int) or isinstance(v, bool) or not 0 <= v <= 2:
                 problems.append(f"scene {sid}: score {k} must be 0, 1 or 2 (got {v!r})")
@@ -209,12 +216,22 @@ def main(argv=None) -> int:
         f.setdefault("scope", "local")
         if f.get("scene") is None and f.get("frame") is not None:
             f["scene"] = scene_of(m, f["frame"])
+        if f.get("scenes"):
+            # A systemic finding names every scene it covers; the first is where it shows on the timeline.
+            if not isinstance(f["scenes"], list):
+                problems.append(f"judgments findings[{i}].scenes must be a list of scene ids")
+            else:
+                f["scope"] = "systemic"
+                if f.get("scene") is None:
+                    f["scene"] = f["scenes"][0]
+                elif f["scene"] not in f["scenes"]:
+                    f["scenes"] = [f["scene"]] + f["scenes"]
         findings.append(f)
 
     tech_seen = {}
     for c in tech.get("checks") or []:
-        if c.get("severity") == "info":
-            continue
+        if c.get("severity") == "info" or c["id"] == "expected_cuts":
+            continue  # a cut the detector didn't see is not evidence of a fault
         frames = c.get("frames")
         key = (c["id"], c.get("detail"), tuple(frames) if frames else None)
         if key in tech_seen:
@@ -228,6 +245,14 @@ def main(argv=None) -> int:
         tech_seen[key] = f
         findings.append(f)
 
+    for r in (narr.get("audio_activity") or {}).get("scenes") or []:
+        if r.get("flag"):
+            findings.append({"scene": r["scene"], "action": None, "cut": narr.get("cut"),
+                             "frame": r["frames"][0], "end_frame": r["frames"][1], "severity": "major",
+                             "criterion": "narration", "scope": "local", "rule": None,
+                             "source": "transcribe_check.py (no speech model: level check only)",
+                             "what": r["flag"], "fix": "Check the narration line is in the mix for this scene.",
+                             "evidence": [f"review/{args.version}/eval/narration.json"], "region": None})
     if narr.get("available"):
         for r in narr.get("scenes") or []:
             if r.get("flag"):
@@ -256,6 +281,15 @@ def main(argv=None) -> int:
                                         "(heard_as) to key_terms in the manifest.",
                                  "evidence": [f"review/{args.version}/eval/narration.json"], "region": None})
 
+    guide = (m.get("references") or {}).get("install_guide")
+    if any(s.get("kind") == "step" for s in m["scenes"]) and (not guide or not (args.project / guide).is_file()):
+        findings.append({"scene": None, "action": None, "cut": None, "frame": None, "end_frame": None,
+                         "severity": "blocker", "criterion": "claims", "scope": "local", "rule": None, "source": None,
+                         "what": ("The manifest names no install guide" if not guide else f"The install guide {guide} is not on disk")
+                                 + ", so no step could be checked against it.",
+                         "fix": "Put the official install PDF in the project and set references.install_guide.",
+                         "evidence": [f"review/{args.version}/manifest.json"], "region": None})
+
     # ---- integrity: every low score is explained
     for sc in scenes_out:
         if sc.get("carried"):
@@ -263,13 +297,13 @@ def main(argv=None) -> int:
         for k, v in sc["scores"].items():
             if v is None or v == 2:
                 continue
-            mine = [f for f in findings if f.get("scene") == sc["scene"] and f.get("criterion") == k]
+            mine = [f for f in findings if f.get("criterion") == k
+                    and (f.get("scene") == sc["scene"] or sc["scene"] in (f.get("scenes") or []))]
             # Whatever fails a scene must be a blocker, so the version can't reach the user with it.
             if k in AUTO_FAIL or v == 0:
-                need = ("blocker",) if k in AUTO_FAIL else ("blocker", "major")
-                if not any(f.get("severity") in need for f in mine):
-                    problems.append(f"scene {sc['scene']}: {k} scored {v} but no {' or '.join(need)} finding "
-                                    f"(criterion '{k}') says what is wrong")
+                if not any(f.get("severity") == "blocker" for f in mine):
+                    problems.append(f"scene {sc['scene']}: {k} scored {v}, which fails the scene, but no blocker "
+                                    f"finding (criterion '{k}', this scene or listing it in 'scenes') says what is wrong")
             elif not mine:
                 warnings.append(f"scene {sc['scene']}: {k} scored 1 with no finding explaining it")
         if all(v in (None, 2) for v in sc["scores"].values()):
@@ -314,8 +348,12 @@ def main(argv=None) -> int:
         entry.append(f"- Carried from {carry_from} unchanged: {', '.join(carried)}")
     for f in blockers[:10]:
         entry.append(f"- Blocker {f['id']} ({f.get('scene') or '—'}, {f['criterion']}): {f['what']}")
-    with log.open("a", encoding="utf-8") as fh:
-        fh.write("\n".join(entry) + "\n\n")
+    # One entry per version: a re-run (after fixing judgments) replaces that version's entry.
+    old = log.read_text(encoding="utf-8") if log.exists() else ""
+    sections = [x for x in re.split(r"(?m)^(?=## )", old) if x.strip()]
+    sections = [x for x in sections if not x.startswith(f"## {args.version} — ")]
+    sections.append("\n".join(entry) + "\n\n")
+    log.write_text("".join(x if x.endswith("\n\n") else x.rstrip("\n") + "\n\n" for x in sections), encoding="utf-8")
 
     for w in warnings + res.warnings:
         print(f"WARNING {w}")

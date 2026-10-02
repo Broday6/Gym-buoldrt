@@ -28,16 +28,20 @@ That is all you need. Everything else comes from disk.
 
 **Independence rules.** These are why you exist, so hold them even when it would be faster not to:
 - Judge only the delivered files. Pull your own frames with the scripts below. Don't use the
-  builder's contact sheets, preview renders or QA notes, and don't let the builder's chat
-  messages tell you what's fine.
+  builder's contact sheets, preview renders, QA notes or its `builder/` folders, and don't let the
+  builder's chat messages tell you what's fine.
+- From the previous version's `feedback.json`, read only `findings`: Brody's accept/reject
+  decisions. Don't raise again a finding Brody rejected, unless the scene changed in a way that
+  makes it new. Leave the `notes` alone; they are the builder's to-do list, not ground truth.
 - Don't edit code, re-render, or touch anything outside `review/<version>/eval/`,
   `review/<version>/eval-report.json` and `review/eval-log.md`.
 - Don't soften a verdict to be agreeable, and don't invent criteria or move thresholds. The gates
   live in `assemble_report.py` so they can't drift.
 - Never score a scene you haven't looked at.
 
-All script paths below are relative to this skill's folder. Run them with the project folder as
-the working directory, or pass absolute paths.
+**Paths.** `scripts/…` below means the `scripts` folder next to this SKILL.md. Use its full path
+(for example `python C:/…/ekena-install-video-evaluator/scripts/tech_checks.py`). The scripts take the
+project folder as an argument, so the working directory doesn't matter.
 
 ## Step 1 — Check the version is judgeable
 
@@ -66,6 +70,13 @@ Read, in this order, everything the manifest's `references` point at:
 5. **ekena-creative-standards**, if that skill is available: the craft rules on truth,
    legibility and light.
 
+If something is missing, keep going and say what you couldn't check:
+- **No install guide.** `assemble_report.py` raises a blocker for it by itself, and that blocker
+  already holds the version back. Judge `install` against the claims table and house rules, and
+  don't lower scores just because the guide is missing.
+- **Weak product images** (no silhouette, for example). Judge what they do show, such as colour,
+  and say what they didn't let you check.
+
 ## Step 3 — Run the automatic checks and pull frames
 
 ```
@@ -82,20 +93,24 @@ python scripts/transcribe_check.py <project> <v>
 - `extract_frames.py` decodes exact frames by number and writes `eval/frames.md`, an index of:
   a contact sheet per scene per cut, a motion strip per action, and a 16:9-next-to-9:16 pair per
   action for the reframe check.
+- `tech_checks.py` also warns when a scene is too short to read its step card (1 s + 1 s per 3
+  words). A warning becomes a minor finding; judge `sync` on what you see.
 - `transcribe_check.py` runs local Whisper (faster-whisper, else openai-whisper) on the delivered
   audio. It reports what was heard in each scene against the script, whether a line drifted into
-  a neighbouring scene, and whether each key term was heard exactly. If no model is installed it
-  records "skipped". Mention that in your summary and don't treat it as a pass.
+  a neighbouring scene, and whether each key term was heard exactly. Always run it:
+  `assemble_report.py` needs its `narration.json`. With no speech model installed it falls back to
+  measuring each narrated scene's loudness over time, and flags silence or a level as flat as a
+  tone (speech never is). Say in your summary that transcription was skipped.
 
 ## Step 4 — Decide what to judge
 
 - **First evaluation of a project, or no previous report:** judge every scene.
-- **A revision with a passing previous report:** judge every scene the builder touched (any
-  `changes` entry naming it or overlapping its frames), any scene whose length, card or narration
-  changed, and each such scene's neighbours, since splices break at boundaries. Set
-  `"carry_from": "<previous version>"` in `judgments.json`. The rest keep their old verdict, and
-  `assemble_report.py` refuses a carry for any scene that changed. Technical and narration checks
-  always cover the whole file.
+- **A revision of a version that has a report:** judge every scene that failed last time, every
+  scene the builder touched (any `changes` entry naming it or overlapping its frames), any scene
+  whose length, card or narration changed, and the neighbours of changed scenes, since splices
+  break at boundaries. Set `"carry_from": "<previous version>"` in `judgments.json`. The other
+  scenes keep their old verdict. `assemble_report.py` refuses a carry for any scene that changed
+  or failed. Technical and narration checks always cover the whole file.
 
 ## Step 5 — Judge each scene
 
@@ -118,6 +133,10 @@ the seven criteria from 0 to 2:
 scene; any ⚑ below 2 fails the scene; a total under 75% of available points fails the scene.
 So a 1 on a ⚑ criterion is a failing scene, not a nit.
 
+Use `null` only where a criterion has nothing to judge: `product`, `install` and `physics` on a
+title or end card with no product or action, and `reframe` when there's a single cut. Anything
+on screen gets a score.
+
 Also check, for each scene:
 - **Claims.** Every instruction on the card or in the narration traces to a claim with a
   source. A line with no claim is a `claims` finding (major). A line that contradicts the guide
@@ -136,10 +155,12 @@ can fix it without asking you anything:
   `end_frame`: the exact frames where you see it. This is how the Review Studio puts the
   finding on the timeline.
 - `criterion`: one of the seven, or `claims` / `narration`.
-- `severity`:
-  - **blocker**: it fails the scene, breaks a house rule, misstates the guide, or misspells on
-    screen. The builder fixes these before Brody sees the version.
-  - **major**: a real problem on a non-⚑ criterion, which Brody decides on.
+- `cut`: the cut you saw it in, or `null` if it's the same in every cut.
+- `end_frame`: the last frame it covers (inclusive).
+- `severity`, one rule: **whatever fails a scene is a blocker.**
+  - **blocker**: any score of 0, any ⚑ score below 2, a house rule broken, the guide misstated,
+    or a misspelling on screen. The builder fixes these before Brody sees the version.
+  - **major**: a 1 on `sync`, `reframe` or `craft`, or a line with no claim behind it. Brody decides.
   - **minor**: polish that changes no score.
 - `what`: what is wrong, in one or two plain sentences. Say what you see, not what you infer.
 - `fix`: the change, pointed at the code. Use the scene's `source.files` and `timeline_keys`
@@ -149,9 +170,10 @@ can fix it without asking you anything:
 - `evidence`: the sheet, strip or frame paths you judged from.
 - `region`: a box around the spot as fractions of that cut's frame (`x`, `y`, `w`, `h`, 0–1 from
   the top-left). Estimate it from the full frame. A box is what lets Brody see it in one glance.
-- `scope: "systemic"` when the same defect shows in three or more scenes, such as the colour lock
-  drifting or one tool path reused everywhere. Write it once, against the first scene, and say
-  in `fix` that it is one shared cause. Patching scene by scene would hide it.
+- `scope: "systemic"` and a `scenes` list when the same defect shows in three or more scenes,
+  such as the colour lock drifting or one tool path reused everywhere. Write it **once** with
+  `"scenes": ["s02", "s03", "s04"]`. That single finding explains the low score in every scene it
+  lists. Say in `fix` that it is one shared cause; patching scene by scene would hide it.
 
 **When a scene fails on several ⚑ criteria at once,** the cause is usually upstream: the product
 measurement, the colour lock, or a shared tool rig. Say so in the finding, so the builder fixes the
@@ -171,13 +193,18 @@ Write `review/<v>/eval/judgments.json`:
      "comment": "optional, one line"}
   ],
   "findings": [
-    {"scene": "s03", "action": "drill_1", "cut": "16x9", "frame": 734, "end_frame": 780,
+    {"scene": "s03", "action": "drill_1", "cut": "16x9", "frame": 734, "end_frame": 779,
      "severity": "blocker", "criterion": "physics", "scope": "local",
      "rule": null, "source": "Install guide p.2, fig. 3",
      "what": "The drill enters about 20° off square; the guide shows it square to the beam face.",
      "fix": "scenes/joists.js, drill_1 approach vector: square it to the face.",
      "evidence": ["review/v7/eval/strips/16x9_drill_1.jpg"],
-     "region": {"x": 0.40, "y": 0.20, "w": 0.15, "h": 0.20}}
+     "region": {"x": 0.40, "y": 0.20, "w": 0.15, "h": 0.20}},
+    {"scene": "s02", "scenes": ["s02", "s03", "s05"], "cut": null, "frame": 150, "end_frame": 1079,
+     "severity": "blocker", "criterion": "product", "scope": "systemic",
+     "what": "The beam reads orange under the work light in every lit shot; Ekena's Rough Sawn is a brown.",
+     "fix": "One cause: the colour lock isn't applied after the work-light pass in render/material.js.",
+     "evidence": ["review/v7/eval/sheets/16x9_s02.jpg", "review/v7/eval/sheets/16x9_s03.jpg"]}
   ]
 }
 ```
@@ -189,10 +216,11 @@ python scripts/assemble_report.py <project> <v>
 ```
 
 It merges your judgments with the technical and narration results, numbers the findings (e1, e2 …,
-blockers first), applies the gates, writes `review/<v>/eval-report.json`, and appends to
-`review/eval-log.md`. If it exits 1 it prints what doesn't hold together: a scene not judged, a
-score with no finding, a carry for a changed scene. Fix `judgments.json` and run it again. Never
-hand-edit `eval-report.json`.
+blockers first), applies the gates, writes `review/<v>/eval-report.json`, and records the run in
+`review/eval-log.md` (one entry per version; a re-run replaces it). If it exits 1 it prints what
+doesn't hold together: a scene not judged, a score with no finding, a carry for a changed scene.
+Fix `judgments.json` and run it again. Re-running after a successful run is fine too, for
+example to fix wording. Never hand-edit `eval-report.json`.
 
 ## Step 8 — Report back
 

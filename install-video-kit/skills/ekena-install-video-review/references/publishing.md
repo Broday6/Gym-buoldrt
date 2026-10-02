@@ -12,19 +12,27 @@ in the project, next to the build, so every version is published the same way.
 2. **Stable scene ids.** Derive them from the scene's key in the build (`"mark_joists"` → `s03` is
    fine, or use the key itself), never from position alone, if scenes can be inserted.
 3. **Actions = timeline events.** One per event worth checking on its own (drill hole 1, tap
-   Shutter-Lok 3, lift the beam). `id` = the `timeline.json` key, `frame` = its start,
-   `end_frame` = when it finishes. Skip pure camera moves.
-4. **`source` points at code.** `files` = the scene's module(s); `timeline_keys` = its events. This
-   is what turns "f734, box around the drill" into "drill_1 in scenes/joists.js".
+   Shutter-Lok 3, lift the beam). `id` = the `timeline.json` key, `frame` = its first frame,
+   `end_frame` = its last frame (inclusive; subtract 1 if the timeline stores an exclusive end).
+   Skip pure camera moves. A step with a fastening, lifting or cutting move should have an action
+   for it, so notes and findings can point at it.
+4. **`source` points at code.** `files` = the scene's module(s); `timeline_keys` = its events;
+   `card` and `narration` = where the card text and the spoken line are defined (`path#key`).
+   This is what turns "f734, box around the drill" into "drill_1 in scenes/joists.js".
 5. **Immutable files.** `cuts[].file` must point at a copy that will never be overwritten, such as
    `renders/v7/…` or the build's backup of v7.
-6. **`changes`.** One entry per note in the previous version's `feedback.json`, plus one per
-   accepted finding, each `addressed` or `declined` with a one-line `summary`, the `scene`, and
-   the `frames` it touched in this version. The simplest way is to append to
-   `review/<new version>/changes.json` as you work through the notes; the template reads it.
-7. **`static_ok` / `black_ok`.** Mark title and end cards `static_ok: true` (they hold still on purpose),
+6. **`changes`.** One entry for everything Brody asked for on `previous`: each note
+   (`kind: note`; an accepted finding is a note too, so add its `finding` id to the same entry),
+   each wording request (`kind: text`, `scene`, `field`) and each pacing request (`kind: pace`,
+   `scene`). Each is `addressed` or `declined` with a one-line `summary`, plus the `scene` and
+   the `frames` (`[first, last]`) it touched in this version. The simplest way is to append to
+   `review/<new version>/changes.json` as you work through the feedback; the template reads it.
+7. **References.** Always include `install_guide` (the official PDF, on disk); the evaluator
+   raises a blocker on any version with step scenes that lacks it. Also add `timeline` and
+   `scene_map`, so whoever reads the manifest later can find the build data.
+8. **`static_ok` / `black_ok`.** Mark title and end cards `static_ok: true` (they hold still on purpose),
    and any intended fade `black_ok: true`, so the technical check doesn't flag them.
-8. **`transition_in`.** `cut` if the scene starts on a hard cut, `continuous` if the camera flows
+9. **`transition_in`.** `cut` if the scene starts on a hard cut, `continuous` if the camera flows
    from the last one, `dissolve` for a dissolve. Only `cut` is checked for frame accuracy.
 
 ## Template
@@ -46,7 +54,7 @@ def load_scene_map():
     raise NotImplementedError("read the build's resolved scene map")
 
 def load_events():
-    """[(event_key, scene_key, label, start_frame, end_frame)] from timeline.json, in frames."""
+    """[(event_key, scene_key, label, first_frame, last_frame)] from timeline.json, in frames (last inclusive)."""
     raise NotImplementedError
 
 def load_claims():
@@ -83,7 +91,8 @@ def main():
             "id": key, "title": title, "kind": kind, "start_frame": s, "end_frame": e,
             "step_card": card, "narration": line, "claims": claims, "actions": acts,
             "transition_in": "cut", "static_ok": kind in ("title", "end"),
-            "source": {"files": files, "timeline_keys": [x["id"] for x in acts]},
+            "source": {"files": files, "timeline_keys": [x["id"] for x in acts],
+                       "card": f"cards.json#{key}", "narration": f"narration/lines.json#{key}"},
         })
     m = {
         "schema": "ekena-install-review/1",
@@ -100,7 +109,8 @@ def main():
         "key_terms": ["joists", "mounting block"],
         "references": {"install_guide": "research/install-guide.pdf",
                        "product_images": ["research/renders/hero.jpg"],
-                       "house_rules": "HOUSE_RULES.md", "readme": "README.md"},
+                       "house_rules": "HOUSE_RULES.md", "readme": "README.md",
+                       "timeline": "timeline.json", "scene_map": "build/scene_map.json"},
         "changes": changes_for(a.version),
     }
     d = ROOT / "review" / a.version

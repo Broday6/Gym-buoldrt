@@ -870,8 +870,7 @@ function renderTabs() {
   $("cNotes").textContent = S.fb.notes.length ? ` ${S.fb.notes.length}` : "";
   const open = findings().filter((f) => !decisionOf(f.id)).length;
   $("cEval").textContent = S.ev ? ` ${open || "✓"}` : "";
-  const prevNotes = (S.prev && S.prev.feedback && S.prev.feedback.notes) || [];
-  $("cChanges").textContent = ((S.m.changes || []).length || prevNotes.length) ? ` ${(S.m.changes || []).length}` : "";
+  $("cChanges").textContent = (S.m.changes || []).length ? ` ${(S.m.changes || []).length}` : "";
   const panel = $("tabpanel");
   const scroll = panel.scrollTop;
   const body = { scene: renderSceneTab, notes: renderNotesTab, eval: renderEvalTab, changes: renderChangesTab }[S.tab]();
@@ -1011,12 +1010,13 @@ function findingCard(f) {
     h("div", { class: "meta" },
       h("span", { class: "pill " + f.severity }, f.severity),
       h("span", {}, f.criterion),
-      f.scope === "systemic" ? h("span", { class: "pill major" }, "systemic") : null,
+      f.scope === "systemic" ? h("span", { class: "pill major", title: "One shared cause behind the same defect in several scenes" }, "systemic") : null,
       h("span", { class: "faint" }, f.id)),
     h("div", { class: "meta", style: { marginTop: "3px" } },
       f.frame != null ? h("span", { class: "mono" }, `${fmt(f.frame)} · f${f.frame}`) : null,
-      s ? h("span", {}, `${s.id} ${s.title || ""}`) : null,
-      f.cut ? h("span", { class: "faint" }, "· " + f.cut.replace("x", ":")) : null),
+      (f.scenes || []).length > 1 ? h("span", {}, "scenes " + f.scenes.join(", "))
+        : (s ? h("span", {}, `${s.id} ${s.title || ""}`) : null),
+      S.m.cuts.length > 1 ? h("span", { class: "faint" }, "· " + (f.cut ? f.cut.replace("x", ":") : "all cuts")) : null),
     h("div", { class: "body" }, f.what),
     f.fix ? h("div", { class: "fix" }, "Fix: " + f.fix) : null,
     f.rule ? h("div", { class: "fix" }, "Rule: " + f.rule) : null,
@@ -1073,8 +1073,20 @@ function renderChangesTab() {
     if (c.frames) seekFrame(c.frames[0]);
     else if (c.scene && sceneById(c.scene)) seekFrame(sceneById(c.scene).start_frame);
   };
-  const other = ch.filter((c) => !c.note || !prevNotes.some((n) => n.id === c.note));
+  const prevFb = (S.prev && S.prev.feedback) || {};
+  const prevText = prevFb.text_changes || [], prevPace = prevFb.pace || [];
+  const textChange = (t) => ch.find((c) => c.kind === "text" && c.scene === t.scene && c.field === t.field);
+  const paceChange = (p) => ch.find((c) => c.kind === "pace" && c.scene === p.scene);
+  const claimed = new Set([...prevText.map(textChange), ...prevPace.map(paceChange)].filter(Boolean));
+  const other = ch.filter((c) => (!c.note || !prevNotes.some((n) => n.id === c.note)) && !claimed.has(c));
   const prevId = S.prev ? S.prev.manifest.version : S.m.previous;
+  const requestCard = (label, before, c, scene) => {
+    const st = c ? c.status : "open";
+    return h("div", { class: "card", onclick: () => (c ? jump(c) : (sceneById(scene) && seekFrame(sceneById(scene).start_frame))) },
+      h("div", { class: "meta" }, h("span", { class: "pill " + st }, st === "open" ? "not mentioned" : st), h("span", {}, label)),
+      h("div", { class: "body muted" }, before),
+      c && c.summary ? h("div", { class: "body" }, (st === "declined" ? "Builder: " : "Done: ") + c.summary) : null);
+  };
   return h("div", {},
     !S.m.previous ? h("div", { class: "empty" }, "This is a first version, so there's nothing to compare yet.") : null,
     prevNotes.length ? [h("h3", {}, `Your notes on ${prevId}`),
@@ -1090,6 +1102,9 @@ function renderChangesTab() {
           h("div", { class: "actions" },
             h("button", { class: "ghost", onclick: (e) => { e.stopPropagation(); c ? jump(c) : seekFrame(mapFrame(n.frame, S.prev.manifest, S.m)); setCompare("ab"); } }, "Check it in A/B")));
       })] : (S.m.previous ? h("div", { class: "empty" }, `No notes were saved on ${prevId}.`) : null),
+    prevText.length || prevPace.length ? [h("h3", {}, `Your wording and pacing requests on ${prevId}`),
+      prevText.map((t) => requestCard(`${t.scene} · ${t.field === "step_card" ? "step card" : "narration"}`, `“${t.to}”`, textChange(t), t.scene)),
+      prevPace.map((p) => requestCard(`${p.scene} · pacing`, `${p.delta_s > 0 ? "+" : ""}${p.delta_s} s`, paceChange(p), p.scene))] : null,
     other.length ? [h("h3", {}, "Other changes"),
       other.map((c) => h("div", { class: "card", onclick: () => jump(c) },
         h("div", { class: "meta" }, h("span", { class: "pill " + c.status }, c.status),

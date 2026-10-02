@@ -11,8 +11,10 @@ a neighbouring scene. It also checks that every key term in the manifest is hear
 
 --words takes a word list instead of transcribing: [{"word","start","end"}, …], or {"words": […]}.
 
-Writes review/<version>/eval/narration.json. If no speech model is installed it writes
-{"available": false, "reason": …} and exits 0, so the evaluator can say the check was skipped.
+Writes review/<version>/eval/narration.json. If no speech model is installed it still measures
+the audio of every narrated scene (momentary loudness over time) and flags scenes that are silent
+or as steady as a tone, which speech never is. It records {"available": false, "reason": …,
+"audio_activity": …} and exits 0.
 """
 from __future__ import annotations
 
@@ -24,7 +26,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from evalkit import EvalError, cut_path, load_version, write_json  # noqa: E402
+from evalkit import EvalError, cut_path, load_version, run, tool, write_json  # noqa: E402
+
+MOMENTARY_RE = re.compile(r"t:\s*([\d.]+)\s+TARGET:.*?M:\s*(-?[\d.]+|-inf)")
 
 NUMBERS = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six",
            "7": "seven", "8": "eight", "9": "nine", "10": "ten", "11": "eleven", "12": "twelve"}
@@ -104,6 +108,36 @@ def transcribe(path: Path, model_name: str) -> tuple[list[dict], str]:
         raise EvalError("no speech model installed (pip install faster-whisper, or openai-whisper)")
 
 
+def audio_activity(m: dict, path: Path, ffmpeg: str) -> dict:
+    """Without a speech model: is there anything voice-like in each narrated scene at all?
+    Speech rises and falls by several LU every second; a missing voice leaves silence, a steady
+    bed or a test tone."""
+    proc = run([ffmpeg, "-hide_banner", "-nostats", "-i", str(path), "-vn",
+                "-af", "ebur128=framelog=info", "-f", "null", "-"], check=False)
+    series = [(float(t), float(v)) for t, v in MOMENTARY_RE.findall(proc.stderr) if v != "-inf"]
+    fps = m["fps"]
+    out = []
+    for s in m["scenes"]:
+        if not s.get("narration"):
+            continue
+        t0, t1 = s["start_frame"] / fps, s["end_frame"] / fps
+        vals = [v for t, v in series if t0 + 0.4 <= t <= t1]  # M is a 400 ms window
+        flag = None
+        if not vals or max(vals) < -45:
+            mean = sd = None
+            flag = "Near silence where the script has a narration line"
+        else:
+            mean = sum(vals) / len(vals)
+            sd = (sum((v - mean) ** 2 for v in vals) / len(vals)) ** 0.5
+            if sd < 1.0 and t1 - t0 >= 1.0:
+                flag = (f"Audio level is flat (±{sd:.1f} LU) through a narrated scene — "
+                        "speech varies far more, so the voice may be missing")
+        out.append({"scene": s["id"], "mean_lufs": None if mean is None else round(mean, 1),
+                    "variation_lu": None if sd is None else round(sd, 2), "flag": flag,
+                    "frames": [s["start_frame"], s["end_frame"] - 1]})
+    return {"method": "momentary loudness (EBU R128, 400 ms) per narrated scene", "scenes": out}
+
+
 def words_in(words: list[dict], t0: float, t1: float) -> list[dict]:
     return [w for w in words if t0 <= (w["start"] + w["end"]) / 2 < t1]
 
@@ -118,6 +152,7 @@ def main(argv=None) -> int:
     ap.add_argument("--slack", type=float, default=0.25, help="seconds either side of a scene that still count as in it")
     ap.add_argument("--min-match", type=float, default=0.7, help="share of the scripted line that must be heard in its scene")
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--ffmpeg")
     args = ap.parse_args(argv)
     try:
         m, vdir = load_version(args.project, args.version)
@@ -138,8 +173,17 @@ def main(argv=None) -> int:
             print(f"transcribing {cut['file']} …", flush=True)
             words, engine = transcribe(cut_path(args.project, cut), args.model)
     except EvalError as exc:
-        write_json(out, {"available": False, "reason": str(exc)})
-        print(f"skipped: {exc} — wrote {out}")
+        report = {"available": False, "reason": str(exc), "cut": cut["id"]}
+        try:
+            report["audio_activity"] = audio_activity(m, cut_path(args.project, cut), tool("ffmpeg", args.ffmpeg))
+        except EvalError as exc2:
+            report["audio_activity"] = {"error": str(exc2)}
+        write_json(out, report)
+        print(f"transcription skipped: {exc}")
+        for r in (report["audio_activity"].get("scenes") or []):
+            print(f"  {'✗' if r['flag'] else '✓'} {r['scene']}: "
+                  + (r["flag"] if r["flag"] else f"level varies ±{r['variation_lu']} LU (speech-like)"))
+        print(f"wrote {out}")
         return 0
 
     fps = m["fps"]

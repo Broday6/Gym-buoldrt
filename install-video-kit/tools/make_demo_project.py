@@ -52,6 +52,27 @@ CUTS = [("16x9", 640, 360), ("9x16", 360, 640)]
 FREEZE_SCENE = "s03"
 
 
+def tiny_pdf(lines: list[str]) -> bytes:
+    """A one-page PDF with a few lines of text: enough to stand in for an install guide."""
+    esc = lambda t: t.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")  # noqa: E731
+    text = "BT /F1 14 Tf 60 760 Td 20 TL " + " ".join(f"({esc(ln)}) Tj T*" for ln in lines) + " ET"
+    objs = ["<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            "/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            f"<< /Length {len(text)} >>\nstream\n{text}\nendstream"]
+    body, offsets = b"%PDF-1.4\n", []
+    for i, o in enumerate(objs, 1):
+        offsets.append(len(body))
+        body += f"{i} 0 obj\n{o}\nendobj\n".encode("latin-1")
+    xref = len(body)
+    body += f"xref\n0 {len(objs) + 1}\n0000000000 65535 f \n".encode()
+    body += "".join(f"{o:010d} 00000 n \n" for o in offsets).encode()
+    body += f"trailer\n<< /Size {len(objs) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
+    return body
+
+
 def run(cmd: list[str]) -> None:
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
@@ -65,7 +86,7 @@ def scene_layout() -> list[dict]:
         out.append({"id": sid, "kind": kind, "title": title, "start_frame": start,
                     "end_frame": start + n, "hue": hue, "step_card": card, "narration": narr,
                     "claims": claims,
-                    "actions": [{"id": a, "label": lbl, "frame": start + off, "end_frame": start + off + ln}
+                    "actions": [{"id": a, "label": lbl, "frame": start + off, "end_frame": start + off + ln - 1}
                                 for a, lbl, off, ln in actions]})
         start += n
     return out
@@ -120,7 +141,7 @@ def manifest_for(version: str, previous: str | None, files: dict[str, str], chan
         "schema": "ekena-install-review/1",
         "project": "Demo — Faux Beam Ceiling Install",
         "version": version,
-        "created": "2026-10-02T14:00:00Z",
+        "created": "2026-09-30T14:00:00Z",
         "previous": previous,
         "fps": FPS,
         "frame_count": layout[-1]["end_frame"],
@@ -129,7 +150,8 @@ def manifest_for(version: str, previous: str | None, files: dict[str, str], chan
         "scenes": scenes,
         "claims": CLAIMS,
         "key_terms": ["joists", "mounting block"],
-        "references": {"product_images": ["research/product.jpg"], "house_rules": "HOUSE_RULES.md",
+        "references": {"install_guide": "research/install-guide.pdf",
+                       "product_images": ["research/product.jpg"], "house_rules": "HOUSE_RULES.md",
                        "readme": "README.md"},
         "changes": changes,
     }
@@ -152,6 +174,12 @@ def main(argv=None) -> int:
     run([args.ffmpeg, "-y", "-hide_banner", "-f", "lavfi", "-i",
          "gradients=s=800x450:c0=0x6b4a2b:c1=0x8a6440", "-frames:v", "1",
          str(out / "research" / "product.jpg")])
+    (out / "research" / "install-guide.pdf").write_bytes(tiny_pdf(
+        ["Demo faux beam - installation guide",
+         "1. Find the ceiling joists and mark them.",
+         "2. Screw each mounting block into a joist with two screws.",
+         "3. Slide the beam over the blocks.",
+         "4. Fasten through the sides of the beam into the blocks."]))
     (out / "HOUSE_RULES.md").write_text(
         "# House rules\n\n"
         "1. No size callouts on screen or in the narration.\n"
@@ -170,10 +198,10 @@ def main(argv=None) -> int:
             files[cid] = rel
         s03 = next(s for s in scene_layout() if s["id"] == FREEZE_SCENE)
         changes = [] if version == "v1" else [
-            {"note": "v1-n1", "finding": None, "scene": "s03",
+            {"kind": "note", "note": "v1-n1", "finding": None, "scene": "s03",
              "frames": [s03["start_frame"], s03["end_frame"] - 1], "status": "addressed",
              "summary": "Second half of the screw-in no longer freezes"},
-            {"note": "v1-n2", "finding": None, "scene": "s05", "status": "declined",
+            {"kind": "note", "note": "v1-n2", "finding": None, "scene": "s05", "status": "declined",
              "summary": "Kept 'fasten from the side': the guide's step 4 says to fasten through the sides"},
         ]
         m = manifest_for(version, None if version == "v1" else "v1", files, changes)
@@ -186,18 +214,18 @@ def main(argv=None) -> int:
     s05 = next(s for s in scene_layout() if s["id"] == "s05")
     fb = {
         "schema": "ekena-install-feedback/1", "project": "Demo — Faux Beam Ceiling Install",
-        "version": "v1", "updated": "2026-10-02T14:30:00Z", "submitted": True,
+        "version": "v1", "updated": "2026-09-30T15:30:00Z", "submitted": True,
         "approved": False, "approved_at": None,
         "notes": [
             {"id": "v1-n1", "cut": "16x9", "frame": s03["start_frame"] + 200, "scene": "s03",
              "action": "drill_2", "category": "physics", "priority": "must",
              "text": "Picture freezes halfway through the second screw",
              "region": {"x": 0.3, "y": 0.25, "w": 0.4, "h": 0.5}, "from_finding": None,
-             "created": "2026-10-02T14:20:00Z"},
+             "created": "2026-09-30T15:20:00Z"},
             {"id": "v1-n2", "cut": "16x9", "frame": s05["start_frame"] + 30, "scene": "s05",
              "action": "lift", "category": "text", "priority": "nice",
              "text": "Should the card say 'fasten from below'?", "region": None,
-             "from_finding": None, "created": "2026-10-02T14:25:00Z"},
+             "from_finding": None, "created": "2026-09-30T15:25:00Z"},
         ],
         "text_changes": [], "pace": [], "findings": {},
     }
