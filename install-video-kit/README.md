@@ -29,6 +29,7 @@ render ─► publish v8 ─► evaluator (separate agent) ─► builder fixes 
 | `skills/ekena-install-video-review/` | Skill for the **builder**: publish each version, get it evaluated, open the studio, turn your notes into changes |
 | `…/assets/studio.html` | The Review Studio page |
 | `…/scripts/review_server.py` | Serves the studio for one project and saves your notes (Python standard library only) |
+| `…/scripts/publish_gate.py` | The check every video passes before it is published: evaluator pass, your Approve in the studio, and the file byte-for-byte the approved one. Writes `release.json` when it clears |
 | `…/scripts/note_frames.py` | For the builder: the exact frame of each of your notes, with your box drawn on it, plus a strip of frames around it |
 | `…/scripts/validate_review.py` | Checks a manifest, feedback or report file |
 | `…/references/schemas.md` | The three files that carry everything: `manifest.json`, `feedback.json`, `eval-report.json` |
@@ -67,6 +68,11 @@ blockers, and sends you a link like `http://127.0.0.1:8765/#v=v8`. In the studio
 | Check what changed | **Changes** tab: each of your earlier notes is shown as addressed, declined (with the reason) or not mentioned. *Check it in A/B*, then press **B** to flip between versions, or use **Side by side** |
 | Switch 16:9 ↔ 9:16 | **C**, or the *Cut* buttons |
 | Finish | **Send to builder**: saves, and copies a text summary you can paste into the chat. **Approve** signs the version off |
+
+**Nothing gets published without going through this.** Before a video goes to Asana, YouTube, the
+website, Drive or anyone's inbox, the builder runs `publish_gate.py` on the exact files. The gate
+clears the latest version only if the evaluator passed it, you pressed **Approve**, and each file
+matches the approved render byte for byte. Otherwise it stops and says what's missing.
 
 Notes save as you go, to `review/<version>/feedback.json` (the previous copy is kept as
 `feedback.prev.json`). If the page is opened without the server, as a plain file, it asks you

@@ -14,6 +14,7 @@ import filecmp
 import functools
 import http.server
 import json
+import os
 import shutil
 import socket
 import subprocess
@@ -232,6 +233,34 @@ def main() -> int:
     p = run(PY, REVIEW / "scripts/note_frames.py", proj, "v1")
     check((proj / "review/v1/builder/v1-n1.jpg").exists() and (proj / "review/v1/builder/v1-n1_strip.jpg").exists()
           and "scenes/s03.js" in p.stdout, "each note's exact frame and strip come out with its code pointer")
+
+    print("publish gate")
+    gate = REVIEW / "scripts/publish_gate.py"
+    p = run(PY, gate, proj, "--version", "v1", expect=1)
+    check("evaluator failed v1" in p.stdout and "hasn't approved v1" in p.stdout and "isn't the latest" in p.stdout,
+          "the gate blocks a failed, unapproved, superseded version and says why")
+    p = run(PY, gate, proj, expect=1)
+    check("BLOCKED" in p.stdout and "hasn't approved v2" in p.stdout, "the gate blocks the latest version until Brody approves it")
+    fb2 = {"schema": "ekena-install-feedback/1", "project": "Demo — Faux Beam Ceiling Install", "version": "v2",
+           "updated": "2026-10-05T12:00:00Z", "submitted": True, "approved": True, "approved_at": "2026-10-05T12:00:00Z",
+           "notes": [], "text_changes": [], "pace": [], "findings": {}}
+    (proj / "review/v2/feedback.json").write_text(json.dumps(fb2))
+    m2 = json.loads((proj / "review/v2/manifest.json").read_text())
+    approved_file = proj / m2["cuts"][0]["file"]
+    p = run(PY, gate, proj, "--file", approved_file, expect=0)
+    rel = json.loads((proj / "review/v2/release.json").read_text())
+    check("CLEARED" in p.stdout and len(rel["cuts"]) == 2 and rel["published_files"][0]["cut"] == "16x9",
+          "an approved, passing version clears and gets a release.json")
+    p = run(PY, gate, proj, "--file", proj / json.loads((proj / "review/v1/manifest.json").read_text())["cuts"][0]["file"], expect=1)
+    check("not one of the approved v2 cuts" in p.stdout, "a file that isn't the approved render is blocked")
+    mpath, epath = proj / "review/v2/manifest.json", proj / "review/v2/eval-report.json"
+    st = mpath.stat()
+    os.utime(mpath, (st.st_atime, epath.stat().st_mtime + 60))
+    p = run(PY, gate, proj, expect=1)
+    check("changed after the evaluation" in p.stdout, "a manifest changed after evaluation is blocked")
+    os.utime(mpath, (st.st_atime, st.st_mtime))
+    (proj / "review/v2/feedback.json").unlink()
+    (proj / "review/v2/release.json").unlink()
 
     print("server and studio")
     port = free_port()

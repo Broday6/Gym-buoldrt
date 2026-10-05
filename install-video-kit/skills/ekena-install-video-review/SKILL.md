@@ -1,16 +1,17 @@
 ---
 name: ekena-install-video-review
 description: >
-  The review loop for Ekena's CODE-BUILT install and explainer videos, the ones rendered locally
-  from a 3D scene, timeline.json, Kokoro narration and a synthesized score. Every render worth
-  showing becomes a numbered version. An independent evaluator agent grades it. Brody reviews it in the
-  Review Studio, a local page that plays both cuts frame by frame, pins notes and boxes to exact
-  frames, compares against the previous version, and lets Brody accept or reject the evaluator's
-  findings. The notes come back as feedback.json, mapped to scenes, actions and code, for targeted
-  re-renders. ALWAYS use it while building or revising an install video with Brody: "show me the new
-  render", "let me review it", "open the review", "I left notes", "notes on v7 are in", "send it
-  to the evaluator", "what changed since last time", "approve it", or whenever a render is ready
-  for Brody to look at. Pairs with ekena-install-video-evaluator.
+  The review loop for Ekena's CODE-BUILT install and explainer videos (rendered locally from a 3D
+  scene, timeline.json, Kokoro narration and a synthesized score), and the gate every one of them
+  passes before it is published. Each render worth showing becomes a numbered version; an
+  independent evaluator agent grades it; Brody reviews it in the Review Studio (both cuts frame by
+  frame, notes and boxes pinned to exact frames, compare with the previous version, accept or reject
+  findings); notes come back as feedback.json mapped to scenes, actions and code for targeted
+  re-renders. Nothing is published (Asana, YouTube, the site, Drive, email) until
+  scripts/publish_gate.py clears that exact file. ALWAYS use it while building or revising an install
+  video with Brody and before releasing one: "show me the new render", "let me review it", "notes on
+  v7 are in", "send it to the evaluator", "what changed", "approve it", "publish the video", "upload
+  it to Asana", "send the final". Pairs with ekena-install-video-evaluator.
 ---
 
 # Ekena install-video review loop
@@ -50,7 +51,7 @@ Do this before the first version, and check it is still in place whenever you pi
 
 ## Every time a render is ready for Brody
 
-### 1. Publish the version
+### 1. Add the version to review
 
 Run `publish_review.py` for the new version id (`v1`, `v2` …; `v7b` for a quick alternative), then:
 
@@ -176,8 +177,34 @@ Add time as motion (a slower move, a longer dwell with the camera still drifting
 frame: a still of 1 s or more fails the freeze check. Say in the `pace` change where the time
 came from. Scenes that shift or change length get re-judged by the evaluator, which is expected.
 
-Publish the next version with `previous` set (step 1) and `changes` filled in, with the `frames`
+Add the next version to review with `previous` set (step 1) and `changes` filled in, with the `frames`
 each change touched. Back up before overwriting, as always. Then go back to step 2.
+
+## Publishing: only what Brody approved, only through the gate
+
+A video leaves this project only after it has been through review. That means uploading it to
+Asana, YouTube or the website, sharing it on Drive or SharePoint, attaching it to an email, or
+handing it to anyone outside this chat. "Brody said it looks good" in chat is not approval: the
+**Approve** button in the Review Studio is.
+
+Before any of those, run the gate on the exact files you are about to send:
+
+```
+python scripts/publish_gate.py <project> --file renders/v8/ekena-beam-75s.mp4 --file renders/v8/ekena-beam-75s-vertical.mp4
+```
+
+It clears the latest version only if the evaluator passed it, Brody approved it, and each file is
+byte-for-byte one of that version's approved cuts. When it clears, it writes `review/vN/release.json`.
+Publish those files, not a fresh export from `out/`, and mention the version in the post or upload
+note.
+
+When it prints **BLOCKED**, don't publish. Tell Brody in one line what's missing ("v8 isn't
+approved yet. It's in the Review Studio with 2 findings for you to decide on.") and do that step.
+If Brody explicitly asks to publish something the gate blocks, say exactly what the gate found,
+and publish only when Brody confirms after hearing it. Record the override in
+`review/vN/release-override.md`: what the gate reported, Brody's go-ahead and the date.
+
+After a video is published, any change to it starts a new version through the same loop.
 
 ## Things that go wrong
 
@@ -191,3 +218,6 @@ each change touched. Back up before overwriting, as always. Then go back to step
   names a different version from the one Brody reviewed.
 - **The evaluator refuses to carry a scene:** something in it changed. That is intended;
   it re-judges it.
+- **The gate says a file isn't an approved cut:** it was re-rendered or re-encoded after Brody
+  approved. Publish the approved file from `renders/vN/`, or put the new one through review as
+  the next version.
