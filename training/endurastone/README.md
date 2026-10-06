@@ -1,8 +1,9 @@
 # Endura-Stone™ column training video
 
-A narrated, 10½-minute product-training video for Endura-Stone columns, built entirely from code.
-There is no stock footage and there are no images: every column, capital, plan diagram and
-chart is drawn as SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro,
+A narrated, 11-minute product-training video for Endura-Stone columns, built from code. Real
+product photos (all 11 capitals, the base sets, the pre-colored finishes, shaft styles and the
+sister lines) are official Pacific Columns images; plan diagrams, the load chart and part-number
+breakdowns are drawn as SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro,
 `af_heart`) reading the same fact-checked text as the on-screen captions.
 
 | File | What it is |
@@ -18,11 +19,12 @@ chart is drawn as SVG by `index.html`. The voiceover is an open-weight neural vo
 1. Welcome · 2. What it is (rotocast FRP, hollow core) · 3. Built to last (lifetime limited warranty,
 Class A / ASTM E84 Class 1) · 4. Shaft styles · 5. True entasis (= "Architectural Taper") ·
 6. Sizes to scale · 7. Finishes (paint-grade ships unfinished; six pre-colored colors; Coral) ·
-8. Capitals & bases (incl. Temple of Winds) · 9. Plan types A/B/C/D/Q/R and square E/F/G/K/L ·
-10. Load ratings (6"–24", shaft-only, downward-only, 4× safety factor) · 11. Reading a part number
+8. Capitals & bases (all 11 capitals incl. Temple of Winds and Modern Composite; tapered-only;
+load / non-load versions; base sets) · 9. Plan types A/B/C/D/Q/R and square E/F/G/K/L ·
+10. Load ratings (6"–24", shaft-only, downward/axial only, ICC-ES report 22-26) · 11. Reading a part number
 (incl. finish letters) · 12. Installation (ESINST, split kit) · 13. Our column family (Endura-Craft,
-Endurathane, Endura-Lite, Endura-Lum, Endura-Classic) · 14. Other brands customers compare (Turncraft,
-HB&G, Chadsworth, Fypon, AFCO) · 15. Practice scenarios · 16. Recap
+Endurathane, Endura-Lite, Endura-Lum, Endura-Classic) · 14. Other brands customers compare (Turncraft as a
+related line, HB&G, Chadsworth, Fypon, AFCO) · 15. Practice scenarios · 16. Recap
 
 ## How the voiceover stays in sync
 
@@ -35,11 +37,10 @@ lands on the sentence that describes it. Nothing is sped up.
 
 ## Real product photos
 
-Every drawing that shows the product is an image slot. Put a real Ekena photo in `images/`
-named after its slot (the list is in [`images/README.md`](images/README.md)), then from
-`training/shared` run `node images.mjs ../<this-folder>` and re-render.
-Slots without a photo keep the drawing. No photos could be downloaded when this was built:
-the network policy here blocks every retailer and Ekena image host.
+Every product picture is an image slot, filled from `images/` (the list is in
+[`images/README.md`](images/README.md); sources in `RESEARCH.md` → Images). To swap a photo,
+replace the file with the same slot name, then from `training/shared` run
+`node images.mjs ../endurastone` and re-render. A slot without a photo falls back to a drawing.
 
 ## Rebuild
 

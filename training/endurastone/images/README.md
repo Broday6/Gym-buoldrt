@@ -6,27 +6,36 @@ A slot with no photo keeps its drawn illustration. Use real Ekena product photog
 
 | Slot | Has photo |
 |---|---|
-| `hero-column` |  |
-| `shaft-round-tapered-plain` |  |
-| `shaft-round-tapered-fluted` |  |
-| `shaft-round-non-tapered-es1206rnpsatutu` |  |
-| `shaft-square-pro-series-esp0808enpsatuped` |  |
-| `shaft-square-fluted-pro-esp0610knfsacrcr` |  |
-| `finish-paint-grade` |  |
-| `finish-white` |  |
-| `finish-off-white` |  |
-| `finish-cream` |  |
-| `finish-sandstone` |  |
-| `finish-limestone` |  |
-| `finish-cliffside-grey` |  |
-| `finish-coral` |  |
-| `capital-tuscan` |  |
-| `capital-doric` |  |
-| `capital-ionic` |  |
-| `capital-scamozzi` |  |
-| `capital-corinthian` |  |
-| `family-endura-stone` |  |
-| `family-endura-craft` |  |
-| `family-endurathane` |  |
-| `family-endura-lite` |  |
-| `family-endura-lum` |  |
+| `hero-column` | yes |
+| `shaft-round-tapered` | yes |
+| `shaft-round-non-tapered` | yes |
+| `shaft-square` | yes |
+| `finish-paint-grade` | yes |
+| `finish-white` | yes |
+| `finish-off-white` | yes |
+| `finish-cream` | yes |
+| `finish-sandstone` | yes |
+| `finish-limestone` | yes |
+| `finish-cliffside-grey` | yes |
+| `finish-coral` | yes |
+| `capital-tuscan` | yes |
+| `capital-roman-doric-ornamental` | yes |
+| `capital-roman-ionic` | yes |
+| `capital-scamozzi` | yes |
+| `capital-roman-corinthian` | yes |
+| `capital-temple-of-winds` | yes |
+| `capital-greek-angular-ionic` | yes |
+| `capital-greek-erechtheum` | yes |
+| `capital-empire` | yes |
+| `capital-empire-with-necking` | yes |
+| `capital-modern-composite` | yes |
+| `base-tuscan` | yes |
+| `base-attic` | yes |
+| `base-roman-doric` | yes |
+| `base-pedestal` | yes |
+| `base-craftsman` | yes |
+| `family-endura-stone` | yes |
+| `family-endura-craft` | yes |
+| `family-endurathane` | yes |
+| `family-endura-lite` | yes |
+| `family-endura-lum` | yes |

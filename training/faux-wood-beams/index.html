@@ -48,6 +48,7 @@
   <audio id="vo" src="voiceover.mp3" preload="auto"></audio>
   <p class="note">Every frame is drawn by code (SVG). Product drawings are schematic. The facts and their sources are in RESEARCH.md. Space = play/pause, ←/→ = 5 s.</p>
 </div>
+<script src="images.js"></script>
 <script src="vo-timing.js"></script>
 <script>
 /* ============================================================
@@ -399,6 +400,7 @@ S('Textures', 30, [
       + T(x, y + 228, tx[1], { size: 27, w: 800 }) + T(x + 390, y + 228, 'BM' + tx[2], { size: 20, fill: C.gold, anchor: 'end', fam: MONO }) + T(x, y + 258, tx[3], { size: 19, fill: C.mute }));
   });
   if (drawn) s += foot(drawn === 8 ? 'drawn illustrations, not photos: order a sample for the real texture and color' : 'some swatches are drawn illustrations: order a sample for the real thing', prog(t, 5, .5));
+  else s += foot('texture photos: Pacific Columns (an Ekena brand), shown unfinished · order a sample for color', prog(t, 5, .5));
   return s;
 });
 

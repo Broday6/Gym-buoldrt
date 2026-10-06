@@ -48,6 +48,7 @@
   <audio id="vo" src="voiceover.mp3" preload="auto"></audio>
   <p class="note">Every frame is drawn by code (SVG). Product drawings are schematic. The facts and their sources are in RESEARCH.md. Space = play/pause, ←/→ = 5 s.</p>
 </div>
+<script src="images.js"></script>
 <script src="vo-timing.js"></script>
 <script>
 /* ============================================================
@@ -115,7 +116,7 @@ function photo(slot, x, y, w, h, fallback = '', o = {}) {
   const src = IMAGES[slot];
   if (!src) return fallback;
   const id = 'ph' + (UID++), rx = o.rx || 0;
-  return `<defs><clipPath id="${id}"><rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}"/></clipPath></defs>`
+  return (o.bg ? `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="${o.bg}"/>` : '') + `<defs><clipPath id="${id}"><rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}"/></clipPath></defs>`
     + `<image href="${src}" x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" preserveAspectRatio="${o.fit || 'xMidYMid slice'}" clip-path="url(#${id})"/>`
     + `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="none" stroke="#000" stroke-opacity=".35"/>`;
 }
@@ -313,8 +314,9 @@ S('Welcome', 11, [
   [0, 'Welcome to Endura-Stone column training from Ekena Millwork.'],
   [4.5, 'Coming up: what the product is, every option and finish, the plan types, load ratings, and how we compare.'],
 ], t => {
-  let s = hasPhoto('hero-column') ? G(prog(t, .2, 1.2), photo('hero-column', 1060, 110, 760, 800, '', { rx: 12 })) : column({ x: 1440, y: 900, h: 770, d: 150, top: .8125, cap: 'ionic', base: 'attic', flute: true, reveal: prog(t, .3, 2.6) });
-  s += `<ellipse cx="1440" cy="902" rx="${f1(170 * prog(t, .3, 1))}" ry="10" fill="#000" opacity=".35"/>`;
+  let s = hasPhoto('hero-column') ? G(prog(t, .2, 1.2), photo('hero-column', 1200, 120, 620, 740, '', { rx: 12 })) : column({ x: 1440, y: 900, h: 770, d: 150, top: .8125, cap: 'ionic', base: 'attic', flute: true, reveal: prog(t, .3, 2.6) });
+  if (!hasPhoto('hero-column')) s += `<ellipse cx="1440" cy="902" rx="${f1(170 * prog(t, .3, 1))}" ry="10" fill="#000" opacity=".35"/>`;
+  else s += G(prog(t, 1.4, .6), chip(1806, 842, 'Endura-Stone round tapered · photo: Pacific Columns', { size: 15, anchor: 'end', pad: 10, fill: 'rgba(0,0,0,.6)', color: '#dfe6ec' }));
   s += rise(t, .5, T(140, 360, 'PRODUCT TRAINING  ·  EKENA MILLWORK', { size: 24, w: 700, fill: C.gold, ls: 4 }));
   s += rise(t, .9, T(132, 480, 'Endura-Stone™', { size: 124, w: 800, ls: -2 }));
   s += rise(t, 1.2, T(136, 600, 'Columns', { size: 124, w: 300, fill: C.gold, ls: -2 }));
@@ -396,7 +398,7 @@ S('Built to last', 20, [
     const y = 300 + i * 130;
     s += rise(t, a, rect(110, y - 50, 600, 100, { fill: C.panel, stroke: C.line }) + `<g transform="translate(168,${y})">${ic}</g>` + T(222, y + 11, txt, { size: 28, w: 600 }));
   });
-  const bad = [[13, ico.shield(0, 0), 'Lifetime limited warranty', 'original owner · split columns excluded'], [14.3, ico.flame(0, 0), 'Class A fire rating', 'ASTM E84 Class 1 · flame spread 15'], [15.6, `<g>${ico.shield(0, 0, C.blue)}</g>`, 'Load-bearing or decorative', 'depends on plan type (ch. 9)']];
+  const bad = [[13, ico.shield(0, 0), 'Lifetime limited warranty', 'original owner · continental US · no split columns'], [14.3, ico.flame(0, 0), 'Class A fire rating', 'ASTM E84 Class 1 · flame spread 15'], [15.6, `<g>${ico.shield(0, 0, C.blue)}</g>`, 'Load-bearing or decorative', 'depends on plan type (ch. 9)']];
   bad.forEach(([a, ic, t1, t2], i) => {
     const y = 300 + i * 150;
     s += rise(t, a, rect(1230, y - 60, 590, 120, { fill: C.panel, stroke: C.green, sw: 2 }) + `<g transform="translate(1290,${y})">${ic}</g>` + T(1340, y - 4, t1, { size: 32, w: 800 }) + T(1340, y + 32, t2, { size: 22, fill: C.mute }));
@@ -405,29 +407,32 @@ S('Built to last', 20, [
 });
 
 /* 4 — Shaft styles */
-S('Shaft styles', 24, [
+S('Shaft styles', 26, [
   [0, 'Three shaft shapes: round tapered, round non-tapered, and square.'],
   [5, 'Round shafts come plain or fluted. On most 8-, 10- and 12-inch tapered shafts the flutes are molded right in.'],
   [10, 'Square shafts are sold as the Endura-Stone Pro Series, in plain, fluted, raised panel and recessed panel styles.'],
-  [15.5, 'On a tapered shaft the top is narrower than the bottom. An 8-inch shaft tapers to 6½ inches at the top.'],
+  [15.5, 'Sizes are nominal. An 8-inch tapered shaft is really 7⅝ inches across at the bottom and about 6⅝ at the top.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 4', 'Shaft styles');
-  const cols = [
-    { x: 250, a: .3, o: { top: .8125, cap: 'tuscan' }, n: 'Round tapered', sub: 'plain · e.g. ES1008RTPSATUTU' },
-    { x: 610, a: 5, o: { top: .8125, cap: 'tuscan', flute: true }, n: 'Round tapered', sub: 'fluted · e.g. ES1008ATFSATUTU' },
-    { x: 970, a: 1.5, o: { top: 1, cap: 'tuscan' }, n: 'Round non-tapered', sub: 'e.g. ES1206RNPSATUTU' },
-    { x: 1330, a: 10, o: { top: 1, shape: 'square', cap: 'tuscan', base: 'pedestal' }, n: 'Square · Pro Series', sub: 'e.g. ESP0808ENPSATUPED' },
-    { x: 1690, a: 11, o: { top: 1, shape: 'square', cap: 'craftsman', base: 'craftsman', flute: true }, n: 'Square fluted · Pro', sub: 'e.g. ESP0610KNFSACRCR' },
+  const cards = [
+    { x: 120, a: .3, slot: 'shaft-round-tapered', n: 'Round tapered', o: { top: .8125, cap: 'tuscan' },
+      l: ['Plain or fluted (flutes molded into', 'most 8″, 10″ and 12″ shafts)', '6″–24″ dia. · 5′–24′ tall'], sku: 'ES1008RTPSATUTU · ES1008ATFSATUTU' },
+    { x: 690, a: 1.5, slot: 'shaft-round-non-tapered', n: 'Round non-tapered', o: { top: 1, cap: 'tuscan' },
+      l: ['Plain or fluted · no astragal,', 'a more contemporary look', '8″–24″ dia. · 8′–15′ tall'], sku: 'ES1206RNPSATUTU' },
+    { x: 1260, a: 10, slot: 'shaft-square', n: 'Square · Pro Series', o: { top: 1, shape: 'square', cap: 'tuscan', base: 'pedestal' },
+      l: ['Plain, fluted, raised panel', 'or recessed panel', '6″–14″ wide · 8′–16′ tall'], sku: 'ESP0808ENPSATUPED · ESP0610KNFSACRCR' },
   ];
-  cols.forEach(c => {
-    const slot = 'shaft-' + slug(c.n + ' ' + c.sub.split(' · ')[0].replace('e.g.', ''));
-    s += hasPhoto(slot) ? G(prog(t, c.a, .8), photo(slot, c.x - 150, 240, 300, 580, '', { rx: 10 }))
-      : column(Object.assign({ x: c.x, y: 810, h: 560, d: 110, reveal: prog(c.a > 0 ? t : 0, c.a, 1.6) }, c.o));
-    s += rise(t, c.a + .8, T(c.x, 856, c.n, { size: 26, w: 700, anchor: 'middle' }) + T(c.x, 888, c.sub, { size: 18, fill: C.mute, anchor: 'middle' }));
+  cards.forEach(c => {
+    const g = hasPhoto(c.slot) ? photo(c.slot, c.x, 236, 540, 330, '', { rx: 10 })
+      : rect(c.x, 236, 540, 330, { fill: C.panel, stroke: C.line }) + column(Object.assign({ x: c.x + 270, y: 550, h: 290, d: 60 }, c.o));
+    s += rise(t, c.a, g + T(c.x, 612, c.n, { size: 30, w: 800 })
+      + TL(c.x, 652, c.l, { size: 21, fill: C.mute, lh: 29 })
+      + T(c.x, 752, 'e.g. ' + c.sku, { size: 17, fill: C.dim, fam: MONO }));
   });
   const to = prog(t, 15.6, .7);
-  s += G(to, rect(1090, 112, 720, 104, { fill: C.panel, stroke: C.gold, sw: 2 }) + T(1120, 152, 'VERIFIED TAPERS  (bottom → top)', { size: 18, w: 800, fill: C.gold, ls: 2 })
-    + T(1120, 192, '6″→4¾″   8″→6½″   16″→13½″   24″→20″', { size: 30, w: 700 }));
+  s += G(to, rect(120, 790, 1680, 96, { fill: C.panel, stroke: C.gold, sw: 2 }) + T(150, 828, 'NOMINAL vs ACTUAL · round tapered, outside diameter, bottom → top (spec sheet, ±⅛″)', { size: 18, w: 800, fill: C.gold, ls: 1 })
+    + T(150, 868, '6″: 5 11/16 → 4 13/16   ·   8″: 7⅝ → 6 19/32   ·   12″: 11⅝ → 10 1/16   ·   24″: 23⅜ → 19 5/16', { size: 26, w: 700 }));
+  if (hasPhoto('shaft-square')) s += foot('photos: Pacific Columns (an Ekena brand)', prog(t, 1, .5) * (1 - to), 1800, 898);
   return s;
 });
 
@@ -495,14 +500,14 @@ S('Finishes', 32, [
   [0, 'Endura-Stone comes two ways. Paint-grade shafts ship unfinished, not primed, so they must be primed and painted with 100 percent acrylic latex.'],
   [9, 'Pre-colored columns have the color mixed all the way through, so they never need paint. Most are lightly sandblasted for a stone texture.'],
   [16.5, 'The six standard colors are White, Off-White, Cream, Sandstone, Limestone and Cliffside Grey.'],
-  [22.5, 'Ask about the Coral finish, made with real coral aggregate, and custom colors.'],
+  [22.5, 'Ask about the Coral finish, made with real coral aggregate, in Off-White or Sandstone, and about custom colors.'],
   [27, 'In the part number, S means smooth and T means textured. The next letter is A for paint-grade, or a color code, like D for white.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 7', 'Finishes: paint-grade or pre-colored');
   // paint-grade
   const pg = prog(t, .3, .8);
   s += G(pg, photo('finish-paint-grade', 120, 240, 520, 470, column({ x: 300, y: 700, h: 440, d: 100, top: .8125, cap: 'tuscan' })
-      + `<g transform="translate(470,420)"><rect x="0" y="0" width="110" height="46" rx="10" fill="${C.blue}"/><rect x="48" y="46" width="14" height="70" fill="${C.mute}"/><rect x="40" y="112" width="30" height="60" rx="6" fill="${C.dim}"/></g>`, { rx: 10 })
+      + `<g transform="translate(470,420)"><rect x="0" y="0" width="110" height="46" rx="10" fill="${C.blue}"/><rect x="48" y="46" width="14" height="70" fill="${C.mute}"/><rect x="40" y="112" width="30" height="60" rx="6" fill="${C.dim}"/></g>`, { rx: 10, bg: '#fff', fit: 'xMidYMid meet' })
     + T(120, 760, 'PAINT-GRADE', { size: 18, w: 800, fill: C.gold, ls: 2 }) + TL(120, 800, ['Ships unfinished (not primed).', 'Prime + paint: 100% acrylic latex.'], { size: 24, w: 700, lh: 32 }));
   // pre-colored
   s += G(prog(t, 9, .6), T(760, 270, 'PRE-COLORED · color all the way through · lightly sandblasted', { size: 18, w: 800, fill: C.gold, ls: 1 }));
@@ -511,50 +516,67 @@ S('Finishes', 32, [
     s += rise(t, a, photo(slot, x, y, 310, 170, stoneTex(x, y, 310, 170, c[1], 300 + i), { rx: 6 }) + T(x, y + 202, c[0], { size: 24, w: 700 }));
   });
   s += G(prog(t, 22.5, .6), rect(760, 800, 980, 72, { fill: C.panel, stroke: C.gold, sw: 2 }) + photo('finish-coral', 770, 806, 90, 60, stoneTex(770, 806, 90, 60, '#d8c7a6', 333), {})
-    + T(880, 846, 'Also: Coral finish (real coral aggregate) · custom colors', { size: 21, w: 700 }));
+    + T(880, 846, 'Also: Coral finish (real coral aggregate) · Off-White or Sandstone · custom colors', { size: 21, w: 700 }));
   s += G(prog(t, 27, .6), chip(1810, 236, 'ES1008ATPSATUTU = smooth, paint-grade  ·  ES1008ATPTDTUTU = textured, White', { size: 17, anchor: 'end', stroke: C.blue }));
   if (!ES_COLORS.every(c => hasPhoto('finish-' + slug(c[0])))) s += foot('color swatches approximate; order a sample', prog(t, 16.6, .5), 1810, 898);
   return s;
 });
 
 /* 7 — Capitals & bases */
-S('Capitals & bases', 30, [
-  [0, 'The capital is where the style comes from. Tuscan is the standard.'],
-  [5, 'Upgrades include Roman Doric Ornamental, Roman Ionic, Scamozzi and Roman Corinthian, plus Temple of Winds, Greek Angular Ionic, Greek Erechtheum and Empire.'],
-  [14, 'Round columns take Tuscan or Attic bases. The square Pro Series adds Pedestal and Craftsman bases.'],
-  [22, 'Capital and base materials vary by SKU: FRP, polyurethane, or TimeSaver fiber-reinforced ABS. Quote what the listing says.'],
+const CAPITALS = [
+  ['tuscan', 'Tuscan cap & base', 'TU · standard set', 'tuscan'], ['roman-doric-ornamental', 'Roman Doric Ornamental', 'RD', 'doric'], ['roman-ionic', 'Roman Ionic', 'RI', 'ionic'],
+  ['scamozzi', 'Scamozzi', 'SC', 'scamozzi'], ['roman-corinthian', 'Roman Corinthian', 'RC', 'corinthian'], ['temple-of-winds', 'Temple of Winds', 'TW', 'corinthian'],
+  ['greek-angular-ionic', 'Greek Angular Ionic', '', 'scamozzi'], ['greek-erechtheum', 'Greek Erechtheum', 'necking option', 'ionic'], ['empire', 'Empire', '', 'ionic'],
+  ['empire-with-necking', 'Empire with necking', '', 'ionic'], ['modern-composite', 'Modern Composite', '', 'corinthian'],
+];
+S('Capitals & bases', 46, [
+  [0, 'The capital is where the style comes from. Tuscan is the standard cap and base set.'],
+  [5, 'Ornamental upgrades include Roman Doric Ornamental, Roman Ionic, Scamozzi, Roman Corinthian and Temple of Winds.'],
+  [11.5, 'There are also Greek Angular Ionic, Greek Erechtheum, Empire and Modern Composite. Empire and Erechtheum also come with necking.'],
+  [18.5, 'Ornamental capitals sit on top of a tapered shaft, trimmed at the neck ring, so they add height. They are not typically offered on non-tapered round shafts.'],
+  [26.5, 'They come in load-bearing and non-load-bearing versions, so check the SKU. Split capitals are never load-bearing.'],
+  [32.5, 'Bases: tapered round shafts take a Tuscan, Attic or Roman Doric set. Square shafts add the Pedestal base and the Craftsman cap and base.'],
+  [39.5, 'Capital and base materials vary by SKU: FRP, polyurethane, or TimeSaver fiber-reinforced ABS. Quote what the listing says.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 8', 'Capitals & bases');
-  const out1 = 1 - prog(t, 13.4, .7);
+  const out1 = 1 - prog(t, 32, .7);
   if (out1 > 0) {
-    const caps = [['tuscan', 'Tuscan', 'TU · standard'], ['doric', 'Roman Doric Ornamental', 'RD'], ['ionic', 'Roman Ionic', 'RI'], ['scamozzi', 'Scamozzi', 'SC'], ['corinthian', 'Roman Corinthian', 'RC']];
-    caps.forEach((c, i) => {
-      const x = 260 + i * 350, a = i === 0 ? .3 : 5 + (i - 1) * .9, u = 74, y = 560, id = 'cs' + i;
-      const g = `<defs>${gradDef(id, x, u * 1.7, PAL.stone)}<linearGradient id="${id}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="${id}m"><rect x="${x - 200}" y="${y}" width="400" height="110" fill="url(#${id}f)"/></mask></defs>`
-        + `<rect x="${x - u}" y="${y}" width="${2 * u}" height="110" fill="url(#${id})" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>` + capSvg(c[0], x, y, u, `url(#${id})`, PAL.stone.line);
-      s += G(out1, rise(t, a, (hasPhoto('capital-' + c[0]) ? photo('capital-' + c[0], x - 140, 380, 280, 280, '', { rx: 10 }) : g) + T(x, 714, c[1], { size: 26, w: 700, anchor: 'middle' }) + chip(x, 756, c[2], { size: 18, anchor: 'middle', color: C.gold })));
+    CAPITALS.forEach((c, i) => {
+      const row = i < 6 ? 0 : 1, k = row ? i - 6 : i, n = row ? 5 : 6;
+      const w = 262, h = 207, gap = 28, x0 = 960 - (n * w + (n - 1) * gap) / 2, x = x0 + k * (w + gap), y = 232 + row * 292;
+      const a = i === 0 ? .3 : i < 6 ? 5 + (i - 1) * .8 : 11.6 + (i - 6) * .8;
+      const u = 52, cy = y + 130, id = 'cs' + i;
+      const draw = `<defs>${gradDef(id, x + w / 2, u * 1.7, PAL.stone)}</defs><rect x="${x + w / 2 - u}" y="${cy}" width="${2 * u}" height="${y + h - cy}" fill="url(#${id})" stroke="${PAL.stone.line}"/>` + capSvg(c[3], x + w / 2, cy, u, `url(#${id})`, PAL.stone.line);
+      const tile = hasPhoto('capital-' + c[0]) ? photo('capital-' + c[0], x, y, w, h, '', { rx: 8, bg: '#ece9e2', fit: 'xMidYMid meet' })
+        : rect(x, y, w, h, { fill: C.panel, stroke: C.line, rx: 8 }) + draw;
+      const hl = (i === 0 && t < 5) || (i >= 1 && i < 6 && t >= 5 && t < 11.5) || (i >= 6 && t >= 11.5 && t < 18.5);
+      s += G(out1, rise(t, a, tile + (hl ? `<rect x="${x - 3}" y="${y - 3}" width="${w + 6}" height="${h + 6}" rx="10" fill="none" stroke="${C.gold}" stroke-width="3"/>` : '')
+        + T(x + w / 2, y + h + 32, c[1], { size: 21, w: 700, anchor: 'middle' })
+        + (c[2] ? T(x + w / 2, y + h + 58, c[2], { size: 16, w: 700, anchor: 'middle', fill: C.gold }) : '')));
     });
-    s += G(out1, rise(t, 9.5, T(960, 840, 'Also listed: Temple of Winds (TW) · Greek Angular Ionic · Greek Erechtheum · Empire · Craftsman (square)', { size: 23, fill: C.mute, anchor: 'middle' })));
+    s += G(out1 * prog(t, 18.6, .6), rect(160, 808, 1600, 80, { fill: C.panel, stroke: C.amber, sw: 2 })
+      + T(190, 840, 'Ornamental capitals: tapered shafts only · set on top after trimming at the neck ring (adds height)', { size: 21, w: 700 })
+      + T(190, 872, prog(t, 26.6, .4) > 0 ? 'Load-bearing and non-load-bearing versions: check the SKU · split capitals are never load-bearing' : '', { size: 21, fill: C.amber, w: 700, op: prog(t, 26.6, .5) }));
   }
-  const in2 = prog(t, 14, .7);
+  const in2 = prog(t, 32.4, .7);
   if (in2 > 0) {
-    const bases = [['tuscan', 'Tuscan', 'ES1008RTPSATUTU', 'round'], ['attic', 'Attic', 'ES2016RTPSAATRC', 'round'], ['pedestal', 'Pedestal', 'ESP0808ENPSATUPED', 'square'], ['craftsman', 'Craftsman', 'ESP0610KNFSACRCR', 'square']];
+    const bases = [['tuscan', 'Tuscan set', 'round tapered · non-tapered · square', 'tuscan', 'round'], ['attic', 'Attic set', 'round tapered · non-tapered · square', 'attic', 'round'],
+      ['roman-doric', 'Roman Doric set', 'round tapered', 'tuscan', 'round'], ['pedestal', 'Pedestal base', 'square Pro Series', 'pedestal', 'square'], ['craftsman', 'Craftsman cap & base', 'square Pro Series', 'craftsman', 'square']];
     bases.forEach((b, i) => {
-      const x = 330 + i * 420, rb = 62, y = 590, id = 'bs' + i;
-      const stub = b[3] === 'round' ? `<rect x="${x - rb}" y="${y - BASEK[b[0]] * rb - 140}" width="${2 * rb}" height="140" fill="url(#${id})" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>`
-        : `<rect x="${x - rb}" y="${y - BASEK[b[0]] * rb - 140}" width="${2 * rb}" height="140" fill="#ece6da" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>`;
-      const top = y - BASEK[b[0]] * rb - 140;
-      const g = `<defs>${gradDef(id, x, rb * 1.7, PAL.stone)}<linearGradient id="${id}f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="${id}m"><rect x="${x - 200}" y="${top}" width="400" height="140" fill="url(#${id}f)"/></mask></defs>`
-        + stub + baseSvg(b[0], x, y, rb, b[3] === 'round' ? `url(#${id})` : '#ece6da', PAL.stone.line);
-      s += rise(t, 14.3 + i * .6, g + T(x, 640, b[1] + ' base', { size: 26, w: 700, anchor: 'middle' }) + T(x, 672, b[2], { size: 17, fill: C.mute, anchor: 'middle', fam: MONO })
-        + chip(x, 712, b[3] === 'round' ? 'round shafts' : 'square Pro Series', { size: 17, anchor: 'middle', color: b[3] === 'round' ? C.blue : C.gold }));
+      const w = 300, h = 300, x = 960 - (5 * w + 4 * 40) / 2 + i * (w + 40), y = 240, a = 32.6 + i * .7, id = 'bs' + i, rb = 62;
+      const draw = rect(x, y, w, h, { fill: C.panel, stroke: C.line, rx: 8 }) + `<defs>${gradDef(id, x + w / 2, rb * 1.7, PAL.stone)}</defs>`
+        + `<rect x="${x + w / 2 - rb}" y="${y + 60}" width="${2 * rb}" height="${h - 60 - BASEK[b[3]] * rb - 20}" fill="${b[4] === 'round' ? `url(#${id})` : '#ece6da'}" stroke="${PAL.stone.line}"/>`
+        + baseSvg(b[3], x + w / 2, y + h - 20, rb, b[4] === 'round' ? `url(#${id})` : '#ece6da', PAL.stone.line);
+      const tile = hasPhoto('base-' + b[0]) ? photo('base-' + b[0], x, y, w, h, '', { rx: 8, bg: '#f4f2ee', fit: 'xMidYMid meet' }) : draw;
+      s += G(in2, rise(t, a, tile + T(x + w / 2, y + h + 38, b[1], { size: 24, w: 700, anchor: 'middle' })
+        + T(x + w / 2, y + h + 68, b[2], { size: 17, fill: b[4] === 'round' ? C.blue : C.gold, anchor: 'middle' })));
     });
-    const no = prog(t, 22, .7);
-    s += G(no, rect(160, 760, 1600, 104, { fill: C.panel, stroke: C.amber, sw: 2 })
-      + T(190, 800, 'Materials vary by SKU.  ES1008RTPSATUTU: FRP Tuscan base (13½″ plinth) + polyurethane Tuscan capital (12⅛″ abacus).', { size: 22, w: 600 })
-      + T(190, 838, 'Standard Tuscan cap & base on 8″/10″/12″ round tapered shafts: TimeSaver™ fiber-reinforced ABS.  Quote the listing.', { size: 22, fill: C.mute }));
+    s += G(prog(t, 35, .6), T(960, 670, 'Non-tapered round shafts take the Tuscan or Attic set. Lettered dimensions: see the spec sheet for each size.', { size: 19, fill: C.dim, anchor: 'middle' }));
+    s += G(prog(t, 39.5, .7), rect(160, 740, 1600, 116, { fill: C.panel, stroke: C.amber, sw: 2 })
+      + T(190, 784, 'Materials vary by SKU.  ES1008RTPSATUTU: FRP Tuscan base (13½″ plinth) + polyurethane Tuscan capital (12⅛″ abacus).', { size: 22, w: 600 })
+      + T(190, 826, 'Standard Tuscan cap & base on 8″/10″/12″ round tapered shafts: TimeSaver™ fiber-reinforced ABS.  Quote the listing.', { size: 22, fill: C.mute }));
   }
-  s += foot('capital & base drawings are schematic', prog(t, .5, .5) * (1 - prog(t, 21.5, .5)));
+  s += foot(hasPhoto('capital-roman-ionic') ? 'capital photos & base drawings: Pacific Columns (an Ekena brand)' : 'capital & base drawings are schematic', (prog(t, .5, .5) * (1 - prog(t, 18.3, .4)) + prog(t, 33, .5)) * (1 - prog(t, 39, .5)));
   return s;
 });
 
@@ -596,11 +618,11 @@ S('Plan types', 42, [
 
 /* 9 — Loads */
 S('Load ratings', 32, [
-  [0, 'Now the numbers. These are the manufacturer\'s calculated safe loads for whole, Plan A columns.'],
+  [0, 'Now the numbers. These are the published allowable loads for whole, Plan A columns.'],
   [4, 'A concentric load sits on the column\'s center line. An eccentric load is off-center, so its rating is lower.'],
   [12, 'A 6-inch shaft is rated 6,000 pounds. 8-inch: 10,000 concentric. 10-inch: 14,000. 12-inch: 18,000. 14 inches and up: 20,000.'],
   [22, 'Only the shaft carries the load, not the capital or base. Cut the ends level, and bear the load evenly across the full top and bottom.'],
-  [29, 'Ratings are for downward load only, never side load or uplift, and the spec sheet says they include a four-times safety factor. Send structural questions to the project\'s engineer.'],
+  [29, 'Ratings are for downward, axial load only, never side load or uplift. Send structural questions to the project\'s engineer.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 10', 'Load ratings (Plan A, unsplit)');
   const cx = 330, fl = 880;
@@ -625,7 +647,7 @@ S('Load ratings', 32, [
     s += T(gx + 82, base + 34, d[0] + ' dia.', { size: 22, w: 700, anchor: 'middle', op: prog(t, a, .4) });
   });
   s += G(prog(t, 22, .7), chip(1290, 880, 'Shaft carries the load (not cap/base) · ends cut level · bear evenly', { size: 22, anchor: 'middle', stroke: C.green }));
-  s += G(prog(t, 29, .7), chip(1810, 228, 'Downward load only · no side load or uplift · 4× safety factor (spec sheet)', { size: 18, anchor: 'end', color: C.amber, stroke: C.amber }));
+  s += G(prog(t, 29, .7), chip(1810, 228, 'Downward (axial) load only · no side load or uplift · source: spec sheet & ICC-ES report 22-26', { size: 18, anchor: 'end', color: C.amber, stroke: C.amber }));
   return s;
 });
 
@@ -727,14 +749,14 @@ S('Our column family', 32, [
       + rise(t, f.a + .5, T(f.x, 738, f.n, { size: 28, w: 800, anchor: 'middle', fill: i === 0 ? C.gold : C.ink }) + T(f.x, 772, f.m, { size: 19, fill: C.mute, anchor: 'middle' })
         + badge(f.x, 814, f.k) + T(f.x, 860, f.note, { size: 18, fill: C.dim, anchor: 'middle' })));
   });
-  s += foot('Also: Endura-Classic™ large round tapered columns (true entasis, load-bearing) and wood columns. Illustrations are schematic.', prog(t, 1, .6), 1810, 150, 'end');
+  s += foot('Also: Endura-Classic™ large round tapered columns (true entasis, load-bearing) and wood columns. ' + (hasPhoto('family-endura-craft') ? 'Photos: Pacific Columns (an Ekena brand).' : 'Illustrations are schematic.'), prog(t, 1, .6), 1810, 150, 'end');
   return s;
 });
 
 /* 13 — Competitors */
 S('Other brands', 42, [
-  [0, 'Here are the other column brands customers compare. Several, like Turncraft, Fypon and AFCO, are also sold on ArchitecturalDepot.com.'],
-  [5, 'Turncraft Poly-Classic is the closest match: rotocast FRP with the same published concentric ratings, size for size.'],
+  [0, 'Here are the other column brands customers compare. Several, like Fypon and AFCO, are also sold on ArchitecturalDepot.com.'],
+  [5, 'Turncraft Poly-Classic is a related line, not a rival. Our load tests are its evaluation report, so ratings match size for size.'],
   [12, 'HB&G PermaCast is fiberglass and marble dust. Its 2024 chart doubled the safety factor to five times, which is why its listed loads are lower.'],
   [19, 'Chadsworth PolyStone is rated up to 20,000 pounds, with a lifetime warranty.'],
   [25, 'Fypon column wraps are polyurethane and not structural. AFCO makes structural extruded aluminum, a different material and look.'],
@@ -747,7 +769,7 @@ S('Other brands', 42, [
   s += G(prog(t, .3, .5), hdr.map((h, i) => T(cols[i] + 18, 246, h, { size: 16, w: 800, fill: C.dim, ls: 2 })).join(''));
   const rows = [
     [.4, ['Endura-Stone™', 'Ekena Millwork'], ['Rotocast FRP +', 'marble dust'], 'Yes*', ['6k / 10k / 14k / 18k / 20k lb', '6″ / 8″ / 10″ / 12″ / 14″+ concentric'], ['Lifetime limited', '(not split columns)'], true],
-    [5, ['Turncraft', 'Poly-Classic®'], ['Rotocast FRP'], 'Yes', ['10k / 14k / 18k / 20k lb', '8″ / 10″ / 12″ / 14″ concentric'], ['Limited lifetime', '(original purchaser)']],
+    [5, ['Turncraft Poly-Classic®', 'related line'], ['Rotocast FRP'], 'Yes', ['Same table as Endura-Stone', 'ICC-ES legacy report 22-26'], ['Limited lifetime', '(original purchaser)']],
     [12, ['HB&G', 'PermaCast®'], ['FRP: fiberglass +', 'marble dust'], 'Yes', ['4,580 → 10,000 lb avg. allowable', '2024 chart, 5× safety factor'], ['Ltd. lifetime (home)', '25 yr commercial']],
     [19, ['Chadsworth', 'PolyStone®'], ['Polyester resin, fiber-', 'glass, marble dust'], 'Yes', ['Up to 20,000 lb', 'per Chadsworth press materials'], ['Lifetime']],
     [25, ['Fypon®'], ['Polyurethane', '4-panel wrap'], 'No', ['n/a: decorative wrap'], ['—']],
@@ -776,7 +798,7 @@ S('Which product?', 40, [
   [0, 'Let\'s practice. New porch, the column holds the roof, and the customer wants classic and round. What do you sell?'],
   [5, 'Endura-Stone, Plan A, sized from the load chart.'],
   [10, 'A 6×6 post already carries the roof, but they want it to look like a round Tuscan column.'],
-  [15, 'Plan R: split, then reassembled around the post. Confirm the inside diameter clears the post, and tell them split columns are not warranted.'],
+  [15, 'Plan R: split, then reassembled around the post. A 12-inch tapered shaft has room for a 6-inch square post. Tell them split columns are not warranted.'],
   [20, 'Half-round columns on the wall on each side of the front door.'],
   [25, 'Plan D, split in half, or Plan C, the ¾ pilaster. Decorative, mounted with brackets.'],
   [30, 'A rustic timber look over a basement lally column.'],
@@ -785,7 +807,7 @@ S('Which product?', 40, [
   let s = eyebrowTitle(t, 'CHAPTER 15', 'Which product? Practice');
   const sc = [
     [0, 5, 'New porch: the column must hold up the roof. Customer wants classic and round.', 'Endura-Stone · Plan A (whole). Size from the load chart, e.g. 10″ = 14,000 lb concentric.', 'A', 'load'],
-    [10, 15, 'A 6×6 post already carries the roof. They want a round Tuscan look.', 'Endura-Stone · Plan R around the post. Decorative: the post carries the load. Check the inside diameter; split columns are not warranted.', 'R', 'deco'],
+    [10, 15, 'A 6×6 post already carries the roof. They want a round Tuscan look.', 'Endura-Stone · Plan R around the post. Decorative: the post carries the load. A 12″ tapered shaft clears a 6″ square post; split columns are not warranted.', 'R', 'deco'],
     [20, 25, 'Half-round columns on the wall, flanking the front door.', 'Plan D (split in ½) or Plan C (¾ pilaster). Decorative. L-brackets top & bottom.', 'D', 'deco'],
     [30, 35, 'Rustic timber look over a basement lally column.', 'Not Endura-Stone → Endurathane faux-wood wrap (Ekena). Polyurethane, molded from real timber.', 'wood', 'deco'],
   ];
