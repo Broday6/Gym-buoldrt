@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Endura-Stone Column Training</title>
+<style>
+  :root {
+    --bg: #0b1118; --panel: #121b25; --ink: #e8eef3; --mute: #8fa1b2; --accent: #c8a24a; --line: #253445;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) { --bg: #e9edf1; --panel: #ffffff; --ink: #14202b; --mute: #51606e; --line: #c9d2db; }
+  }
+  :root[data-theme="light"] { --bg: #e9edf1; --panel: #ffffff; --ink: #14202b; --mute: #51606e; --line: #c9d2db; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 16px; }
+  .stage { width: 100%; aspect-ratio: 16 / 9; background: #0f1720; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  .stage svg { display: block; width: 100%; height: 100%; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+  .controls button, .controls select { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+  .controls button.primary { background: var(--accent); color: #1a1408; border-color: var(--accent); font-weight: 700; min-width: 92px; }
+  .scrub { flex: 1 1 260px; accent-color: var(--accent); }
+  .time { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--mute); min-width: 96px; text-align: right; }
+  .chapters { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; margin-top: 14px; }
+  .chapters button { text-align: left; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chapters button.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .chapters span { color: var(--mute); margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .note { color: var(--mute); font-size: 13px; margin-top: 14px; line-height: 1.5; }
+  body.render .wrap { max-width: none; padding: 0; }
+  body.render .stage { border-radius: 0; box-shadow: none; width: 1920px; height: 1080px; }
+  body.render .controls, body.render .chapters, body.render .note { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage" id="stage"></div>
+  <div class="controls">
+    <button class="primary" id="play">▶ Play</button>
+    <input class="scrub" id="scrub" type="range" min="0" max="1" step="0.01" value="0" aria-label="Timeline">
+    <span class="time" id="time">0:00 / 0:00</span>
+    <select id="speed" aria-label="Playback speed">
+      <option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option>
+    </select>
+  </div>
+  <div class="chapters" id="chapters"></div>
+  <p class="note">Every frame is drawn by code (SVG). Product drawings are schematic. The facts and their sources are in RESEARCH.md. Space = play/pause, ←/→ = 5 s.</p>
+</div>
+<script>
+/* ============================================================
+   Endura-Stone column training video, rendered entirely from code.
+   frame(T) is a pure function of time, so the player can seek anywhere
+   and render.mjs can capture it frame-by-frame to MP4.
+   ============================================================ */
+const W = 1920, H = 1080;
+const FONT = "Inter, 'Segoe UI', Helvetica, Arial, sans-serif";
+const MONO = "'DejaVu Sans Mono', Menlo, Consolas, monospace";
+const C = {
+  bg0: '#0f1720', bg1: '#132131', panel: '#162332', panel2: '#1c2c3e', line: '#2a3b4e',
+  ink: '#eef3f7', mute: '#93a5b6', dim: '#5f7184',
+  gold: '#d4ad52', blue: '#5fb0d6', green: '#62c28a', amber: '#e59a4f', red: '#e0705a',
+};
+
+/* ---------- math + easing ---------- */
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const prog = (t, a, d = .6) => ease(clamp((t - a) / d));
+const lerp = (a, b, p) => a + (b - a) * p;
+const f1 = n => (+n).toFixed(1);
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- svg primitives ---------- */
+let UID = 0;
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function T(x, y, s, o = {}) {
+  const { size = 30, w = 500, fill = C.ink, anchor = 'start', op = 1, ls = 0, fam = FONT, extra = '' } = o;
+  if (op <= .001) return '';
+  return `<text x="${f1(x)}" y="${f1(y)}" font-size="${size}" font-weight="${w}" fill="${fill}" text-anchor="${anchor}" opacity="${op.toFixed(3)}" letter-spacing="${ls}" font-family="${fam}" ${extra}>${esc(s)}</text>`;
+}
+function TL(x, y, lines, o = {}) { const lh = o.lh || (o.size || 30) * 1.3; return lines.map((l, i) => T(x, y + i * lh, l, o)).join(''); }
+function wrap(str, max) {
+  const words = String(str).split(' '); const out = []; let cur = '';
+  for (const wd of words) { if ((cur + ' ' + wd).trim().length > max && cur) { out.push(cur); cur = wd; } else cur = (cur + ' ' + wd).trim(); }
+  if (cur) out.push(cur); return out;
+}
+const G = (op, inner, dx = 0, dy = 0) => op <= .001 ? '' : `<g opacity="${op.toFixed(3)}" transform="translate(${f1(dx)},${f1(dy)})">${inner}</g>`;
+const rise = (t, a, inner, d = .7, dist = 24) => { const p = prog(t, a, d); return G(p, inner, 0, (1 - p) * dist); };
+function rect(x, y, w, h, o = {}) { const { fill = C.panel, stroke = 'none', sw = 1.5, rx = 14, op = 1, extra = '' } = o; return `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" opacity="${op}" ${extra}/>`; }
+const textW = (s, size) => String(s).length * size * .56;
+function chip(x, y, s, o = {}) {
+  const { size = 22, fill = C.panel2, stroke = C.line, color = C.ink, anchor = 'start', w = 600, pad = 16 } = o;
+  const tw = textW(s, size) + pad * 2, h = size * 1.75;
+  const x0 = anchor === 'middle' ? x - tw / 2 : anchor === 'end' ? x - tw : x;
+  return rect(x0, y - h / 2, tw, h, { fill, stroke, rx: h / 2 }) + T(x0 + tw / 2, y + size * .36, s, { size, w, fill: color, anchor: 'middle' });
+}
+const badge = (x, y, kind, anchor = 'middle') => {
+  const k = { load: ['LOAD-BEARING', C.green], deco: ['DECORATIVE', C.amber], check: ['CHECK SKU RATING', C.mute] }[kind];
+  return chip(x, y, k[0], { size: 17, w: 800, fill: 'rgba(0,0,0,.25)', stroke: k[1], color: k[1], anchor, pad: 14 });
+};
+function eyebrowTitle(t, eyebrow, title) {
+  return rise(t, .1, T(120, 142, eyebrow, { size: 21, w: 700, fill: C.gold, ls: 3 }) + T(120, 196, title, { size: 52, w: 800 }));
+}
+const foot = (s, op = 1, x = 1800, y = 898, anchor = 'end') => T(x, y, s, { size: 17, fill: C.dim, anchor, op });
+
+/* ---------- column drawing (elevation) ---------- */
+const PAL = {
+  stone: { s: ['#9c927f', '#d9d2c4', '#f7f4ec', '#fffdf8', '#e2dbcd', '#a89e8b'], line: '#857b6a' },
+  pvc:   { s: ['#a3abb2', '#e1e6ea', '#fbfcfd', '#ffffff', '#e6eaee', '#aeb6bd'], line: '#8b949c' },
+  wood:  { s: ['#4a2e1a', '#7a5233', '#9a6d47', '#a3784f', '#80583a', '#4f321d'], line: '#2e1a0d' },
+  alu:   { s: ['#1d2023', '#383d42', '#5b6167', '#6b7177', '#444a50', '#222528'], line: '#111315' },
+  lite:  { s: ['#b2aea6', '#e8e5df', '#fbfaf7', '#ffffff', '#ecE9e3', '#bdb8af'], line: '#9a958c' },
+};
+const CAPK = { none: 0, tuscan: 1.0, doric: 1.22, ionic: 1.18, scamozzi: 1.18, corinthian: 2.38, craftsman: .95 };
+const BASEK = { none: 0, tuscan: .8, attic: .95, pedestal: 3.0, craftsman: .95 };
+
+function gradDef(id, x, half, P) {
+  const offs = [0, .18, .42, .55, .8, 1];
+  return `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${f1(x - half)}" y1="0" x2="${f1(x + half)}" y2="0">${P.s.map((c, i) => `<stop offset="${offs[i]}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+}
+const R_ = (fill, ln) => (cx, y, w, h, rx = 0) => `<rect x="${f1(cx - w / 2)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${f1(rx)}" fill="${fill}" stroke="${ln}" stroke-width="1.2"/>`;
+
+function spiral(cx, cy, R, dir, rot, ln, fill) {
+  const turns = 2.2, n = 70; let d = '';
+  for (let i = 0; i <= n; i++) {
+    const a = i / n * turns * Math.PI * 2, r = R * (1 - i / n * .86), ang = rot + dir * a;
+    d += (i ? 'L' : 'M') + f1(cx + r * Math.cos(ang)) + ',' + f1(cy + r * Math.sin(ang));
+  }
+  return `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(R)}" fill="${fill}" stroke="${ln}" stroke-width="1.2"/><path d="${d}" fill="none" stroke="${ln}" stroke-width="${f1(Math.max(1, R * .09))}" stroke-linecap="round"/><circle cx="${f1(cx)}" cy="${f1(cy)}" r="${f1(R * .14)}" fill="${ln}" opacity=".6"/>`;
+}
+function leaf(bx, by, w, h, fill, ln) {
+  return `<path d="M${f1(bx - w / 2)},${f1(by)} Q${f1(bx - w * .75)},${f1(by - h * .55)} ${f1(bx - w * .1)},${f1(by - h)} Q${f1(bx + w * .35)},${f1(by - h * 1.06)} ${f1(bx + w * .22)},${f1(by - h * .86)} Q${f1(bx + w * .7)},${f1(by - h * .5)} ${f1(bx + w / 2)},${f1(by)} Z" fill="${fill}" stroke="${ln}" stroke-width="1.1"/><path d="M${f1(bx)},${f1(by)} Q${f1(bx - w * .05)},${f1(by - h * .5)} ${f1(bx - w * .08)},${f1(by - h * .9)}" stroke="${ln}" stroke-width="1" fill="none" opacity=".7"/>`;
+}
+function capSvg(type, x, y, u, fill, ln) {
+  const R = R_(fill, ln);
+  const echinus = (y0, y1, w0, w1) => `<path d="M${f1(x - w0)},${f1(y0)} C${f1(x - w0 * 1.12)},${f1(y0 - (y0 - y1) * .3)} ${f1(x - w1 * .98)},${f1(y0 - (y0 - y1) * .7)} ${f1(x - w1)},${f1(y1)} L${f1(x + w1)},${f1(y1)} C${f1(x + w1 * .98)},${f1(y0 - (y0 - y1) * .7)} ${f1(x + w0 * 1.12)},${f1(y0 - (y0 - y1) * .3)} ${f1(x + w0)},${f1(y0)} Z" fill="${fill}" stroke="${ln}" stroke-width="1.2"/>`;
+  const eggs = (yy, span, n, rx, ry) => { let s = ''; for (let i = 0; i < n; i++) { const xx = x - span + 2 * span * i / (n - 1); s += `<ellipse cx="${f1(xx)}" cy="${f1(yy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="none" stroke="${ln}" stroke-width="1" opacity=".75"/>`; } return s; };
+  const concaveAbacus = (yb, h, w) => `<path d="M${f1(x - w)},${f1(yb)} Q${f1(x - w * .86)},${f1(yb - h / 2)} ${f1(x - w)},${f1(yb - h)} L${f1(x + w)},${f1(yb - h)} Q${f1(x + w * .86)},${f1(yb - h / 2)} ${f1(x + w)},${f1(yb)} Z" fill="${fill}" stroke="${ln}" stroke-width="1.2"/>`;
+  switch (type) {
+    case 'tuscan':
+      return R(x, y - .12 * u, 2.2 * u, .12 * u, .06 * u) + R(x, y - .4 * u, 2 * u, .28 * u) + echinus(y - .4 * u, y - .7 * u, u, 1.38 * u) + R(x, y - 1.0 * u, 2.9 * u, .3 * u);
+    case 'doric':
+      return R(x, y - .12 * u, 2.2 * u, .12 * u, .06 * u) + R(x, y - .4 * u, 2 * u, .28 * u) + echinus(y - .4 * u, y - .74 * u, u, 1.4 * u) + eggs(y - .58 * u, 1.05 * u, 7, .1 * u, .1 * u)
+        + R(x, y - 1.04 * u, 2.95 * u, .3 * u) + R(x, y - 1.22 * u, 3.05 * u, .18 * u);
+    case 'ionic': case 'scamozzi': {
+      const sc = type === 'scamozzi';
+      let s = R(x, y - .1 * u, 2.2 * u, .1 * u, .05 * u) + R(x, y - .44 * u, 2.3 * u, .34 * u, .1 * u) + eggs(y - .27 * u, 1.0 * u, 6, .11 * u, .12 * u)
+        + R(x, y - .88 * u, 2.3 * u, .44 * u, .12 * u);
+      s += spiral(x - 1.18 * u, y - (sc ? .5 : .62) * u, .38 * u, -1, sc ? -2.2 : -1.57, ln, fill) + spiral(x + 1.18 * u, y - (sc ? .5 : .62) * u, .38 * u, 1, sc ? -.95 : -1.57, ln, fill);
+      s += sc ? concaveAbacus(y - .88 * u, .3 * u, 1.55 * u) : R(x, y - 1.18 * u, 2.75 * u, .3 * u);
+      return s;
+    }
+    case 'corinthian': {
+      let s = R(x, y - .12 * u, 2.2 * u, .12 * u, .06 * u);
+      s += `<path d="M${f1(x - u)},${f1(y - .12 * u)} L${f1(x - 1.22 * u)},${f1(y - 2.05 * u)} L${f1(x + 1.22 * u)},${f1(y - 2.05 * u)} L${f1(x + u)},${f1(y - .12 * u)} Z" fill="${fill}" stroke="${ln}" stroke-width="1.2"/>`;
+      for (let i = 0; i < 4; i++) s += leaf(x - .78 * u + i * .52 * u, y - .5 * u, .55 * u, 1.05 * u, fill, ln);
+      for (let i = 0; i < 5; i++) s += leaf(x - 1.0 * u + i * .5 * u, y - .12 * u, .55 * u, .78 * u, fill, ln);
+      s += spiral(x - 1.18 * u, y - 1.88 * u, .2 * u, -1, -1.2, ln, fill) + spiral(x + 1.18 * u, y - 1.88 * u, .2 * u, 1, -1.9, ln, fill);
+      s += concaveAbacus(y - 2.05 * u, .33 * u, 1.5 * u) + `<circle cx="${f1(x)}" cy="${f1(y - 2.21 * u)}" r="${f1(.11 * u)}" fill="${fill}" stroke="${ln}"/>`;
+      return s;
+    }
+    case 'craftsman':
+      return R(x, y - .3 * u, 2.35 * u, .3 * u) + R(x, y - .6 * u, 2.65 * u, .3 * u) + R(x, y - .95 * u, 3.0 * u, .35 * u);
+    default: return '';
+  }
+}
+function baseSvg(type, x, y, rb, fill, ln) {
+  const R = R_(fill, ln);
+  switch (type) {
+    case 'tuscan': return R(x, y - .38 * rb, 2.8 * rb, .38 * rb) + R(x, y - .72 * rb, 2.5 * rb, .34 * rb, .17 * rb) + R(x, y - .8 * rb, 2.1 * rb, .08 * rb);
+    case 'attic': return R(x, y - .3 * rb, 2.8 * rb, .3 * rb) + R(x, y - .56 * rb, 2.6 * rb, .26 * rb, .13 * rb) + R(x, y - .7 * rb, 2.12 * rb, .14 * rb)
+      + R(x, y - .9 * rb, 2.35 * rb, .2 * rb, .1 * rb) + R(x, y - .95 * rb, 2.08 * rb, .05 * rb);
+    case 'pedestal': return R(x, y - .3 * rb, 3.3 * rb, .3 * rb) + R(x, y - 2.65 * rb, 3.0 * rb, 2.35 * rb)
+      + `<rect x="${f1(x - 1.15 * rb)}" y="${f1(y - 2.4 * rb)}" width="${f1(2.3 * rb)}" height="${f1(1.85 * rb)}" fill="none" stroke="${ln}" stroke-width="1.2" opacity=".7"/>` + R(x, y - 3.0 * rb, 3.3 * rb, .35 * rb);
+    case 'craftsman': return R(x, y - .6 * rb, 2.8 * rb, .6 * rb) + R(x, y - .95 * rb, 2.4 * rb, .35 * rb);
+    default: return '';
+  }
+}
+/* A full column: shaft + base + capital, optional draw-on reveal from the floor up. */
+function column(o) {
+  const { x, y, h, d, top = 1, taper = 'entasis', shape = 'round', flute = false, panel = null, cap = 'tuscan', base = 'tuscan',
+    reveal = 1, op = 1, pal = 'stone', grain = false } = o;
+  if (op <= .001 || reveal <= .001) return '';
+  const id = 'k' + (UID++), P = PAL[pal], ln = P.line, fill = `url(#${id}g)`;
+  const rb = d / 2, rt = rb * top;
+  const capH = CAPK[cap] * rt, baseH = BASEK[base] * rb;
+  const y0 = y - baseH, y1 = y - h + capH, sh = y0 - y1;
+  const Rf = q => { if (top === 1) return rb; if (taper === 'linear') return rb - (rb - rt) * q; const u = q < 1 / 3 ? 0 : (q - 1 / 3) / (2 / 3); return rb - (rb - rt) * (1 - Math.cos(u * Math.PI / 2)); };
+  const N = 28; const L = [], Rr = [];
+  for (let i = 0; i <= N; i++) { const q = i / N, r = Rf(q), yy = y0 - q * sh; L.push(f1(x - r) + ',' + f1(yy)); Rr.push(f1(x + r) + ',' + f1(yy)); }
+  let s = `<polygon points="${L.join(' ')} ${Rr.reverse().join(' ')}" fill="${fill}" stroke="${ln}" stroke-width="1.2"/>`;
+  if (flute) {
+    const n = shape === 'round' ? 9 : 5;
+    for (let k = 0; k < n; k++) {
+      const th = shape === 'round' ? -1.25 + 2.5 * k / (n - 1) : 0, fx = shape === 'round' ? Math.sin(th) : -.64 + 1.28 * k / (n - 1);
+      const pts = []; for (let i = 0; i <= N; i++) { const q = i / N; if (q < .05 || q > .95) continue; pts.push(f1(x + Rf(q) * fx) + ',' + f1(y0 - q * sh)); }
+      const wgt = shape === 'round' ? Math.cos(th) : .8;
+      s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${ln}" stroke-opacity="${(.22 + .4 * wgt).toFixed(2)}" stroke-width="${f1(Math.max(1, d * .022 * (.4 + wgt)))}" stroke-linecap="round"/>`;
+    }
+  }
+  if (panel) {
+    const qa = .07, qb = .93, pts = [[qa, -1], [qb, -1], [qb, 1], [qa, 1]].map(([q, sg]) => f1(x + sg * Rf(q) * .66) + ',' + f1(y0 - q * sh));
+    s += `<polygon points="${pts.join(' ')}" fill="none" stroke="${ln}" stroke-width="2" opacity=".75"/>`;
+    const pts2 = [[qa + .015, -1], [qb - .015, -1], [qb - .015, 1], [qa + .015, 1]].map(([q, sg]) => f1(x + sg * Rf(q) * .58) + ',' + f1(y0 - q * sh));
+    s += `<polygon points="${pts2.join(' ')}" fill="none" stroke="${panel === 'recessed' ? '#000' : '#fff'}" stroke-width="1.2" opacity=".25"/>`;
+  }
+  if (grain) {
+    const rnd = rng(7);
+    for (let k = 0; k < 9; k++) {
+      const fx = -.85 + 1.7 * k / 8 + (rnd() - .5) * .08, ph = rnd() * 6, amp = 1.5 + rnd() * 2.5; const pts = [];
+      for (let i = 0; i <= 40; i++) { const q = i / 40; const yy = y0 - q * sh; pts.push(f1(x + Rf(q) * fx + Math.sin(q * 18 + ph) * amp) + ',' + f1(yy)); }
+      s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${ln}" stroke-opacity=".45" stroke-width="1.3"/>`;
+    }
+  }
+  s += baseSvg(base, x, y, rb, fill, ln) + capSvg(cap, x, y1, rt, fill, ln);
+  const half = Math.max(rb * 1.7, rt * 1.6);
+  const clipY = y - (h + 4) * reveal;
+  return `<g opacity="${op.toFixed(3)}"><defs>${gradDef(id + 'g', x, half, P)}<clipPath id="${id}c"><rect x="${f1(x - half - 20)}" y="${f1(clipY)}" width="${f1(2 * half + 40)}" height="${f1(y - clipY + 4)}"/></clipPath></defs><g clip-path="url(#${id}c)">${s}</g></g>`;
+}
+
+/* ---------- plan-view (top-down) diagrams ---------- */
+const WALL = 'url(#hatch)', SHAFT = '#e9e3d7', SHAFT_LN = '#8e8472';
+const ringD = (cx, cy, R, r) => `M${f1(cx - R)},${f1(cy)}a${R},${R} 0 1,0 ${2 * R},0a${R},${R} 0 1,0 ${-2 * R},0Z M${f1(cx - r)},${f1(cy)}a${r},${r} 0 1,1 ${2 * r},0a${r},${r} 0 1,1 ${-2 * r},0Z`;
+function sectorD(cx, cy, R, r, a1, a2) {
+  const p = (rad, a) => [cx + rad * Math.cos(a * Math.PI / 180), cy + rad * Math.sin(a * Math.PI / 180)];
+  const lg = (a2 - a1) > 180 ? 1 : 0; const [x1, y1] = p(R, a1), [x2, y2] = p(R, a2), [x3, y3] = p(r, a2), [x4, y4] = p(r, a1);
+  return `M${f1(x1)},${f1(y1)}A${R},${R} 0 ${lg},1 ${f1(x2)},${f1(y2)}L${f1(x3)},${f1(y3)}A${r},${r} 0 ${lg},0 ${f1(x4)},${f1(y4)}Z`;
+}
+const shaftPath = d => `<path d="${d}" fill="${SHAFT}" stroke="${SHAFT_LN}" stroke-width="1.5" fill-rule="evenodd"/>`;
+function plan(type, cx, cy, R) {
+  const r = R * .82, id = 'p' + (UID++);
+  const wall = (x, y, w, h) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" fill="${WALL}" stroke="#4b5b6c"/>`;
+  switch (type) {
+    case 'A': return shaftPath(ringD(cx, cy, R, r)) + T(cx, cy + 6, 'hollow', { size: 15, fill: C.dim, anchor: 'middle' });
+    case 'B': return wall(cx, cy - R - 22, R + 22, R + 22) + shaftPath(sectorD(cx, cy, R, r, 0, 270));
+    case 'C': return `<defs><clipPath id="${id}"><rect x="${f1(cx - R / 2)}" y="${f1(cy - R - 2)}" width="${f1(1.5 * R + 4)}" height="${f1(2 * R + 4)}"/></clipPath></defs>`
+      + wall(cx - R / 2 - 22, cy - R - 18, 22, 2 * R + 36) + `<g clip-path="url(#${id})">${shaftPath(ringD(cx, cy, R, r))}</g>`;
+    case 'D': return `<defs><clipPath id="${id}"><rect x="${f1(cx)}" y="${f1(cy - R - 2)}" width="${f1(R + 4)}" height="${f1(2 * R + 4)}"/></clipPath></defs>`
+      + wall(cx - 22, cy - R - 18, 22, 2 * R + 36) + `<g clip-path="url(#${id})">${shaftPath(ringD(cx, cy, R, r))}</g>`;
+    case 'Q': return wall(cx - 22, cy - 22, R + 44, 22) + wall(cx - 22, cy, 22, R + 22) + shaftPath(sectorD(cx, cy, R, r, 0, 90));
+    case 'R': { const ps = r * 1.05; return shaftPath(sectorD(cx, cy, R, r, -86, 86)) + shaftPath(sectorD(cx, cy, R, r, 94, 266))
+      + `<rect x="${f1(cx - ps / 2)}" y="${f1(cy - ps / 2)}" width="${f1(ps)}" height="${f1(ps)}" fill="#7a5233" stroke="#3b2414"/>` + T(cx, cy + 5, 'post', { size: 15, fill: '#f3e2cc', anchor: 'middle' }); }
+    case 'E': { const s = R * 1.7, t = R * .26; return `<path d="M${f1(cx - s / 2)},${f1(cy - s / 2)}h${s}v${s}h${-s}Z M${f1(cx - s / 2 + t)},${f1(cy - s / 2 + t)}v${s - 2 * t}h${s - 2 * t}v${-(s - 2 * t)}Z" fill="${SHAFT}" stroke="${SHAFT_LN}" stroke-width="1.5" fill-rule="evenodd"/>`; }
+    case 'K': { const s = R * 1.7, t = R * .26, x0 = cx - s / 2, y0 = cy - s / 2; return wall(x0 - 22, y0 - 18, 22, s + 36)
+      + `<path d="M${f1(x0)},${f1(y0)}h${s}v${s}h${-s}v${-t}h${s - t}v${-(s - 2 * t)}h${-(s - t)}Z" fill="${SHAFT}" stroke="${SHAFT_LN}" stroke-width="1.5"/>`
+      + `<rect x="${f1(x0 + 6)}" y="${f1(cy - s * .2)}" width="${f1(s * .4)}" height="${f1(s * .4)}" fill="#7a5233" stroke="#3b2414"/>`; }
+    default: return '';
+  }
+}
+
+/* ---------- small icons ---------- */
+const ico = {
+  drop: (x, y, s = 1, c = C.blue) => `<path transform="translate(${x},${y}) scale(${s})" d="M0,-22 C10,-8 16,0 16,8 A16,16 0 0 1 -16,8 C-16,0 -10,-8 0,-22Z" fill="${c}"/>`,
+  bug: (x, y, c = C.amber) => `<g transform="translate(${x},${y})" stroke="${c}" stroke-width="2.5" fill="none"><ellipse rx="9" ry="13" fill="${c}"/><path d="M-9,-4 L-18,-10 M-9,4 L-18,8 M9,-4 L18,-10 M9,4 L18,8 M-4,-13 L-8,-21 M4,-13 L8,-21"/><path d="M-22,-24 L22,24" stroke="${C.red}" stroke-width="4"/></g>`,
+  sun: (x, y, rot, c = C.gold) => { let s = `<g transform="translate(${x},${y}) rotate(${rot})"><circle r="16" fill="${c}"/>`; for (let i = 0; i < 8; i++) s += `<rect x="-2.5" y="-30" width="5" height="9" rx="2" fill="${c}" transform="rotate(${i * 45})"/>`; return s + '</g>'; },
+  shield: (x, y, c = C.green) => `<g transform="translate(${x},${y})"><path d="M0,-22 L18,-14 V2 C18,14 8,21 0,24 C-8,21 -18,14 -18,2 V-14Z" fill="none" stroke="${c}" stroke-width="3"/><path d="M-8,1 L-2,7 L9,-6" fill="none" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/></g>`,
+  flame: (x, y, c = C.amber) => `<g transform="translate(${x},${y})"><path d="M0,-24 C10,-12 16,-4 14,8 A14,14 0 0 1 -14,8 C-15,0 -8,-6 -6,-14 C-2,-8 0,-6 2,-2 C4,-10 2,-18 0,-24Z" fill="none" stroke="${c}" stroke-width="3"/><text x="0" y="12" font-size="13" font-weight="800" fill="${c}" text-anchor="middle" font-family="${FONT}">A</text></g>`,
+  house: (x, y, c = C.blue) => `<g transform="translate(${x},${y})" fill="none" stroke="${c}" stroke-width="3"><path d="M-18,0 L0,-16 L18,0 M-13,-4 V16 H13 V-4"/><rect x="-4" y="4" width="8" height="12"/></g>`,
+};
+
+/* ============================================================
+   SCENES — each draw(t) gets scene-local seconds.
+   caps = on-screen narration [startSeconds, text].
+   ============================================================ */
+const SCENES = [];
+const S = (chapter, dur, caps, draw) => SCENES.push({ chapter, dur, caps, draw });
+
+/* 1 — Title */
+S('Welcome', 11, [
+  [0, 'Welcome to Endura-Stone column training from Ekena Millwork.'],
+  [4.5, 'In about seven minutes: what the product is, every option, the plan types, load ratings, and how we compare.'],
+], t => {
+  let s = column({ x: 1440, y: 900, h: 770, d: 150, top: .8125, cap: 'ionic', base: 'attic', flute: true, reveal: prog(t, .3, 2.6) });
+  s += `<ellipse cx="1440" cy="902" rx="${f1(170 * prog(t, .3, 1))}" ry="10" fill="#000" opacity=".35"/>`;
+  s += rise(t, .5, T(140, 360, 'PRODUCT TRAINING  ·  EKENA MILLWORK', { size: 24, w: 700, fill: C.gold, ls: 4 }));
+  s += rise(t, .9, T(132, 480, 'Endura-Stone™', { size: 124, w: 800, ls: -2 }));
+  s += rise(t, 1.2, T(136, 600, 'Columns', { size: 124, w: 300, fill: C.gold, ls: -2 }));
+  s += rise(t, 1.7, TL(140, 680, ['Fiber-reinforced polymer columns: what they are,', 'how to spec them, and how to sell them.'], { size: 34, fill: C.mute }));
+  ['Load-bearing', 'Hollow core', 'Lifetime warranty', 'Class A fire rating'].forEach((c, i) => {
+    const xs = [140, 340, 532, 800][i];
+    s += rise(t, 2.4 + i * .25, chip(xs, 800, c, { size: 22, w: 600 }));
+  });
+  return s;
+});
+
+/* 2 — What it is */
+S('What it is', 24, [
+  [0, 'Endura-Stone is the Ekena Millwork fiberglass column line, manufactured by Pacific Columns, Inc.'],
+  [3.5, 'The shaft is FRP, fiber-reinforced polymer: fiberglass with a marble-dust, crushed-stone filler set in polyester resin.'],
+  [9.5, 'It is rotocast in one piece. The mold spins while the material cures, so the shaft is seamless and hollow.'],
+  [15.5, 'Hollow but load-bearing. The manufacturer\'s claim: pound for pound, FRP is stronger than concrete, steel or aluminum.'],
+  [20.5, 'That hollow core is also what lets a split Endura-Stone column wrap around an existing post.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 2', 'What is Endura-Stone?');
+  s += column({ x: 300, y: 880, h: 640, d: 120, top: .8125, reveal: prog(t, .2, 2.4) });
+  // cross-section
+  const cx = 860, cy = 560, R = 220, r = 184, sc = lerp(.6, 1, prog(t, 2.6, 1.2)), op = prog(t, 2.6, .8);
+  let ring = `<path d="${ringD(cx, cy, R, r)}" fill="#e7e0d2" stroke="#8e8472" stroke-width="2" fill-rule="evenodd"/>`;
+  const rnd = rng(42);
+  for (let i = 0; i < 420; i++) { const a = rnd() * Math.PI * 2, rr = r + 3 + rnd() * (R - r - 6); const big = rnd() < .2;
+    ring += `<circle cx="${f1(cx + rr * Math.cos(a))}" cy="${f1(cy + rr * Math.sin(a))}" r="${big ? 2.6 : 1.4}" fill="${big ? '#b3a68e' : '#fffaf0'}" opacity=".9"/>`; }
+  for (let i = 0; i < 70; i++) { const a = rnd() * Math.PI * 2, rr = r + 6 + rnd() * (R - r - 12), da = (rnd() - .5) * .12;
+    ring += `<line x1="${f1(cx + rr * Math.cos(a))}" y1="${f1(cy + rr * Math.sin(a))}" x2="${f1(cx + rr * Math.cos(a + da))}" y2="${f1(cy + rr * Math.sin(a + da))}" stroke="#c9bfa9" stroke-width="1.6"/>`; }
+  const postOp = prog(t, 20.5, .8);
+  ring += `<rect x="${cx - 70}" y="${cy - 70}" width="140" height="140" fill="#7a5233" stroke="#3b2414" opacity="${postOp}"/>` + T(cx, cy + 8, 'existing post', { size: 20, fill: '#f3e2cc', anchor: 'middle', op: postOp });
+  ring += T(cx, cy + 8, 'hollow core', { size: 24, w: 600, fill: C.mute, anchor: 'middle', op: 1 - postOp });
+  s += G(op, `<g transform="translate(${cx},${cy}) scale(${sc}) translate(${-cx},${-cy})">${ring}</g>`);
+  s += G(op, `<line x1="${300 + 75}" y1="430" x2="${cx - R * sc}" y2="${cy - 40}" stroke="${C.dim}" stroke-dasharray="6 6"/>`);
+  s += G(op, T(cx, 300, 'SHAFT CROSS-SECTION', { size: 19, w: 700, fill: C.dim, anchor: 'middle', ls: 3 }));
+  // material labels 3.5 → 9
+  const lab = [['Fiberglass reinforcement', 'strength in a thin wall', -.5], ['Marble dust / crushed stone', 'calcium-carbonate filler', .1], ['Polyester resin', 'binds it into synthetic stone', .7]];
+  const outL = 1 - prog(t, 9, .6);
+  lab.forEach((l, i) => {
+    const o = prog(t, 3.8 + i * .9, .6) * outL, a = l[2], px = cx + (R - 18) * Math.cos(a), py = cy + (R - 18) * Math.sin(a), ly = 400 + i * 130;
+    s += G(o, `<circle cx="${f1(px)}" cy="${f1(py)}" r="7" fill="${C.gold}"/><polyline points="${f1(px)},${f1(py)} 1160,${ly} 1190,${ly}" fill="none" stroke="${C.gold}" stroke-width="2"/>`
+      + T(1205, ly + 4, l[0], { size: 32, w: 700 }) + T(1205, ly + 42, l[1], { size: 24, fill: C.mute }));
+  });
+  // rotocast 9.5 → 15
+  const ro = prog(t, 9.5, .7) * (1 - prog(t, 15.3, .6));
+  if (ro > 0) {
+    const mx = 1500, my = 560, rot = (t - 9.5) * 140, build = clamp((t - 10) / 4.5);
+    let m = `<circle cx="${mx}" cy="${my}" r="170" fill="#203246" stroke="#3d5670" stroke-width="10"/>`;
+    m += `<path d="${ringD(mx, my, 165, 165 - 6 - 26 * build)}" fill="#e7e0d2" fill-rule="evenodd"/>`;
+    m += `<g transform="rotate(${f1(rot)} ${mx} ${my})"><path d="M${mx + 200},${my} A200,200 0 0 1 ${mx},${my + 200}" fill="none" stroke="${C.gold}" stroke-width="5"/><path d="M${mx - 12},${my + 190} L${mx},${my + 200} L${mx - 12},${my + 212}" fill="none" stroke="${C.gold}" stroke-width="5"/>`
+      + `<path d="M${mx - 200},${my} A200,200 0 0 1 ${mx},${my - 200}" fill="none" stroke="${C.gold}" stroke-width="5"/><path d="M${mx + 12},${my - 212} L${mx},${my - 200} L${mx + 12},${my - 188}" fill="none" stroke="${C.gold}" stroke-width="5"/></g>`;
+    m += T(mx, 330, 'ROTOCASTING', { size: 22, w: 800, fill: C.gold, anchor: 'middle', ls: 3 });
+    m += TL(mx, 800, ['Mold spins → material coats the walls', '→ one-piece, seamless, hollow shaft'], { size: 24, fill: C.mute, anchor: 'middle' });
+    s += G(ro, m);
+  }
+  // claim card 15.5 →
+  const co = prog(t, 15.6, .7);
+  s += G(co, rect(1180, 360, 640, 290, { fill: C.panel, stroke: C.gold, sw: 2 }) + T(1215, 412, 'MANUFACTURER CLAIM', { size: 19, w: 800, fill: C.gold, ls: 3 })
+    + TL(1215, 470, ['Pound for pound, FRP is', 'stronger than concrete,', 'steel or aluminum.'], { size: 38, w: 700, lh: 50 }), 0, (1 - co) * 20);
+  s += G(prog(t, 20.6, .6), chip(1180, 720, 'Hollow core → split plans can wrap a post', { size: 24, w: 600, stroke: C.blue, color: C.ink }));
+  return s;
+});
+
+/* 3 — Built to last */
+S('Built to last', 20, [
+  [0, 'It is a polymer, not wood, so Endura-Stone will not rot, decay or absorb moisture, and insects cannot damage it.'],
+  [6.5, 'The paint-ready surface resists peeling, fading and cracking. It is rated for interior and exterior use.'],
+  [13, 'It carries a lifetime warranty and a Class A fire rating. Lead with both on every quote.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 3', 'Built to last outdoors');
+  const cx = 960;
+  s += column({ x: cx, y: 880, h: 640, d: 130, top: .8125, cap: 'doric', reveal: prog(t, .1, 1.8) });
+  // rain
+  const ro = prog(t, .6, .8) * (1 - prog(t, 10, 1));
+  if (ro > 0) { let r = ''; for (let i = 0; i < 46; i++) { const x = 760 + (i * 89) % 400, y = 250 + ((t * 620 + i * 131) % 600); r += `<line x1="${x}" y1="${f1(y)}" x2="${x - 5}" y2="${f1(y + 26)}" stroke="${C.blue}" stroke-width="2.4" opacity=".55"/>`; } s += G(ro, r); }
+  s += G(prog(t, 6.5, .8), ico.sun(1160, 300, t * 25));
+  const feats = [[.6, ico.drop(0, 0, 1.1), 'No rot, decay or moisture uptake'], [2.2, ico.bug(0, 0), 'Insects can\'t damage it'], [6.6, `<g>${ico.sun(0, 0, 0, C.gold)}</g>`, 'Resists peeling, fading, cracking'], [8.4, ico.house(0, 0), 'Interior or exterior']];
+  feats.forEach(([a, ic, txt], i) => {
+    const y = 300 + i * 130;
+    s += rise(t, a, rect(110, y - 50, 600, 100, { fill: C.panel, stroke: C.line }) + `<g transform="translate(168,${y})">${ic}</g>` + T(222, y + 11, txt, { size: 28, w: 600 }));
+  });
+  const bad = [[13, ico.shield(0, 0), 'Lifetime warranty', 'say it on every quote'], [14.3, ico.flame(0, 0), 'Class A fire rating', 'per Ekena retailer listings'], [15.6, `<g>${ico.shield(0, 0, C.blue)}</g>`, 'Load-bearing or decorative', 'depends on plan type (ch. 8)']];
+  bad.forEach(([a, ic, t1, t2], i) => {
+    const y = 300 + i * 150;
+    s += rise(t, a, rect(1230, y - 60, 590, 120, { fill: C.panel, stroke: C.green, sw: 2 }) + `<g transform="translate(1290,${y})">${ic}</g>` + T(1340, y - 4, t1, { size: 32, w: 800 }) + T(1340, y + 32, t2, { size: 22, fill: C.mute }));
+  });
+  return s;
+});
+
+/* 4 — Shaft styles */
+S('Shaft styles', 24, [
+  [0, 'Three shaft shapes: round tapered, round non-tapered, and square.'],
+  [5, 'Round shafts come plain or fluted. On most 8-, 10- and 12-inch tapered shafts the flutes are molded right in.'],
+  [10, 'Square shafts are sold as the Endura-Stone Pro Series, in plain, fluted and panel styles.'],
+  [15.5, 'On a tapered shaft the top is narrower than the bottom. An 8-inch shaft tapers to 6½ inches at the top.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 4', 'Shaft styles');
+  const cols = [
+    { x: 250, a: .3, o: { top: .8125, cap: 'tuscan' }, n: 'Round tapered', sub: 'plain · e.g. ES1008RTPSATUTU' },
+    { x: 610, a: 5, o: { top: .8125, cap: 'tuscan', flute: true }, n: 'Round tapered', sub: 'fluted · e.g. ES1008ATFSATUTU' },
+    { x: 970, a: 1.5, o: { top: 1, cap: 'tuscan' }, n: 'Round non-tapered', sub: 'e.g. ES1206RNPSATUTU' },
+    { x: 1330, a: 10, o: { top: 1, shape: 'square', cap: 'tuscan', base: 'pedestal' }, n: 'Square · Pro Series', sub: 'e.g. ESP0808ENPSATUPED' },
+    { x: 1690, a: 11, o: { top: 1, shape: 'square', cap: 'craftsman', base: 'craftsman', flute: true }, n: 'Square fluted · Pro', sub: 'e.g. ESP0610KNFSACRCR' },
+  ];
+  cols.forEach(c => {
+    s += column(Object.assign({ x: c.x, y: 810, h: 560, d: 110, reveal: prog(c.a > 0 ? t : 0, c.a, 1.6) }, c.o));
+    s += rise(t, c.a + .8, T(c.x, 856, c.n, { size: 26, w: 700, anchor: 'middle' }) + T(c.x, 888, c.sub, { size: 18, fill: C.mute, anchor: 'middle' }));
+  });
+  const to = prog(t, 15.6, .7);
+  s += G(to, rect(1090, 112, 720, 104, { fill: C.panel, stroke: C.gold, sw: 2 }) + T(1120, 152, 'VERIFIED TAPERS  (bottom → top)', { size: 18, w: 800, fill: C.gold, ls: 2 })
+    + T(1120, 192, '6″→4¾″   8″→6½″   16″→13½″   24″→20″', { size: 30, w: 700 }));
+  return s;
+});
+
+/* 5 — Entasis */
+S('True entasis', 18, [
+  [0, 'Entasis is the subtle outward curve classical builders gave their columns.'],
+  [5, 'A perfectly straight-sided shaft can look pinched from a distance. Entasis corrects that, so the column reads straight and strong.'],
+  [11, 'Heads up: Home Depot calls it \'Architectural Taper.\' Same shaft. ESK0810ATPSATUTU is sold under both names.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 5', 'True entasis taper');
+  s += column({ x: 470, y: 830, h: 560, d: 170, top: .7, taper: 'linear', reveal: prog(t, .3, 1.5) });
+  s += rise(t, 1.2, T(470, 872, 'Straight-sided taper', { size: 26, w: 700, anchor: 'middle' }) + T(470, 902, 'can read thin, even concave', { size: 20, fill: C.mute, anchor: 'middle' }));
+  const cx = 1450, y = 830, h = 560, d = 170, top = .7;
+  s += column({ x: cx, y, h, d, top, reveal: prog(t, 2, 1.5) });
+  // highlight the entasis profile vs a straight chord (exaggerated)
+  const rb = d / 2, rt = rb * top, baseH = BASEK.tuscan * rb, capH = CAPK.tuscan * rt, y0 = y - baseH, y1 = y - h + capH, sh = y0 - y1;
+  const Rf = q => { const u = q < 1 / 3 ? 0 : (q - 1 / 3) / (2 / 3); return rb - (rb - rt) * (1 - Math.cos(u * Math.PI / 2)); };
+  const po = prog(t, 4.2, 1.2), n = Math.round(40 * po); const pts = [];
+  for (let i = 0; i <= n; i++) { const q = i / 40; pts.push(f1(cx - Rf(q) - 10) + ',' + f1(y0 - q * sh)); }
+  if (n > 1) s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${C.gold}" stroke-width="5" stroke-linecap="round"/>`;
+  s += G(prog(t, 5, .8), `<line x1="${cx - rb - 10}" y1="${y0}" x2="${cx - rt - 10}" y2="${y1}" stroke="${C.mute}" stroke-dasharray="8 8" stroke-width="2"/>`
+    + `<line x1="${cx - rb - 40}" y1="${f1(y0 - sh / 3)}" x2="${cx - rb + 4}" y2="${f1(y0 - sh / 3)}" stroke="${C.gold}" stroke-width="2"/>` + T(cx - rb - 50, y0 - sh / 3 + 7, 'curve begins', { size: 18, fill: C.gold, anchor: 'end' }));
+  s += rise(t, 3, T(cx, 872, 'True entasis', { size: 26, w: 700, anchor: 'middle', fill: C.gold }) + T(cx, 902, 'convex curve, reads straight & strong', { size: 20, fill: C.mute, anchor: 'middle' }));
+  s += foot('taper exaggerated for clarity', prog(t, 5, .6), 1450, 250, 'middle');
+  const go = prog(t, 11, .7);
+  s += G(go, rect(640, 330, 520, 300, { fill: C.panel, stroke: C.amber, sw: 2 }) + T(668, 380, 'SAME SHAFT, TWO NAMES', { size: 19, w: 800, fill: C.amber, ls: 2 })
+    + T(668, 440, '“True Entasis Taper”', { size: 32, w: 700 }) + T(668, 474, 'Ekena · Amazon · Architectural Depot', { size: 20, fill: C.mute })
+    + T(668, 530, '“Architectural Taper”', { size: 32, w: 700 }) + T(668, 564, 'The Home Depot', { size: 20, fill: C.mute })
+    + T(668, 606, 'e.g. ESK0810ATPSATUTU', { size: 20, fill: C.gold, fam: MONO }), 0, (1 - go) * 20);
+  return s;
+});
+
+/* 6 — Sizes (to scale) */
+S('Sizes', 18, [
+  [0, 'Diameters run from 6 to 24 inches, and heights reach 24 feet.'],
+  [6, 'This lineup is drawn to scale next to a six-foot person. Every column shown is a real SKU.'],
+  [12, 'From a small porch column to a two-story portico, it is one product line and one supplier.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 6', 'Sizes, drawn to scale');
+  const fl = 840, ppf = 30;
+  s += `<line x1="100" y1="${fl}" x2="1820" y2="${fl}" stroke="${C.line}" stroke-width="2"/>`;
+  for (let ft = 0; ft <= 18; ft += 2) { const y = fl - ft * ppf; s += `<line x1="112" y1="${y}" x2="${ft % 4 ? 122 : 130}" y2="${y}" stroke="${C.dim}"/>` + (ft % 4 ? '' : T(102, y + 6, ft + '′', { size: 16, fill: C.dim, anchor: 'end' })); }
+  // 6 ft person
+  const px = 230, ph = 6 * ppf;
+  s += rise(t, .3, `<g fill="${C.dim}"><circle cx="${px}" cy="${fl - ph + 13}" r="13"/><path d="M${px - 20},${fl - ph + 32} h40 l6,78 h-12 l-4,-50 v${ph - 120} h-12 v${-(ph - 150)} h-4 v${ph - 150} h-12 v${-(ph - 120)} l-4,50 h-12 Z"/></g>` + T(px, fl + 28, '6′ person', { size: 17, fill: C.dim, anchor: 'middle' }));
+  const L = [
+    { x: 400, dia: 8, ft: 5, top: .8125, sku: 'ESK0805ATPSATUTU' },
+    { x: 600, dia: 10, ft: 8, top: .83, sku: 'ES1008RTPSATUTU' },
+    { x: 820, dia: 12, ft: 12, top: .83, sku: 'ES1212ATFSAATRC', cap: 'corinthian', base: 'attic', flute: true },
+    { x: 1060, dia: 16, ft: 9, top: .844, sku: 'ES1609ATPSATURD', cap: 'doric' },
+    { x: 1330, dia: 20, ft: 16, top: .83, sku: 'ES2016RTPSAATRC', cap: 'corinthian', base: 'attic' },
+    { x: 1640, dia: 24, ft: 18, top: .833, sku: '24″→20″ × 18′ (Plan A)' },
+  ];
+  L.forEach((c, i) => {
+    const a = .6 + i * .9;
+    s += column({ x: c.x, y: fl, h: c.ft * ppf, d: c.dia / 12 * ppf, top: c.top, cap: c.cap || 'tuscan', base: c.base || 'tuscan', flute: !!c.flute, reveal: prog(t, a, 1.4) });
+    s += rise(t, a + .6, T(c.x, fl + 30, `${c.dia}″ × ${c.ft}′`, { size: 22, w: 700, anchor: 'middle' }) + T(c.x, fl + 56, c.sku, { size: 15, fill: C.mute, anchor: 'middle', fam: c.sku.startsWith('E') ? MONO : FONT }));
+  });
+  s += G(prog(t, 1, .7), chip(1810, 150, 'Line range: 6″–24″ wide · up to 24′ tall', { size: 24, w: 700, anchor: 'end', stroke: C.gold }));
+  return s;
+});
+
+/* 7 — Capitals & bases */
+S('Capitals & bases', 30, [
+  [0, 'The capital is where the style comes from. Tuscan is the standard.'],
+  [5, 'Upgrades include Roman Doric Ornamental, Roman Ionic, Scamozzi and Roman Corinthian, plus Greek Angular Ionic, Greek Erechtheum and Empire.'],
+  [14, 'Round columns take Tuscan or Attic bases. The square Pro Series adds Pedestal and Craftsman bases.'],
+  [22, 'Capital and base materials vary by SKU: FRP, polyurethane, or TimeSaver fiber-reinforced ABS. Quote what the listing says.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 7', 'Capitals & bases');
+  const out1 = 1 - prog(t, 13.4, .7);
+  if (out1 > 0) {
+    const caps = [['tuscan', 'Tuscan', 'TU · standard'], ['doric', 'Roman Doric Ornamental', 'RD'], ['ionic', 'Roman Ionic', 'RI'], ['scamozzi', 'Scamozzi', 'SC'], ['corinthian', 'Roman Corinthian', 'RC']];
+    caps.forEach((c, i) => {
+      const x = 260 + i * 350, a = i === 0 ? .3 : 5 + (i - 1) * .9, u = 74, y = 560, id = 'cs' + i;
+      const g = `<defs>${gradDef(id, x, u * 1.7, PAL.stone)}<linearGradient id="${id}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="${id}m"><rect x="${x - 200}" y="${y}" width="400" height="110" fill="url(#${id}f)"/></mask></defs>`
+        + `<rect x="${x - u}" y="${y}" width="${2 * u}" height="110" fill="url(#${id})" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>` + capSvg(c[0], x, y, u, `url(#${id})`, PAL.stone.line);
+      s += G(out1, rise(t, a, g + T(x, 714, c[1], { size: 26, w: 700, anchor: 'middle' }) + chip(x, 756, c[2], { size: 18, anchor: 'middle', color: C.gold })));
+    });
+    s += G(out1, rise(t, 9.5, T(960, 840, 'Also listed: Greek Angular Ionic · Greek Erechtheum · Empire · Craftsman (square)', { size: 24, fill: C.mute, anchor: 'middle' })));
+  }
+  const in2 = prog(t, 14, .7);
+  if (in2 > 0) {
+    const bases = [['tuscan', 'Tuscan', 'ES1008RTPSATUTU', 'round'], ['attic', 'Attic', 'ES2016RTPSAATRC', 'round'], ['pedestal', 'Pedestal', 'ESP0808ENPSATUPED', 'square'], ['craftsman', 'Craftsman', 'ESP0610KNFSACRCR', 'square']];
+    bases.forEach((b, i) => {
+      const x = 330 + i * 420, rb = 62, y = 590, id = 'bs' + i;
+      const stub = b[3] === 'round' ? `<rect x="${x - rb}" y="${y - BASEK[b[0]] * rb - 140}" width="${2 * rb}" height="140" fill="url(#${id})" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>`
+        : `<rect x="${x - rb}" y="${y - BASEK[b[0]] * rb - 140}" width="${2 * rb}" height="140" fill="#ece6da" stroke="${PAL.stone.line}" mask="url(#${id}m)"/>`;
+      const top = y - BASEK[b[0]] * rb - 140;
+      const g = `<defs>${gradDef(id, x, rb * 1.7, PAL.stone)}<linearGradient id="${id}f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="${id}m"><rect x="${x - 200}" y="${top}" width="400" height="140" fill="url(#${id}f)"/></mask></defs>`
+        + stub + baseSvg(b[0], x, y, rb, b[3] === 'round' ? `url(#${id})` : '#ece6da', PAL.stone.line);
+      s += rise(t, 14.3 + i * .6, g + T(x, 640, b[1] + ' base', { size: 26, w: 700, anchor: 'middle' }) + T(x, 672, b[2], { size: 17, fill: C.mute, anchor: 'middle', fam: MONO })
+        + chip(x, 712, b[3] === 'round' ? 'round shafts' : 'square Pro Series', { size: 17, anchor: 'middle', color: b[3] === 'round' ? C.blue : C.gold }));
+    });
+    const no = prog(t, 22, .7);
+    s += G(no, rect(160, 760, 1600, 104, { fill: C.panel, stroke: C.amber, sw: 2 })
+      + T(190, 800, 'Materials vary by SKU.  ES1008RTPSATUTU: FRP Tuscan base (13½″ plinth) + polyurethane Tuscan capital (12⅛″ abacus).', { size: 22, w: 600 })
+      + T(190, 838, 'Standard Tuscan cap & base on 8″/10″/12″ round tapered shafts: TimeSaver™ fiber-reinforced ABS.  Quote the listing.', { size: 22, fill: C.mute }));
+  }
+  s += foot('capital & base drawings are schematic', prog(t, .5, .5) * (1 - prog(t, 21.5, .5)));
+  return s;
+});
+
+/* 8 — Plan types */
+S('Plan types', 42, [
+  [0, 'Plan type is the most important letter in the part number. It tells you how the column is cut.'],
+  [4, 'Plan A is whole and unsplit. It is the only round plan with a load rating.'],
+  [9, 'B, C, D and Q are cut for walls and corners: B for an outside corner, C as a ¾ pilaster, D split in half, Q for an inside corner.'],
+  [18, 'Plan R arrives with every component split, so it can be reassembled around an existing post.'],
+  [23, 'For square Pro Series: E is whole. K is cut out for a wall wrap, and L for an outside flush wall wrap.'],
+  [30, 'The rule: only whole columns carry load. Split or cut columns are decorative. The post inside or the wall behind does the work.'],
+  [37, 'Never hang a railing on a split column. Fasten it to the structure inside or behind.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 8', 'Plan types: how the column is cut');
+  const rule = prog(t, 30, .8);
+  const round = [['A', 'Unsplit / whole', 'load', 4], ['B', '¼ cut · outside corner', 'deco', 9.5], ['C', '¼ cut · pilaster (¾ col.)', 'deco', 11], ['D', 'Split in ½ · pilasters', 'deco', 12.5], ['Q', '¼ cut · inside corner', 'deco', 14], ['R', 'All split · wrap a post', 'deco', 18]];
+  const card = (L, name, kind, a, x, y, sq) => {
+    const lit = kind === 'load' ? 1 : 1 - .45 * rule;
+    const stroke = kind === 'load' && rule > 0 ? C.green : C.line;
+    return rise(t, a, G(lit, rect(x - 140, y, 280, 320, { fill: C.panel, stroke, sw: kind === 'load' && rule > 0 ? 3 : 1.5 })
+      + plan(L, x + (L === 'B' || L === 'Q' ? -14 : L === 'C' || L === 'D' || L === 'K' ? 14 : 0), y + 110 + (L === 'B' ? 12 : L === 'Q' ? -24 : 0), sq ? 62 : 72)
+      + T(x, y + 232, 'Plan ' + L, { size: 30, w: 800, anchor: 'middle', fill: kind === 'load' ? C.green : C.ink }) + T(x, y + 262, name, { size: 18, fill: C.mute, anchor: 'middle' }) + badge(x, y + 296, kind)));
+  };
+  round.forEach((p, i) => { s += card(p[0], p[1], p[2], p[3], 190 + i * 308, 222, false); });
+  s += card('E', 'Square · unsplit / whole', 'load', 23, 190, 562, true);
+  s += card('K', 'Square · cut for wall wrap', 'deco', 24.2, 498, 562, true);
+  s += rise(t, 25.4, G(1 - .45 * rule, rect(666, 562, 280, 320, { fill: C.panel, stroke: C.line, rx: 14, extra: 'stroke-dasharray="8 8"' })
+    + T(806, 690, 'Plan L', { size: 30, w: 800, anchor: 'middle' }) + TL(806, 730, ['Square · cut out for', 'outside flush wall wrap'], { size: 18, fill: C.mute, anchor: 'middle', lh: 24 })
+    + T(806, 802, 'see SKU line drawing', { size: 16, fill: C.dim, anchor: 'middle' }) + badge(806, 858, 'deco')));
+  s += G(rule, rect(990, 562, 820, 320, { fill: '#10261c', stroke: C.green, sw: 3 })
+    + T(1025, 616, 'THE RULE', { size: 20, w: 800, fill: C.green, ls: 3 })
+    + TL(1025, 670, ['Only whole columns carry load:', 'Plan A (round) · Plan E (square).'], { size: 32, w: 800, lh: 42 })
+    + TL(1025, 770, ['Split / cut plans are decorative. The post inside or', 'the wall behind carries the load.'], { size: 22, fill: C.mute, lh: 30 })
+    + G(prog(t, 37, .6), T(1025, 850, 'Never fasten railings to a split column.', { size: 24, w: 700, fill: C.amber })), 0, (1 - rule) * 20);
+  s += foot('plan diagrams are schematic, top-down; confirm on the SKU line drawing', prog(t, 9, .6) * (1 - rule));
+  return s;
+});
+
+/* 9 — Loads */
+S('Load ratings', 32, [
+  [0, 'Now the numbers. These are the manufacturer\'s calculated safe loads for whole, Plan A columns.'],
+  [4, 'A concentric load sits on the column\'s center line. An eccentric load is off-center, so its rating is lower.'],
+  [12, '8-inch: 10,000 pounds concentric. 10-inch: 14,000. 12-inch: 18,000. 14 inches and up: 20,000.'],
+  [22, 'To hit those numbers, the load has to bear evenly across the whole top and bottom of the shaft.'],
+  [27, 'Quote the rating for the exact SKU, and send structural questions to the project\'s engineer.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 9', 'Load ratings (Plan A, unsplit)');
+  const cx = 330, fl = 880;
+  s += `<rect x="120" y="396" width="420" height="44" fill="#6b4a2f" stroke="#3b2414" opacity="${prog(t, .3, .6)}"/>`;
+  s += column({ x: cx, y: fl, h: 440, d: 110, top: .8125, reveal: prog(t, .2, 1.4) });
+  const ca = prog(t, 4.2, .6) * (1 - prog(t, 8.3, .4) * .7), ea = prog(t, 8.4, .6);
+  const arrow = (x, y, c, w = 14) => `<line x1="${x}" y1="${y - 110}" x2="${x}" y2="${y - 22}" stroke="${c}" stroke-width="${w}"/><path d="M${x - 28},${y - 34} L${x},${y} L${x + 28},${y - 34}Z" fill="${c}"/>`;
+  s += G(ca, arrow(cx, 394 + Math.sin(t * 4) * 3, C.blue) + T(cx - 40, 300, 'Concentric', { size: 26, w: 800, fill: C.blue, anchor: 'end' }) + T(cx - 40, 330, 'on the center line', { size: 19, fill: C.mute, anchor: 'end' }));
+  s += G(ea, arrow(cx + 80, 394 + Math.sin(t * 4 + 1) * 3, C.gold, 10) + T(cx + 120, 300, 'Eccentric', { size: 26, w: 800, fill: C.gold }) + T(cx + 120, 330, 'off-center', { size: 19, fill: C.mute }));
+  // chart
+  const x0 = 780, x1 = 1800, base = 820, top = 330, max = 20000, yv = v => base - (v / max) * (base - top);
+  s += G(prog(t, 11.6, .6), [5000, 10000, 15000, 20000].map(v => `<line x1="${x0}" y1="${yv(v)}" x2="${x1}" y2="${yv(v)}" stroke="${C.line}" stroke-dasharray="4 6"/>` + T(x0 - 10, yv(v) + 6, (v / 1000) + 'k', { size: 17, fill: C.dim, anchor: 'end' })).join('')
+    + `<line x1="${x0}" y1="${base}" x2="${x1}" y2="${base}" stroke="${C.mute}" stroke-width="2"/>`
+    + `<rect x="${x0 + 10}" y="282" width="18" height="18" fill="${C.blue}"/>` + T(x0 + 36, 298, 'Concentric', { size: 19, fill: C.ink }) + `<rect x="${x0 + 180}" y="282" width="18" height="18" fill="${C.gold}"/>` + T(x0 + 206, 298, 'Eccentric', { size: 19, fill: C.ink }));
+  const data = [['8″', 10000, 6600], ['10″', 14000, 10720], ['12″', 18000, 13200], ['14″–24″', 20000, null]];
+  data.forEach((d, i) => {
+    const gx = x0 + 60 + i * 250, a = 12 + i * 1.6, pc = prog(t, a, 1.1), pe = prog(t, a + .4, 1.1);
+    const hc = (base - yv(d[1])) * pc;
+    s += `<rect x="${gx}" y="${f1(base - hc)}" width="86" height="${f1(hc)}" fill="${C.blue}" rx="4"/>` + T(gx + 43, base - hc - 12, d[1].toLocaleString('en-US'), { size: 21, w: 800, anchor: 'middle', op: pc });
+    if (d[2]) { const he = (base - yv(d[2])) * pe; s += `<rect x="${gx + 96}" y="${f1(base - he)}" width="86" height="${f1(he)}" fill="${C.gold}" rx="4"/>` + T(gx + 139, base - he - 12, d[2].toLocaleString('en-US'), { size: 21, w: 800, anchor: 'middle', op: pe }); }
+    else s += TL(gx + 139, base - 70, ['varies by', 'size: see', 'spec chart'], { size: 16, fill: C.dim, anchor: 'middle', op: pe, lh: 20 });
+    s += T(gx + 91, base + 34, d[0] + ' dia.', { size: 22, w: 700, anchor: 'middle', op: prog(t, a, .4) });
+  });
+  s += G(prog(t, 22, .7), chip(1290, 880, 'Load must bear evenly on the full top & bottom of the shaft', { size: 22, anchor: 'middle', stroke: C.green }));
+  s += G(prog(t, 27, .7), chip(1810, 228, 'Plan A / unsplit only · manufacturer\'s calculated safe load · confirm per SKU', { size: 18, anchor: 'end', color: C.mute }));
+  return s;
+});
+
+/* 10 — Part number */
+S('Reading a SKU', 34, [
+  [0, 'Every Endura-Stone SKU reads like a sentence. Let\'s read one.'],
+  [3, 'ES is Endura-Stone. 10 is the bottom shaft diameter in inches, and 08 is the overall height in feet.'],
+  [8.5, 'R is the plan type. T is true entasis taper, P a plain shaft, S a smooth finish, and A ready to paint.'],
+  [14, 'The last two codes are the base, then the capital. TU and TU: Tuscan base, Tuscan capital.'],
+  [19, 'Try ES2016RTPSAATRC: 20 inches by 16 feet, Plan R, tapered, plain, with an Attic base and a Roman Corinthian capital.'],
+  [25, 'Your turn: ES1609ATPSATURD.'],
+  [29, '16 inches by 9 feet, Plan A and load-bearing, Tuscan base, Roman Doric capital. Always confirm the capital and base in the title.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 10', 'Reading a part number');
+  const groups = [['ES', 'Endura-Stone', C.gold, 3], ['10', '10″ dia.', C.blue, 4], ['08', '8′ tall', C.blue, 5.2], ['R', 'Plan R', C.green, 8.6], ['T', 'Taper', C.ink, 9.6], ['P', 'Plain', C.ink, 10.6], ['S', 'Smooth', C.ink, 11.6], ['A', 'Paint-ready', C.ink, 12.6], ['TU', 'Tuscan base', C.amber, 14.2], ['TU', 'Tuscan capital', C.amber, 15.2]];
+  const cw = 60.2, gap = 38 * prog(t, 1.4, 1.4), size = 100, yy = 360;
+  const total = groups.reduce((a, g) => a + g[0].length * cw, 0) + gap * (groups.length - 1);
+  let x = 960 - total / 2;
+  groups.forEach((g, i) => {
+    const w = g[0].length * cw, on = prog(t, g[3], .5), cxg = x + w / 2;
+    s += T(x, yy, g[0], { size, w: 700, fam: MONO, fill: on > .5 ? g[2] : C.ink, op: prog(t, .2, .6) });
+    s += G(on, `<rect x="${f1(x + 2)}" y="${yy + 18}" width="${f1(w - 4)}" height="6" rx="3" fill="${g[2]}"/>`);
+    const ly = i % 2 ? 492 : 444;
+    s += G(on, `<line x1="${f1(cxg)}" y1="${yy + 26}" x2="${f1(cxg)}" y2="${ly - 26}" stroke="${g[2]}" stroke-width="1.5"/>` + T(cxg, ly, g[1], { size: 22, w: 700, fill: g[2], anchor: 'middle' }), 0, (1 - on) * 10);
+    x += w + gap;
+  });
+  const e2 = prog(t, 19, .7);
+  s += G(e2, rect(160, 560, 1600, 120, { fill: C.panel, stroke: C.line }) + T(196, 612, 'ES2016RTPSAATRC', { size: 40, w: 700, fam: MONO, fill: C.gold })
+    + T(196, 656, '20″ dia · 16′ · Plan R · taper · plain · smooth · paint-ready · Attic base · Roman Corinthian capital', { size: 23, fill: C.mute }), 0, (1 - e2) * 16);
+  const q = prog(t, 25, .7), ans = prog(t, 29, .7);
+  s += G(q, rect(160, 704, 1600, 140, { fill: C.panel, stroke: ans > 0 ? C.green : C.gold, sw: 2 }) + T(196, 752, 'YOUR TURN', { size: 18, w: 800, fill: C.gold, ls: 3 })
+    + T(380, 754, 'ES1609ATPSATURD', { size: 40, w: 700, fam: MONO }) + G(1 - ans, T(196, 808, '…pause and decode it', { size: 23, fill: C.dim }))
+    + G(ans, T(196, 808, '16″ dia · 9′ · Plan A (load-bearing) · taper · plain · smooth · paint-ready · Tuscan base · Roman Doric Ornamental capital', { size: 22, w: 600, fill: C.green })), 0, (1 - q) * 16);
+  s += foot('Pattern derived from catalog titles. ESP… = Pro Series (square). Titles win: ESP0810KNPSATUPED = Tuscan capital + pedestal base.', prog(t, 19, .6));
+  return s;
+});
+
+/* 11 — Install */
+S('Installation', 34, [
+  [0, 'Installation basics, from the Endura-Stone installation guide.'],
+  [3, 'Measure plumb, from the load surface to the underside of the beam.'],
+  [7.5, 'Trim from the bottom of the shaft, ¼ to ½ inch short, with an abrasive blade. How much you can trim depends on the SKU.'],
+  [13, 'Slide the base on. Put construction adhesive on top of the capital and under the base, and square the base to the load surface.'],
+  [19, 'Outdoors, flash the top: lead, copper, aluminum or galvanized flashing, cut slightly larger than the cap, with the edges folded down.'],
+  [24.5, 'Split columns use Split Kit 72665: six locking straps, six ⅛-inch spacers and a quart of body filler. Use two kits over 12 feet or 14 inches.'],
+  [30.5, 'Always follow the guide that ships with the SKU.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 11', 'Installation essentials');
+  const steps = [
+    [3, 'Measure plumb', ['Load surface to the underside', 'of the beam, at the column spot.']],
+    [7.5, 'Trim from the bottom', ['¼″–½″ shorter than measured.', 'Abrasive blade. Allowance is per SKU', '(ES1008RTPSATUTU: up to 34 11/16″).']],
+    [13, 'Set base & capital', ['Construction adhesive on top of the', 'capital and under the base. Square the', 'base; load bears on the full shaft ends.']],
+    [19, 'Flash the top (exterior)', ['Lead / copper / aluminum / galvanized,', 'cut slightly larger than the cap,', 'edges folded down.']],
+    [24.5, 'Split kit #72665', ['6 nylon locking straps · 6 × ⅛″ spacers', '· 1 qt body filler. Two kits over', '12′ tall or 14″ diameter.']],
+    [30.5, 'Follow the SKU\'s guide', ['Pilasters: L-brackets top & bottom,', 'pre-drill, don\'t over-tighten.', 'No railings on split columns.']],
+  ];
+  const icon = (i, x, y, tt) => {
+    switch (i) {
+      case 0: return `<g stroke="${C.blue}" stroke-width="3" fill="none"><line x1="${x}" y1="${y - 46}" x2="${x}" y2="${y + 34}" stroke-dasharray="6 5"/><line x1="${x - 30}" y1="${y - 48}" x2="${x + 30}" y2="${y - 48}"/></g><path d="M${x - 10},${y + 30} L${x + 10},${y + 30} L${x},${y + 50}Z" fill="${C.blue}"/>`;
+      case 1: { let g = `<rect x="${x - 26}" y="${y - 50}" width="52" height="80" fill="#e9e3d7" stroke="#8e8472"/><line x1="${x - 40}" y1="${y + 14}" x2="${x + 40}" y2="${y + 14}" stroke="${C.red}" stroke-dasharray="6 4" stroke-width="2"/><g transform="rotate(${f1(tt * 200)} ${x + 52} ${y + 14})"><circle cx="${x + 52}" cy="${y + 14}" r="22" fill="none" stroke="${C.mute}" stroke-width="3"/>`; for (let k = 0; k < 12; k++) g += `<line x1="${x + 52}" y1="${y - 8}" x2="${x + 52}" y2="${y - 14}" stroke="${C.mute}" stroke-width="3" transform="rotate(${k * 30} ${x + 52} ${y + 14})"/>`; return g + '</g>'; }
+      case 2: return `<rect x="${x - 22}" y="${y - 50}" width="44" height="54" fill="#e9e3d7" stroke="#8e8472"/>` + baseSvg('tuscan', x, y + 40, 26, '#e9e3d7', '#8e8472') + [0, 1, 2, 3, 4].map(k => `<circle cx="${x - 24 + k * 12}" cy="${y + 8}" r="4" fill="${C.gold}"/>`).join('');
+      case 3: return capSvg('tuscan', x, y + 30, 30, '#e9e3d7', '#8e8472') + `<path d="M${x - 52},${y + 6} V${y - 6} H${x + 52} V${y + 6}" fill="none" stroke="${C.blue}" stroke-width="5"/>`;
+      case 4: return `<path d="${sectorD(x, y, 44, 34, -84, 84)}" fill="#e9e3d7" stroke="#8e8472"/><path d="${sectorD(x, y, 44, 34, 96, 264)}" fill="#e9e3d7" stroke="#8e8472"/><circle cx="${x}" cy="${y}" r="52" fill="none" stroke="${C.gold}" stroke-width="3" stroke-dasharray="10 6"/>`;
+      default: return `<rect x="${x - 30}" y="${y - 40}" width="60" height="80" rx="4" fill="none" stroke="${C.green}" stroke-width="3"/><line x1="${x - 18}" y1="${y - 20}" x2="${x + 18}" y2="${y - 20}" stroke="${C.green}" stroke-width="3"/><line x1="${x - 18}" y1="${y}" x2="${x + 18}" y2="${y}" stroke="${C.green}" stroke-width="3"/><line x1="${x - 18}" y1="${y + 20}" x2="${x + 8}" y2="${y + 20}" stroke="${C.green}" stroke-width="3"/>`;
+    }
+  };
+  let active = -1; steps.forEach((st, i) => { if (t >= st[0]) active = i; });
+  steps.forEach((st, i) => {
+    const col = i % 3, row = Math.floor(i / 3), x = 110 + col * 580, y = 226 + row * 340;
+    const on = i === active;
+    s += rise(t, st[0], rect(x, y, 540, 312, { fill: on ? C.panel2 : C.panel, stroke: on ? C.gold : C.line, sw: on ? 2.5 : 1.5 })
+      + `<circle cx="${x + 46}" cy="${y + 46}" r="24" fill="${on ? C.gold : C.line}"/>` + T(x + 46, y + 55, String(i + 1), { size: 24, w: 800, anchor: 'middle', fill: on ? '#1a1408' : C.ink })
+      + icon(i, x + 452, y + 92, t) + T(x + 86, y + 56, st[1], { size: 28, w: 800 }) + TL(x + 30, y + 200, st[2], { size: 21, fill: C.mute, lh: 30 }));
+  });
+  return s;
+});
+
+/* 12 — Family */
+S('Our column family', 32, [
+  [0, 'Endura-Stone is part of a bigger Ekena column family. Know when to steer a customer to a sibling line.'],
+  [4.5, 'Endura-Craft is cellular PVC in Craftsman styles. It is a decorative wrap and needs a structural post inside.'],
+  [11, 'Endurathane is polyurethane faux wood, molded from real timbers and hand-painted in the USA. Also a wrap: great over posts.'],
+  [18.5, 'Endura-Lite is lightweight square fiberglass, and Endura-Lum is square aluminum. Check each SKU for its load rating.'],
+  [25, 'If the column has to hold the roof up and the customer wants a classical look, the answer is Endura-Stone: Plan A, or Plan E for square.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 12', 'Our column family');
+  const fam = [
+    { a: .4, x: 250, n: 'Endura-Stone™', m: 'Rotocast FRP · classical', k: 'load', note: 'whole plans A / E', o: { top: .8125, cap: 'tuscan', base: 'tuscan' } },
+    { a: 4.6, x: 610, n: 'Endura-Craft™', m: 'Cellular PVC · Craftsman', k: 'deco', note: 'wraps a structural post', o: { shape: 'square', top: .6, taper: 'linear', cap: 'craftsman', base: 'craftsman', pal: 'pvc', panel: 'recessed' } },
+    { a: 11, x: 970, n: 'Endurathane', m: 'Polyurethane faux wood', k: 'deco', note: '6 wood textures', o: { shape: 'square', cap: 'craftsman', base: 'craftsman', pal: 'wood', grain: true } },
+    { a: 18.6, x: 1330, n: 'Endura-Lite™', m: 'Lightweight fiberglass · square', k: 'check', note: '', o: { shape: 'square', cap: 'craftsman', base: 'craftsman', pal: 'lite' } },
+    { a: 19.6, x: 1690, n: 'Endura-Lum™', m: 'Aluminum · square', k: 'check', note: '', o: { shape: 'square', cap: 'tuscan', base: 'tuscan', pal: 'alu', flute: true } },
+  ];
+  const hl = prog(t, 25, .8);
+  fam.forEach((f, i) => {
+    const dim = i === 0 ? 1 : 1 - .5 * hl;
+    if (i === 0 && hl > 0) s += rect(f.x - 170, 220, 340, 690, { fill: 'none', stroke: C.green, sw: 3, op: hl });
+    s += G(dim, column(Object.assign({ x: f.x, y: 690, h: 440, d: 100, reveal: prog(t, f.a, 1.3) }, f.o))
+      + rise(t, f.a + .5, T(f.x, 738, f.n, { size: 28, w: 800, anchor: 'middle', fill: i === 0 ? C.gold : C.ink }) + T(f.x, 772, f.m, { size: 19, fill: C.mute, anchor: 'middle' })
+        + badge(f.x, 814, f.k) + T(f.x, 860, f.note, { size: 18, fill: C.dim, anchor: 'middle' })));
+  });
+  s += foot('Also in the family: Endura-Classic™ large architectural columns and wood columns. Illustrations are schematic.', prog(t, 1, .6), 1810, 150, 'end');
+  return s;
+});
+
+/* 13 — Competitors */
+S('Competitors', 42, [
+  [0, 'Here is the competitive set. Several of these brands are also sold on ArchitecturalDepot.com.'],
+  [5, 'Turncraft Poly-Classic is the closest match: rotocast FRP with the same published concentric ratings, size for size.'],
+  [12, 'HB&G PermaCast is fiberglass and marble dust. Its 2024 chart lists lower average allowable loads, on an updated test basis.'],
+  [19, 'Chadsworth PolyStone claims up to 25,000 pounds on large diameters, with a lifetime warranty.'],
+  [25, 'Fypon column wraps are polyurethane and not structural. AFCO makes structural extruded aluminum, a different material and look.'],
+  [32, 'Watch the name: AFCO sells \'Endura-Aluminum.\' That is not Endura-Stone.'],
+  [37, 'Compare SKU to SKU, never brand to brand. Test methods differ.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 13', 'How we compare');
+  const cols = [110, 470, 905, 1065, 1555];
+  const hdr = ['BRAND / LINE', 'MATERIAL', 'STRUCTURAL', 'PUBLISHED LOAD CLAIM', 'WARRANTY'];
+  s += G(prog(t, .3, .5), hdr.map((h, i) => T(cols[i] + 18, 246, h, { size: 16, w: 800, fill: C.dim, ls: 2 })).join(''));
+  const rows = [
+    [.4, ['Endura-Stone™', 'Ekena Millwork'], ['Rotocast FRP +', 'marble dust'], 'Yes*', ['10k / 14k / 18k / 20k lb', '8″ / 10″ / 12″ / 14″+ concentric'], ['Lifetime'], true],
+    [5, ['Turncraft', 'Poly-Classic®'], ['Rotocast FRP'], 'Yes', ['10k / 14k / 18k / 20k lb', '8″ / 10″ / 12″ / 14″ concentric'], ['Limited lifetime', '(original purchaser)']],
+    [12, ['HB&G', 'PermaCast®'], ['FRP: fiberglass +', 'marble dust'], 'Yes', ['4,580 → 10,000 lb avg. allowable', '2024 chart, round tapered, 6″ → 18″+'], ['Lifetime of', 'ownership']],
+    [19, ['Chadsworth', 'PolyStone®'], ['Polyester resin, fiber-', 'glass, marble dust'], 'Yes', ['Up to 25,000 lb', 'depending on diameter'], ['Lifetime']],
+    [25, ['Fypon®'], ['Polyurethane', '4-panel wrap'], 'No', ['n/a: decorative wrap'], ['—']],
+    [25.8, ['AFCO'], ['Extruded, powder-', 'coated aluminum'], 'Yes', ['20,000–50,000 lb', 'listing titles, by model'], ['—']],
+  ];
+  const curIdx = [0, 5, 12, 19, 25, 999].reduce((a, v, i) => t >= v ? i : a, 0);
+  rows.forEach((r, i) => {
+    const y = 268 + i * 100, focus = (i === curIdx || (curIdx === 4 && i === 5)) && t < 32;
+    const stroke = r[6] ? C.gold : focus ? C.blue : C.line;
+    let g = rect(cols[0], y, 1710, 90, { fill: r[6] ? '#1f2a1d' : C.panel, stroke, sw: r[6] || focus ? 2.5 : 1.2, rx: 10 });
+    g += TL(cols[0] + 18, y + (r[1].length > 1 ? 38 : 54), r[1], { size: 24, w: 800, fill: r[6] ? C.gold : C.ink, lh: 30 });
+    g += TL(cols[1] + 18, y + (r[2].length > 1 ? 38 : 54), r[2], { size: 20, fill: C.mute, lh: 27 });
+    g += T(cols[2] + 18, y + 54, r[3], { size: 24, w: 800, fill: r[3].startsWith('Yes') ? C.green : C.amber });
+    g += T(cols[3] + 18, y + (r[4].length > 1 ? 40 : 54), r[4][0], { size: 22, w: 700 }) + (r[4][1] ? T(cols[3] + 18, y + 68, r[4][1], { size: 17, fill: C.mute }) : '');
+    g += TL(cols[4] + 18, y + (r[5].length > 1 ? 40 : 54), r[5], { size: 20, fill: C.ink, lh: 26 });
+    s += rise(t, r[0], g, .6, 14);
+  });
+  s += G(prog(t, .8, .5), T(cols[0], 900, '* whole (unsplit) Plan A / E only', { size: 17, fill: C.dim }));
+  s += G(prog(t, 32, .6), chip(960, 900, '⚠  AFCO “Endura-Aluminum” (EA… SKUs) is NOT Endura-Stone', { size: 22, w: 800, anchor: 'middle', stroke: C.amber, color: C.amber }));
+  s += G(prog(t, 37, .6), chip(1810, 150, 'Compare SKU-to-SKU: test methods differ', { size: 22, w: 700, anchor: 'end', stroke: C.blue }));
+  return s;
+});
+
+/* 14 — Scenarios */
+S('Which product?', 40, [
+  [0, 'Let\'s practice. New porch, the column holds the roof, and the customer wants classic and round. What do you sell?'],
+  [5, 'Endura-Stone, Plan A, sized from the load chart.'],
+  [10, 'A 6×6 post already carries the roof, but they want it to look like a round Tuscan column.'],
+  [15, 'Plan R: split, then reassembled around the post. Confirm the shaft\'s inside diameter clears the post.'],
+  [20, 'Half-round columns on the wall on each side of the front door.'],
+  [25, 'Plan D, split in half, or Plan C, the ¾ pilaster. Decorative, mounted with brackets.'],
+  [30, 'A rustic timber look over a basement lally column.'],
+  [35, 'That is not Endura-Stone. Steer them to an Endurathane faux-wood wrap.'],
+], t => {
+  let s = eyebrowTitle(t, 'CHAPTER 14', 'Which product? Practice');
+  const sc = [
+    [0, 5, 'New porch: the column must hold up the roof. Customer wants classic and round.', 'Endura-Stone · Plan A (whole). Size from the load chart, e.g. 10″ = 14,000 lb concentric.', 'A', 'load'],
+    [10, 15, 'A 6×6 post already carries the roof. They want a round Tuscan look.', 'Endura-Stone · Plan R around the post. Decorative: the post carries the load. Check the inside diameter clears the post.', 'R', 'deco'],
+    [20, 25, 'Half-round columns on the wall, flanking the front door.', 'Plan D (split in ½) or Plan C (¾ pilaster). Decorative. L-brackets top & bottom.', 'D', 'deco'],
+    [30, 35, 'Rustic timber look over a basement lally column.', 'Not Endura-Stone → Endurathane faux-wood wrap (Ekena). Polyurethane, molded from real timber.', 'wood', 'deco'],
+  ];
+  sc.forEach((c, i) => {
+    const x = 110 + (i % 2) * 870, y = 226 + Math.floor(i / 2) * 340, ans = prog(t, c[1], .6);
+    let g = rect(x, y, 830, 316, { fill: C.panel, stroke: ans > 0 ? (c[5] === 'load' ? C.green : C.amber) : C.line, sw: ans > 0 ? 2.5 : 1.5 });
+    g += T(x + 30, y + 46, 'SCENARIO ' + (i + 1), { size: 17, w: 800, fill: C.gold, ls: 3 });
+    g += TL(x + 30, y + 92, wrap(c[2], 38), { size: 27, w: 700, lh: 36 });
+    g += G(1 - ans, T(x + 30, y + 270, 'What do you sell?', { size: 22, fill: C.dim }));
+    g += G(ans, TL(x + 30, y + 196, wrap(c[3], 52), { size: 20, fill: c[5] === 'load' ? C.green : C.amber, lh: 28 }));
+    const vx = x + 700, vy = y + 110;
+    g += G(ans, c[4] === 'wood' ? column({ x: vx, y: vy + 90, h: 190, d: 60, shape: 'square', cap: 'craftsman', base: 'craftsman', pal: 'wood', grain: true })
+      : plan(c[4], vx + (c[4] === 'D' ? 14 : 0), vy, 62) + badge(vx, vy + 96, c[5]));
+    s += rise(t, c[0], g, .6, 16);
+  });
+  return s;
+});
+
+/* 15 — Recap */
+S('Recap', 18, [
+  [0, 'Quick recap.'],
+  [2, 'Endura-Stone is one-piece rotocast FRP: hollow but load-bearing, with a lifetime warranty and a Class A fire rating.'],
+  [8, 'Only whole columns carry load, so read the plan letter every time.'],
+  [13, 'Thanks for watching. Full sources are in the research fact sheet.'],
+], t => {
+  let s = eyebrowTitle(t, 'RECAP', 'Remember these six things');
+  const b = [
+    'One-piece rotocast FRP: hollow, yet load-bearing',
+    'Lifetime warranty · Class A fire rating · in or out',
+    'Only whole columns carry load: Plan A (round), E (square)',
+    '8″ 10,000 · 10″ 14,000 · 12″ 18,000 · 14″+ 20,000 lb conc.',
+    'SKU = dia · height · plan · taper · shaft · finish · base · cap',
+    'Quote SKU to SKU; confirm cap, base & trim on the listing',
+  ];
+  b.forEach((l, i) => {
+    const y = 290 + i * 98;
+    s += rise(t, 1.5 + i * 1.1, `<circle cx="150" cy="${y - 10}" r="22" fill="${C.gold}"/>` + T(150, y - 1, String(i + 1), { size: 22, w: 800, anchor: 'middle', fill: '#1a1408' }) + T(196, y, l, { size: 32, w: 600 }));
+  });
+  s += column({ x: 1610, y: 880, h: 720, d: 140, top: .8125, cap: 'corinthian', base: 'attic', flute: true, reveal: prog(t, .3, 2.4) });
+  return s;
+});
+
+/* ============================================================
+   Engine: header, captions, timeline, player.
+   ============================================================ */
+let acc = 0; SCENES.forEach(sc => { sc.start = acc; acc += sc.dur; });
+const TOTAL = acc;
+const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+function sceneAt(Tm) { for (let i = SCENES.length - 1; i >= 0; i--) if (Tm >= SCENES[i].start) return i; return 0; }
+function captionSvg(sc, lt, fadeOp) {
+  let cur = null, ct = 0; sc.caps.forEach(c => { if (lt >= c[0]) { cur = c[1]; ct = c[0]; } });
+  if (!cur) return '';
+  const op = Math.min(prog(lt, ct, .35), fadeOp), lines = wrap(cur, 74);
+  const h = 40 + lines.length * 44, y = 1040 - h;
+  return G(op, rect(150, y, 1620, h, { fill: 'rgba(5,10,16,.78)', rx: 16 }) + TL(960, y + 50, lines, { size: 34, w: 500, anchor: 'middle', lh: 44 }));
+}
+function frameSvg(Tm) {
+  Tm = clamp(Tm, 0, TOTAL - 1e-3);
+  const i = sceneAt(Tm), sc = SCENES[i], lt = Tm - sc.start;
+  const fadeOp = Math.min(clamp(lt / .5), clamp((sc.dur - lt) / .45));
+  UID = 0;
+  let body = '';
+  try { body = sc.draw(lt); } catch (e) { body = T(960, 540, 'Render error: ' + e.message, { size: 30, fill: C.red, anchor: 'middle' }); console.error(e); }
+  const ticks = SCENES.map(s2 => `<rect x="${f1(s2.start / TOTAL * W)}" y="82" width="2" height="8" fill="${C.bg0}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+<defs><radialGradient id="bgg" cx=".5" cy=".35" r=".9"><stop offset="0" stop-color="${C.bg1}"/><stop offset="1" stop-color="${C.bg0}"/></radialGradient>
+<pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#2b3946"/><line x1="0" y1="0" x2="0" y2="10" stroke="#566778" stroke-width="3"/></pattern>
+<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="#ffffff" stroke-opacity=".025"/></pattern></defs>
+<rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#grid)"/>
+<g opacity="${fadeOp.toFixed(3)}">${body}</g>
+<rect x="0" y="0" width="${W}" height="82" fill="#0a121a" opacity=".85"/>
+<text x="60" y="50" font-size="21" letter-spacing="3" font-family="${FONT}" fill="${C.ink}" font-weight="800">ENDURA-STONE™ COLUMNS<tspan font-weight="500" fill="${C.mute}">  ·  PRODUCT TRAINING</tspan></text>
+${T(1860, 50, `${String(i + 1).padStart(2, '0')} / ${SCENES.length}   ${sc.chapter}`, { size: 21, w: 600, fill: C.mute, anchor: 'end' })}
+<rect x="0" y="82" width="${W}" height="8" fill="#1b2836"/><rect x="0" y="82" width="${f1(Tm / TOTAL * W)}" height="8" fill="${C.gold}"/>${ticks}
+${captionSvg(sc, lt, fadeOp)}
+</svg>`;
+}
+
+/* ---------- player ---------- */
+const stage = document.getElementById('stage');
+const isRender = new URLSearchParams(location.search).has('render');
+if (isRender) document.body.classList.add('render');
+let now = 0, playing = false, last = 0, speed = 1;
+const scrub = document.getElementById('scrub'), timeEl = document.getElementById('time'), playBtn = document.getElementById('play');
+scrub.max = TOTAL;
+const chapEl = document.getElementById('chapters');
+SCENES.forEach((sc, i) => { const b = document.createElement('button'); b.innerHTML = `<span>${fmt(sc.start)}</span>${String(i + 1).padStart(2, '0')} · ${sc.chapter}`; b.onclick = () => { seek(sc.start + .01); }; chapEl.appendChild(b); });
+function paint() {
+  stage.innerHTML = frameSvg(now);
+  scrub.value = now; timeEl.textContent = fmt(now) + ' / ' + fmt(TOTAL);
+  const ci = sceneAt(now); [...chapEl.children].forEach((b, i) => b.classList.toggle('on', i === ci));
+}
+function seek(t) { now = clamp(t, 0, TOTAL); paint(); }
+function loop(ts) { if (!playing) return; const dt = (ts - last) / 1000; last = ts; now += dt * speed; if (now >= TOTAL) { now = TOTAL; playing = false; playBtn.textContent = '↺ Replay'; } paint(); if (playing) requestAnimationFrame(loop); }
+function toggle() { if (now >= TOTAL) now = 0; playing = !playing; playBtn.textContent = playing ? '❚❚ Pause' : '▶ Play'; if (playing) { last = performance.now(); requestAnimationFrame(loop); } }
+playBtn.onclick = toggle;
+scrub.oninput = () => seek(+scrub.value);
+document.getElementById('speed').onchange = e => { speed = +e.target.value; };
+document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } if (e.code === 'ArrowRight') seek(now + 5); if (e.code === 'ArrowLeft') seek(now - 5); });
+// Hooks for render.mjs (frame-exact capture).
+window.__TOTAL = TOTAL;
+window.__seek = t => { now = t; stage.innerHTML = frameSvg(t); };
+window.__chapters = SCENES.map(s2 => ({ chapter: s2.chapter, start: s2.start, dur: s2.dur }));
+paint();
+</script>
+</body>
+</html>
