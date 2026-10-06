@@ -1,9 +1,10 @@
 # Faux wood beam training video
 
 A narrated, 8¼-minute product-training video for Ekena faux wood beams (Timberthane™ and Heritage
-Timber), built entirely from code. There is no stock footage and there are no photos: the room,
-beam cross-sections, the eight wood textures, finish swatches and install sequence are all drawn as
-SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro, `af_heart`) reading the
+Timber), built from code. Product images (the four shapes, all eight Timberthane textures, 24 of 26
+finishes, every Heritage texture and finish, end caps, straps, the collection pieces and mantels)
+are Ekena's own; cross-sections, the install sequence and part-number breakdowns are drawn as SVG
+by `index.html`. The voiceover is an open-weight neural voice (Kokoro, `af_heart`) reading the
 same fact-checked text as the on-screen captions.
 
 | File | What it is |
@@ -26,16 +27,15 @@ same fact-checked text as the on-screen captions.
 faux steel beams) · 12. Competitors (Barron Designs, AZ Faux, Fypon, Volterra, real wood) ·
 13. Practice scenarios · 14. Recap
 
-Texture and finish swatches are drawn unless a real photo fills the slot; the video tells reps to
-order a sample to show a customer the real thing.
+Swatches are Ekena's listing images, which are mostly renders; the video tells reps to order a sample
+to show a customer the real color.
 
 ## Real product photos
 
-Every drawing that shows the product is an image slot. Put a real Ekena photo in `images/`
-named after its slot (the list is in [`images/README.md`](images/README.md)), then from
-`training/shared` run `node images.mjs ../<this-folder>` and re-render.
-Slots without a photo keep the drawing. No photos could be downloaded when this was built:
-the network policy here blocks every retailer and Ekena image host.
+Every product picture is an image slot filled from `images/` (list in
+[`images/README.md`](images/README.md), sources in `images/SOURCES.md`). To swap one, replace the
+file with the same slot name, run `node images.mjs ../faux-wood-beams` from `training/shared`,
+and re-render. Charcoal Grey and Burnished Graphite are still drawn: no accurate Ekena image was found.
 
 ## Rebuild
 

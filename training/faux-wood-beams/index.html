@@ -116,7 +116,7 @@ function photo(slot, x, y, w, h, fallback = '', o = {}) {
   const src = IMAGES[slot];
   if (!src) return fallback;
   const id = 'ph' + (UID++), rx = o.rx || 0;
-  return `<defs><clipPath id="${id}"><rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}"/></clipPath></defs>`
+  return (o.bg ? `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="${o.bg}"/>` : '') + `<defs><clipPath id="${id}"><rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}"/></clipPath></defs>`
     + `<image href="${src}" x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" preserveAspectRatio="${o.fit || 'xMidYMid slice'}" clip-path="url(#${id})"/>`
     + `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="none" stroke="#000" stroke-opacity=".35"/>`;
 }
@@ -372,7 +372,7 @@ S('Four shapes', 28, [
   ];
   const blk = prog(t, 19, .7);
   items.forEach(([ty, x, a, n, code, wi, hi, slot]) => {
-    const pic = hasPhoto(slot) ? photo(slot, x - 20, 520, wi * sc + 40, 150, '', { rx: 8 }) : '';
+    const pic = hasPhoto(slot) ? photo(slot, x + wi * sc / 2 - 170, 500, 340, 190, '', { rx: 8, bg: '#fff', fit: 'xMidYMid meet' }) : '';
     s += rise(t, a, section(ty, x, 300, wi * sc, hi * sc, { t: sc, col: FIN.hickory, block: blk > .5 && (ty === 'U' || ty === 'L'), blockH: 3.5 * sc, ceiling: ty !== 'B' })
       + pic + T(x + wi * sc / 2, 720, n, { size: 28, w: 800, anchor: 'middle' }) + chip(x + wi * sc / 2, 762, code, { size: 19, anchor: 'middle', color: C.gold }));
   });
@@ -423,7 +423,7 @@ S('Finishes', 30, [
       + (f[2] ? G(codes, T(x + sw / 2, y + sh + 50, f[2], { size: 17, fill: f[2] === 'OT' ? C.amber : C.gold, anchor: 'middle', fam: MONO })) : ''));
   });
   s += G(prog(t, 15, .7), chip(960, 880, 'Order every beam for a room at once: hand-applied finishes vary by batch', { size: 22, anchor: 'middle', stroke: C.amber }));
-  if (drawn) s += foot('swatch colors approximate; codes shown where confirmed in a SKU', prog(t, 1, .5) * (1 - prog(t, 14.8, .4)), 1810, 222);
+  if (drawn) s += foot(drawn > 2 ? 'swatch colors approximate; codes shown where confirmed in a SKU' : 'swatches: Ekena listing renders (Charcoal Grey, Burnished Graphite drawn) · Ekena chart also shows Ebony, Espresso, Russet', prog(t, 1, .5) * (1 - prog(t, 14.8, .4)), 1810, 222);
   return s;
 });
 
@@ -431,7 +431,7 @@ S('Finishes', 30, [
 S('Heritage Timber', 36, [
   [0, 'Heritage Timber is our quick-ship faux beam line. Each beam is molded in a single piece, so there are no seams on the corners.'],
   [7.5, 'It comes in six textures: Mena, Salvaged Timber, Reclaimed Axed Cut, Rustic Sawn, Resawn Rip and Sanded Smooth.'],
-  [14.5, 'Finishes include Natural White Oak, Warm Caramel, Kona Brown, Sandstone and Vanilla Chai, or Primed Tan, ready to finish.'],
+  [14.5, 'Finishes include Natural White Oak, Warm Caramel, Kona Brown, Sandstone, Vanilla Chai and Smokey Brown, or Primed Tan, ready to finish.'],
   [22, 'There are about fifty sizes, and they are nominal, like lumber. A 6 by 6 is actually 5½ by 5½ inches, and listings show the inside opening.'],
   [30.5, 'Matching end caps come in nominal sizes from 4 by 4 up to 10 by 12.'],
 ], t => {
@@ -449,6 +449,7 @@ S('Heritage Timber', 36, [
   });
   const anyDrawn = HERITAGE_TEX.some(h => !hasPhoto('heritage-texture-' + slug(h[0])));
   if (anyDrawn) s += G(prog(t, 8, .5), T(120, 712, 'swatches drawn for reference; colors approximate', { size: 15, fill: C.dim }));
+  else s += G(prog(t, 8, .5), T(120, 734, 'textures shown in Kona Brown · Sanded Smooth ships primed · finishes shown on Mena · also Smokey Brown', { size: 15, fill: C.dim }));
   // nominal vs actual
   const no = prog(t, 22, .8);
   if (no > 0) {
@@ -600,7 +601,7 @@ S('Accessories & collection', 34, [
   };
   items.forEach(([n, slot], i) => {
     const x = 900 + (i % 3) * 320, y = 250 + Math.floor(i / 3) * 210;
-    s += rise(t, 12 + i * .5, photo(slot, x, y, 150, 130, draw(i, x, y), { rx: 6 }) + T(x + 165, y + 70, n, { size: 24, w: 700 }));
+    s += rise(t, 12 + i * .5, photo(slot, x, y, 150, 130, draw(i, x, y), { rx: 6, bg: '#fff', fit: 'xMidYMid meet' }) + T(x + 165, y + 70, n, { size: 24, w: 700 }));
   });
   s += G(prog(t, 12.5, .5), T(900, 236, 'TIMBERTHANE COLLECTION', { size: 17, w: 800, fill: C.dim, ls: 2 }));
   const p3 = prog(t, 21, .7);

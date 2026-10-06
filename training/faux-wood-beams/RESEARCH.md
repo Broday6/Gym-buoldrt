@@ -64,6 +64,12 @@ Hickory, Mahogany, Redwood, Sangria, Merlot, Cedar Bark, Toffee, Harvest Oak, Ho
 Sonora Desert, Sand Dune, Almond, Oatmeal, Buttercream, Cashmere, Champagne Mist, Seashell,
 Rustic Taupe, Driftwood, Smoke, Slate, Charcoal Grey, Burnished Graphite.
 
+Ekena's "Over 20 Unique Finishes" chart (Amazon A+, B09MRS55ZP) also shows **Ebony, Espresso and
+Russet**, labels Rustic Taupe as "Taupe", and omits Merlot, Smoke, Charcoal Grey, Burnished Graphite
+and Factory Prepped. Some listings say "Premium Aged / Hickory / Mahogany / Cherry". Several names
+don't match their color: Harvest Oak renders grey-brown, Oatmeal medium brown, Seashell mid-grey.
+Ekena's A+ also says Rustic Smooth comes in primed only. (V, from listing images)
+
 Codes confirmed in SKU + title pairs:
 
 | Code | Finish | Example SKU |
@@ -111,6 +117,9 @@ Lowe's names like "4-in x 10-in x 240-in" for a 10"W × 4"H beam). (V)
 | Finishes: Natural White Oak `WO`, Warm Caramel `WC`, Kona Brown `KB`, Sandstone `SS`, Vanilla Chai `VC`, Primed Tan `OT` (ready to finish) | V | Home Depot / Ekena / Amazon titles |
 | About 50 sizes; nominal sizing `00400` = 3½", `00600` = 5½", `00800` = 7½", `01000` = 9½", `01200` = 11½" | V | Ekena copy; Home Depot titles vs SKUs |
 | Listings show the inside opening, e.g. BMMAS3C00800X1000X120WO = 7½"W × 9½"H × 10', inside 6"W × 8¾"H | S | Ekena listing |
+| Also a **Smokey Brown** Heritage finish (beams, mantels and touch-up kits on Ekena's Amazon store) | S | Ekena Millwork Store on Amazon, 2026-10-06 |
+| Ekena's A+ content calls the sixth texture "Smooth (Factory Primed White)"; titles say "Sanded Smooth … Primed" | V | Amazon A+ / Home Depot titles |
+| Ekena also lists Heritage **log beams** (round): Santa Fe Hand Hewn, Adobe Peeled, Pueblo Sandblasted. Not covered in the video | S | Amazon listings |
 | End caps for Heritage beams: BMC04X04, BMC06X06, BMC06X08, BMC08X08, BMC08X10, BMC10X10, BMC10X12 | V | Ekena + Amazon listings |
 
 ## 8. Installation (Ekena install guide, via search excerpts)
@@ -146,7 +155,18 @@ Guide note: inside dimensions assume a ¼" tolerance per joint and a 1" beam wal
 
 ## Images
 
-Product photos could not be downloaded in this environment (every retailer and Ekena image host is blocked). The video has image slots that use a real photo when one is supplied; see `images/README.md`.
+58 of 60 slots use Ekena images (list in `images/README.md`; per-image source page, image URL, listing
+title and what was checked in `images/SOURCES.md`):
+
+- Timberthane textures: the eight `builder_texture_*.jpg` swatches from Pacific Columns' Endurathane page
+  (same eight names), rotated so the grain runs along the beam, shown unfinished.
+- Everything else: Ekena Millwork Store listings on Amazon. Most are Ekena's 3D renders, not photos;
+  the room (hero) and beam-strap images are real photos. Heritage texture swatches are all Kona Brown,
+  Heritage finish swatches all Mena.
+- Not filled (drawn instead): Charcoal Grey (the only listing rendered brown) and Burnished Graphite
+  (only a touch-up kit is listed).
+- Lower confidence: Cherry and Hickory swatches render almost identical near-black; Merlot and Smoke are
+  not on Ekena's chart. Don't use Ekena room-scene images as color evidence: they reuse templates.
 
 ## Pronunciations to confirm
 
