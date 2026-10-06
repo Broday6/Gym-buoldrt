@@ -1,0 +1,137 @@
+"""Build the narration track for the Endura-Stone training video.
+
+The narration says exactly what the on-screen captions say (the fact-checked text in
+index.html); only the *spoken* form changes, e.g. "FRP" -> "F R P", "6½" -> "six and a
+half", so the voice pronounces it correctly. Product names the TTS engine mispronounces
+get IPA overrides.
+
+Each caption is synthesised separately. If a line needs more time than its caption slot,
+the slot is stretched (never the speech rushed); vo-timing.js tells index.html to stretch
+the animation inside that slot by the same amount so every reveal stays on its sentence.
+
+Usage (Kokoro TTS, open-weight, runs offline):
+  python voiceover.py --captions captions.json --model kokoro-v1.0.onnx --voices voices-v1.0.bin --out .
+Outputs: vo-timing.js, voiceover.wav, VOICEOVER_SCRIPT.md
+"""
+import argparse, json, re
+from pathlib import Path
+
+import numpy as np
+import soundfile as sf
+from kokoro_onnx import Kokoro
+
+VOICE, SPEED, SR = "af_heart", 1.0, 24000
+LEAD, TAIL = 0.30, 0.55          # silence before / after each line inside its slot (s)
+
+# Written form -> spoken form. Applied in order.
+SAY = [
+    (r"Pacific Columns, Inc\.", "Pacific Columns Incorporated"),
+    (r"ArchitecturalDepot\.com", "Architectural Depot dot com"),
+    (r"HB&G", "H B and G"),
+    (r"Poly-Classic", "Poly Classic"),
+    (r"Endura-Craft", "Endura Craft"), (r"Endura-Lite", "Endura Light"), (r"Endura-Lum", "Endura Lum"),
+    (r"Endura-Aluminum", "Endura Aluminum"), (r"Endura-Stone", "Endura Stone"),
+    (r"fiber-reinforced", "fiber reinforced"),
+    (r"\bFRP\b", "F R P"), (r"\bABS\b", "Eigh B S"), (r"\bUSA\b", "U S A"),
+    (r"ESK0810ATPSATUTU", "E S K, zero eight ten, Eigh T P S Eigh, T U, T U"),
+    (r"ES2016RTPSAATRC", "E S, twenty sixteen, R T P S Eigh, Eigh T, R C"),
+    (r"ES1609ATPSATURD", "E S, sixteen oh nine, Eigh T P S Eigh, T U, R D"),
+    (r"\bES is\b", "E S is"), (r"\b10 is the bottom", "Ten is the bottom"), (r"\b08 is\b", "zero eight is"),
+    (r"TU and TU", "T U and T U"),
+    (r"Split Kit 72665", "Split Kit seven two six six five"),
+    (r"6×6", "six by six"),
+    (r"6½ inches", "six and a half inches"),
+    (r"¼ to ½ inch", "a quarter to a half inch"),
+    (r"⅛-inch", "one-eighth inch"),
+    (r"¾", "three-quarter"),
+    (r"8-, 10- and 12-inch", "eight, ten and twelve inch"),
+    (r"\b8-inch\b", "eight-inch"), (r"\b10-inch\b", "ten-inch"), (r"\b12-inch\b", "twelve-inch"),
+    (r"\b2024\b", "twenty twenty-four"),
+    (r"\b14 inches\b", "fourteen inches"),
+]
+# Phoneme fixes applied after espeak phonemisation: (wrong, right).
+IPA = [
+    ("skˈæmɑːzi", "skəmˈɑːtsi"),            # Scamozzi
+    ("ɪɹɪtʃθˈiːəm", "ˌɛɹɪkθˈiːəm"),          # Erechtheum
+    ("ɛntˈɑːsiz", "ˈɛntəsɪs"),               # entasis
+    ("ɐfkˈoʊ", "ˈæfkoʊ"),                   # AFCO
+    ("pˈɪlæstɚ", "pɪlˈæstɚ"),               # pilaster
+    ("ɹˈoʊɾəkˌæst", "ɹˈoʊɾoʊkˌæst"),         # rotocast
+]
+
+
+def spoken(text: str) -> str:
+    for a, b in SAY:
+        text = re.sub(a, b, text)
+    # The letter A used as a name (not the article) - say "ay".
+    text = re.sub(r"\b(Plan|Class) A\b", r"\1 Eigh", text)
+    text = text.replace("and A ready", "and Eigh, ready").replace("U S A", "U S Eigh")
+    text = re.sub(r"(?<!\w)'|'(?!\w)", "", text)         # quote marks, not apostrophes
+    return text
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--captions", required=True)
+    ap.add_argument("--model", required=True)
+    ap.add_argument("--voices", required=True)
+    ap.add_argument("--out", default=".")
+    ap.add_argument("--voice", default=VOICE)
+    a = ap.parse_args()
+    out = Path(a.out)
+    caps = json.load(open(a.captions))
+    k = Kokoro(a.model, a.voices)
+
+    clips, rows = [], []
+    for c in caps:
+        say = spoken(c["text"])
+        ph = k.tokenizer.phonemize(say, "en-us")
+        for bad, good in IPA:
+            ph = ph.replace(bad, good)
+        audio, sr = k.create(ph, voice=a.voice, speed=SPEED, is_phonemes=True)
+        assert sr == SR
+        dur = len(audio) / SR
+        slot = c["end"] - c["start"]
+        need = LEAD + dur + TAIL
+        clips.append(audio)
+        rows.append(dict(c, say=say, phonemes=ph, speech=round(dur, 3), newDur=round(max(slot, need), 3)))
+
+    # New timeline: cue i starts where cue i-1 ends.
+    t = 0.0
+    for r in rows:
+        r["newStart"] = round(t, 3)
+        t += r["newDur"]
+    total = t
+    track = np.zeros(int((total + 1) * SR), dtype=np.float32)
+    for r, clip in zip(rows, clips):
+        i = int((r["newStart"] + LEAD) * SR)
+        track[i:i + len(clip)] += clip
+    peak = float(np.max(np.abs(track))) or 1.0
+    track *= 0.89 / peak                                     # about -1 dBFS peak
+    sf.write(out / "voiceover.wav", track[: int(total * SR)], SR)
+
+    timing = [dict(origStart=r["start"], origEnd=r["end"], newStart=r["newStart"], newDur=r["newDur"]) for r in rows]
+    (out / "vo-timing.js").write_text(
+        "// Generated by voiceover.py: caption slots re-timed to fit the narration.\n"
+        f"window.VO_TIMING = {json.dumps(timing)};\n")
+
+    def mmss(s): return f"{int(s // 60)}:{s % 60:04.1f}"
+    md = ["# Endura-Stone training: voiceover script", "",
+          f"Voice: Kokoro `{a.voice}`, speed {SPEED}. Total runtime {mmss(total)}. "
+          "Generated by `voiceover.py`; the spoken text is the on-screen caption, "
+          "rewritten only where pronunciation needs it.", ""]
+    chap = None
+    for r in rows:
+        if r["chapter"] != chap:
+            chap = r["chapter"]; md += ["", f"## {r['scene']:02d} · {chap}", ""]
+        md.append(f"**{mmss(r['newStart'])}** {r['text']}")
+        if r["say"] != r["text"]:
+            md.append(f"  *spoken as:* {r['say']}")
+        md.append("")
+    (out / "VOICEOVER_SCRIPT.md").write_text("\n".join(md))
+    stretched = sum(1 for r in rows if r["newDur"] > r["end"] - r["start"] + 1e-6)
+    print(f"{len(rows)} lines, {stretched} slots stretched, runtime {mmss(total)} (was {mmss(caps[-1]['end'])})")
+
+
+if __name__ == "__main__":
+    main()

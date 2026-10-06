@@ -3,11 +3,13 @@
 //   node render.mjs                       -> endurastone-training.mp4 (1920x1080, 30 fps)
 //   node render.mjs --fps 24 --out x.mp4
 //   node render.mjs --stills 5,30,60      -> PNG stills at those seconds (for review)
+//   node render.mjs --audio none          -> silent; by default voiceover.mp3 is muxed in if present
 //
 // Needs Playwright (Chromium) and ffmpeg on PATH. Each frame is drawn by
 // window.__seek(t) in index.html, so the output is exact, not screen-captured.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -46,7 +48,11 @@ if (args.stills) {
 
 const frames = Math.ceil(total * fps);
 console.log(`Rendering ${total}s at ${fps} fps = ${frames} frames -> ${out}`);
+const audio = args.audio === 'none' ? null : path.resolve(here, args.audio || 'voiceover.mp3');
+const withAudio = audio && fs.existsSync(audio);
+console.log(withAudio ? `Muxing narration: ${audio}` : 'No narration track (silent video)');
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
+  ...(withAudio ? ['-i', audio, '-map', '0:v', '-map', '1:a', '-c:a', 'aac', '-b:a', '160k', '-t', String(total)] : []),
   '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-preset', 'medium', '-crf', '20', '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'inherit'] });
 const started = Date.now();
 for (let i = 0; i < frames; i++) {

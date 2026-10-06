@@ -39,13 +39,16 @@
     <button class="primary" id="play">▶ Play</button>
     <input class="scrub" id="scrub" type="range" min="0" max="1" step="0.01" value="0" aria-label="Timeline">
     <span class="time" id="time">0:00 / 0:00</span>
+    <button id="voice" aria-pressed="true">🔊 Voiceover on</button>
     <select id="speed" aria-label="Playback speed">
       <option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option>
     </select>
   </div>
   <div class="chapters" id="chapters"></div>
+  <audio id="vo" src="voiceover.mp3" preload="auto"></audio>
   <p class="note">Every frame is drawn by code (SVG). Product drawings are schematic. The facts and their sources are in RESEARCH.md. Space = play/pause, ←/→ = 5 s.</p>
 </div>
+<script src="vo-timing.js"></script>
 <script>
 /* ============================================================
    Endura-Stone column training video, rendered entirely from code.
@@ -267,7 +270,7 @@ const S = (chapter, dur, caps, draw) => SCENES.push({ chapter, dur, caps, draw }
 /* 1 — Title */
 S('Welcome', 11, [
   [0, 'Welcome to Endura-Stone column training from Ekena Millwork.'],
-  [4.5, 'In about seven minutes: what the product is, every option, the plan types, load ratings, and how we compare.'],
+  [4.5, 'In about nine minutes: what the product is, every option, the plan types, load ratings, and how we compare.'],
 ], t => {
   let s = column({ x: 1440, y: 900, h: 770, d: 150, top: .8125, cap: 'ionic', base: 'attic', flute: true, reveal: prog(t, .3, 2.6) });
   s += `<ellipse cx="1440" cy="902" rx="${f1(170 * prog(t, .3, 1))}" ry="10" fill="#000" opacity=".35"/>`;
@@ -757,8 +760,20 @@ S('Recap', 18, [
 /* ============================================================
    Engine: header, captions, timeline, player.
    ============================================================ */
-let acc = 0; SCENES.forEach(sc => { sc.start = acc; acc += sc.dur; });
-const TOTAL = acc;
+/* Timeline. Each caption is a cue. Without a voiceover a cue lasts as designed; with
+   vo-timing.js (from voiceover.py) each cue is stretched to fit its narration, and the
+   animation inside the cue is stretched by the same factor so reveals stay on their line. */
+let acc = 0; SCENES.forEach(sc => { sc.ostart = acc; acc += sc.dur; });
+const CUES = [];
+SCENES.forEach((sc, si) => sc.caps.forEach((c, ci) => CUES.push({ si, o0: c[0], o1: ci + 1 < sc.caps.length ? sc.caps[ci + 1][0] : sc.dur })));
+const VO = window.VO_TIMING && window.VO_TIMING.length === CUES.length ? window.VO_TIMING : null;
+{ let a = 0; CUES.forEach((q, i) => { q.n0 = VO ? VO[i].newStart : a; q.nd = VO ? VO[i].newDur : q.o1 - q.o0; a = q.n0 + q.nd; }); }
+SCENES.forEach((sc, si) => { const qs = CUES.filter(q => q.si === si); sc.start = qs[0].n0; sc.ndur = qs.reduce((x, q) => x + q.nd, 0); });
+const TOTAL = CUES[CUES.length - 1].n0 + CUES[CUES.length - 1].nd;
+function locate(Tm) {
+  let q = CUES[0]; for (const c of CUES) { if (Tm >= c.n0) q = c; else break; }
+  return { i: q.si, lt: q.o0 + clamp((Tm - q.n0) / q.nd) * (q.o1 - q.o0), nlt: Tm - SCENES[q.si].start };
+}
 const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 function sceneAt(Tm) { for (let i = SCENES.length - 1; i >= 0; i--) if (Tm >= SCENES[i].start) return i; return 0; }
 function captionSvg(sc, lt, fadeOp) {
@@ -770,8 +785,8 @@ function captionSvg(sc, lt, fadeOp) {
 }
 function frameSvg(Tm) {
   Tm = clamp(Tm, 0, TOTAL - 1e-3);
-  const i = sceneAt(Tm), sc = SCENES[i], lt = Tm - sc.start;
-  const fadeOp = Math.min(clamp(lt / .5), clamp((sc.dur - lt) / .45));
+  const { i, lt, nlt } = locate(Tm), sc = SCENES[i];
+  const fadeOp = Math.min(clamp(nlt / .5), clamp((sc.ndur - nlt) / .45));
   UID = 0;
   let body = '';
   try { body = sc.draw(lt); } catch (e) { body = T(960, 540, 'Render error: ' + e.message, { size: 30, fill: C.red, anchor: 'middle' }); console.error(e); }
@@ -804,17 +819,35 @@ function paint() {
   scrub.value = now; timeEl.textContent = fmt(now) + ' / ' + fmt(TOTAL);
   const ci = sceneAt(now); [...chapEl.children].forEach((b, i) => b.classList.toggle('on', i === ci));
 }
-function seek(t) { now = clamp(t, 0, TOTAL); paint(); }
-function loop(ts) { if (!playing) return; const dt = (ts - last) / 1000; last = ts; now += dt * speed; if (now >= TOTAL) { now = TOTAL; playing = false; playBtn.textContent = '↺ Replay'; } paint(); if (playing) requestAnimationFrame(loop); }
-function toggle() { if (now >= TOTAL) now = 0; playing = !playing; playBtn.textContent = playing ? '❚❚ Pause' : '▶ Play'; if (playing) { last = performance.now(); requestAnimationFrame(loop); } }
+// Voiceover: when the narration is loaded and on, the audio clock drives the picture.
+const vo = document.getElementById('vo'), voiceBtn = document.getElementById('voice');
+let voiceOn = !!VO, voOk = false;
+vo.addEventListener('canplay', () => { voOk = true; });
+vo.addEventListener('error', () => { voOk = false; voiceBtn.textContent = '🔇 No voiceover file'; voiceBtn.disabled = true; });
+if (!VO) { voiceBtn.textContent = '🔇 No voiceover timing'; voiceBtn.disabled = true; }
+const audioDriving = () => voiceOn && voOk && !vo.paused;
+function syncAudio() { if (!voiceOn || !voOk) return; if (Math.abs(vo.currentTime - now) > .08) vo.currentTime = now; vo.playbackRate = speed; if (playing) vo.play().catch(() => {}); else vo.pause(); }
+function seek(t) { now = clamp(t, 0, TOTAL); syncAudio(); paint(); }
+function loop(ts) {
+  if (!playing) return;
+  const dt = (ts - last) / 1000; last = ts;
+  now = audioDriving() ? vo.currentTime : now + dt * speed;
+  if (now >= TOTAL) { now = TOTAL; playing = false; vo.pause(); playBtn.textContent = '↺ Replay'; }
+  paint(); if (playing) requestAnimationFrame(loop);
+}
+function toggle() { if (now >= TOTAL) now = 0; playing = !playing; playBtn.textContent = playing ? '❚❚ Pause' : '▶ Play'; syncAudio(); if (playing) { last = performance.now(); requestAnimationFrame(loop); } }
 playBtn.onclick = toggle;
+voiceBtn.onclick = () => { voiceOn = !voiceOn; voiceBtn.textContent = voiceOn ? '🔊 Voiceover on' : '🔈 Voiceover off'; voiceBtn.setAttribute('aria-pressed', voiceOn); if (!voiceOn) vo.pause(); else syncAudio(); };
 scrub.oninput = () => seek(+scrub.value);
-document.getElementById('speed').onchange = e => { speed = +e.target.value; };
+document.getElementById('speed').onchange = e => { speed = +e.target.value; syncAudio(); };
 document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } if (e.code === 'ArrowRight') seek(now + 5); if (e.code === 'ArrowLeft') seek(now - 5); });
 // Hooks for render.mjs (frame-exact capture).
 window.__TOTAL = TOTAL;
 window.__seek = t => { now = t; stage.innerHTML = frameSvg(t); };
-window.__chapters = SCENES.map(s2 => ({ chapter: s2.chapter, start: s2.start, dur: s2.dur }));
+window.__chapters = SCENES.map(s2 => ({ chapter: s2.chapter, start: s2.start, dur: s2.ndur }));
+window.__captions = SCENES.flatMap((s2, si) => s2.caps.map((c, ci) => ({
+  scene: si + 1, chapter: s2.chapter, start: +(s2.ostart + c[0]).toFixed(2),
+  end: +(s2.ostart + (ci + 1 < s2.caps.length ? s2.caps[ci + 1][0] : s2.dur)).toFixed(2), text: c[1] })));
 paint();
 </script>
 </body>
