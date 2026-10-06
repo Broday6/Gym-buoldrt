@@ -1,0 +1,76 @@
+{
+ "video": "Faux wood beams",
+ "voice": "af_heart",
+ "pronounce": {
+  "Ekena": "eh-KEE-nuh (unconfirmed)",
+  "Mena": "MEE-nuh (unconfirmed)",
+  "AZ Faux": "A-Z Faux (unconfirmed)",
+  "Fypon": "FYE-pon",
+  "Volterra": "vol-TEH-ruh"
+ },
+ "say": [
+  [
+   "\\bAZ Faux\\b",
+   "Eigh Z Faux"
+  ],
+  [
+   "\\bBM means beam",
+   "B M means beam"
+  ],
+  [
+   "\\bSD is the texture",
+   "S D is the texture"
+  ],
+  [
+   "\\b3C means 3-sided",
+   "three C means three-sided"
+  ],
+  [
+   "0120 is 12 inches wide",
+   "zero one twenty is twelve inches wide"
+  ],
+  [
+   "\\b100 is 10 inches high",
+   "one hundred is ten inches high"
+  ],
+  [
+   "\\b288 is 288 inches",
+   "two eighty-eight is two hundred eighty-eight inches"
+  ],
+  [
+   "\\bZD is Aged",
+   "Z D is Aged"
+  ],
+  [
+   "\\bUN means",
+   "U N means"
+  ],
+  [
+   "BMMAS3C00600X0600X144WC",
+   "B M, M A, S three C, double-oh six hundred, by oh six hundred, by one forty-four, W C"
+  ],
+  [
+   "5½",
+   "five and a half"
+  ],
+  [
+   "1½",
+   "one and a half"
+  ],
+  [
+   "\\bUSA\\b",
+   "U S Eigh"
+  ],
+  [
+   "\\bClass A\\b",
+   "Class Eigh"
+  ]
+ ],
+ "ipa": [
+  [
+   "vˈoʊltɛɹə",
+   "vɑːltˈɛɹə",
+   "Volterra"
+  ]
+ ]
+}

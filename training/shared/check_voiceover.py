@@ -1,8 +1,8 @@
 """Round-trip check: transcribe each narrated line with Whisper and compare it to the script.
 
-  python check_voiceover.py --wav voiceover.wav --captions captions.json --whisper DIR
+  python check_voiceover.py --dir ../VIDEO --captions captions.json --whisper DIR
 
-DIR holds sherpa-onnx Whisper files (small.en-encoder.int8.onnx, ...). Lines whose
+--dir is the video folder (voiceover.wav, vo-timing.js, lexicon.json). DIR holds sherpa-onnx Whisper files (small.en-encoder.int8.onnx, ...). Lines whose
 transcript differs from the script are printed for a human to judge. Spelled-out
 part numbers (E S K ...) are expected to differ a little in formatting.
 """
@@ -38,24 +38,25 @@ def norm(s: str) -> list[str]:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wav", default="voiceover.wav")
+    ap.add_argument("--dir", required=True)
     ap.add_argument("--captions", required=True)
     ap.add_argument("--whisper", required=True)
-    ap.add_argument("--timing", default="vo-timing.js")
     a = ap.parse_args()
+    vdir = Path(a.dir)
+    lex = vo.load_lexicon(vdir)
     d = Path(a.whisper)
     rec = sherpa_onnx.OfflineRecognizer.from_whisper(
         encoder=str(d / "small.en-encoder.int8.onnx"), decoder=str(d / "small.en-decoder.int8.onnx"),
         tokens=str(d / "small.en-tokens.txt"), language="en", task="transcribe", num_threads=4)
-    audio, sr = sf.read(a.wav, dtype="float32")
-    timing = json.loads(Path(a.timing).read_text().split("=", 1)[1].rstrip().rstrip(";"))
+    audio, sr = sf.read(vdir / "voiceover.wav", dtype="float32")
+    timing = json.loads((vdir / "vo-timing.js").read_text().split("=", 1)[1].rstrip().rstrip(";"))
     caps = json.load(open(a.captions))
     scores = []
     for c, t in zip(caps, timing):
         seg = audio[int(t["newStart"] * sr): int((t["newStart"] + t["newDur"]) * sr)]
         st = rec.create_stream(); st.accept_waveform(sr, seg); rec.decode_stream(st)
         heard = st.result.text.strip()
-        want = vo.spoken(c["text"])
+        want = vo.spoken(c["text"], lex)
         r = difflib.SequenceMatcher(None, norm(want), norm(heard)).ratio()
         scores.append(r)
         flag = "OK " if r >= .93 else "CHK"

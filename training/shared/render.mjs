@@ -1,9 +1,9 @@
-// Render the code-built training video to MP4, frame by frame.
+// Render a code-built training video to MP4, frame by frame.
 //
-//   node render.mjs                       -> endurastone-training.mp4 (1920x1080, 30 fps)
-//   node render.mjs --fps 24 --out x.mp4
-//   node render.mjs --stills 5,30,60      -> PNG stills at those seconds (for review)
-//   node render.mjs --audio none          -> silent; by default voiceover.mp3 is muxed in if present
+//   node render.mjs ../endurastone                  -> ../endurastone/endurastone-training.mp4 (1920x1080, 30 fps)
+//   node render.mjs ../faux-wood-beams --fps 24 --out x.mp4
+//   node render.mjs ../VIDEO --stills 5,30,60       -> PNG stills at those seconds (for review)
+//   node render.mjs ../VIDEO --audio none           -> silent; by default VIDEO/voiceover.mp3 is muxed in if present
 //
 // Needs Playwright (Chromium) and ffmpeg on PATH. Each frame is drawn by
 // window.__seek(t) in index.html, so the output is exact, not screen-captured.
@@ -11,20 +11,22 @@ import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); }
 catch { ({ chromium } = require(path.join(process.env.NODE_PATH || '/opt/node22/lib/node_modules', 'playwright'))); }
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => {
+const argv = process.argv.slice(2);
+if (!argv[0] || argv[0].startsWith('--')) { console.error('usage: node render.mjs <video-folder> [--out file] [--fps n] [--stills t,t] [--audio file|none]'); process.exit(1); }
+const here = path.resolve(argv.shift());
+const args = Object.fromEntries(argv.reduce((acc, a, i, all) => {
   if (a.startsWith('--')) acc.push([a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : true]);
   return acc;
 }, []));
 const fps = +(args.fps || 30);
-const out = path.resolve(here, args.out || 'endurastone-training.mp4');
+const out = path.resolve(args.out || path.join(here, `${path.basename(here)}-training.mp4`));
 
 const exe = process.env.CHROMIUM_PATH;
 const browser = await chromium.launch(exe ? { executablePath: exe } : {});
@@ -48,7 +50,7 @@ if (args.stills) {
 
 const frames = Math.ceil(total * fps);
 console.log(`Rendering ${total}s at ${fps} fps = ${frames} frames -> ${out}`);
-const audio = args.audio === 'none' ? null : path.resolve(here, args.audio || 'voiceover.mp3');
+const audio = args.audio === 'none' ? null : path.resolve(args.audio ? args.audio : path.join(here, 'voiceover.mp3'));
 const withAudio = audio && fs.existsSync(audio);
 console.log(withAudio ? `Muxing narration: ${audio}` : 'No narration track (silent video)');
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',

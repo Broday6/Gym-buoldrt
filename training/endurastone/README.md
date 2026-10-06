@@ -11,9 +11,7 @@ chart is drawn as SVG by `index.html`. The voiceover is an open-weight neural vo
 | `index.html` | The same video, interactive: play, scrub, jump to a chapter, voiceover on/off. Needs `vo-timing.js` and `voiceover.mp3` beside it. |
 | `VOICEOVER_SCRIPT.md` | The narration script with timestamps, plus how each line is spoken where that differs. |
 | `RESEARCH.md` | Fact sheet behind every claim, with confidence levels and sources. |
-| `voiceover.py` | Builds the narration (`voiceover.mp3`) and the re-timing file (`vo-timing.js`). |
-| `check_voiceover.py` | Transcribes the narration with Whisper and flags any line that doesn't match the script. |
-| `render.mjs` | Exports the video to MP4 frame by frame and muxes in the narration. |
+| `lexicon.json` | How the narrator pronounces names, codes and fractions (used by `../shared/voiceover.py`). |
 
 ## Chapters
 
@@ -28,29 +26,14 @@ Endura-Lite, Endura-Lum) · 13. Competitors (Turncraft, HB&G, Chadsworth, Fypon,
 
 The narration says exactly what each caption says. Only the spoken form changes: "FRP" is
 spoken as "F R P", "6½" as "six and a half", part numbers are spelled out, and Scamozzi,
-Erechtheum, entasis, AFCO and pilaster get phonetic (IPA) overrides. Each line is
+Erechtheum, entasis, AFCO and pilaster get phonetic (IPA) overrides (all in `lexicon.json`). Each line is
 synthesized separately. If a line needs more time than its caption slot, the slot is
 stretched, and the animation inside it is stretched by the same factor, so every reveal
 lands on the sentence that describes it. Nothing is sped up.
 
 ## Rebuild
 
-```bash
-# 1. Narration (Python; pip install kokoro-onnx soundfile; model files from
-#    github.com/thewh1teagle/kokoro-onnx releases "model-files-v1.0")
-#    captions.json comes from window.__captions in index.html
-python voiceover.py --captions captions.json --model kokoro-v1.0.onnx --voices voices-v1.0.bin
-ffmpeg -i voiceover.wav -c:a libmp3lame -b:a 128k voiceover.mp3
-
-# 2. Optional accuracy check (pip install sherpa-onnx num2words; Whisper small.en from
-#    github.com/k2-fsa/sherpa-onnx releases "asr-models")
-python check_voiceover.py --captions captions.json --whisper sherpa-onnx-whisper-small.en
-
-# 3. Video (Node + Playwright + ffmpeg)
-node render.mjs                      # -> endurastone-training.mp4 with narration
-node render.mjs --audio none         # silent version
-node render.mjs --stills 60,200      # review PNGs at given seconds
-```
+The narration and rendering tools live in [`../shared/`](../shared/); see [`../README.md`](../README.md).
 
 To change a fact, update `RESEARCH.md` first, then the caption and scene in `index.html`,
 then rebuild the narration and the video.

@@ -264,6 +264,7 @@ const ico = {
    SCENES — each draw(t) gets scene-local seconds.
    caps = on-screen narration [startSeconds, text].
    ============================================================ */
+const BRAND = 'ENDURA-STONE™ COLUMNS';
 const SCENES = [];
 const S = (chapter, dur, caps, draw) => SCENES.push({ chapter, dur, caps, draw });
 
@@ -798,7 +799,7 @@ function frameSvg(Tm) {
 <rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#grid)"/>
 <g opacity="${fadeOp.toFixed(3)}">${body}</g>
 <rect x="0" y="0" width="${W}" height="82" fill="#0a121a" opacity=".85"/>
-<text x="60" y="50" font-size="21" letter-spacing="3" font-family="${FONT}" fill="${C.ink}" font-weight="800">ENDURA-STONE™ COLUMNS<tspan font-weight="500" fill="${C.mute}">  ·  PRODUCT TRAINING</tspan></text>
+<text x="60" y="50" font-size="21" letter-spacing="3" font-family="${FONT}" fill="${C.ink}" font-weight="800">${esc(BRAND)}<tspan font-weight="500" fill="${C.mute}">  ·  PRODUCT TRAINING</tspan></text>
 ${T(1860, 50, `${String(i + 1).padStart(2, '0')} / ${SCENES.length}   ${sc.chapter}`, { size: 21, w: 600, fill: C.mute, anchor: 'end' })}
 <rect x="0" y="82" width="${W}" height="8" fill="#1b2836"/><rect x="0" y="82" width="${f1(Tm / TOTAL * W)}" height="8" fill="${C.gold}"/>${ticks}
 ${captionSvg(sc, lt, fadeOp)}
