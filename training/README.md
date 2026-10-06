@@ -7,7 +7,7 @@ on-screen captions, which are fact-checked against the folder's `RESEARCH.md`.
 | Video | Runtime | Folder |
 |---|---|---|
 | Endura-Stone™ columns | 9:08 | [`endurastone/`](endurastone/) |
-| Faux wood beams (Timberthane™ & Heritage Timber) | 7:46 | [`faux-wood-beams/`](faux-wood-beams/) |
+| Faux wood beams (Timberthane™ & Heritage Timber) | 8:16 | [`faux-wood-beams/`](faux-wood-beams/) |
 
 Each folder holds the finished MP4, the interactive `index.html` player (scrub, chapters,
 voiceover on/off), `VOICEOVER_SCRIPT.md`, `RESEARCH.md` and `lexicon.json` (how the

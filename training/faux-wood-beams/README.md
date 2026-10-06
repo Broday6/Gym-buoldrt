@@ -1,6 +1,6 @@
 # Faux wood beam training video
 
-A narrated, 7¾-minute product-training video for Ekena faux wood beams (Timberthane™ and Heritage
+A narrated, 8¼-minute product-training video for Ekena faux wood beams (Timberthane™ and Heritage
 Timber), built entirely from code. There is no stock footage and there are no photos: the room,
 beam cross-sections, the eight wood textures, finish swatches and install sequence are all drawn as
 SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro, `af_heart`) reading the
