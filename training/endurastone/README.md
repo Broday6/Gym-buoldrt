@@ -1,6 +1,6 @@
 # Endura-Stone™ column training video
 
-A narrated, 9-minute product-training video for Endura-Stone columns, built entirely from code.
+A narrated, 10½-minute product-training video for Endura-Stone columns, built entirely from code.
 There is no stock footage and there are no images: every column, capital, plan diagram and
 chart is drawn as SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro,
 `af_heart`) reading the same fact-checked text as the on-screen captions.
