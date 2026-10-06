@@ -139,12 +139,28 @@
    "\\1 Eigh"
   ],
   [
-   "and A ready",
-   "and Eigh, ready"
-  ],
-  [
    "U S A",
    "U S Eigh"
+  ],
+  [
+   "\\band A means paint-grade",
+   "and Eigh means paint-grade"
+  ],
+  [
+   "\\bESINST\\b",
+   "E S I N S T"
+  ],
+  [
+   "ASTM E84",
+   "A S T M E eighty-four"
+  ],
+  [
+   "\\b6-inch\\b",
+   "six-inch"
+  ],
+  [
+   "\\bE is whole, F is",
+   "E is whole, F is"
   ]
  ],
  "ipa": [

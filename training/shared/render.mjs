@@ -33,6 +33,7 @@ const browser = await chromium.launch(exe ? { executablePath: exe } : {});
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(pathToFileURL(path.join(here, 'index.html')).href + '?render');
 await page.evaluate(() => document.fonts.ready);
+await page.evaluate(() => window.__ready);
 const total = await page.evaluate(() => window.__TOTAL);
 const stage = page.locator('#stage');
 

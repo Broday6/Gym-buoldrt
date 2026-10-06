@@ -23,9 +23,10 @@ Source of truth for the training video in this folder. Every on-screen claim in
 | Manufacturer claim: "pound for pound, FRP is stronger than concrete, steel or aluminum" | V (claim) | Spec sheet; Home Depot/Lowe's copy |
 | Resists rot, decay, insects, moisture; paintable surface resists peeling, fading, cracking | V | Retailer copy |
 | Interior **or** exterior, load-bearing **or** decorative | V | Retailer copy |
-| **Lifetime warranty** and **Class A fire rating** | V | Retailer copy (Lowe's, Amazon) |
+| **Lifetime Limited Warranty**: manufacturing defects, for as long as the original purchaser owns the structure it was first installed on, if installed per the instructions; replacement parts only (no labor/painting). **Split columns and field-assembled joints are not warranted.** | V | Pacific Columns warranty PDF; Lowe's-hosted warranty PDF 68968560 |
+| **Class A fire rating**: manufacturer states ASTM E84 Class 1, flame spread index 15, smoke developed 335 | V | Pacific Columns structural / round-tapered pages; retailer copy |
+| Waterproof hollow shaft can carry downspouts, wiring and plumbing | S | Spec sheet |
 | Pacific Columns FRP includes Flame Guard™; first in industry to pass ASTM E84-01 Class 1 flame spread (manufacturer claim) | S | Pacific Columns round-tapered page |
-| Weight ranges ~60 lb to 4,000 lb depending on size; a lightweight filler can roughly halve weight | S | Spec sheet |
 
 ## 2. Range
 
@@ -37,7 +38,10 @@ Source of truth for the training video in this folder. Every on-screen claim in
 | Square shafts sold as **Endura-Stone Pro Series** (ESP… SKUs), "commercial-grade" | V | Architectural Depot / Millwork.com titles |
 | Round tapered = **"True Entasis Taper"** (Amazon/Ekena) = **"Architectural Taper"** (Home Depot), same SKU ESK0810ATPSATUTU | V | Home Depot + Amazon titles |
 | Verified tapered top diameters: 6"→4¾", 8"→6½", 16"→13½", 24"→20" | V | Amazon listing titles |
-| Paint-ready (primed/smooth) or factory pre-colored and textured (sandblasted texture; 6 standard colors) | S | Pacific Columns pre-colored page |
+| **Paint-grade shafts ship unfinished, not primed**: finish with 100% acrylic latex primer and paint. 6"–12" shafts up to 12' are factory-sanded; larger and square shafts may need sanding. (Some Lowe's titles say "Primed"; the spec sheet says otherwise.) | V | Spec sheet; architecturaldepot ESP0808ENPSATUPED |
+| **Pre-colored**: color mixed all the way through, no painting; most lightly sandblasted. Six standard colors: White, Off-White, Cream, Sandstone, Limestone, Cliffside Grey. Also smooth pre-colored, a Coral finish (real coral aggregate) and custom colors | S (color names) | Pacific Columns pre-colored-textured page; columns.net |
+| Round non-tapered shafts: 8"–20" diameter | S | Pacific Columns round non-tapered page |
+| Square Pro Series styles: plain, fluted, raised panel, recessed panel | V | Pacific Columns; Pro Series listings |
 | Fluting is molded into most 8", 10", 12" tapered shafts | S | Spec sheet |
 
 ## 3. Capitals and bases
@@ -63,6 +67,8 @@ Capital/base material varies by SKU (V):
 | Q | ¼ cut out for **inside corner** | No | V |
 | R | All components split for reassembly (wrap around an existing post) | No — post carries the load | V |
 | E | Unsplit / whole (square Pro Series) | Yes (whole shaft) | V |
+| F | Square, split in half | No | V (Amazon B0H37N2XNH; Millwork.com plan-type F) |
+| G | Square, all components cut out for an inside corner | No | V (Amazon B0H37KT5KL; Millwork.com ESP1214GNPSACRCR) |
 | K | Square, cut out for a wall wrap | No | V |
 | L | Square, cut out for outside flush wall wrap | No | S |
 
@@ -77,11 +83,17 @@ fasten to a structural member inside the column or the wall behind. (V)
 | 8" | 10,000 lb | 6,600 lb | V |
 | 10" | 14,000 lb | 10,720 lb | V |
 | 12" | 18,000 lb | 13,200 lb | V |
-| 14"–24" | 20,000 lb | varies by size — see chart | S |
+| 6" | 6,000 lb | 6,000 lb | S |
+| 14"–24" | 20,000 lb | varies by size (quoted: 14" 11,520; 16" 13,200; 18" 9,040; 20" 18,960; 24" 13,200; check the PDF) | S |
 
 Concentric = load centred on the column axis; eccentric = off-centre load.
 To reach rated capacity, load must be **fully and evenly distributed across the
 entire top and bottom shaft surfaces**. (V)
+
+Additional load facts (spec sheet / install guide, S–V): only the **shaft** carries load, not the
+capital or base; shaft ends must be cut level; ratings are for **downward load only** (no lateral
+load or uplift); rated loads include a **4× safety factor** (test columns held at least 4× the
+rated load).
 
 ## 6. Reading a part number (I — pattern derived from catalog titles)
 
@@ -91,7 +103,7 @@ finish (S = smooth) · A = ready to be painted · base code · capital code.
 
 Base-then-capital order holds on ES1609ATPSATURD (Tuscan base, Roman Doric capital),
 ES2016RTPSAATRC (Attic base, Roman Corinthian), ES0608QTPSATUEM (Tuscan base, Empire).
-Codes: TU Tuscan, AT Attic, RD Roman Doric Ornamental, RI Roman Ionic,
+Codes: TU Tuscan, AT Attic, TW Temple of Winds (e.g. ES2424ATPSAATTW, ESK1005DTPSATUTW), RD Roman Doric Ornamental, RI Roman Ionic,
 RC Roman Corinthian, SC Scamozzi, GE Greek Erechtheum, EM Empire, CR Craftsman, PED Pedestal.
 Prefixes: ESP = Pro Series (square); ESK appears on retail listings.
 Exception: ESP0810KNPSATUPED is titled "Tuscan Capital & Pedestal Base", so
@@ -111,12 +123,16 @@ Exception: ESP0810KNPSATUPED is titled "Tuscan Capital & Pedestal Base", so
 | Line | Material | Role | Conf. |
 |---|---|---|---|
 | **Endura-Craft™** | Expanded cellular PVC, Craftsman style, square tapered/non-tapered, smooth/raised/recessed panel; capitals: Standard, Mission, Prairie, Tuscan, Crown | **Decorative wrap**, needs a structural post | V |
-| **Endurathane** | Polyurethane faux wood, molded from real timbers, hand-painted in USA, 6 wood textures (e.g. Sand Blasted, River Wood, Hand Hewn, Rough Sawn); ships with one side detached | **Decorative wrap** (posts, lally columns) | V |
-| **Endura-Lite™** | Lightweight fiberglass, square | Check SKU | S |
-| **Endura-Lum™** | Square aluminum | Check SKU | S |
-| **Endura-Classic™** | Large architectural columns | Check SKU | S |
+| **Endurathane** column wraps | Polyurethane faux wood in **8 textures** (Rough Sawn, Rough Cedar, Hand Hewn, Sandblasted, Pecky Cypress, Riverwood, Knotty Pine, Rustic Smooth: the same as Timberthane beams); 6"–18" square, 4'–20' tall; ships with one side detached | **Decorative wrap** (posts, lally columns) | S |
+| **Endura-Lite™** | Pultruded lightweight fiberglass, square, about 65% lighter than FRP | **Load-bearing**: about 5,000 (8"), 6,000 (10"), 7,000 lb (12") | S |
+| **Endura-Lum™** | Aluminum, round **and** square, textured powder coat | Check SKU | V |
+| **Endura-Classic™** | Large round tapered columns, true entasis (height = 7 shaft circumferences), smooth or fluted | Load-bearing use | S |
 
 ## 9. Competitive set
+
+**Turncraft caution:** a Turncraft catalog is hosted on catalogs.pacificcolumns.com, so Turncraft may be
+a sister brand rather than a competitor. Confirm internally; the video calls this chapter "other brands
+customers compare" and does not call Turncraft a competitor.
 
 Some of these brands are also sold on ArchitecturalDepot.com (Turncraft, Fypon, AFCO
 appear as ad groups in the 2026 Five-Line playbook).
@@ -124,8 +140,8 @@ appear as ad groups in the 2026 Five-Line playbook).
 | Brand / line | Material | Structural | Published load claim | Warranty | Conf. |
 |---|---|---|---|---|---|
 | **Turncraft Poly-Classic®** | Rotocast FRP | Yes | 10,000 (8") · 14,000 (10") · 18,000 (12") · 20,000 (14") lb concentric | Limited lifetime, original purchaser | V |
-| **HB&G PermaCast® (Plus)** | Proprietary FRP, fiberglass + marble dust | Yes | 2024 chart, round tapered: 4,580 (6") to 10,000 lb (18"+) average allowable; HB&G says testing was updated, so the basis differs | Lifetime of ownership | V |
-| **Chadsworth PolyStone®** | Polyester resin, fiberglass, marble dust | Yes | Up to 25,000 lb depending on diameter | Lifetime | V |
+| **HB&G PermaCast® (Plus)** | Proprietary FRP, fiberglass + marble dust | Yes | 2024 chart, round tapered: 4,580 (6") to 10,000 lb (18"+) average allowable; HB&G says testing was updated, so the basis differs | Limited lifetime for single-family homes; 25 years commercial / multi-family. The 2024 chart doubled the safety factor from 2.5× to 5×, which is why listed loads are lower. Eccentric loading is excluded from the warranty. | V |
+| **Chadsworth PolyStone®** | Polyester resin, fiberglass, marble dust | Yes | Up to 20,000 lb (press materials; the earlier 25,000 figure could not be verified) | Lifetime | V (warranty) / S (load) |
 | **Fypon®** | Polyurethane, 4-panel wrap | **No** | n/a | — | V |
 | **AFCO** aluminum | Extruded, powder-coated aluminum | Yes | Listings 20,000–50,000 lb depending on model | — | V |
 
@@ -146,3 +162,31 @@ published rating to another specific SKU's, never "brand vs brand".
 - decorativeceilingtiles.net: Endura-Stone specifications, installation and load-test PDFs
 - HB&G Load-Bearing-Chart.pdf (2024), PermaCast pages · Turncraft Poly-Classic spec PDFs · Chadsworth shop.columns.com · Fypon column wraps · AFCO Industries
 - Internal: Google Drive "five_line_playbook.md" (Columns section)
+
+## Finish letters in the SKU (S)
+
+9th character: **S** = smooth, **T** = textured. 10th: **A** = paint-grade, or a color code
+(**D** = White, from ES1008ATPTDTUTU = 10" × 8' round tapered, textured White, Tuscan cap and
+base). Other color letters were not found.
+
+## Kits
+
+**ESINST** standard install kit (brackets, bolts, Tapcon screws, guide) and **ESSPLIT** split kit
+(#72665). Note: the split-kit PDF says two kits for columns over 12' tall or 14" diameter;
+Architectural Depot's ESSPLIT listing says two kits for columns 14' and taller. The video uses the
+PDF wording.
+
+## Images
+
+Product photos could not be downloaded in this environment (every retailer and Ekena image host is
+blocked). The video has image slots that use a real photo when one is supplied; see
+`images/README.md`.
+
+## Audit log
+
+2026-10-06: second-pass audit (search-result quotes of the spec PDF, warranty PDF, Pacific Columns
+pages, Amazon and Millwork.com listings) added: Plans F and G, the Temple of Winds capital, the 6"
+rating, the 4× safety factor, downward-load-only and shaft-only rules, unfinished (not primed)
+paint-grade shafts, the limited warranty terms and split-column exclusion, ASTM E84 Class 1 basis,
+pre-colored finishes, SKU finish letters, the corrected sister-line facts, and competitor
+corrections (Chadsworth 20,000 lb; HB&G warranty and safety factor).

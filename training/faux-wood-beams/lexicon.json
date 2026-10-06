@@ -64,6 +64,14 @@
   [
    "\\bClass A\\b",
    "Class Eigh"
+  ],
+  [
+   "\\bOT means Oatmeal",
+   "O T means Oatmeal"
+  ],
+  [
+   "\\bResawn Rip",
+   "Ree-sawn Rip"
   ]
  ],
  "ipa": [

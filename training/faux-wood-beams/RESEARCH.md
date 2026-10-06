@@ -35,13 +35,16 @@ titles) and **Endurathane** (Lowe's, older Amazon, Home Depot titles), with the 
 `BM…` SKUs; e.g. BMSD3C0060X040X168 is titled "Timberthane" on Ekena, and the BMSD3C
 family is titled "Sandblasted Endurathane" on Amazon. (V)
 
-## 3. Profiles
+## 3. Shapes (Timberthane: four)
 
-| Profile | SKU code | Notes | Conf. |
+| Shape | SKU code | Notes | Conf. |
 |---|---|---|---|
-| 3-sided U-beam | `3C` | classic box beam | V |
+| 1-sided plank | `S1C` | 1" thick face board, e.g. BMRCS1C0100X010X072ZM (6' long) | V |
 | 2-sided L-beam | `2C` | two faces, e.g. at a ceiling/wall corner | V |
-| 1-sided plank | `S1C` | 1" thick face board | V |
+| 3-sided U-beam | `3C` | classic ceiling beam | V |
+| 4-sided box beam | not confirmed | listed as "Timberthane Faux Wood Ceiling Beams - 4-Sided" (18', 20' lengths) | V (user + decorativeceilingtiles.net) |
+
+End caps are optional accessories (see §9). Material wall thickness 1". (V)
 
 ## 4. Textures (Timberthane, 8) and SKU codes
 
@@ -54,49 +57,61 @@ The short descriptions in the video (adze marks, saw marks, raised grain, water-
 knots, pockets, fibrous, cleanest) describe what each texture imitates. The swatches are
 procedural illustrations, not photos.
 
-## 5. Finishes
+## 5. Finishes (Timberthane: 25 colors + Factory Prepped)
 
-"More than twenty" finishes (sources say 22 and 25). Codes confirmed in SKU + title pairs:
+Full list (decorativeceilingtiles.net / Ekena listings, V): Factory Prepped, Aged, Cherry,
+Hickory, Mahogany, Redwood, Sangria, Merlot, Cedar Bark, Toffee, Harvest Oak, Honey Wheat,
+Sonora Desert, Sand Dune, Almond, Oatmeal, Buttercream, Cashmere, Champagne Mist, Seashell,
+Rustic Taupe, Driftwood, Smoke, Slate, Charcoal Grey, Burnished Graphite.
+
+Codes confirmed in SKU + title pairs:
 
 | Code | Finish | Example SKU |
 |---|---|---|
 | UN | Factory Prepped (unfinished, ready to stain/paint) | BMSD3C0040X080X264UN |
-| ZD | Aged / Premium Aged | BMSD3C0040X100X216ZD |
-| ZH | Hickory / Premium Hickory | BMRWS1C0080X010X072ZH, BMPC3C…ZH |
-| ZM | Premium Mahogany | BMSD3C0040X100X264ZM |
-| ZY | Premium Cherry | BMPC3C0120X040X216ZY |
-| PE | Pecan | BMRW3C0060X040X096PE |
+| ZD | Aged | BMSD3C0040X100X216ZD |
+| ZY | Cherry | BMSD3C0120X040X264ZY |
+| ZH | Hickory | BMSD3C0120X080X144ZH |
+| ZM | Mahogany | BMRCS1C0100X010X072ZM |
 | RD | Redwood | BMRS3C0080X120X096RD |
+| CB | Cedar Bark | BMSD2C0120X080X144CB |
 | TF | Toffee | BMSD3C0060X040X168TF |
+| SD | Sonora Desert | BMRS3C0080X100X288SD |
 | SN | Sand Dune | BMRS3C0120X040X144SN |
 | AL | Almond | BMSD3C0120X040X096AL |
-| BC | Buttercream | BMRSS1C0040X010X096BC |
+| OT | **Oatmeal** (Timberthane) | BMSD3C0060X100X264OT |
+| BC | Buttercream | BMSD2C0040X100X192BC |
 | CM | Champagne Mist | BMSD3C0120X060X144CM |
+| RT | Rustic Taupe | BMRS3C0100X040X120RT |
+| SL | Slate | BMRW2C0060X060X168SL |
 
-On-screen swatch colors are approximations.
+Gotcha: **OT = Oatmeal on Timberthane but Primed Tan on Heritage Timber** (BMMAS3C00600X0600X96OT). (V)
+Older retailer listings (Endurathane titles) show legacy names such as Premium Aged, Pecan,
+Natural Pine, Aged Ash; the current list above is what the video uses. On-screen swatch colors
+are approximations.
 
 ## 6. Sizes and SKU anatomy
 
 `BM SD 3C 0120 X 100 X 288 ZD` = beam · texture · profile · width 12.0" · height 10.0" ·
 length 288" (24') · finish. Width/height are in tenths of an inch (0040 = 4", 0120 = 12");
-length is in inches. Verified examples: 4×4, 6×4, 8×8, 10×12, 12×10, 12×12; lengths 96"
-(8') to 288" (24'). (V)
+length is in inches. Verified examples: 4×4, 6×4, 8×8, 10×12, 12×10, 12×12; lengths from 72" (6', planks) to 288" (24'). (V)
 Planks: `BMRWS1C0080X010X072ZH` = 8" W × 1.0" T × 72" L (code order W × T × L; titles say
 W × L × T). (V)
 Custom beam builder (Architectural Depot): up to 24" × 24" × 360" (30'). (S)
 Some retailers list height first (Home Depot "6 in. H x 12 in. W" = BMSD3C0120X060X144CM;
 Lowe's names like "4-in x 10-in x 240-in" for a 10"W × 4"H beam). (V)
 
-## 7. Heritage Timber line
+## 7. Heritage Timber line (quick ship)
 
 | Fact | Conf. | Source |
 |---|---|---|
-| Molded in a single piece; hollow, lightweight | S | Ekena Heritage copy |
-| Styles: Mena (`MA`), Salvaged Timber (`ST`), Reclaimed Axed Cut (`RD`), Rustic Sawn, Sanded Smooth | V | Home Depot, Lowe's, Ekena titles |
-| Finishes: Natural White Oak `WO`, Warm Caramel `WC`, Kona Brown `KB`, Sandstone `SS`, primed options | V | Home Depot / Ekena titles |
-| ~50 sizes; "Quick Ship"; marketed as "fastest shipping on the market" and a "100% low price guarantee" | S (claim) | Ekena Heritage copy |
-| Nominal sizing: `00400` = 3½", `00600` = 5½", `00800` = 7½", `01000` = 9½", `01200` = 11½" | V | Home Depot titles vs SKUs |
+| Quick Ship line; "best value and fastest shipping beams on the market" (Ekena claim) | V (claim) | Ekena Heritage pages |
+| 3-sided U-beams, molded in a single piece: no seams on the corners | V | Ekena, Home Depot copy |
+| Six textures: Mena `MA`, Salvaged Timber `ST`, Reclaimed Axed Cut `RD`, Rustic Sawn, Resawn Rip `RR`, Sanded Smooth `SS` | V | AD parents BMMAS3, BMSTS3, BMRDS3, BMRUSS3, BMRRS3, BMSSS3; Home Depot titles |
+| Finishes: Natural White Oak `WO`, Warm Caramel `WC`, Kona Brown `KB`, Sandstone `SS`, Vanilla Chai `VC`, Primed Tan `OT` (ready to finish) | V | Home Depot / Ekena / Amazon titles |
+| About 50 sizes; nominal sizing `00400` = 3½", `00600` = 5½", `00800` = 7½", `01000` = 9½", `01200` = 11½" | V | Ekena copy; Home Depot titles vs SKUs |
 | Listings show the inside opening, e.g. BMMAS3C00800X1000X120WO = 7½"W × 9½"H × 10', inside 6"W × 8¾"H | S | Ekena listing |
+| End caps for Heritage beams: BMC04X04, BMC06X06, BMC06X08, BMC08X08, BMC08X10, BMC10X10, BMC10X12 | V | Ekena + Amazon listings |
 
 ## 8. Installation (Ekena install guide, via search excerpts)
 
@@ -113,9 +128,10 @@ Guide note: inside dimensions assume a ¼" tolerance per joint and a 1" beam wal
 | Item | Facts | Conf. |
 |---|---|---|
 | Flexible beam straps | Resin, faux forged-iron look with faux bolts; ¼" × 3" in 4'–11' lengths and ¼" × 1½" × 12'; hide seams; attach with adhesive and nails. e.g. BMSTRF03X96TRBL | V |
-| End caps | e.g. BMC04X04 (4"×4"); rough and smooth options | V / S |
-| Faux wood mantels | Hand Hewn mantels (e.g. MANUHH08X12X72BKNM with Breckinridge corbels); Heritage Timber mantels (Reclaimed Axed Cut, Rustic Sawn) | V |
-| Real wood beams | Sold on Architectural Depot (Beams Shopping "Real Wood / Hand Hewn" product group, "Instock Wood Beams" PMax) | S (internal playbook) |
+| End caps | Optional; Heritage sizes listed in §7 | V |
+| Timberthane collection | Same molded-from-real-wood urethane in corbels (e.g. Yorktown), knee braces (Westlake, Stanfield), outlookers (Balboa), rafter tails (Asheboro), gable vents and shutters | V |
+| Faux wood beam mantels | Hand Hewn (e.g. MANUHH08X12X72BKNM with Breckinridge corbels), Rough Sawn mantel kits (Ashford corbels), Heritage Timber mantels | V |
+| Related beam lines | Ekena: Real Wood Beams, Faux Steel I Beams (ekenamillwork.com nav, Oct 5 2026). Architectural Depot also lists Faux Log Beams and Faux Metal Beams. | V (internal nav docs) |
 | Samples | Material sample BM-MAT-SAMPLE; 10"×7" texture samples with catalog | V |
 
 ## 10. Competitive set
@@ -127,6 +143,10 @@ Guide note: inside dimensions assume a ¼" tolerance per joint and a 1" beam wal
 | Fypon | Polyurethane | Rough Sawn, Hand Hewn, Mesa, Tahoe; 96"–288" in 24" steps | Limited lifetime | V |
 | Volterra | High-density polyurethane foam (HDF) | custom profiles and lengths | not found | S |
 | Real wood | Solid or box timber | heavier; 2–3× the cost (Architectural Depot) | varies | S |
+
+## Images
+
+Product photos could not be downloaded in this environment (every retailer and Ekena image host is blocked). The video has image slots that use a real photo when one is supplied; see `images/README.md`.
 
 ## Pronunciations to confirm
 
