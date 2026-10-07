@@ -16,7 +16,7 @@ Source of truth for the training video in this folder. Every on-screen claim in
 
 | Fact | Conf. | Source |
 |---|---|---|
-| Sold under the Ekena Millwork brand; manufactured by Pacific Columns, Inc. (Ekena Millwork is owned by Pacific Columns) | V | Ekena/Pacific Columns listings; Justia trademark owner record; company profiles |
+| Sold under the Ekena Millwork brand. **Columns are made by Turncraft; the pre-colored columns are made by Royal Corinthian** | V (Ekena product team, 2026-10-07) | Ekena product team; spec sheet references Turncraft Customer Service |
 | Name appears as "Endura-Stone", "Endura-Stone®" and "EnduraStone™" — same line | V | Pacific Columns pages, retailer titles |
 | Shaft: one-piece **rotocast** fiber-reinforced polymer (FRP) with marble dust; filler described as calcium carbonate (fine crushed rock) in polyester resin | V | Endura-Stone spec sheet (Lowe's/Pacific PDFs), Pacific Columns pages |
 | Rotocasting makes a **load-bearing yet hollow** shaft | V | Spec sheet; retailer copy |
@@ -34,7 +34,7 @@ Source of truth for the training video in this folder. Every on-screen claim in
 |---|---|---|
 | Widths/diameters 6"–24"; heights to 24' (listings exist from 4' up) | V | Pacific Columns; SKUs ESK1004…, ES2424… |
 | Round tapered, round non-tapered, square non-tapered | V | Pacific Columns category pages |
-| Plain or fluted (round); square: plain, fluted, raised or recessed panel | V | Pacific Columns; Pro Series listings |
+| Plain or fluted (round and square). **Square Pro Series has no raised or recessed panel styles** | V (Ekena product team) | Ekena product team (the spec sheet's paneled/recessed tables are not offered) |
 | Square shafts sold as **Endura-Stone Pro Series** (ESP… SKUs), "commercial-grade" | V | Architectural Depot / Millwork.com titles |
 | Round tapered = **"True Entasis Taper"** (Amazon/Ekena) = **"Architectural Taper"** (Home Depot), same SKU ESK0810ATPSATUTU | V | Home Depot + Amazon titles |
 | **Sizes are nominal.** Round tapered outside diameter, bottom → top (±⅛"): 6" = 5 11/16 → 4 13/16; 8" = 7⅝ → 6 19/32; 10" = 9 11/16 → 8 9/16; 12" = 11⅝ → 10 1/16; 16" = 15 7/16 → 13⅛; 24" = 23⅜ → 19 5/16. (Corrects the earlier "8"→6½"" etc., which came from Amazon titles.) | V | Spec sheet, round tapered table |
@@ -43,7 +43,7 @@ Source of truth for the training video in this folder. Every on-screen claim in
 | **Paint-grade shafts ship unfinished, not primed**: finish with 100% acrylic latex primer and paint. 6"–12" shafts up to 12' are factory-sanded; larger and square shafts may need sanding. (Some Lowe's titles say "Primed"; the spec sheet says otherwise.) | V | Spec sheet; architecturaldepot ESP0808ENPSATUPED |
 | **Pre-colored**: color mixed all the way through, no painting; most lightly sandblasted. Six standard colors: White, Off-White, Cream, Sandstone, Limestone, Cliffside Grey. Also smooth pre-colored, a Coral finish (real coral aggregate; swatches shown in Off-White and Sandstone) and custom colors | V (color names and swatches) | Pacific Columns pre-colored-textured page (swatch images); columns.net |
 | Round non-tapered shafts: **8"–24"** diameter (no astragal; 16" and up made from the straight part of tapered molds, slight residual taper possible) | V | Spec sheet |
-| Square Pro Series styles: plain, fluted, raised panel, recessed panel | V | Pacific Columns; Pro Series listings |
+| Square Pro Series styles: **plain and fluted only** | V (Ekena product team) | Ekena product team |
 | Fluting is molded into most 8", 10", 12" tapered shafts | S | Spec sheet |
 
 ## 3. Capitals and bases
@@ -131,7 +131,7 @@ Exception: ESP0810KNPSATUPED is titled "Tuscan Capital & Pedestal Base", so
 2. Trim the shaft **from the bottom**, ¼"–½" shorter than the measurement, with an abrasive blade. The trim allowance is set per SKU.
 3. Slide the base on; apply construction adhesive to the top of the capital and the bottom of the base; align the square base to the load surface.
 4. Flash the top: lead/copper/aluminum/galvanized flashing cut slightly larger than the cap, edges folded down.
-5. Split columns: **Split Kit #72665** = 6 nylon locking straps, 6 × ⅛" spacers, 1 qt (1.85 lb) auto body filler. Two kits for columns over 12' tall or 14" diameter.
+5. Split columns: split kit **#ESSPLIT** (straps, ⅛" spacers, body filler). Two kits for columns over 12' tall or 14" diameter (split-kit PDF).
 6. Pilasters: L-brackets top and bottom; pre-drill; don't over-tighten (the shaft can fracture).
 
 ## 8. Our other column lines (Ekena Millwork / Pacific Columns)
@@ -139,25 +139,24 @@ Exception: ESP0810KNPSATUPED is titled "Tuscan Capital & Pedestal Base", so
 | Line | Material | Role | Conf. |
 |---|---|---|---|
 | **Endura-Craft™** | Expanded cellular PVC, Craftsman style, square tapered/non-tapered, smooth/raised/recessed panel; capitals: Standard, Mission, Prairie, Tuscan, Crown | **Decorative wrap**, needs a structural post | V |
-| **Endurathane** column wraps | Polyurethane faux wood in **8 textures** (Rough Sawn, Rough Cedar, Hand Hewn, Sandblasted, Pecky Cypress, Riverwood, Knotty Pine, Rustic Smooth: the same as Timberthane beams); 6"–18" square, 4'–20' tall; ships with one side detached | **Decorative wrap** (posts, lally columns) | S |
+| **Timberthane** column wraps (formerly Endurathane) | Polyurethane faux wood in **8 textures** (Rough Sawn, Rough Cedar, Hand Hewn, Sandblasted, Pecky Cypress, Riverwood, Knotty Pine, Rustic Smooth: the same as Timberthane beams); 6"–18" square, 4'–20' tall; ships with one side detached | **Decorative wrap** (posts, lally columns) | S |
 | **Endura-Lite™** | Pultruded lightweight fiberglass, square, about 65% lighter than FRP | **Load-bearing**: about 5,000 (8"), 6,000 (10"), 7,000 lb (12") | S |
 | **Endura-Lum™** | Aluminum, round **and** square, textured powder coat | Check SKU | V |
 | **Endura-Classic™** | Large round tapered columns, true entasis (height = 7 shaft circumferences), smooth or fluted | Load-bearing use | S |
 
 ## 9. Competitive set
 
-**Turncraft is a related line, not a true competitor (V from primary docs):** the Endura-Stone spec sheet
-tells installers to "contact Turncraft Customer Service" and says "Turncraft will normally ship the
-Quick-Fit capitals"; Pacific Columns' Endura-Stone load-test PDF is the Poly-Classic evaluation report;
-a Turncraft catalog is hosted on catalogs.pacificcolumns.com. The video calls it "a related line, not a
-rival". The exact corporate relationship is not stated in these documents.
+**Turncraft makes Endura-Stone (Ekena product team, 2026-10-07).** Consistent with the primary docs: the
+spec sheet tells installers to "contact Turncraft Customer Service" and says "Turncraft will normally ship the
+Quick-Fit capitals", and the Endura-Stone load-test PDF is the Poly-Classic evaluation report. So Turncraft
+Poly-Classic is the maker's own line, not a rival.
 
 Some of these brands are also sold on ArchitecturalDepot.com (Turncraft, Fypon, AFCO
 appear as ad groups in the 2026 Five-Line playbook).
 
 | Brand / line | Material | Structural | Published load claim | Warranty | Conf. |
 |---|---|---|---|---|---|
-| **Turncraft Poly-Classic®** (related line) | Rotocast FRP | Yes | Same Table 1 as Endura-Stone (ICC-ES legacy report 22-26) | Limited lifetime, original purchaser | V |
+| **Turncraft Poly-Classic®** (Endura-Stone's maker) | Rotocast FRP | Yes | Same Table 1 as Endura-Stone (ICC-ES legacy report 22-26) | Limited lifetime, original purchaser | V |
 | **HB&G PermaCast® (Plus)** | Proprietary FRP, fiberglass + marble dust | Yes | 2024 chart, round tapered: 4,580 (6") to 10,000 lb (18"+) average allowable; HB&G says testing was updated, so the basis differs | Limited lifetime for single-family homes; 25 years commercial / multi-family. The 2024 chart doubled the safety factor from 2.5× to 5×, which is why listed loads are lower. Eccentric loading is excluded from the warranty. | V |
 | **Chadsworth PolyStone®** | Polyester resin, fiberglass, marble dust | Yes | Up to 20,000 lb (press materials; the earlier 25,000 figure could not be verified) | Lifetime | V (warranty) / S (load) |
 | **Fypon®** | Polyurethane, 4-panel wrap | **No** | n/a | — | V |
@@ -190,7 +189,7 @@ base). Other color letters were not found.
 ## Kits
 
 **ESINST** standard install kit (brackets, bolts, Tapcon screws, guide) and **ESSPLIT** split kit
-(#72665). Note: the split-kit PDF says two kits for columns over 12' tall or 14" diameter;
+(part # ESSPLIT, per the Ekena product team). Note: the split-kit PDF says two kits for columns over 12' tall or 14" diameter;
 Architectural Depot's ESSPLIT listing says two kits for columns 14' and taller. The video uses the
 PDF wording.
 
@@ -211,6 +210,43 @@ pacificcolumns.com/wp-content/uploads/sites/8/2024/03/ (see `images/README.md` f
 
 Architectural Depot, ekenamillwork.com and shop.pacificcolumns.com block automated access (Cloudflare),
 so no images came from them.
+
+## Corrections from the Ekena product team (2026-10-07)
+
+These override anything above that disagrees:
+1. Endura-Stone columns are made by **Turncraft**; the pre-colored columns are made by **Royal Corinthian**.
+2. Square **Pro Series** comes plain or fluted only: **no raised or recessed panels**.
+3. **Pre-colored** columns exist as a **special order**. For most jobs, **paint-grade** is the right product.
+4. The split kit part number is **ESSPLIT**.
+5. Endurathane columns are now **Timberthane** column wraps.
+6. Load: **standard caps and bases are not load-bearing; only the ornamental capitals are.**
+7. The video's Plan K drawing was wrong; it now matches the official diagram (square shaft with a lined notch that
+   slips over the end of a wall).
+
+## Overall height & trimming (V, Endura-Stone installation guide PDF, pp. 1, 4, 7, 9)
+
+- "Cut from bottom of shaft only." Trim with a circular saw and a diamond-tipped blade; keep the ends level,
+  "as uneven ends alter load bearing capacities."
+- Standard Tuscan (poly or TimeSaver ABS) and Roman Doric caps slide over the top "until cap contacts neck ring";
+  they and the bases go around the shaft and do not change height, so shaft length = overall height
+  (spec sheet: "Tuscan and Roman Doric caps and bases, and Attic bases go around the shaft").
+- Ornamental capitals: "Remove the top of the column/neck … For Roman Corinthian and Temple of Winds capitals, cut
+  to the astragal. For all other ornamental capitals, cut directly below the astragal." Then "Shaft height +
+  capital height = overall height. Base does not add to height." Decorative only: "factor an additional 1/4"
+  for clearance between the capital and the header."
+- Height Adjust (spec sheet, 12" round tapered): Roman Ionic −1", Scamozzi −⅝", Greek Angular Ionic +½",
+  Empire +¾", Roman Doric Ornamental +1½", Empire with necking +6¼", Temple of Winds +9", Roman Corinthian
+  +9½", Modern Composite +9¾".
+- Split columns: "trim the shaft ¼" shorter than the opening height (for expansion) … Cut from bottom of shaft only."
+- Large ornamental capitals (18"+) may include a wooden load-bearing plug that "is required to be considered
+  load bearing." Split capitals are not load bearing.
+- Also from the guide: not for free-standing installs (pergolas need an internal support); flash an exposed top;
+  "DO NOT fill the inside of the column with sand, concrete, foam, gravel"; TimeSaver 8–12" columns use a ring
+  bracket on the beam (raise the beam ¼" to set the column).
+- Square shafts DO take ornamental capitals (spec sheet "Endura-Stone Square Ornamental Capitals": poly/resin,
+  load bearing); round non-tapered shafts do not.
+- Square load table (spec sheet): 6" 6,000/6,000; 8" 10,000/6,600; 10" 12,800/10,720; 12" 18,000/17,320;
+  14" 20,000/17,320 lb (concentric/eccentric).
 
 ## Audit log
 

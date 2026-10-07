@@ -1,8 +1,9 @@
 # Endura-Stone™ column training video
 
-A narrated, 11-minute product-training video for Endura-Stone columns, built from code. Real
+A narrated product-training video for Endura-Stone columns, built from code. Real
 product photos (all 11 capitals, the base sets, the pre-colored finishes, shaft styles and the
-sister lines) are official Pacific Columns images; plan diagrams, the load chart and part-number
+sister lines) are official Pacific Columns images, and the installation and height chapters use the
+figures from the Endura-Stone installation guide; plan diagrams, the load chart and part-number
 breakdowns are drawn as SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro,
 `af_heart`) reading the same fact-checked text as the on-screen captions.
 
@@ -16,15 +17,16 @@ breakdowns are drawn as SVG by `index.html`. The voiceover is an open-weight neu
 
 ## Chapters
 
-1. Welcome · 2. What it is (rotocast FRP, hollow core) · 3. Built to last (lifetime limited warranty,
-Class A / ASTM E84 Class 1) · 4. Shaft styles · 5. True entasis (= "Architectural Taper") ·
-6. Sizes to scale · 7. Finishes (paint-grade ships unfinished; six pre-colored colors; Coral) ·
-8. Capitals & bases (all 11 capitals incl. Temple of Winds and Modern Composite; tapered-only;
-load / non-load versions; base sets) · 9. Plan types A/B/C/D/Q/R and square E/F/G/K/L ·
-10. Load ratings (6"–24", shaft-only, downward/axial only, ICC-ES report 22-26) · 11. Reading a part number
-(incl. finish letters) · 12. Installation (ESINST, split kit) · 13. Our column family (Endura-Craft,
-Endurathane, Endura-Lite, Endura-Lum, Endura-Classic) · 14. Other brands customers compare (Turncraft as a
-related line, HB&G, Chadsworth, Fypon, AFCO) · 15. Practice scenarios · 16. Recap
+1. Welcome · 2. What it is (rotocast FRP; made by Turncraft, pre-colored by Royal Corinthian) · 3. Built to last
+(lifetime limited warranty, Class A / ASTM E84 Class 1) · 4. Shaft styles (Pro Series square: plain or fluted) ·
+5. True entasis (= "Architectural Taper") · 6. Sizes to scale · 7. Finishes (paint-grade for most jobs;
+pre-colored by special order; Coral) · 8. Capitals & bases (all 11 capitals; round tapered and square shafts;
+base sets) · 9. Overall height & trimming (cap vs ornamental capital math, Height Adjust table, trim the bottom
+only, ¼″ rules) · 10. Plan types A/B/C/D/Q/R and square E/F/G/K/L · 11. Load ratings (round and square tables;
+only ornamental capitals are load-bearing) · 12. Reading a part number · 13. Installation (install-guide
+figures, TimeSaver bracket, ESINST, ESSPLIT) · 14. Our column family (Endura-Craft, Timberthane wraps,
+Endura-Lite, Endura-Lum, Endura-Classic) · 15. Other brands customers compare (Turncraft is the maker; HB&G,
+Chadsworth, Fypon, AFCO) · 16. Practice scenarios · 17. Recap
 
 ## How the voiceover stays in sync
 

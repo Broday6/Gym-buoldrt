@@ -7,6 +7,18 @@
  },
  "say": [
   [
+   "\\bESSPLIT\\b",
+   "E S Split"
+  ],
+  [
+   "9½",
+   "nine and a half"
+  ],
+  [
+   "Poly-Classic line",
+   "Poly Classic line"
+  ],
+  [
    "7⅝ inches",
    "seven and five-eighths inches"
   ],
@@ -93,10 +105,6 @@
   [
    "TU and TU",
    "T U and T U"
-  ],
-  [
-   "Split Kit 72665",
-   "Split Kit seven two six six five"
   ],
   [
    "6×6",

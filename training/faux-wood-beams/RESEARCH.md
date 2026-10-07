@@ -168,6 +168,42 @@ title and what was checked in `images/SOURCES.md`):
 - Lower confidence: Cherry and Hickory swatches render almost identical near-black; Merlot and Smoke are
   not on Ekena's chart. Don't use Ekena room-scene images as color evidence: they reuse templates.
 
+## Audit 2026-10-07 (Ekena's own documents)
+
+Checked against Ekena's Amazon A+ banners (Timberthane B09MRS55ZP, Heritage B0CVNPJLZH, Heritage mantel
+B0CW214QZR), Ekena listing graphics and Ekena PDFs: the **May 2026 "Heritage + TimberThane Faux Wood Beams
+General Installation Guide"** (https://m.media-amazon.com/images/I/A1jVUyKtvuL.pdf), the 2026 Limited Lifetime
+Warranty (https://m.media-amazon.com/images/I/61e+Wpp+NBL.pdf), the 2018 urethane general info and the 2025
+architectural specs. Changes made in the video:
+
+- **Finishes:** Ekena's chart says "Over 20 Unique Finishes" (24 swatches: Aged, Almond, Buttercream, Cashmere,
+  Cedar Bark, Champagne Mist, Cherry, Driftwood, Ebony, Espresso, Harvest Oak, Hickory, Honey Wheat, Mahogany,
+  Oatmeal, Redwood, Russet, Taupe, Sand Dune, Sangria, Seashell, Slate, "Desery" = Sonora Desert, Toffee) plus
+  Factory Prepped. "More than twenty-five" was overstated; the video now shows Ekena's chart.
+- **Warranty:** limited lifetime, original owner, **pro-rated** (100% years 0–3, then 75 / 50 / 25 / 10%), no labor.
+- **Exterior:** paint/finish exposed pieces promptly (Ekena docs give 30–90 days), topcoat stained pieces, max 140 °F.
+- **Rustic Smooth** is primed only.
+- **Stock Timberthane:** W & H 4, 6, 8, 10, 12"; lengths 4'–24' in 2' steps; 1" wall. **Custom:** 3"–24" W & H,
+  2'–30' long, ½" increments (A+ "Custom Sizes Available").
+- **Heritage sizes:** 3½×3½, 3½×5½, 5½×5½, 5½×7½, 7½×7½, 7½×9½, 9½×9½, 9½×11½; 8, 10, 12, 16, 20 ft (A+
+  "Measurements"; newer listings add 4–6 and 24 ft). "About fifty sizes" removed. Smokey Brown appears on newer
+  Heritage listings.
+- **Install (2026 guide):** acclimate 48 h flat; blocks ⅛" narrower than the inside width at beam ends and every
+  2–3 ft; screw into joists or heavy-duty toggle bolts; cut the beam ⅛" long and spring it in, hand saw (hidden
+  fasteners); PL Premium bead; four trim screws per block, two per side, slightly countersunk; colored caulk;
+  straps strongly recommended over splices; fixtures hang from blocking tied to a joist. (Replaces the 2021 sheet:
+  24 h, blocks to inside width every 3–6 ft.)
+- **Straps:** 3" × 60"/108" and 1½" × 8' flex straps verified; Heritage also has rigid straps sized per beam.
+  "Up to 12 feet" removed.
+- **Beam family:** AmeriCraft real wood beams, ForgeCraft faux steel beams, Heritage Timber round log beams (Ekena's own).
+- **Competitors:** AZ Faux also offers fire-rated polyurethane; Fypon lifetime warranty is homeowner-only (4 years
+  commercial); Volterra has a 5-year guarantee and ASTM E84 by special order; Barron beams are assembled from
+  mitered planks. "2–3× more affordable (Architectural Depot)" could not be re-verified and was replaced by
+  Ekena's own "fraction of the cost and installation time".
+- Ekena marks many room photos "Concept Photo"; the video labels them as concept photos.
+
+Full claim-by-claim table: kept with the harvest notes (`images/SOURCES.md` lists every image's source).
+
 ## Pronunciations to confirm
 
 Ekena ("eh-KEE-nuh"), Mena ("MEE-nuh"), AZ Faux ("A-Z Faux"): no official source found.

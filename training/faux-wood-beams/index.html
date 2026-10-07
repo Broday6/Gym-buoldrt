@@ -115,12 +115,32 @@ function photo(slot, x, y, w, h, fallback = '', o = {}) {
   SLOTS.add(slot);
   const src = IMAGES[slot];
   if (!src) return fallback;
-  const id = 'ph' + (UID++), rx = o.rx || 0;
+  const id = 'ph' + (UID++), rx = o.rx || 0, z = o.zoom || 1, iw = w * z, ih = h * z, ix = x - (iw - w) * (o.ax ?? .5), iy = y - (ih - h) * (o.ay ?? .5);
   return (o.bg ? `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="${o.bg}"/>` : '') + `<defs><clipPath id="${id}"><rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}"/></clipPath></defs>`
-    + `<image href="${src}" x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" preserveAspectRatio="${o.fit || 'xMidYMid slice'}" clip-path="url(#${id})"/>`
+    + `<image href="${src}" x="${f1(ix)}" y="${f1(iy)}" width="${f1(iw)}" height="${f1(ih)}" preserveAspectRatio="${o.fit || 'xMidYMid slice'}" clip-path="url(#${id})"/>`
     + `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" fill="none" stroke="#000" stroke-opacity=".35"/>`;
 }
 const hasPhoto = slot => (SLOTS.add(slot), !!IMAGES[slot]);
+/* ---------- photo motion ----------
+   kb(): a real photo with a slow zoom (Ken Burns) so stills carry movement.
+   slides(): photos that cross-fade in turn inside one frame, each with its own zoom.
+   [slot, start, credit] per slide; credit is a small label in the corner. */
+const kb = (slot, x, y, w, h, t, a, d, o = {}) => photo(slot, x, y, w, h, o.fb || '', Object.assign({ rx: 10, zoom: 1.02 + (o.kz ?? .09) * prog(t, a, d) }, o));
+const credit = (x, y, s, op = 1) => G(op, chip(x, y, s, { size: 15, anchor: 'end', pad: 10, fill: 'rgba(0,0,0,.62)', color: '#e3e9ee' }));
+function slides(t, list, x, y, w, h, o = {}) {
+  let s = '';
+  list.forEach(([slot, a, cr, so], i) => {
+    const nxt = list[i + 1], end = nxt ? nxt[1] : a + 30;
+    if (t < a - .01 || (nxt && t > nxt[1] + .8)) return;
+    const op = i === 0 ? prog(t, a, .6) : prog(t, a, .8);
+    s += G(op, kb(slot, x, y, w, h, t, a, end - a + 1, Object.assign({}, o, so || {})) + (cr ? credit(x + w - 12, y + h - 22, cr) : ''));
+  });
+  return s;
+}
+const panelText = (x, y, w, eyebrow, title, lines, op = 1, col = C.gold) => G(op, rect(x, y, w, 96 + lines.length * 30, { fill: 'rgba(10,17,25,.88)', stroke: col, sw: 2 })
+  + T(x + 24, y + 34, eyebrow, { size: 16, w: 800, fill: col, ls: 2 }) + T(x + 24, y + 70, title, { size: 28, w: 800 })
+  + TL(x + 24, y + 104, lines, { size: 20, fill: C.mute, lh: 30 }));
+
 
 
 /* ---------- small icons ---------- */
@@ -163,7 +183,7 @@ const TEXTURES = [
   ['handhewn', 'Hand Hewn', 'HH', 'adze-cut scallops'], ['roughsawn', 'Rough Sawn', 'RS', 'saw-blade marks'],
   ['sandblasted', 'Sandblasted', 'SD', 'raised, weathered grain'], ['riverwood', 'Riverwood', 'RW', 'water-worn flow'],
   ['knotty', 'Knotty Pine', 'KP', 'knots'], ['pecky', 'Pecky Cypress', 'PC', 'pockets'],
-  ['cedar', 'Rough Cedar', 'RC', 'fibrous face'], ['smooth', 'Rustic Smooth', 'SM', 'cleanest face'],
+  ['cedar', 'Rough Cedar', 'RC', 'fibrous face'], ['smooth', 'Rustic Smooth', 'SM', 'cleanest face · primed only'],
 ];
 /* One textured wood face, grain running horizontally. Procedural and seeded, so it is
    identical on every frame. */
@@ -315,46 +335,36 @@ S('What they are', 30, [
   [21, 'The hollow core can hide wiring, pipes and lighting, or wrap a real structural beam. The faux beam itself is decorative, never structural.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 2', 'What is a faux wood beam?');
-  // real timber -> mold -> beam
-  const p1 = prog(t, .4, .8), p2 = prog(t, 2.2, .8), p3 = prog(t, 4, .8);
-  s += G(p1, woodFace(120, 300, 460, 120, 'handhewn', '#6b4a2f', 21) + T(350, 460, 'Real timber', { size: 26, w: 700, anchor: 'middle' }) + T(350, 490, 'the texture source', { size: 19, fill: C.mute, anchor: 'middle' }));
-  s += G(p2, `<path d="M600,360 h70" stroke="${C.gold}" stroke-width="4"/><path d="M664,348 l14,12 l-14,12" fill="none" stroke="${C.gold}" stroke-width="4"/>`
-    + rect(700, 290, 300, 140, { fill: '#2c3b4c', stroke: '#4c6177', rx: 8 }) + woodFace(720, 310, 260, 100, 'handhewn', '#3a4a5a', 21, { edge: false })
-    + T(850, 460, 'Mold', { size: 26, w: 700, anchor: 'middle' }) + T(850, 490, 'captures every mark', { size: 19, fill: C.mute, anchor: 'middle' }));
-  s += G(p3, `<path d="M1020,360 h70" stroke="${C.gold}" stroke-width="4"/><path d="M1084,348 l14,12 l-14,12" fill="none" stroke="${C.gold}" stroke-width="4"/>`
-    + woodFace(1120, 300, 460, 120, 'handhewn', FIN.hickory, 21) + T(1350, 460, 'Polyurethane beam', { size: 26, w: 700, anchor: 'middle' }) + T(1350, 490, 'high-density · hand-finished', { size: 19, fill: C.mute, anchor: 'middle' }));
-  // batch variation swatches
-  const bo = prog(t, 8.2, .7) * (1 - prog(t, 13.6, .5));
-  s += G(bo, [0, 1, 2].map(i => woodFace(1180 + i * 150, 560, 130, 200, 'handhewn', shade(FIN.hickory, [-.06, 0, .07][i]), 30 + i)).join('')
-    + T(1395, 810, 'Same finish, three batches', { size: 22, w: 700, anchor: 'middle' }) + T(1395, 838, 'hand-applied, so undertones vary', { size: 18, fill: C.mute, anchor: 'middle' }));
-  // weight + section 14 ->
-  const wo = prog(t, 14, .7);
-  s += G(wo, section('L', 1130, 600, 4 * 24, 6 * 24, { t: 22, col: FIN.hickory, block: false, label: '' })
-    + T(1300, 640, '4″ × 6″ × 10′ L-beam', { size: 28, w: 800 }) + T(1300, 690, '≈ 8.3 lb listed weight', { size: 36, w: 800, fill: C.gold }) + T(1300, 726, 'Lowe\'s listing, Riverwood 2-sided', { size: 18, fill: C.mute }));
-  // hollow core uses 21 ->
-  const ho = prog(t, 21, .7);
-  if (ho > 0) {
-    s += G(ho, section('U', 160, 600, 300, 230, { t: 20, col: FIN.hickory, block: false })
-      + `<circle cx="250" cy="680" r="34" fill="#9aa4ad" stroke="#5d6770" stroke-width="3"/><rect x="330" y="620" width="70" height="120" fill="#6c7680" stroke="#3d454c" stroke-width="3"/><path d="M200,770 h200" stroke="${C.gold}" stroke-width="5"/>`
-      + T(250, 686, 'pipe', { size: 15, anchor: 'middle', fill: '#1b2229' }) + T(365, 686, 'I-beam', { size: 15, anchor: 'middle', fill: '#e8eef3' }) + T(300, 762, 'wiring', { size: 15, anchor: 'middle', fill: C.gold })
-      + TL(520, 650, ['Hides wiring, pipes, lighting', 'or wraps a real structural beam'], { size: 26, w: 700, lh: 36 }), 0, (1 - ho) * 14);
-    s += G(prog(t, 24.5, .6), badge(520, 760, 'deco', 'start') + T(700, 766, 'the faux beam carries no load', { size: 20, fill: C.amber }));
-  }
+  s += slides(t, [['photo-factory', .2, 'Ekena shop · real photo'], ['photo-lift', 14, 'Ekena · real photo'], ['photo-hollow-end', 21, 'Ekena · product render', { ay: .6 }]], 1000, 226, 810, 660);
+  const pts = [[.6, 'Molded from real wood timbers', 'high-density polyurethane, cast in silicone molds'], [8, 'Finished by hand', 'stain artists: undertones vary batch to batch'],
+    [14, 'Hollow and light', '4″ × 6″ × 10′ L-beam ≈ 8.3 lb (listed weight)'], [21, 'Hides wiring, pipes, lighting', 'or wraps a real beam · carries no load itself']];
+  pts.forEach(([a, h, sub], i) => {
+    const y = 250 + i * 156, on = t >= a && (i === 3 || t < pts[i + 1][0]);
+    s += rise(t, a, rect(110, y, 840, 132, { fill: on ? '#1d2a38' : C.panel, stroke: on ? C.gold : C.line, sw: on ? 2.5 : 1.2 })
+      + `<circle cx="160" cy="${y + 66}" r="24" fill="${on ? C.gold : C.line}"/>` + T(160, y + 74, String(i + 1), { size: 22, w: 800, anchor: 'middle', fill: on ? '#1a1408' : C.ink })
+      + T(204, y + 58, h, { size: 30, w: 800 }) + T(204, y + 96, sub, { size: 20, fill: C.mute }));
+  });
+  s += G(prog(t, 24.5, .6), badge(950, 900, 'deco', 'end'));
   return s;
 });
 
 /* 3 — Why faux */
-S('Why faux', 24, [
+S('Why faux', 30, [
   [0, 'Unlike real timber, polyurethane will not rot, warp, crack or split, and insects cannot damage it.'],
-  [7, 'The beams are rated for interior and exterior use, and they carry a limited lifetime warranty.'],
-  [13.5, 'Architectural Depot puts faux beams at two to three times more affordable than real wood, and they go up with standard tools.'],
+  [7, 'They work inside and out. Outdoors, paint or finish them promptly, and keep them out of heat traps over 140 degrees.'],
+  [15, 'The warranty is a limited lifetime warranty for the original owner, pro-rated after the first three years.'],
+  [22, 'Ekena calls them a fraction of the cost and installation time of real wood, and they go up with standard woodworking tools.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 3', 'Why faux beats real timber');
-  s += G(prog(t, .2, .6), beamSide(660, 300, 600, 110, 'roughsawn', FIN.hickory, 8) + T(960, 450, 'Timberthane faux beam', { size: 22, w: 700, anchor: 'middle', fill: C.gold }));
-  const feats = [[.6, ico.drop(0, 0, 1.1), 'Won\'t rot or take on water'], [2, `<path d="M-16,-12 l32,24 M-16,12 l32,-24" stroke="${C.amber}" stroke-width="4"/>`, 'Won\'t warp, crack or split'], [3.4, ico.bug(0, 0), 'Insects can\'t damage it']];
-  feats.forEach(([a, ic, txt], i) => { const y = 560 + i * 110; s += rise(t, a, rect(110, y - 46, 640, 92, { fill: C.panel, stroke: C.line }) + `<g transform="translate(168,${y})">${ic}</g>` + T(222, y + 10, txt, { size: 28, w: 600 })); });
-  const bad = [[7, ico.house(0, 0), 'Interior & exterior', 'retailer specs list both'], [8.6, ico.shield(0, 0), 'Limited lifetime warranty', 'Timberthane / Endurathane'], [13.6, `<text x="0" y="10" font-size="30" font-weight="800" fill="${C.green}" text-anchor="middle" font-family="${FONT}">$</text>`, '2–3× more affordable', 'than real wood (Architectural Depot)']];
-  bad.forEach(([a, ic, t1, t2], i) => { const y = 560 + i * 110; s += rise(t, a, rect(1100, y - 46, 710, 92, { fill: C.panel, stroke: C.green, sw: 2 }) + `<g transform="translate(1158,${y})">${ic}</g>` + T(1210, y - 2, t1, { size: 28, w: 800 }) + T(1210, y + 28, t2, { size: 19, fill: C.mute })); });
+  s += slides(t, [['room-kitchen-island', .1, 'Ekena · concept photo'], ['room-dining-nook', 7, 'Ekena · concept photo'], ['room-chandeliers', 15, 'Ekena · concept photo'], ['photo-lift', 22, 'Ekena · real photo']], 110, 226, 880, 660);
+  const cards = [[.4, ico.drop(0, 0, 1.1), 'Won\'t rot, warp, crack or split', 'closed-cell polyurethane · insects can\'t eat it', C.green],
+    [7, ico.house(0, 0), 'Interior & exterior', 'outdoors: paint/finish promptly · max 140 °F', C.green],
+    [15, ico.shield(0, 0), 'Limited lifetime warranty', 'original owner · pro-rated: 100% yrs 0–3, then 75 / 50 / 25 / 10%', C.amber],
+    [22, `<text x="0" y="10" font-size="30" font-weight="800" fill="${C.green}" text-anchor="middle" font-family="${FONT}">$</text>`, 'Fraction of the cost & install time', 'Ekena\'s claim · standard woodworking tools', C.green]];
+  cards.forEach(([a, ic, t1, t2, col], i) => {
+    const y = 226 + i * 168;
+    s += rise(t, a, rect(1030, y, 780, 148, { fill: C.panel, stroke: col, sw: 2 }) + `<g transform="translate(1092,${y + 74})">${ic}</g>` + T(1146, y + 66, t1, { size: 28, w: 800 }) + TL(1146, y + 102, wrap(t2, 52), { size: 19, fill: C.mute, lh: 24 }));
+  });
   return s;
 });
 
@@ -363,7 +373,7 @@ S('Four shapes', 28, [
   [0, 'Timberthane comes in four shapes. The 1-sided plank is a one-inch-thick face board that mounts flat.'],
   [6.5, 'The 2-sided L-beam covers two faces, for corners like where a ceiling meets a wall.'],
   [12, 'The 3-sided U-beam is the classic ceiling beam, and the 4-sided box beam is finished on all four sides.'],
-  [19, 'U and L beams mount over wood blocking cut to the beam\'s inside width. End caps are optional, to close off an open beam end.'],
+  [19, 'U and L beams mount over wood blocks cut an eighth of an inch narrower than the inside width. End caps are optional, to close off an open beam end.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 4', 'Four Timberthane shapes');
   const sc = 22, items = [
@@ -378,7 +388,7 @@ S('Four shapes', 28, [
   });
   s += G(prog(t, 1, .6), T(258, 350, '1″ thick', { size: 20, fill: C.mute, anchor: 'middle' }));
   const ec = prog(t, 22.5, .7);
-  s += G(ec, chip(960, 830, 'Blocking: 2×4 cut to the inside width  ·  End caps: optional', { size: 22, anchor: 'middle', stroke: '#c9a272' }));
+  s += G(ec, chip(960, 830, 'Blocking: ⅛″ narrower than the inside width  ·  End caps: optional', { size: 22, anchor: 'middle', stroke: '#c9a272' }));
   s += foot('cross-sections, ceiling at top; L-beam shown against a wall', prog(t, 1, .5) * (1 - prog(t, 18.5, .4)));
   return s;
 });
@@ -387,7 +397,7 @@ S('Four shapes', 28, [
 S('Textures', 30, [
   [0, 'The Timberthane line comes in eight textures, each molded from real wood.'],
   [5, 'Hand Hewn shows adze marks. Rough Sawn shows saw-blade marks. Sandblasted has raised, weathered grain.'],
-  [13, 'Riverwood looks water-worn. Knotty Pine has knots, Pecky Cypress has pockets, Rough Cedar is fibrous, and Rustic Smooth is the cleanest face.'],
+  [13, 'Riverwood looks water-worn. Knotty Pine has knots, Pecky Cypress has pockets, Rough Cedar is fibrous, and Rustic Smooth, the cleanest face, comes primed only.'],
   [24, 'Swatches on screen are a guide. To show a customer the real texture and color, order a sample.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 5', 'Eight Timberthane textures');
@@ -401,99 +411,81 @@ S('Textures', 30, [
   });
   if (drawn) s += foot(drawn === 8 ? 'drawn illustrations, not photos: order a sample for the real texture and color' : 'some swatches are drawn illustrations: order a sample for the real thing', prog(t, 5, .5));
   else s += foot('texture photos: Pacific Columns (an Ekena brand), shown unfinished · order a sample for color', prog(t, 5, .5));
+  const ap = prog(t, 24, .7);
+  if (ap > 0) s += G(ap, rect(0, 90, 1920, 990, { fill: C.bg0, op: .9 }) + kb('aplus-tt-styles', 362, 150, 1196, 740, t, 24, 7, { bg: '#fff', fit: 'xMidYMid meet', kz: .04 }) + credit(1546, 868, 'Ekena Timberthane A+ · 8 textures, 5 styles'));
   return s;
 });
 
 /* 6 — Finishes */
-S('Finishes', 30, [
-  [0, 'Timberthane comes in more than twenty-five finishes, from Aged, Hickory, Mahogany and Cherry to Slate, Charcoal Grey and Burnished Graphite.'],
+S('Finishes', 32, [
+  [0, 'Ekena\'s finish chart shows over twenty Timberthane finishes, from Aged, Hickory and Mahogany to Slate, Ebony and Espresso.'],
   [9.5, 'Factory Prepped beams come unfinished, ready for the customer to stain or paint.'],
   [15, 'Finishes are applied by hand, so order every beam for one room together to keep the color consistent.'],
   [21.5, 'The finish is the last code in the part number. Watch out: OT means Oatmeal on Timberthane, but Primed Tan on Heritage Timber.'],
 ], t => {
-  let s = eyebrowTitle(t, 'CHAPTER 6', '26 Timberthane finishes');
-  const codes = prog(t, 21.5, .6), perRow = 9, sw = 176, sh = 92, gx = 196, gy = 196;
-  let drawn = 0;
-  TT_FINISHES.forEach((f, i) => {
-    const col = i % perRow, row = Math.floor(i / perRow), x = 110 + col * gx, y = 240 + row * gy, a = .3 + i * .28, slot = 'finish-' + slug(f[0]);
-    if (!hasPhoto(slot)) drawn++;
-    const hl = i === 0 ? prog(t, 9.6, .6) * (1 - prog(t, 14.8, .5)) : 0;
-    s += rise(t, a, (hl > 0 ? rect(x - 8, y - 8, sw + 16, sh + 66, { fill: 'none', stroke: C.gold, sw: 3, op: hl }) : '')
-      + photo(slot, x, y, sw, sh, woodFace(x, y, sw, sh, 'sandblasted', f[1], 60 + i)) + T(x + sw / 2, y + sh + 26, f[0], { size: 18, w: 700, anchor: 'middle' })
-      + (f[2] ? G(codes, T(x + sw / 2, y + sh + 50, f[2], { size: 17, fill: f[2] === 'OT' ? C.amber : C.gold, anchor: 'middle', fam: MONO })) : ''));
-  });
-  s += G(prog(t, 15, .7), chip(960, 880, 'Order every beam for a room at once: hand-applied finishes vary by batch', { size: 22, anchor: 'middle', stroke: C.amber }));
-  if (drawn) s += foot(drawn > 2 ? 'swatch colors approximate; codes shown where confirmed in a SKU' : 'swatches: Ekena listing renders (Charcoal Grey, Burnished Graphite drawn) · Ekena chart also shows Ebony, Espresso, Russet', prog(t, 1, .5) * (1 - prog(t, 14.8, .4)), 1810, 222);
+  let s = eyebrowTitle(t, 'CHAPTER 6', 'Over 20 Timberthane finishes');
+  if (hasPhoto('aplus-tt-finishes')) {
+    s += G(prog(t, .2, .8), kb('aplus-tt-finishes', 160, 222, 1600, 574, t, 0, 32, { kz: .012, bg: '#fff', ay: .3 }) + credit(1748, 774, 'Ekena Timberthane A+ chart'));
+  } else {
+    TT_FINISHES.forEach((f, i) => { const x = 110 + (i % 9) * 196, y = 240 + Math.floor(i / 9) * 196; s += rise(t, .3 + i * .2, woodFace(x, y, 176, 92, 'sandblasted', f[1], 60 + i) + T(x + 88, y + 118, f[0], { size: 18, w: 700, anchor: 'middle' })); });
+  }
+  const fp = prog(t, 9.6, .6) * (1 - prog(t, 21, .5));
+  s += G(fp, rect(110, 812, 760, 96, { fill: 'rgba(10,17,25,.92)', stroke: C.gold, sw: 2 }) + photo('finish-factory-prepped', 124, 824, 120, 72, woodFace(124, 824, 120, 72, 'sandblasted', FIN.prepped, 3), { rx: 6 })
+    + T(264, 852, 'Factory Prepped (UN)', { size: 26, w: 800 }) + T(264, 886, 'unfinished, primed base coat: stain or paint on site', { size: 19, fill: C.mute }));
+  s += G(prog(t, 15, .6) * (1 - prog(t, 21, .5)), rect(900, 812, 910, 96, { fill: 'rgba(10,17,25,.92)', stroke: C.amber, sw: 2 })
+    + T(930, 852, 'Hand-applied: order a room\'s beams together', { size: 25, w: 800 }) + T(930, 886, 'batches vary slightly · actual color may differ from screen', { size: 19, fill: C.mute }));
+  const cd = prog(t, 21.6, .6);
+  s += G(cd, rect(110, 812, 1700, 96, { fill: 'rgba(10,17,25,.94)', stroke: C.blue, sw: 2 })
+    + T(140, 852, 'FINISH = LAST CODE', { size: 17, w: 800, fill: C.blue, ls: 2 }) + T(140, 888, 'ZD Aged · UN Factory Prepped · CB Cedar Bark · TF Toffee · SL Slate · …', { size: 22, w: 600, fam: MONO })
+    + T(1780, 870, 'OT: Oatmeal (Timberthane) vs Primed Tan (Heritage)', { size: 22, w: 800, fill: C.amber, anchor: 'end' }));
+  s += foot('Chart also lists Russet, Taupe and “Desery” (Sonora Desert); some listings add Merlot and Smoke. Confirm the finish on the listing.', prog(t, 2, .5) * (1 - prog(t, 9.4, .4)), 1810, 840);
   return s;
 });
 
 /* 7 — Heritage Timber */
-S('Heritage Timber', 36, [
+S('Heritage Timber', 40, [
   [0, 'Heritage Timber is our quick-ship faux beam line. Each beam is molded in a single piece, so there are no seams on the corners.'],
   [7.5, 'It comes in six textures: Mena, Salvaged Timber, Reclaimed Axed Cut, Rustic Sawn, Resawn Rip and Sanded Smooth.'],
   [14.5, 'Finishes include Natural White Oak, Warm Caramel, Kona Brown, Sandstone, Vanilla Chai and Smokey Brown, or Primed Tan, ready to finish.'],
-  [22, 'There are about fifty sizes, and they are nominal, like lumber. A 6 by 6 is actually 5½ by 5½ inches, and listings show the inside opening.'],
-  [30.5, 'Matching end caps come in nominal sizes from 4 by 4 up to 10 by 12.'],
+  [22, 'Sizes are nominal, like lumber: eight cross sections from 3½ by 3½ up to 9½ by 11½ inches, in 8- to 20-foot lengths.'],
+  [31, 'A 6 by 6 is actually 5½ by 5½, and listings show the inside opening. Matching end caps run from 4 by 4 up to 10 by 12.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 7', 'Heritage Timber: quick ship');
-  s += G(prog(t, .5, .6), chip(120, 240, 'Quick Ship', { size: 24, w: 800, stroke: C.gold }) + chip(310, 240, '3-sided U-beams', { size: 24, w: 800, stroke: C.gold }) + chip(560, 240, 'single-piece, seamless corners', { size: 24, w: 700 }));
-  s += G(prog(t, 7.5, .5), T(120, 300, 'SIX TEXTURES', { size: 17, w: 800, fill: C.dim, ls: 2 }));
-  HERITAGE_TEX.forEach((h, i) => {
-    const x = 120 + i * 140, y = 316, slot = 'heritage-texture-' + slug(h[0]);
-    s += rise(t, 7.6 + i * .5, photo(slot, x, y, 124, 124, woodFace(x, y, 124, 124, h[2], FIN.whiteOak, 70 + i)) + TL(x + 62, y + 148, wrap(h[0], 12), { size: 16, w: 700, anchor: 'middle', lh: 19 }));
-  });
-  s += G(prog(t, 14.5, .5), T(120, 530, 'FINISHES', { size: 17, w: 800, fill: C.dim, ls: 2 }));
-  HERITAGE_FIN.forEach((f, i) => {
-    const x = 120 + i * 140, y = 546, slot = 'heritage-finish-' + slug(f[0]);
-    s += rise(t, 14.6 + i * .5, photo(slot, x, y, 124, 80, woodFace(x, y, 124, 80, 'riverwood', f[1], 80 + i)) + TL(x + 62, y + 102, wrap(f[0], 13), { size: 16, w: 700, anchor: 'middle', lh: 19 }) + T(x + 62, y + 144, f[2], { size: 15, fill: f[2] === 'OT' ? C.amber : C.gold, anchor: 'middle', fam: MONO }));
-  });
-  const anyDrawn = HERITAGE_TEX.some(h => !hasPhoto('heritage-texture-' + slug(h[0])));
-  if (anyDrawn) s += G(prog(t, 8, .5), T(120, 712, 'swatches drawn for reference; colors approximate', { size: 15, fill: C.dim }));
-  else s += G(prog(t, 8, .5), T(120, 734, 'textures shown in Kona Brown · Sanded Smooth ships primed · finishes shown on Mena · also Smokey Brown', { size: 15, fill: C.dim }));
-  // nominal vs actual
-  const no = prog(t, 22, .8);
-  if (no > 0) {
-    const sc = 30, x = 1290, y = 300;
-    s += G(no, `<rect x="${x}" y="${y}" width="${6 * sc}" height="${6 * sc}" fill="none" stroke="${C.mute}" stroke-dasharray="8 8" stroke-width="2"/>`
-      + section('U', x + .25 * sc, y + .25 * sc, 5.5 * sc, 5.5 * sc, { t: sc * .5, col: FIN.caramel, block: false, ceiling: false })
-      + T(x + 3 * sc, y + 6 * sc + 34, 'Nominal 6×6 = actual 5½″ × 5½″', { size: 21, w: 800, anchor: 'middle' })
-      + T(x + 3 * sc, y + 6 * sc + 60, 'dashed = nominal · solid = actual · ≈ 50 sizes', { size: 16, fill: C.mute, anchor: 'middle' })
-      + rect(1040, 580, 770, 112, { fill: C.panel, stroke: C.blue, sw: 2 }) + T(1068, 616, 'BMMAS3C00800X1000X120WO', { size: 17, w: 800, fill: C.blue, fam: MONO })
-      + T(1068, 648, 'Mena, 7½″ W × 9½″ H × 10′, Natural White Oak', { size: 21, w: 700 }) + T(1068, 676, 'Inside opening listed: 6″ W × 8¾″ H', { size: 20, fill: C.gold }), 0, (1 - no) * 16);
-  }
-  const ec = prog(t, 30.5, .7);
+  s += G(prog(t, .3, .6) * (1 - prog(t, 21.6, .4)), chip(1810, 150, 'Quick Ship · 3-sided U-beams · single-piece, seamless corners', { size: 22, w: 800, anchor: 'end', stroke: C.gold }));
+  const big = (slot, a, b, cr) => { const op = prog(t, a, .7) * (b ? 1 - prog(t, b, .5) : 1); return op > 0 ? G(op, kb(slot, 430, 222, 1060, 656, t, a, (b || 40) - a, { kz: .05, bg: '#fff', fit: 'xMidYMid meet' }) + credit(1478, 856, cr)) : ''; };
+  s += big('aplus-heritage-light', .2, 7.6, 'Ekena Heritage A+ · real photo');
+  s += big('aplus-heritage-tex-col', 7.5, 22, 'Ekena Heritage A+ · 6 textures, 6 colors');
+  s += big('aplus-heritage-sizes', 22, 31, 'Ekena Heritage A+ · measurements');
+  const ec = prog(t, 31, .7);
   if (ec > 0) {
-    const caps = ['4×4', '6×6', '6×8', '8×8', '8×10', '10×10', '10×12'];
-    s += G(ec, T(120, 790, 'END CAPS (BMC…)', { size: 17, w: 800, fill: C.dim, ls: 2 }) + caps.map((c, i) => chip(120 + i * 120, 828, c, { size: 20, w: 700, stroke: C.gold })).join('')
-      + photo('heritage-end-cap', 1040, 720, 220, 160, '', { rx: 8 }));
+    s += G(ec, kb('gfx-inside-dims', 110, 222, 640, 640, t, 31, 9, { bg: '#fff', fit: 'xMidYMid meet' }) + credit(738, 840, 'Ekena · inside vs outside'));
+    s += G(ec, kb('heritage-end-cap', 790, 222, 440, 640, t, 31, 9, { bg: '#fff', fit: 'xMidYMid meet' }) + credit(1218, 840, 'Heritage end cap'));
+    s += G(ec, rect(1270, 222, 540, 640, { fill: C.panel, stroke: C.gold, sw: 2 }) + T(1300, 270, 'NOMINAL → ACTUAL', { size: 17, w: 800, fill: C.gold, ls: 2 })
+      + TL(1300, 316, ['4 × 4 → 3½″ × 3½″', '6 × 6 → 5½″ × 5½″', '8 × 10 → 7½″ × 9½″', '10 × 12 → 9½″ × 11½″'], { size: 26, w: 700, lh: 44 })
+      + T(1300, 520, 'END CAPS (BMC…)', { size: 17, w: 800, fill: C.gold, ls: 2 })
+      + ['4×4', '6×6', '6×8', '8×8', '8×10', '10×10', '10×12'].map((c, i) => chip(1300 + (i % 4) * 124, 566 + Math.floor(i / 4) * 56, c, { size: 20, w: 700, stroke: C.gold })).join('')
+      + TL(1300, 720, ['Listings give the inside opening:', 'check it clears ducts or a real beam.'], { size: 20, fill: C.mute, lh: 28 }));
   }
+  if (!hasPhoto('aplus-heritage-tex-col')) s += foot('Heritage banners not loaded: see images/README.md', 1);
   return s;
 });
 
 /* 8 — Sizes */
-S('Sizes', 22, [
-  [0, 'Timberthane stock beams run from 4 by 4 inches up to 12 by 12, from 6-foot planks to 24-foot beams.'],
-  [7.5, 'These cross sections are drawn to scale. Width comes first, then height.'],
-  [13, 'For something bigger, the custom beam builder at Architectural Depot goes up to 24 by 24 inches and 30 feet long.'],
+S('Sizes', 26, [
+  [0, 'Timberthane stock widths and heights are 4, 6, 8, 10 and 12 inches, with lengths from 4 to 24 feet in 2-foot steps, and a 1-inch wall.'],
+  [10, 'Need something else? Custom Timberthane runs from 3 to 24 inches wide and high, and 2 to 30 feet long, in half-inch steps.'],
+  [19.5, 'Width comes first, then height. Measure the room before you quote.'],
 ], t => {
-  let s = eyebrowTitle(t, 'CHAPTER 8', 'Sizes, drawn to scale');
-  const sc = 19, y0 = 300, list = [[4, 4, 'BMSD3C0040X040'], [6, 4, 'BMSD3C0060X040'], [8, 8, 'BMRS3C0080X080'], [10, 12, 'BMPC3C0100X120'], [12, 10, 'BMSD3C0120X100'], [12, 12, 'BMRW3C0120X120']];
-  let x = 150;
-  s += G(prog(t, .2, .5), `<rect x="110" y="${y0 - 22}" width="1700" height="22" fill="url(#hatch)" stroke="#4b5b6c"/>`);
-  list.forEach(([w, h, sku], i) => {
-    const a = .5 + i * .6;
-    s += rise(t, a, section('U', x, y0, w * sc, h * sc, { t: sc * .9, col: FIN.hickory, block: false, ceiling: false })
-      + T(x + w * sc / 2, y0 + h * sc + 34, `${w}″ × ${h}″`, { size: 24, w: 800, anchor: 'middle' }) + T(x + w * sc / 2, y0 + h * sc + 60, sku + '…', { size: 14, fill: C.mute, anchor: 'middle', fam: MONO }));
-    x += w * sc + 64;
-  });
-  s += G(prog(t, 7.5, .6), T(1810, 270, 'W × H · to scale', { size: 20, fill: C.gold, anchor: 'end' }));
-  // length bar
-  const lo = prog(t, 3, .8), bx = 150, bw = 1300, ppf = bw / 24;
-  s += G(lo, T(bx, 700, 'STOCK LENGTHS', { size: 18, w: 800, fill: C.dim, ls: 2 })
-    + `<rect x="${bx}" y="720" width="${bw}" height="16" rx="8" fill="${C.panel2}"/><rect x="${bx + 6 * ppf}" y="720" width="${f1(18 * ppf * lo)}" height="16" rx="8" fill="${C.gold}"/>`
-    + [0, 4, 8, 12, 16, 20, 24].map(ft => `<line x1="${f1(bx + ft * ppf)}" y1="742" x2="${f1(bx + ft * ppf)}" y2="752" stroke="${C.mute}"/>` + T(bx + ft * ppf, 776, ft + '′', { size: 18, fill: C.mute, anchor: 'middle' })).join('')
-    + T(bx + 15 * ppf, 712, '6′ → 24′', { size: 22, w: 800, fill: C.gold, anchor: 'middle' }));
-  s += G(prog(t, 13, .7), rect(1300, 820, 510, 80, { fill: C.panel, stroke: C.blue, sw: 2 }) + T(1330, 853, 'CUSTOM BEAM BUILDER', { size: 17, w: 800, fill: C.blue, ls: 2 }) + T(1330, 884, 'up to 24″ × 24″ × 30′ (Arch. Depot)', { size: 21, w: 700 }));
+  let s = eyebrowTitle(t, 'CHAPTER 8', 'Timberthane sizes');
+  s += G(prog(t, .2, .7), kb('gfx-sizes', 110, 222, 700, 642, t, 0, 26, { kz: .012, bg: '#fff', fit: 'xMidYMid meet' }) + credit(798, 842, 'Ekena graphic'));
+  const lo = prog(t, 1.5, 1.2), bx = 880, bw = 900, ppf = bw / 30;
+  s += G(prog(t, 1, .5), T(bx, 270, 'STOCK', { size: 18, w: 800, fill: C.gold, ls: 2 }) + TL(bx, 316, ['W & H: 4″ · 6″ · 8″ · 10″ · 12″', 'Lengths: 4′–24′ in 2′ steps · 1″ wall'], { size: 30, w: 700, lh: 44 }));
+  s += `<rect x="${bx}" y="420" width="${bw}" height="16" rx="8" fill="${C.panel2}"/>` + G(lo, `<rect x="${f1(bx + 4 * ppf)}" y="420" width="${f1(20 * ppf * lo)}" height="16" rx="8" fill="${C.gold}"/>`);
+  s += [0, 4, 8, 12, 16, 20, 24, 30].map(ft => `<line x1="${f1(bx + ft * ppf)}" y1="442" x2="${f1(bx + ft * ppf)}" y2="452" stroke="${C.mute}"/>` + T(bx + ft * ppf, 476, ft + '′', { size: 18, fill: C.mute, anchor: 'middle' })).join('');
+  const cu = prog(t, 10, .8);
+  s += G(cu, `<rect x="${f1(bx + 2 * ppf)}" y="500" width="${f1(28 * ppf * cu)}" height="12" rx="6" fill="${C.blue}"/>` + T(bx, 546, 'CUSTOM: 3″–24″ W & H · 2′–30′ long · ½″ steps', { size: 22, w: 800, fill: C.blue }));
+  s += G(cu, kb('aplus-tt-custom-sizes', bx, 576, 930, 230, t, 10, 16, { kz: .03, bg: '#fff', fit: 'xMidYMid meet' }) + credit(bx + 918, 784, 'Ekena Timberthane A+'));
+  s += G(prog(t, 19.5, .6), chip(bx + 930, 862, 'Width × height × length', { size: 22, w: 700, anchor: 'end', stroke: C.gold }));
   return s;
 });
 
@@ -530,122 +522,89 @@ S('Reading a SKU', 38, [
 });
 
 /* 10 — Installation */
-S('Installation', 42, [
-  [0, 'Installation, from the Ekena installation guide.'],
-  [3, 'Let the beams acclimate in the room for at least 24 hours. Then snap a chalk line down the center of each beam\'s path.'],
-  [10.5, 'Cut 2 by 4 blocking to the beam\'s inside width. Fasten the first block 2 feet from the wall, then one every 3 to 6 feet.'],
-  [18.5, 'Measure every run, cut the beam a little long, and dry fit it before any adhesive.'],
-  [25, 'Apply construction adhesive to the outside of the blocking and the top edges of the beam, press it in place, then fasten with finishing nails or screws.'],
-  [34, 'Clean off extra adhesive and caulk where the beam meets the wall. Cover any splice with a flexible beam strap.'],
+S('Installation', 58, [
+  [0, 'Installation, from Ekena\'s current installation guide for Heritage and Timberthane beams.'],
+  [4.5, 'Acclimate the beams in the room for at least 48 hours, laid flat. Then mark each beam line with a chalk line, laser or painter\'s tape.'],
+  [12.5, 'Cut wood blocks an eighth of an inch narrower than the inside of the beam, and fasten them at the beam ends and about every 2 to 3 feet.'],
+  [21.5, 'Screw the blocks into joists. Where there is no joist, use heavy-duty toggle bolts.'],
+  [27, 'Cut the beam an eighth of an inch longer than the opening and spring it into place. Use a hand saw: some beams hide fasteners.'],
+  [36.5, 'Run PL Premium adhesive on the top edges and blocks, then drive four trim screws per block, two per side. Fill gaps with colored caulk.'],
+  [46, 'Joining two beams? Ekena strongly recommends a beam strap over the splice.'],
+  [51, 'Light fixtures hang from blocking tied to a joist, through a hole cut in the beam, never from the beam itself.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 10', 'Installation essentials');
-  const wallX = 150, ceilY = 300, ppf = 44, beamH = 110;
-  s += `<rect x="${wallX - 30}" y="${ceilY - 40}" width="30" height="560" fill="url(#hatch)" stroke="#4b5b6c"/><rect x="${wallX - 30}" y="${ceilY - 40}" width="${19 * ppf + 30}" height="40" fill="url(#hatch)" stroke="#4b5b6c"/>`;
-  s += T(wallX + 9 * ppf, ceilY - 52, 'CEILING (side view)', { size: 16, w: 700, fill: C.dim, anchor: 'middle', ls: 2 });
-  // acclimate + chalk line
-  const ch = prog(t, 6.5, 1.4);
-  s += G(prog(t, 3, .6) * (1 - prog(t, 10, .5)), `<circle cx="1000" cy="520" r="54" fill="none" stroke="${C.blue}" stroke-width="5"/><path d="M1000,520 V486 M1000,520 L1024,534" stroke="${C.blue}" stroke-width="5" stroke-linecap="round"/>` + T(1000, 610, '24 h acclimate', { size: 22, w: 700, anchor: 'middle', fill: C.blue }));
-  if (ch > 0) s += `<line x1="${wallX}" y1="${ceilY + 3}" x2="${f1(wallX + 18 * ppf * ch)}" y2="${ceilY + 3}" stroke="${C.gold}" stroke-width="3" stroke-dasharray="10 6"/>`;
-  // blocks
-  const blocksFt = [2, 6, 10, 14, 18];
-  blocksFt.forEach((ft, i) => { const a = 11 + i * .9, p = prog(t, a, .5); s += G(p, `<rect x="${f1(wallX + ft * ppf - 18)}" y="${ceilY}" width="36" height="34" fill="#c9a272" stroke="#7a5a35" stroke-width="1.5"/>`, 0, (1 - p) * -10); });
-  const dimo = prog(t, 12.5, .6) * (1 - prog(t, 18, .5));
-  const dim = (x1, x2, y, lab) => `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${C.gold}" stroke-width="2"/><line x1="${x1}" y1="${y - 8}" x2="${x1}" y2="${y + 8}" stroke="${C.gold}" stroke-width="2"/><line x1="${x2}" y1="${y - 8}" x2="${x2}" y2="${y + 8}" stroke="${C.gold}" stroke-width="2"/>` + T((x1 + x2) / 2, y + 28, lab, { size: 20, w: 800, fill: C.gold, anchor: 'middle' });
-  s += G(dimo, dim(wallX, wallX + 2 * ppf, ceilY + 70, '2′') + dim(wallX + 2 * ppf, wallX + 6 * ppf, ceilY + 70, '3–6′') + dim(wallX + 6 * ppf, wallX + 10 * ppf, ceilY + 70, '3–6′'));
-  // beam: dry fit (rises), then adhered
-  const rise1 = prog(t, 19, 2), drop = (1 - rise1) * 220;
-  if (t >= 18.5) {
-    const bx = wallX, bl = 18 * ppf, by = ceilY + drop;
-    s += beamSide(bx, by, bl * .55, beamH, 'roughsawn', FIN.hickory, 5) + beamSide(bx + bl * .55, by, bl * .45, beamH, 'roughsawn', FIN.hickory, 6);
-    s += `<line x1="${f1(bx + bl * .55)}" y1="${f1(by)}" x2="${f1(bx + bl * .55)}" y2="${f1(by + beamH)}" stroke="#2b1a0e" stroke-width="2"/>`;
-    s += G(prog(t, 19, .5) * (1 - prog(t, 25, .5)), T(bx + bl / 2, by + beamH + 40, 'dry fit: cut a little long, no adhesive yet', { size: 22, w: 700, anchor: 'middle', fill: C.gold }));
-  }
-  const ad = prog(t, 25.5, .8);
-  s += G(ad * (1 - prog(t, 34, .5)), blocksFt.map(ft => [0, 1, 2].map(k => `<circle cx="${f1(wallX + ft * ppf - 12 + k * 12)}" cy="${ceilY + 40}" r="5" fill="${C.gold}"/>`).join('')).join('')
-    + [3, 8, 12, 16].map(ft => `<path d="M${f1(wallX + ft * ppf)},${ceilY + beamH + 70} v-46" stroke="${C.blue}" stroke-width="4"/><path d="M${f1(wallX + ft * ppf - 9)},${ceilY + beamH + 34} l9,-12 l9,12" fill="${C.blue}"/>`).join('')
-    + T(wallX + 9 * ppf, ceilY + beamH + 110, 'adhesive on blocking & beam top edges · then finishing nails or screws', { size: 21, w: 700, anchor: 'middle', fill: C.ink }));
-  const fin = prog(t, 34, .8);
-  s += G(fin, `<rect x="${wallX}" y="${ceilY}" width="7" height="${beamH}" fill="#f4efe6"/>` + strap(wallX + 18 * ppf * .55 - 22, ceilY - 2, 44, beamH + 4)
-    + T(wallX + 18 * ppf * .55, ceilY + beamH + 60, 'flexible beam strap hides the splice', { size: 21, w: 700, anchor: 'middle', fill: C.gold }) + T(wallX + 40, ceilY + beamH + 60, 'caulk', { size: 19, fill: C.ink }));
-  // step list
-  const steps = [[3, 'Acclimate 24 h · snap a chalk line'], [10.5, 'Blocking: 2′ from wall, then every 3–6′'], [18.5, 'Measure · cut long · dry fit'], [25, 'Adhesive · press · nail or screw'], [34, 'Clean up · caulk · strap splices']];
+  s += slides(t, [['aplus-tt-install', 0, 'Ekena Timberthane A+'], ['install-fig-01', 12.5, '2026 install guide · fig. 1'], ['install-fig-05', 21.5, '2026 guide · typical detail'],
+    ['install-fig-02', 27, '2026 guide · fig. 2'], ['install-fig-03', 36.5, '2026 guide · fig. 3'], ['install-fig-04', 46, '2026 guide · splicing'], ['install-fig-06', 51, '2026 guide · fan / chandelier']],
+    110, 226, 1000, 660, { bg: '#fff', fit: 'xMidYMid meet', kz: .04 });
+  const steps = [[4.5, 'Acclimate 48 h · mark lines', 'flat, away from moisture, sun, heat'], [12.5, 'Blocks ⅛″ under inside width', 'at beam ends · every 2–3 ft · adhesive + screws'],
+    [21.5, 'Into joists, or toggle bolts', 'heavy-duty toggles where there\'s no joist'], [27, 'Cut ⅛″ long · spring it in', 'never short · hand saw (hidden fasteners)'],
+    [36.5, 'PL Premium · 4 trim screws/block', 'two per side, countersunk · colored caulk'], [46, 'Splices: strap them', 'strongly recommended by Ekena'], [51, 'Fixtures hang from blocking', 'tied to a joist · never from the beam']];
   let act = -1; steps.forEach((st, i) => { if (t >= st[0]) act = i; });
-  steps.forEach((st, i) => { const y = 690 + i * 44, on = i === act; s += rise(t, st[0], `<circle cx="1110" cy="${y - 7}" r="15" fill="${on ? C.gold : C.line}"/>` + T(1110, y - 1, String(i + 1), { size: 16, w: 800, anchor: 'middle', fill: on ? '#1a1408' : C.ink }) + T(1138, y, st[1], { size: 23, w: on ? 800 : 500, fill: on ? C.ink : C.mute }), .5, 8); });
+  steps.forEach((st, i) => {
+    const y = 226 + i * 94, on = i === act;
+    s += rise(t, st[0], rect(1140, y, 670, 82, { fill: on ? C.panel2 : C.panel, stroke: on ? C.gold : C.line, sw: on ? 2.5 : 1.2 })
+      + `<circle cx="1178" cy="${y + 41}" r="19" fill="${on ? C.gold : C.line}"/>` + T(1178, y + 48, String(i + 1), { size: 19, w: 800, anchor: 'middle', fill: on ? '#1a1408' : C.ink })
+      + T(1212, y + 36, st[1], { size: 23, w: 800 }) + T(1212, y + 64, st[2], { size: 17, fill: C.mute }), .5, 8);
+  });
   return s;
 });
 
 /* 11 — Accessories & the collection */
-S('Accessories & collection', 34, [
+S('Accessories & collection', 38, [
   [0, 'Finish the look with accessories and matching pieces.'],
-  [3, 'Flexible beam straps look like forged iron with faux bolts. They come 3 or 1½ inches wide, up to 12 feet long, and hide seams where beams join.'],
-  [12, 'The Timberthane collection also includes corbels, knee braces, outlookers, rafter tails, gable vents and shutters, molded from real wood like the beams.'],
-  [21, 'Faux wood beam mantels come in Hand Hewn, Rough Sawn and Heritage Timber styles.'],
-  [27, 'Ekena also makes real wood beams and faux steel I-beams, and Architectural Depot carries faux log beams too.'],
+  [3, 'Flexible beam straps look like forged iron with faux bolts and hide seams where beams join. Heritage also offers rigid straps sized to each beam.'],
+  [11.5, 'The Timberthane collection adds corbels, brackets, outlookers, braces and rafter tails, molded from real wood like the beams, plus shutters and gable vents.'],
+  [21, 'Faux wood mantels come in Hand Hewn and Rough Sawn, and Heritage Timber mantels run from 60 to 90 inches wide.'],
+  [28.5, 'Ekena\'s beam family also includes AmeriCraft real wood beams, ForgeCraft faux steel beams and Heritage Timber round log beams.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 11', 'Accessories & the Timberthane collection');
-  const p1 = prog(t, 3, .7);
-  s += G(p1, photo('accessory-beam-strap', 120, 250, 700, 150, beamSide(120, 270, 700, 120, 'handhewn', FIN.aged, 9) + strap(290, 266, 48, 128) + strap(610, 266, 48, 128), { rx: 8 })
-    + T(470, 440, 'Flexible beam straps', { size: 26, w: 800, anchor: 'middle' }) + T(470, 470, '3″ or 1½″ wide · lengths to 12′ · e.g. BMSTRF03X96TRBL', { size: 18, fill: C.mute, anchor: 'middle' }));
-  // collection pieces
-  const items = [['Corbels', 'collection-corbel'], ['Knee braces', 'collection-knee-brace'], ['Outlookers', 'collection-outlooker'], ['Rafter tails', 'collection-rafter-tail'], ['Gable vents', 'collection-gable-vent'], ['Shutters', 'collection-shutter']];
-  const draw = (k, x, y) => {
-    const c = FIN.cedarBark;
-    switch (k) {
-      case 0: return woodFace(x + 40, y, 40, 110, 'cedar', c, 101) + `<path d="M${x + 40},${y + 110} q-30,0 -30,-40 v-70 h30Z" fill="${shade(c, -.1)}"/>`;
-      case 1: return woodFace(x + 10, y, 22, 110, 'cedar', c, 102) + woodFace(x + 10, y, 100, 22, 'cedar', c, 103) + `<path d="M${x + 26},${y + 100} L${x + 100},${y + 18}" stroke="${shade(c, -.2)}" stroke-width="16"/>`;
-      case 2: return woodFace(x + 10, y + 30, 110, 34, 'cedar', c, 104) + `<path d="M${x + 120},${y + 30} l14,17 l-14,17Z" fill="${shade(c, -.1)}"/>`;
-      case 3: return woodFace(x, y + 40, 100, 30, 'cedar', c, 105) + `<path d="M${x + 100},${y + 40} q30,0 30,30 h-30Z" fill="${shade(c, -.1)}"/>`;
-      case 4: return `<rect x="${x + 20}" y="${y}" width="90" height="110" fill="${shade(c, -.25)}"/>` + [0, 1, 2, 3, 4].map(r => woodFace(x + 26, y + 8 + r * 20, 78, 12, 'cedar', c, 106 + r, { edge: false })).join('');
-      default: return woodFace(x + 30, y, 70, 120, 'cedar', c, 111) + `<line x1="${x + 30}" y1="${y + 40}" x2="${x + 100}" y2="${y + 40}" stroke="${shade(c, -.3)}" stroke-width="5"/><line x1="${x + 30}" y1="${y + 80}" x2="${x + 100}" y2="${y + 80}" stroke="${shade(c, -.3)}" stroke-width="5"/>`;
-    }
-  };
-  items.forEach(([n, slot], i) => {
-    const x = 900 + (i % 3) * 320, y = 250 + Math.floor(i / 3) * 210;
-    s += rise(t, 12 + i * .5, photo(slot, x, y, 150, 130, draw(i, x, y), { rx: 6, bg: '#fff', fit: 'xMidYMid meet' }) + T(x + 165, y + 70, n, { size: 24, w: 700 }));
-  });
-  s += G(prog(t, 12.5, .5), T(900, 236, 'TIMBERTHANE COLLECTION', { size: 17, w: 800, fill: C.dim, ls: 2 }));
-  const p3 = prog(t, 21, .7);
-  s += G(p3, photo('mantel', 120, 560, 460, 330, `<rect x="160" y="640" width="380" height="250" fill="#3b4652" stroke="#566472"/><rect x="260" y="720" width="180" height="170" fill="#151b21"/><path d="M290,885 q30,-80 60,-30 q20,-60 50,10 q10,30 10,20" fill="${C.amber}" opacity=".8"/>` + woodFace(120, 590, 460, 54, 'handhewn', FIN.walnut, 15), { rx: 8 })
-    + T(610, 640, 'Faux wood beam mantels', { size: 26, w: 800 }) + T(610, 672, 'Hand Hewn · Rough Sawn · Heritage Timber', { size: 19, fill: C.mute }) + T(610, 700, 'e.g. MANUHH08X12X72BKNM (with corbels)', { size: 16, fill: C.gold, fam: MONO }));
-  const p4 = prog(t, 27, .7);
-  s += G(p4, rect(1100, 690, 710, 200, { fill: C.panel, stroke: C.line }) + T(1130, 730, 'ALSO IN BEAMS', { size: 17, w: 800, fill: C.dim, ls: 2 })
-    + T(1130, 772, 'Real wood beams  ·  Ekena', { size: 24, w: 700 }) + T(1130, 812, 'Faux steel I-beams  ·  Ekena', { size: 24, w: 700 }) + T(1130, 852, 'Faux log beams  ·  Architectural Depot', { size: 24, w: 700 }));
+  const p1 = prog(t, 3, .7) * (1 - prog(t, 11.2, .4));
+  if (p1 > 0) s += G(p1, kb('strap-on-beam', 110, 226, 820, 660, t, 3, 9) + credit(918, 864, 'Ekena flex strap · real photo') + kb('room-dining-straps', 990, 226, 820, 660, t, 3, 9) + credit(1798, 864, 'strapped beams · concept photo'));
+  const p2 = prog(t, 11.5, .7) * (1 - prog(t, 20.7, .4));
+  if (p2 > 0) s += G(p2, kb('aplus-tt-collection', 110, 226, 1700, 520, t, 11.5, 10, { bg: '#fff', fit: 'xMidYMid meet', kz: .03 }) + credit(1798, 724, 'Ekena Timberthane collection A+')
+    + kb('aplus-shutters', 110, 766, 200, 124, t, 11.5, 10, { bg: '#fff', fit: 'xMidYMid meet', kz: .02 }) + T(330, 840, 'Timberthane shutters & gable vents complete the exterior.', { size: 24, w: 700 }));
+  const p3 = prog(t, 21, .7) * (1 - prog(t, 28.2, .4));
+  if (p3 > 0) s += G(p3, kb('mantel', 110, 226, 980, 660, t, 21, 8) + credit(1078, 864, 'Ekena mantel on corbels · real photo') + kb('aplus-heritage-mantel', 1130, 226, 680, 420, t, 21, 8, { bg: '#fff', fit: 'xMidYMid meet', kz: .03 })
+    + TL(1130, 700, ['Heritage mantels: Rough Sawn or', 'Reclaimed Axed Cut · 60″–90″ wide ·', '6×8 or 8×10 · six colors'], { size: 22, fill: C.mute, lh: 32 }));
+  const p4 = prog(t, 28.5, .7);
+  if (p4 > 0) s += G(p4, kb('aplus-beam-collection', 360, 226, 1200, 660, t, 28.5, 10, { bg: '#fff', fit: 'xMidYMid meet', kz: .04 }) + credit(1548, 864, 'Ekena beam collection A+'));
   return s;
 });
 
 /* 12 — Competitors */
-S('Competitors', 44, [
+S('Competitors', 46, [
   [0, 'Here is the competitive set.'],
   [3, 'Barron Designs is also high-density polyurethane molded from real wood, made in the USA, with a 15-year warranty and a Class A fire-rated option.'],
-  [12, 'AZ Faux beams are high-density polyurethane with a 15-year warranty.'],
-  [17, 'Fypon has four beam styles, Rough Sawn, Hand Hewn, Mesa and Tahoe, from 8 to 24 feet, with a limited lifetime warranty.'],
-  [25.5, 'Volterra makes custom high-density polyurethane foam beams. Real wood is heavier and costs more, but some customers want the real thing.'],
-  [33.5, 'Our edge: a limited lifetime warranty, eight textures, more than twenty-five finishes and four shapes in Timberthane, plus Heritage Timber for quick ship.'],
-  [40, 'If a project needs a Class A fire rating, confirm the rating with the product team before you quote.'],
+  [12, 'AZ Faux beams are high-density polyurethane with a 15-year warranty and a fire-rated option.'],
+  [17.5, 'Fypon has four beam styles, Rough Sawn, Hand Hewn, Mesa and Tahoe, with a lifetime warranty for homeowners and 4 years for commercial jobs.'],
+  [26, 'Volterra makes custom high-density polyurethane foam beams with a 5-year guarantee. Real wood, like Ekena\'s AmeriCraft, is heavier and costs more.'],
+  [35, 'Our edge: four shapes, eight textures and over twenty finishes in Timberthane, a limited lifetime warranty, and Heritage Timber for quick ship.'],
+  [42, 'If a project needs a Class A fire rating, confirm the rating with the product team before you quote.'],
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 12', 'How we compare');
-  const cols = [110, 450, 880, 1580];
+  const cols = [110, 520, 920, 1560];
   const hdr = ['BRAND', 'MATERIAL', 'RANGE / NOTES', 'WARRANTY'];
-  s += G(prog(t, .3, .5), hdr.map((h, i) => T(cols[i] + 18, 246, h, { size: 16, w: 800, fill: C.dim, ls: 2 })).join(''));
+  s += G(prog(t, .3, .5), hdr.map((h, i) => T(cols[i] + (i ? 18 : 150), 246, h, { size: 16, w: 800, fill: C.dim, ls: 2 })).join(''));
   const rows = [
-    [.4, ['Ekena Timberthane', '+ Heritage Timber'], ['High-density polyurethane,', 'molded from real wood'], ['Timberthane: 8 textures · 25+ finishes · 4 shapes', 'Heritage: quick ship · 6 textures · ~50 sizes'], ['Limited lifetime'], true],
-    [3, ['Barron Designs'], ['High-density polyurethane,', 'molded from real wood, USA'], ['Class A fire-rated option', '(costs more, longer lead time)'], ['15 years']],
-    [12, ['AZ Faux'], ['High-density polyurethane'], ['e.g. 4×4×10′ 3-sided ≈ 12 lb'], ['15 years']],
-    [17, ['Fypon®'], ['Polyurethane'], ['Rough Sawn · Hand Hewn · Mesa · Tahoe', '8′–24′ lengths in 2′ steps'], ['Limited lifetime']],
-    [25.5, ['Volterra'], ['High-density polyurethane', 'foam (HDF), custom'], ['Custom profiles & lengths'], ['see Volterra']],
-    [27.5, ['Real wood'], ['Solid / box timber'], ['Heavier, 2–3× the cost', '(Architectural Depot)'], ['varies']],
+    [.4, 'shape-u-beam', ['Ekena Timberthane', '+ Heritage Timber'], ['High-density polyurethane,', 'molded from real wood'], ['Timberthane: 4 shapes · 8 textures · 20+ finishes', 'Heritage: quick ship · 6 textures'], ['Limited lifetime', '(pro-rated)'], true],
+    [3, 'competitor-barron', ['Barron Designs'], ['High-density polyurethane,', 'molded from real wood, USA'], ['Class A fire-rated option', 'assembled from mitered planks'], ['15 years']],
+    [12, 'competitor-azfaux', ['AZ Faux'], ['High-density polyurethane'], ['Fire-rated option', 'e.g. 4×4×10′ 3-sided ≈ 12 lb'], ['15 years']],
+    [17.5, 'competitor-fypon', ['Fypon®'], ['Polyurethane'], ['Rough Sawn · Hand Hewn · Mesa · Tahoe', '8′–24′ lengths'], ['Lifetime (homeowner)', '4 yr commercial']],
+    [26, 'competitor-volterra', ['Volterra'], ['High-density polyurethane', 'foam (HDF), custom'], ['5 textures · custom profiles', 'ASTM E84 by special order'], ['5-year guarantee']],
+    [29.5, 'competitor-real-wood', ['Real wood'], ['Solid timber', '(e.g. Ekena AmeriCraft)'], ['Heavier, costs more', 'checks and moves over time'], ['varies']],
   ];
-  const cur = [0, 3, 12, 17, 25.5, 999].reduce((a, v, i) => t >= v ? i : a, 0);
+  const cur = [0, 3, 12, 17.5, 26, 999].reduce((a, v, i) => t >= v ? i : a, 0);
   rows.forEach((r, i) => {
-    const y = 268 + i * 98, focus = (i === cur || (cur === 4 && i === 5)) && t < 33.5;
-    let g = rect(cols[0], y, 1700, 88, { fill: r[5] ? '#1f2a1d' : C.panel, stroke: r[5] ? C.gold : focus ? C.blue : C.line, sw: r[5] || focus ? 2.5 : 1.2, rx: 10 });
-    g += TL(cols[0] + 18, y + (r[1].length > 1 ? 37 : 52), r[1], { size: 24, w: 800, fill: r[5] ? C.gold : C.ink, lh: 30 });
-    g += TL(cols[1] + 18, y + (r[2].length > 1 ? 37 : 52), r[2], { size: 20, fill: C.mute, lh: 27 });
-    g += TL(cols[2] + 18, y + (r[3].length > 1 ? 37 : 52), r[3], { size: 20, fill: C.ink, lh: 27 });
-    g += T(cols[3] + 18, y + 52, r[4][0], { size: 22, w: 700 });
+    const y = 262 + i * 104, focus = (i === cur || (cur === 4 && i === 5)) && t < 35;
+    let g = rect(cols[0], y, 1700, 94, { fill: r[6] ? '#1f2a1d' : C.panel, stroke: r[6] ? C.gold : focus ? C.blue : C.line, sw: r[6] || focus ? 2.5 : 1.2, rx: 10 });
+    g += photo(r[1], cols[0] + 8, y + 8, 126, 78, '', { rx: 6, bg: '#fff', fit: 'xMidYMid meet' });
+    g += TL(cols[0] + 150, y + (r[2].length > 1 ? 40 : 56), r[2], { size: 23, w: 800, fill: r[6] ? C.gold : C.ink, lh: 29 });
+    g += TL(cols[1] + 18, y + (r[3].length > 1 ? 40 : 56), r[3], { size: 19, fill: C.mute, lh: 27 });
+    g += TL(cols[2] + 18, y + (r[4].length > 1 ? 40 : 56), r[4], { size: 19, fill: C.ink, lh: 27 });
+    g += TL(cols[3] + 18, y + (r[5].length > 1 ? 40 : 56), r[5], { size: r[5].length > 1 ? 19 : 22, w: 700, lh: 27 });
     s += rise(t, r[0], g, .6, 14);
   });
-  s += G(prog(t, 40, .6), chip(960, 900, 'Need Class A? Confirm Ekena\'s fire rating with the product team before quoting', { size: 21, w: 700, anchor: 'middle', stroke: C.amber, color: C.amber }));
+  s += G(prog(t, 42, .6), chip(960, 898, 'Need Class A? Confirm Ekena\'s fire rating with the product team before quoting', { size: 21, w: 700, anchor: 'middle', stroke: C.amber, color: C.amber }));
   return s;
 });
 
@@ -662,24 +621,21 @@ S('Which product?', 42, [
 ], t => {
   let s = eyebrowTitle(t, 'CHAPTER 13', 'Which product? Practice');
   const sc = [
-    [0, 5.5, 'Vaulted great room: dark, rustic beams in 18-foot runs.', 'Timberthane U-beams · Hand Hewn or Rough Sawn · dark finish (e.g. Aged). Order all beams at once.', 'room', 'ok'],
-    [11, 15, 'Hide ductwork or a steel beam.', 'Hollow U-beam whose inside opening clears it (Heritage lists it). Still decorative.', 'duct', 'ok'],
-    [22, 25.5, 'A beam where the ceiling meets the wall.', '2-sided L-beam (code 2C).', 'L', 'ok'],
+    [0, 5.5, 'Vaulted great room: dark, rustic beams in 18-foot runs.', 'Timberthane U-beams · Hand Hewn or Rough Sawn · dark finish (e.g. Aged). Order all beams at once.', 'room-vaulted', 'ok'],
+    [11, 15, 'Hide ductwork or a steel beam.', 'Hollow U-beam whose inside opening clears it (Heritage lists it). Still decorative.', 'gfx-inside-dims', 'ok'],
+    [22, 25.5, 'A beam where the ceiling meets the wall.', '2-sided L-beam (code 2C).', 'gfx-l-beam', 'ok'],
     [29, 33, 'Hang a porch swing from the beam.', 'No. Faux beams are decorative. Hang the swing from structure.', 'swing', 'no'],
   ];
   sc.forEach((c, i) => {
     const x = 110 + (i % 2) * 870, y = 226 + Math.floor(i / 2) * 340, ans = prog(t, c[1], .6), ok = c[5] === 'ok';
     let g = rect(x, y, 830, 316, { fill: C.panel, stroke: ans > 0 ? (ok ? C.green : C.red) : C.line, sw: ans > 0 ? 2.5 : 1.5 });
-    g += T(x + 30, y + 46, 'SCENARIO ' + (i + 1), { size: 17, w: 800, fill: C.gold, ls: 3 }) + TL(x + 30, y + 92, wrap(c[2], 34), { size: 27, w: 700, lh: 36 });
+    g += T(x + 30, y + 46, 'SCENARIO ' + (i + 1), { size: 17, w: 800, fill: C.gold, ls: 3 }) + TL(x + 30, y + 92, wrap(c[2], 28), { size: 27, w: 700, lh: 36 });
     g += G(1 - ans, T(x + 30, y + 280, 'What do you recommend?', { size: 22, fill: C.dim }));
-    g += G(ans, TL(x + 30, y + 206, wrap(c[3], 46), { size: 21, fill: ok ? C.green : C.red, lh: 29 }));
-    const vx = x + 610, vy = y + 60;
-    let v = '';
-    if (c[4] === 'room') v = woodFace(vx, vy + 30, 190, 40, 'handhewn', FIN.aged, 90) + woodFace(vx + 20, vy + 100, 150, 30, 'handhewn', FIN.aged, 91);
-    if (c[4] === 'duct') v = section('U', vx + 20, vy + 20, 160, 140, { t: 14, col: FIN.hickory, block: false }) + `<rect x="${vx + 50}" y="${vy + 30}" width="100" height="70" fill="#9aa4ad" stroke="#5d6770" stroke-width="3"/>`;
-    if (c[4] === 'L') v = section('L', vx + 30, vy + 20, 120, 120, { t: 16, col: FIN.hickory, block: false });
-    if (c[4] === 'swing') v = beamSide(vx, vy + 20, 200, 50, 'roughsawn', FIN.hickory, 92) + `<path d="M${vx + 50},${vy + 70} v80 M${vx + 150},${vy + 70} v80 M${vx + 30},${vy + 150} h140" stroke="${C.mute}" stroke-width="4"/>` + G(ans, `<path d="M${vx + 20},${vy + 10} l160,160 M${vx + 180},${vy + 10} l-160,160" stroke="${C.red}" stroke-width="8"/>`);
-    g += G(ans, v);
+    g += G(ans, TL(x + 30, y + 206, wrap(c[3], 38), { size: 21, fill: ok ? C.green : C.red, lh: 29 }));
+    const vx = x + 560, vy = y + 20;
+    const v = c[4] === 'swing' ? beamSide(vx + 20, vy + 60, 220, 50, 'roughsawn', FIN.hickory, 92) + `<path d="M${vx + 70},${vy + 110} v80 M${vx + 170},${vy + 110} v80 M${vx + 50},${vy + 190} h140" stroke="${C.mute}" stroke-width="4"/>` + G(ans, `<path d="M${vx + 40},${vy + 50} l160,160 M${vx + 200},${vy + 50} l-160,160" stroke="${C.red}" stroke-width="8"/>`)
+      : kb(c[4], vx, vy, 250, 276, t, c[0], 12, { rx: 8, bg: '#fff', fit: c[4] === 'room-vaulted' ? 'xMidYMid slice' : 'xMidYMid meet', kz: .05 });
+    g += G(c[4] === 'swing' ? 1 : prog(t, c[0] + .4, .6), v);
     s += rise(t, c[0], g, .6, 16);
   });
   return s;
@@ -688,8 +644,8 @@ S('Which product?', 42, [
 /* 14 — Recap */
 S('Recap', 20, [
   [0, 'Quick recap.'],
-  [2, 'Faux wood beams are hand-finished high-density polyurethane, molded from real wood, rated for interior and exterior use, with a limited lifetime warranty.'],
-  [10, 'They are decorative, never structural. Timberthane has four shapes, eight textures and over twenty-five finishes; Heritage Timber ships quick in six textures.'],
+  [2, 'Faux wood beams are hand-finished high-density polyurethane, molded from real wood, for interior and exterior use, with a limited lifetime warranty.'],
+  [10, 'They are decorative, never structural. Timberthane has four shapes, eight textures and over twenty finishes; Heritage Timber ships quick in six textures.'],
   [15, 'Thanks for watching. Full sources are in the research fact sheet.'],
 ], t => {
   let s = eyebrowTitle(t, 'RECAP', 'Remember these six things');
@@ -697,12 +653,12 @@ S('Recap', 20, [
     'High-density polyurethane, molded from real wood, hand-finished',
     'Decorative only: the hollow core hides or wraps, never carries',
     'Four shapes: plank · L-beam · U-beam · box beam',
-    'Timberthane (= Endurathane): 8 textures, 25+ finishes',
+    'Timberthane (= Endurathane): 8 textures, 20+ finishes',
     'Heritage Timber: quick ship, 6 textures, nominal sizes',
-    'SKU = texture · shape · W × H × L · finish; order a room together',
+    'Install: 48 h acclimate · blocks ⅛″ under · cut ⅛″ long',
   ];
-  b.forEach((l, i) => { const y = 290 + i * 98; s += rise(t, 1.5 + i * 1.1, `<circle cx="150" cy="${y - 10}" r="22" fill="${C.gold}"/>` + T(150, y - 1, String(i + 1), { size: 22, w: 800, anchor: 'middle', fill: '#1a1408' }) + T(196, y, l, { size: 30, w: 600 })); });
-  s += G(prog(t, .3, 1), beamSide(1320, 300, 500, 110, 'handhewn', FIN.aged, 99) + strap(1520, 296, 44, 118) + beamSide(1320, 520, 500, 110, 'sandblasted', FIN.toffee, 98) + beamSide(1320, 740, 500, 110, 'riverwood', FIN.whiteOak, 97));
+  b.forEach((l, i) => { const y = 290 + i * 98; s += rise(t, 1.5 + i * 1.1, `<circle cx="150" cy="${y - 10}" r="22" fill="${C.gold}"/>` + T(150, y - 1, String(i + 1), { size: 22, w: 800, anchor: 'middle', fill: '#1a1408' }) + T(196, y, l, { size: 28, w: 600 })); });
+  s += slides(t, [['room-plank', .2, 'Ekena · concept photo'], ['room-vaulted-kitchen', 8, 'Ekena · concept photo'], ['room-bedroom', 14, 'Ekena · concept photo']], 1180, 226, 630, 660);
   return s;
 });
 

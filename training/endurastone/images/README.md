@@ -34,8 +34,17 @@ A slot with no photo keeps its drawn illustration. Use real Ekena product photog
 | `base-roman-doric` | yes |
 | `base-pedestal` | yes |
 | `base-craftsman` | yes |
+| `install-cap-neck` | yes |
+| `height-remove-neck` | yes |
+| `height-cut-line` | yes |
+| `height-diagram` | yes |
+| `install-trim-bottom` | yes |
+| `install-split-trim` | yes |
+| `install-timesaver-bracket` | yes |
+| `install-base-slide` | yes |
+| `install-split-post` | yes |
 | `family-endura-stone` | yes |
 | `family-endura-craft` | yes |
-| `family-endurathane` | yes |
+| `family-timberthane` |  |
 | `family-endura-lite` | yes |
 | `family-endura-lum` | yes |

@@ -1,10 +1,11 @@
 # Faux wood beam training video
 
-A narrated, 8¼-minute product-training video for Ekena faux wood beams (Timberthane™ and Heritage
-Timber), built from code. Product images (the four shapes, all eight Timberthane textures, 24 of 26
-finishes, every Heritage texture and finish, end caps, straps, the collection pieces and mantels)
-are Ekena's own; cross-sections, the install sequence and part-number breakdowns are drawn as SVG
-by `index.html`. The voiceover is an open-weight neural voice (Kokoro, `af_heart`) reading the
+A narrated product-training video for Ekena faux wood beams (Timberthane™ and Heritage
+Timber), built from code. Every chapter uses Ekena's own imagery: real room and shop photos, Ekena's A+
+banners (finish chart, 8 textures / 5 styles, custom sizes, Heritage textures, colors and measurements),
+the figures from Ekena's 2026 installation guide, accessory and mantel photos, and competitor product
+photos from each brand's site. Photos move with a slow zoom; cross-sections and part-number breakdowns
+are drawn as SVG by `index.html`. The voiceover is an open-weight neural voice (Kokoro, `af_heart`) reading the
 same fact-checked text as the on-screen captions.
 
 | File | What it is |
@@ -18,13 +19,13 @@ same fact-checked text as the on-screen captions.
 ## Chapters
 
 1. Welcome · 2. What they are (molded from real wood, hand-finished, hollow, decorative) ·
-3. Why faux (no rot/warp, interior & exterior, limited lifetime warranty) ·
+3. Why faux (no rot/warp, interior & exterior, pro-rated limited lifetime warranty) ·
 4. Four Timberthane shapes (plank, L-beam, U-beam, box beam; optional end caps) ·
-5. Eight Timberthane textures · 6. 26 Timberthane finishes (codes; OT = Oatmeal vs Primed Tan) ·
-7. Heritage Timber (quick ship, six textures, finishes, nominal sizing, end caps) · 8. Sizes to scale ·
-9. Reading a part number · 10. Installation · 11. Accessories & the Timberthane collection
-(straps, corbels, braces, outlookers, rafter tails, gable vents, shutters, mantels, real wood and
-faux steel beams) · 12. Competitors (Barron Designs, AZ Faux, Fypon, Volterra, real wood) ·
+5. Eight Timberthane textures (Rustic Smooth primed only) · 6. Over 20 Timberthane finishes (Ekena's chart; OT =
+Oatmeal vs Primed Tan) · 7. Heritage Timber (quick ship, six textures, colors, nominal sizes, end caps) ·
+8. Sizes (stock and custom) · 9. Reading a part number · 10. Installation (Ekena's 2026 guide and figures) ·
+11. Accessories & the collection (straps, corbels, brackets, outlookers, braces, rafter tails, shutters, mantels,
+AmeriCraft, ForgeCraft, log beams) · 12. Competitors (Barron Designs, AZ Faux, Fypon, Volterra, real wood) ·
 13. Practice scenarios · 14. Recap
 
 Swatches are Ekena's listing images, which are mostly renders; the video tells reps to order a sample

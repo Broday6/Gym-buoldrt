@@ -10,6 +10,30 @@
  },
  "say": [
   [
+   "\\bPL Premium\\b",
+   "P L Premium"
+  ],
+  [
+   "AmeriCraft",
+   "Ameri Craft"
+  ],
+  [
+   "ForgeCraft",
+   "Forge Craft"
+  ],
+  [
+   "3½",
+   "three and a half"
+  ],
+  [
+   "9½",
+   "nine and a half"
+  ],
+  [
+   "11½",
+   "eleven and a half"
+  ],
+  [
    "\\bAZ Faux\\b",
    "Eigh Z Faux"
   ],
