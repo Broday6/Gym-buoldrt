@@ -40,6 +40,7 @@
    "card": "28 hand-finished colors",
    "vo": "Then the finish. There are twenty-eight hand-finished colors, from light Sand Dune and Driftwood to deep Hickory and Cherry. Or Factory Prepped, ready for paint.",
    "claims": [
+    "T13",
     "T4",
     "T5"
    ]
@@ -48,7 +49,7 @@
    "id": "size",
    "title": "Width and height",
    "kind": "diagram",
-   "card": "3 to 24 in, to the half inch",
+   "card": "3 to 24 in, to the half inch",
    "vo": "Size it to the half inch: anywhere from three to twenty-four inches wide, and three to twenty-four inches tall.",
    "claims": [
     "T6"
@@ -84,7 +85,8 @@
    "card": "Order a sample",
    "vo": "See the finish in person. Order a sample.",
    "claims": [
-    "T11"
+    "T11",
+    "T12"
    ],
    "min_s": 5.5
   }
@@ -142,8 +144,18 @@
   },
   {
    "id": "T11",
-   "text": "Timberthane material samples are available",
-   "source": "BM-MAT-SAMPLE listing"
+   "text": "Timberthane material samples are available, 10 x 7 in",
+   "source": "BM-MAT-SAMPLE listing; sample description '10\" x 7\" SAMPLE - Hand Hewn Timberthane Faux Wood Beam'"
+  },
+  {
+   "id": "T12",
+   "text": "ekenamillwork.com sells these beams",
+   "source": "Product records: manufacturer Ekena Millwork, onEkena = 1. Site for the end card to be confirmed by Brody"
+  },
+  {
+   "id": "T13",
+   "text": "Factory Prepped comes ready for paint",
+   "source": "Timberthane finish option name 'Factory Prepped, Ready for Paint' (BM-MAT-SAMPLE finish list, raw/ss-timberthane.json)"
   }
  ],
  "key_terms": [
@@ -159,7 +171,6 @@
   "Rough Sawn",
   "Rough Cedar",
   "Sandblasted",
-  "Riverwood",
   {
    "term": "Knotty Pine",
    "heard_as": [
@@ -180,6 +191,28 @@
   },
   "Hickory",
   "Cherry",
-  "Driftwood"
+  "Driftwood",
+  {
+   "term": "Ekena",
+   "heard_as": [
+    "Ekena",
+    "Eek and a",
+    "Eakin and",
+    "Eaken and",
+    "Eakin &",
+    "Eaken &",
+    "Akina",
+    "Ekina",
+    "Ekeena"
+   ]
+  },
+  {
+   "term": "Riverwood",
+   "heard_as": [
+    "Riverwood",
+    "River wood",
+    "River-wood"
+   ]
+  }
  ]
 }

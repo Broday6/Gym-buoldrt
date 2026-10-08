@@ -78,7 +78,7 @@ export const scenes = {
       if (P) {
         const hh = HH / 2;
         cover(g, A.hRoom, 0, -hh * (1 - open), W, hh, { zoom: z, py: -0.2 });
-        cover(g, A.tRoomTall, 0, hh + hh * (1 - open), W, hh, { zoom: z, py: -0.3 });
+        cover(g, A.tRoomWide, 0, hh + hh * (1 - open), W, hh, { zoom: z, px: -0.2, py: -0.6, src: A.tRoomWide.bb });
       } else {
         const hw = W / 2;
         cover(g, A.hRoom, -hw * (1 - open), 0, hw, HH, { zoom: z, px: 0.1 });
@@ -88,7 +88,7 @@ export const scenes = {
       gr.addColorStop(0, 'rgba(20,24,20,0.15)'); gr.addColorStop(0.45, 'rgba(20,24,20,0.35)'); gr.addColorStop(1, 'rgba(20,24,20,0.86)');
       g.fillStyle = gr; g.fillRect(0, 0, W, HH);
       g.fillStyle = 'rgba(255,255,255,0.9)';
-      if (P) g.fillRect(0, HH / 2 - 2 * u, W * open, 4 * u); else g.fillRect(W / 2 - 2 * u, 0, 4 * u, HH * open);
+      if (P) g.fillRect(0, HH / 2 - 2 * u, W * open, 4 * u); else g.fillRect(W / 2 - 2 * u, 0, 4 * u, (HH - 360 * u) * open); // stops above the title
       g.restore();
       const tH = cue(s, 'Heritage', { fallback: 0.9 }), tT = cue(s, 'timber', { after: tH + 0.3, alts: ['timberthane'], fallback: 2.1 });
       const lab = (t, x, y, al) => {
@@ -144,14 +144,14 @@ export const scenes = {
         wrapped.forEach((ln, k) => text(g, ln, lx + 104 * u, y + (rowH - 24 * u) / 2 + 12 * u + (k - (wrapped.length - 1) / 2) * 40 * u, { f }));
         if (it.pic === 'hollow') {
           const pw = 210 * u, ph = rowH - 54 * u;
-          cover(g, A.hollow, lx + lw - pw - 16 * u, y + 15 * u, pw, ph, { r: 14 * u, src: A.hollow.bb, zoom: 1.4 });
+          cover(g, A.hEnd, lx + lw - pw - 16 * u, y + 15 * u, pw, ph, { r: 14 * u, src: A.hEnd.bb, px: 1, zoom: 1.0 });
         }
         if (it.pic === 'block') {
           const cx = lx + lw - 120 * u, cy = y + 30 * u, sc = 22 * u;
           g.fillStyle = '#E4DDD0'; g.fillRect(cx - 4 * sc, cy - 10 * u, 8 * sc, 10 * u);
           block(g, cx - 1.9 * sc, cy, 3.8 * sc, 1.6 * sc);
           const rise = 1 - prog(st, it.t + 0.4, 0.9, ease.inOut);
-          section(g, 'U', cx - 2.75 * sc, cy + rise * 30 * u, 5.5 * sc, 4 * sc, 0.75 * sc, { tex: A.hGrain, alpha: prog(st, it.t, 0.4) });
+          section(g, 'U', cx - 2.75 * sc, cy + rise * 30 * u, 5.5 * sc, 4 * sc, 0.75 * sc, { fill: BRAND.greenSoft, stroke: BRAND.greenDeep, alpha: prog(st, it.t, 0.4) });
         }
         g.restore();
       });
@@ -177,7 +177,7 @@ export const scenes = {
         const tx = P ? c.x + c.w * 0.47 : c.x + 40 * u, ty = P ? c.y + 210 * u : c.y + 480 * u;
         const pl = prog(st, tFill - 1.2, 0.5);
         text(g, l1, tx, ty, { f: font('F', 500, 32 * u), color: BRAND.muted, alpha: pl });
-        text(g, l2, tx, ty + 50 * u, { f: font('P', 700, 44 * u), color: BRAND.green, alpha: pl });
+        text(g, l2, tx, ty + 50 * u, { f: font('P', 700, 44 * u), color: BRAND.greenText, alpha: pl });
         const cell = P ? 44 * u : 38 * u;
         const cx0 = P ? c.x + 40 * u : tx, cy0 = P ? c.y + 500 * u : ty + 110 * u;
         calendar(g, cx0, cy0, cell, 15, rng[0], rng[1], prog(st, tFill - 0.2, 0.9, ease.inOut), { label: false, gap: (P ? 9 : 8) * u, alpha: pl });
@@ -207,12 +207,12 @@ export const scenes = {
         g.fillStyle = '#E4DDD0'; g.fillRect(c0.x + 30 * u, cy - 14 * u, c0.w - 60 * u, 14 * u);
         HER.cross_sections_in.forEach(([w, h], k) => {
           const pk = prog(st, tH + 0.9 + k * 0.18, 0.5);
-          if (pk > 0) section(g, 'U', x, cy, w * sc, h * sc * pk, 0.75 * sc, { tex: A.hGrain });
+          if (pk > 0) section(g, 'U', x, cy, w * sc, h * sc * pk, 0.75 * sc, { fill: BRAND.greenSoft, stroke: BRAND.greenDeep });
           x += w * sc + gap;
         });
         const ty = P ? c0.y + 480 * u : c0.y + 560 * u;
         text(g, `Up to ${inch(9.5)} × ${inch(11.5)} in`, c0.x + 40 * u, ty, { f: font('P', 700, 40 * u), alpha: prog(st, cue(s, 'up', { after: tH, fallback: 3.2 }), 0.5) });
-        text(g, '4 to 24 ft long', c0.x + 40 * u, ty + 60 * u, { f: font('F', 600, 34 * u), color: BRAND.green, alpha: prog(st, tHft - 1.2, 0.5) });
+        text(g, '4 to 24 ft long', c0.x + 40 * u, ty + 60 * u, { f: font('F', 600, 34 * u), color: BRAND.greenText, alpha: prog(st, tHft - 1.2, 0.5) });
         g.restore(); }
       // Timberthane: built to your size, same scale.
       { const p = colIn(st, tT);
@@ -223,11 +223,11 @@ export const scenes = {
         const cx = P ? c1.x + c1.w * 0.3 : c1.x + c1.w / 2, cy = c1.y + (P ? 150 : 190) * u;
         g.fillStyle = '#E4DDD0'; g.fillRect(cx - 14 * sc, cy - 14 * u, 28 * sc, 14 * u);
         g.save(); g.setLineDash([8 * u, 6 * u]); g.strokeStyle = BRAND.line; g.lineWidth = 2 * u; g.strokeRect(cx - 12 * sc, cy, 24 * sc, 24 * sc); g.restore();
-        section(g, 'U', cx - v * sc / 2, cy, v * sc, v * sc, 1 * sc, { tex: A.tGrain });
+        section(g, 'U', cx - v * sc / 2, cy, v * sc, v * sc, 1 * sc, { fill: BRAND.greenSoft, stroke: BRAND.greenDeep });
         const tx = P ? c1.x + c1.w * 0.58 : c1.x + 40 * u, ty = P ? c1.y + 300 * u : c1.y + 560 * u;
         text(g, `${inch(v)} × ${inch(v)} in`, tx, ty, { f: font('P', 700, 40 * u), alpha: prog(st, tT3 - 0.3, 0.4) });
-        text(g, '3 to 24 in, any size', tx, ty + 60 * u, { f: font('F', 600, 34 * u), color: BRAND.green, alpha: prog(st, tT3, 0.5) });
-        text(g, 'Up to 30 ft long', tx, ty + 110 * u, { f: font('F', 600, 34 * u), color: BRAND.green, alpha: prog(st, tT30 - 0.2, 0.5) });
+        text(g, '3 to 24 in, in ½ in steps', tx, ty + 60 * u, { f: font('F', 600, 34 * u), color: BRAND.greenText, alpha: prog(st, tT3, 0.5) });
+        text(g, 'Up to 30 ft long', tx, ty + 110 * u, { f: font('F', 600, 34 * u), color: BRAND.greenText, alpha: prog(st, tT30 - 0.2, 0.5) });
         g.restore(); }
       text(g, 'Both shown to the same scale.', L.W / 2, P ? 1840 * u : 1050 * u, { f: font('F', 500, 26 * u), color: BRAND.muted, align: 'center', alpha: prog(st, tT3 + 1, 0.6) });
       g.restore();
@@ -326,7 +326,7 @@ export const scenes = {
       const items = [
         [t1, 'Heritage', 'One piece,', 'no corner seams'],
         [t2, 'Heritage', 'Endcaps ship', 'separately, unstained'],
-        [t3, 'Timberthane', 'Add endcaps', 'when you order'],
+        [t3, 'Timberthane', 'Optional endcaps,', 'added to your order'],
         [t4, 'Timberthane', 'Made in', 'the USA'],
       ];
       g.save(); g.globalAlpha *= e;
@@ -347,8 +347,8 @@ export const scenes = {
           ['None', 'One', 'Two'].forEach((o, k) => text(g, o, sx + (k + 0.5) * sw / 3, sy + sh / 2 + 10 * u, { f: font('F', 700, 26 * u), color: mix(BRAND.muted, '#ffffff', clamp(1 - Math.abs(pos - k) * 1.5)), align: 'center' }));
         }
         if (i === 3) productFit(g, A.tBeam, ir.x, ir.y, ir.w, ir.h);
-        text(g, a, x + 30 * u, y + ch - 110 * u, { f: font('P', 700, 32 * u) });
-        text(g, b, x + 30 * u, y + ch - 66 * u, { f: font('P', 700, 32 * u), color: BRAND.green });
+        text(g, a, x + 30 * u, y + ch - 110 * u, { f: font('P', 700, 28 * u) });
+        text(g, b, x + 30 * u, y + ch - 70 * u, { f: font('P', 700, 28 * u), color: BRAND.greenText });
         g.restore();
       });
       g.restore();
@@ -417,6 +417,6 @@ export const scenes = {
 export function overlay(g, L, s, st) {
   if (s.id === 'hook' || s.id === 'end') return;
   const { W, u } = L;
-  wordmark(g, W - L.m, L.headY - L.headSize * 1.05, 22 * u, { align: 'right', alpha: 0.85 * envelope(st, s.sd, 0.5, 0.3) });
+  wordmark(g, W - L.m, L.headY - L.headSize * (L.P ? 1.25 : 1.05), 22 * u, { align: 'right', alpha: 0.85 * envelope(st, s.sd, 0.5, 0.3) });
 }
 void HER; void lerp;

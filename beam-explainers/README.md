@@ -17,13 +17,12 @@ the beams are coded models: ceilings, mounting blocks, calendars, the person for
 the endcap selector. Every fact comes from the store's product data; see
 `research/beam-lines-facts.md`, and the `claims` in `scripts/*.json` cite a source for each line.
 
-## Before these go out: brand files
+## Brand
 
-`render/brand.json` holds the logo and colours. The cloud build couldn't reach Ekena's site, so it
-uses a Poppins wordmark and a stand-in green (`#2A5240`). On the PC, set `"logo"` to the real logo
-(a transparent PNG inside `render/`) and `"green"` to the exact Ekena green from the beam install
-project. Then render a new version and put it through review. The evaluator is right to flag the
-stand-in logo, and the publish gate won't clear a version that hasn't been approved.
+`render/brand.json` and `render/brand/` hold the real Ekena logo (colour and white versions) and the
+brand colours: sage `#8E9C5D` and grey `#828486`. Both come from the header of Ekena's own Heritage +
+TimberThane install guide (`research/INSTALL_BMU.pdf`). Small green text uses a darker sage
+(`greenText`), because sage itself is too light to read on the cream page.
 
 ## Build
 

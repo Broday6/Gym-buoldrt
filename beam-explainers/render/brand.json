@@ -1,16 +1,19 @@
 {
-  "_note": "Swap in the real Ekena values from the beam project on the PC: logo (a transparent PNG) and the exact brand green. With logo null, the renderer sets the wordmark in Poppins.",
-  "logo": null,
+  "_note": "Ekena brand, taken from Ekena's own Heritage + TimberThane install guide (INSTALL_BMU.pdf header logo): sage #8E9C5D, grey #828486. greenText is a darker sage for small text on the cream page (sage itself is too light to read there).",
+  "logo": "brand/ekena-logo.png",
   "wordmark": "EKENA MILLWORK",
   "url": "ekenamillwork.com",
-  "green": "#2A5240",
-  "greenDeep": "#1C3A2D",
-  "greenSoft": "#DCE7DF",
+  "green": "#8E9C5D",
+  "greenDeep": "#46501F",
+  "greenSoft": "#E7EBDD",
   "paper": "#F4F1EA",
   "paperDeep": "#E9E3D8",
   "card": "#FFFFFF",
   "ink": "#1E2320",
   "muted": "#6B6A63",
   "line": "#D8D1C4",
-  "accent": "#A8743F"
+  "accent": "#A8743F",
+  "logoWhite": "brand/ekena-logo-white.png",
+  "greenText": "#5A6630",
+  "grey": "#828486"
 }

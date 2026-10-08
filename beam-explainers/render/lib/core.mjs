@@ -234,7 +234,7 @@ export function card(g, x, y, w, h, { r = 22, fill = BRAND.card, shadow = 0.10, 
   g.save();
   g.globalAlpha *= alpha;
   if (shadow) {
-    g.shadowColor = `rgba(40,30,20,${shadow})`;
+    g.shadowColor = `rgba(40,30,20,${shadow * g.globalAlpha})`; // the shadow fades with its card
     g.shadowBlur = Math.max(w, h) * 0.06 + 12;
     g.shadowOffsetY = 8;
   }
@@ -262,7 +262,7 @@ export function measure(g, s, f, spacing = 0) {
 }
 /** Split text into lines that fit maxW. */
 export function wrap(g, s, f, maxW) {
-  const words = s.split(/\s+/);
+  const words = s.split(/ +/); // NBSP keeps words together
   const lines = [];
   let cur = '';
   for (const w of words) {
@@ -331,15 +331,19 @@ export function paper(g, L, T) {
   g.fillRect(0, 0, L.W, L.H);
 }
 /** The logo, or the wordmark when no logo file is set. */
-let logoRec = null;
-export async function loadBrand() { if (BRAND.logo) logoRec = await loadImage(fs.readFileSync(path.join(RENDER, BRAND.logo))); }
+let logoRec = null, logoWhite = null;
+export async function loadBrand() {
+  if (BRAND.logo) logoRec = await loadImage(fs.readFileSync(path.join(RENDER, BRAND.logo)));
+  if (BRAND.logoWhite) logoWhite = await loadImage(fs.readFileSync(path.join(RENDER, BRAND.logoWhite)));
+}
 export function wordmark(g, x, y, size, { color = BRAND.green, alpha = 1, align = 'left' } = {}) {
   g.save();
   g.globalAlpha *= alpha;
   if (logoRec) {
-    const h = size * 1.6, w = logoRec.width * h / logoRec.height;
+    const im = (color === '#fff' || color === '#ffffff') && logoWhite ? logoWhite : logoRec;
+    const h = size * 2.1, w = im.width * h / im.height;
     const x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
-    g.drawImage(logoRec, x0, y - h * 0.8, w, h);
+    g.drawImage(im, x0, y - h * 0.78, w, h);
   } else {
     const f = font('P', 600, size);
     const sp = size * 0.22;
@@ -357,7 +361,7 @@ export function wordmark(g, x, y, size, { color = BRAND.green, alpha = 1, align 
   g.restore();
 }
 /** Kicker (small caps label) + headline that reveals in. Headline text is the scene's card. */
-export function header(g, L, kicker, headline, st, sd, { color = BRAND.ink, kcolor = BRAND.green, maxW = null } = {}) {
+export function header(g, L, kicker, headline, st, sd, { color = BRAND.ink, kcolor = BRAND.greenText, maxW = null } = {}) {
   const pin = clamp(st / 0.7), pout = 1 - ease.in(clamp((st - (sd - 0.4)) / 0.4));
   const a = pout;
   g.save();
@@ -406,7 +410,7 @@ export function section(g, shape, x, y, w, h, t, { tex = null, fill = '#6a5646',
     g.fillStyle = fill;
     g.fill('evenodd');
   }
-  if (stroke) { g.lineWidth = 1.5; g.strokeStyle = stroke; sectionPath(g, shape, x, y, w, h, t); g.stroke(); }
+  if (stroke) { g.lineWidth = 2.5; g.lineJoin = 'round'; g.strokeStyle = stroke; sectionPath(g, shape, x, y, w, h, t); g.stroke(); }
   g.restore();
 }
 
@@ -465,7 +469,7 @@ export function block(g, x, y, w, h, { alpha = 1 } = {}) {
   g.restore();
 }
 /** Dimension line with end ticks and a centred label. */
-export function dim(g, x0, y0, x1, y1, label, { color = BRAND.green, size = 24, alpha = 1, off = 0 } = {}) {
+export function dim(g, x0, y0, x1, y1, label, { color = BRAND.greenText, size = 24, alpha = 1, off = 0 } = {}) {
   g.save();
   g.globalAlpha *= alpha;
   g.strokeStyle = color; g.fillStyle = color; g.lineWidth = 2.5;

@@ -31,6 +31,7 @@
    "card": "6 hand-stained finishes, or primed",
    "vo": "Then pick a hand-stained finish. | Sandstone. | Kona Brown. | Vanilla Chai. | Warm Caramel. | Natural White Oak. | Smokey Brown. | Or primed, ready to paint or stain.",
    "claims": [
+    "H14",
     "H4"
    ]
   },
@@ -38,7 +39,7 @@
    "id": "matrix",
    "title": "Every combination",
    "kind": "diagram",
-   "card": "Every texture, every finish",
+   "card": "Five textures in every finish",
    "vo": "Five textures come in every finish. Sanded Smooth comes primed.",
    "claims": [
     "H5"
@@ -86,7 +87,8 @@
    "claims": [
     "H10",
     "H11",
-    "H12"
+    "H12",
+    "H15"
    ]
   },
   {
@@ -96,7 +98,8 @@
    "card": "Order a sample",
    "vo": "Not sure on the finish? Order a sample first.",
    "claims": [
-    "H13"
+    "H13",
+    "H16"
    ],
    "min_s": 5.5
   }
@@ -164,8 +167,23 @@
   },
   {
    "id": "H13",
-   "text": "Heritage samples are available",
-   "source": "BM-HT-SAMPLE listing"
+   "text": "Heritage samples are available: a 3 1/2 x 5 1/2 in U-beam piece, 8 in long",
+   "source": "BM-HT-SAMPLE listing; SAMPLE-KIT-BMSTS3KB description '3 1/2\"W x 5 1/2\"H x 8\"L 3-Sided SAMPLE (U-Beam)'"
+  },
+  {
+   "id": "H14",
+   "text": "Primed beams are ready to paint or stain",
+   "source": "Heritage key feature 03: 'a primed, ready-to-finish surface that accepts paint or stain'"
+  },
+  {
+   "id": "H15",
+   "text": "Endcaps ship unstained so they can be finished to match",
+   "source": "Quick Ship FAQ: endcaps ship 'unattached and unstained, giving you the option to customize beam length and finish'"
+  },
+  {
+   "id": "H16",
+   "text": "ekenamillwork.com sells Heritage Timber",
+   "source": "Product record: manufacturer Ekena Millwork, onEkena = 1 (listed on the Ekena site). Site for the end card to be confirmed by Brody"
   }
  ],
  "key_terms": [
@@ -197,6 +215,28 @@
     "Resawn Rip",
     "Re-sawn Rip",
     "Resun Rip"
+   ]
+  },
+  {
+   "term": "Ekena",
+   "heard_as": [
+    "Ekena",
+    "Eek and a",
+    "Eakin and",
+    "Eaken and",
+    "Eakin &",
+    "Eaken &",
+    "Akina",
+    "Ekina",
+    "Ekeena"
+   ]
+  },
+  {
+   "term": "Reclaimed Axed Cut",
+   "heard_as": [
+    "Reclaimed Axed Cut",
+    "Reclaimed Axe Cut",
+    "Reclaimed Axed-Cut"
    ]
   }
  ]

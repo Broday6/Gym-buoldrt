@@ -21,6 +21,7 @@
    "vo": "Both are lightweight, high-density polyurethane, with textures molded from real wood. Both are hollow, and both install the same way, over a wood block.",
    "claims": [
     "W2",
+    "W20",
     "W3",
     "W4"
    ]
@@ -51,7 +52,7 @@
    "id": "shapes",
    "title": "Shapes",
    "kind": "diagram",
-   "card": "U-beam, or any shape",
+   "card": "U-beam, or 4 shapes",
    "vo": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
    "claims": [
     "W9",
@@ -99,7 +100,8 @@
    "card": "Still deciding? Order a sample.",
    "vo": "Still deciding? Order a sample of each.",
    "claims": [
-    "W18"
+    "W18",
+    "W19"
    ],
    "min_s": 5.5
   }
@@ -194,6 +196,16 @@
    "id": "W18",
    "text": "Samples are available for both lines",
    "source": "BM-HT-SAMPLE, BM-MAT-SAMPLE listings"
+  },
+  {
+   "id": "W19",
+   "text": "ekenamillwork.com sells these beams",
+   "source": "Product records: manufacturer Ekena Millwork, onEkena = 1. Site for the end card to be confirmed by Brody"
+  },
+  {
+   "id": "W20",
+   "text": "The hollow inside can hide wiring and ducts",
+   "source": "Heritage key feature 05 ('wraps existing beams, ductwork, wiring, or LED strip lighting'); Timberthane long description ('hide cable, pipes')"
   }
  ],
  "key_terms": [
@@ -207,6 +219,20 @@
    ]
   },
   "Quick Ship",
-  "polyurethane"
+  "polyurethane",
+  {
+   "term": "Ekena",
+   "heard_as": [
+    "Ekena",
+    "Eek and a",
+    "Eakin and",
+    "Eaken and",
+    "Eakin &",
+    "Eaken &",
+    "Akina",
+    "Ekina",
+    "Ekeena"
+   ]
+  }
  ]
 }

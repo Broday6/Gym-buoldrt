@@ -204,7 +204,7 @@ export const scenes = {
         g.save(); g.globalAlpha *= clamp(p);
         g.beginPath(); g.arc(x, ry, r + lerp(3, 7, on) * u, 0, Math.PI * 2); g.fillStyle = mix('#ffffff', BRAND.green, on); g.fill();
         g.beginPath(); g.arc(x, ry, r, 0, Math.PI * 2); g.save(); g.clip(); cover(g, A.finSwatch[f], x - r, ry - r, 2 * r, 2 * r); g.restore();
-        if (P) text(g, f.split(' ').pop(), x, ry + r + 34 * u, { f: font('F', 600, 20 * u), color: mix(BRAND.muted, BRAND.ink, on), align: 'center' });
+        if (P) label2(g, f, x, ry + r + 34 * u, 2 * r + gap * 0.9, { f: font('F', 600, 19 * u), size: 19 * u, color: mix(BRAND.muted, BRAND.ink, on) });
         g.restore();
       });
       g.restore();
@@ -280,7 +280,7 @@ export const scenes = {
           const tk = lerp(t0, t1, k / 7);
           const p = prog(st, tk - 0.15, 0.55, ease.out);
           const pw = w * sc, ph = h * sc * p;
-          if (p > 0) section(g, 'U', x, cy, pw, ph, 0.75 * sc, { tex: A.grain });
+          if (p > 0) section(g, 'U', x, cy, pw, ph, 0.75 * sc, { fill: BRAND.greenSoft, stroke: BRAND.greenDeep });
           const lab = `${inch(w)} × ${inch(h)}`;
           text(g, lab, x + pw / 2, cy + h * sc + 46 * u, { f: font('P', 600, (P ? 26 : 28) * u), align: 'center', alpha: clamp(p * 1.4 - 0.4) });
           x += pw + gap; k++;
@@ -312,21 +312,22 @@ export const scenes = {
       block(g, cx - blkW / 2, cy, blkW, blkH);
       // Beam rises over the block.
       const rise = 1 - prog(st, tSlide - 0.3, 1.1, ease.inOut);
-      section(g, 'U', x, cy + rise * 260 * u, bw, bh, t, { tex: A.grain, alpha: 0.35 + 0.65 * prog(st, 0.2, 0.5) });
+      section(g, 'U', x, cy + rise * (P ? 150 : 260) * u, bw, bh, t, { fill: BRAND.greenSoft, stroke: BRAND.greenDeep, alpha: 0.35 + 0.65 * prog(st, 0.2, 0.5) });
       // Dimensions.
-      const dIn = prog(st, tIn, 0.5);
-      dim(g, x + t, cy + bh + 70 * u, x + bw - t, cy + bh + 70 * u, '4 in inside', { alpha: dIn * (1 - rise), size: 28 * u });
-      dim(g, x + bw + 60 * u, cy, x + bw + 60 * u, cy + bh - t, '4¾ in', { alpha: dIn * (1 - rise), size: 28 * u, off: 0 });
-      dim(g, x - 60 * u, cy, x - 60 * u, cy + bh, '5½ in', { alpha: prog(st, 0.6, 0.5) * 0.85, size: 26 * u, color: BRAND.muted });
+      const settled = tSlide - 0.3 + 1.1; // the beam has finished rising
+      const dIn = prog(st, Math.max(tIn, settled), 0.5);
+      dim(g, x + t, cy + bh + 70 * u, x + bw - t, cy + bh + 70 * u, '4 in inside', { alpha: dIn, size: 28 * u });
+      dim(g, x + bw + 60 * u, cy, x + bw + 60 * u, cy + bh - t, '4¾ in', { alpha: dIn, size: 28 * u, off: 0 });
+      dim(g, x - 60 * u, cy, x - 60 * u, cy + bh, '5½ in', { alpha: dIn * 0.85, size: 26 * u, color: BRAND.muted });
       const pc = prog(st, tCut - 0.1, 0.5);
       if (pc > 0) {
         dim(g, cx - blkW / 2, cy + blkH * 0.5, cx + blkW / 2, cy + blkH * 0.5, 'block 3 7/8 in', { alpha: pc, size: 24 * u, color: BRAND.accent });
       }
       // Table: outside width → inside width (from the listings).
-      const tx = P ? L.m : 1120 * u, ty = P ? 1330 * u : 330 * u, tw = P ? W - 2 * L.m : 690 * u;
+      const tx = P ? L.m : 1120 * u, ty = P ? 1420 * u : 330 * u, tw = P ? W - 2 * L.m : 690 * u;
       const pT = prog(st, tIn + 0.4, 0.6);
       g.save(); g.globalAlpha *= pT;
-      card(g, tx, ty, tw, P ? 400 * u : 470 * u, { r: 24 * u });
+      card(g, tx, ty, tw, P ? 380 * u : 470 * u, { r: 24 * u });
       text(g, 'Beam width', tx + 36 * u, ty + 64 * u, { f: font('P', 600, 30 * u) });
       text(g, 'inside width', tx + tw - 36 * u, ty + 64 * u, { f: font('P', 600, 30 * u), align: 'right' });
       [[3.5, 2], [5.5, 4], [7.5, 6], [9.5, 8]].forEach(([o, i], k) => {
@@ -335,10 +336,10 @@ export const scenes = {
         if (hl) { rr(g, tx + 20 * u, yy - 44 * u, tw - 40 * u, 62 * u, 14 * u); g.fillStyle = BRAND.greenSoft; g.fill(); }
         text(g, `${inch(o)} in`, tx + 44 * u, yy, { f: font('F', 600, 32 * u) });
         arrow(g, tx + tw * 0.38, yy - 11 * u, tx + tw * 0.56, { lw: 3 * u, head: 11 * u });
-        text(g, `${inch(i)} in`, tx + tw - 44 * u, yy, { f: font('F', 700, 32 * u), color: BRAND.green, align: 'right' });
+        text(g, `${inch(i)} in`, tx + tw - 44 * u, yy, { f: font('F', 700, 32 * u), color: BRAND.greenText, align: 'right' });
       });
       g.restore();
-      const nx = P ? W / 2 : tx, ny = P ? 1800 * u : 900 * u;
+      const nx = P ? W / 2 : tx, ny = P ? 1860 * u : 900 * u;
       text(g, 'Cut blocks 1/8 in narrower than the inside width.', nx, ny, { f: font('F', 600, (P ? 30 : 32) * u), color: BRAND.ink, align: P ? 'center' : 'left', alpha: pc });
       g.restore();
     },
@@ -362,7 +363,7 @@ export const scenes = {
         text(g, '6 ft', L.m + 70 * u, floorY + 44 * u, { f: font('F', 600, 26 * u), color: BRAND.muted, align: 'center', alpha: prog(st, 0.3, 0.5) });
         lens.forEach((ft, i) => {
           const p = grow(i), x = x0 + i * (bw + gap), h = ft * pxft * p;
-          if (h > 1) { g.save(); rr(g, x, floorY - h, bw, h, 6 * u); g.clip(); cover(g, A.grain, x, floorY - Math.max(h, 10), bw, Math.max(h, 10)); g.restore(); }
+          if (h > 1) { rr(g, x, floorY - h, bw, h, 6 * u); g.fillStyle = BRAND.greenSoft; g.fill(); g.lineWidth = 2.5 * u; g.strokeStyle = BRAND.greenDeep; g.stroke(); }
           text(g, `${ft}`, x + bw / 2, floorY - h - 18 * u, { f: font('P', 600, 30 * u), align: 'center', alpha: clamp(p * 2 - 1) });
         });
         text(g, 'feet', W - L.m, floorY + 44 * u, { f: font('F', 600, 26 * u), color: BRAND.muted, align: 'right', alpha: prog(st, t1, 0.5) });
@@ -375,7 +376,7 @@ export const scenes = {
         text(g, '6 ft', x0 - 110 * u, floorY + 30 * u, { f: font('F', 600, 24 * u), color: BRAND.muted, align: 'center', alpha: prog(st, 0.3, 0.5) });
         lens.forEach((ft, i) => {
           const p = grow(i), y = y0 + i * (bh + gap), w = ft * pxft * p;
-          if (w > 1) { g.save(); rr(g, x0, y, w, bh, 6 * u); g.clip(); cover(g, A.grain, x0, y, Math.max(w, 10), bh); g.restore(); }
+          if (w > 1) { rr(g, x0, y, w, bh, 6 * u); g.fillStyle = BRAND.greenSoft; g.fill(); g.lineWidth = 2.5 * u; g.strokeStyle = BRAND.greenDeep; g.stroke(); }
           text(g, `${ft} ft`, x0 + w + 18 * u, y + bh * 0.72, { f: font('P', 600, 28 * u), alpha: clamp(p * 2 - 1) });
         });
       }
@@ -406,7 +407,7 @@ export const scenes = {
         const tx = P ? bx + bw * 0.47 : bx + 40 * u, ty = P ? by + 90 * u : by + 400 * u;
         text(g, c.title, tx, ty, { f: font('P', 700, 46 * u) });
         text(g, c.line1, tx, ty + 56 * u, { f: font('F', 500, 32 * u), color: BRAND.muted });
-        text(g, c.line2, tx, ty + 100 * u, { f: font('F', 700, 36 * u), color: BRAND.green });
+        text(g, c.line2, tx, ty + 100 * u, { f: font('F', 700, 36 * u), color: BRAND.greenText });
         if (c.cal) calendar(g, tx, ty + 140 * u, (P ? 34 : 36) * u, 10, c.cal[0], c.cal[1], prog(st, c.t + 0.6, 1.4, ease.inOut), { label: false, gap: 7 * u });
         if (c.hours) {
           const hw = P ? bw * 0.47 : bw - 80 * u, hy = ty + 150 * u;
@@ -455,5 +456,5 @@ export const scenes = {
 export function overlay(g, L, s, st) {
   if (s.id === 'hook' || s.id === 'end') return;
   const { W, H: HH, P, u } = L;
-  void HH; wordmark(g, W - L.m, L.headY - L.headSize * 1.05, (P ? 22 : 22) * u, { align: 'right', alpha: 0.85 * envelope(st, s.sd, 0.5, 0.3) });
+  void HH; wordmark(g, W - L.m, L.headY - L.headSize * (P ? 1.25 : 1.05), (P ? 22 : 22) * u, { align: 'right', alpha: 0.85 * envelope(st, s.sd, 0.5, 0.3) });
 }
