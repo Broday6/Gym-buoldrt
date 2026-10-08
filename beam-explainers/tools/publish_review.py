@@ -70,7 +70,7 @@ ACTIONS = {
     "heritage-hero": {
         "hook": [("hook_line1", "The timber look.", "look"), ("hook_line2", "Without the weight.", "without")],
         "reveal": [("rev_name", "Heritage Timber title", "Heritage"), ("rev_ekena", "Ekena Millwork kicker", "Ekena"),
-                   ("rev_molded", "Molded in one piece", "molded"), ("rev_seams", "No corner seams", "piece"), ("rev_real", "From real, weathered timber", "real")],
+                   ("rev_molded", "Molded from real, weathered timber", "molded"), ("rev_seams", "No corner seams", "corner")],
         "textures": [(f"tex_{i}", f"Texture: {n}", p) for i, (n, p) in enumerate(
             [("Mena", "Mina"), ("Salvaged Timber", "salvaged"), ("Rustic Sawn", "rustic"), ("Resawn Rip", "re"), ("Reclaimed Axed Cut", "reclaimed"), ("Sanded Smooth", "sanded")], 1)],
         "finishes": [(f"fin_{i}", f"Finish: {n}", p) for i, (n, p) in enumerate(
@@ -125,7 +125,8 @@ def main() -> int:
                      "heritage/swatch/finish-kona-brown.jpg", "heritage/product/sanded-smooth/primed.jpg", "heritage/accessories/sample-kit.jpg"],
         "heritage-hero": ["heritage/product/salvaged-timber/kona-brown.jpg", "heritage/angles/BMSTKB-05.jpg", "heritage/angles/BMSTKB-09.jpg",
                           "heritage/swatch-hi/texture-mena.jpg", "heritage/swatch-hi/finish-sandstone.jpg", "heritage/accessories/sample-kit.jpg",
-                          "heritage/accessories/endcap.jpg"],
+                          "heritage/accessories/endcap.jpg", "heritage/product/salvaged-timber/primed.jpg",
+                          "heritage/product/sanded-smooth/primed.jpg", "heritage/swatch-hi/finish-primed.jpg", "../render/brand/ekena-logo.png"],
         "timberthane": ["timberthane/product/hand-hewn/aged.jpg", "timberthane/shapes/hand-hewn-plank.jpg", "timberthane/shapes/hand-hewn-l-beam.jpg",
                         "timberthane/shapes/hand-hewn-box-beam.jpg", "timberthane/builder/finish-driftwood.jpg",
                         "timberthane/accessories/material-sample.jpg"],

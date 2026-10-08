@@ -1,0 +1,744 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v2",
+  "evaluated_at": "2026-10-08T20:34:40Z",
+  "overall": "fail",
+  "summary": "Not ready: 1 blocker. In the 16:9 install scene the 'Hollow inside' callout sits 13 px under the green 'Slides over a block.' line, in the same green, so it reads as a third line of the card. All ten v1 fixes otherwise hold (16:9 hook and ship show the beams, 'Reclaimed Axed Cut' fits in 9:16, finish names no longer overprint, 9:16 install diagram and 11½ callout clear). The sizes narration flag is a Whisper numeral artifact: the heard line is the scripted one.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3679 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "61.317 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 61.316 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.0 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "7 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f270, f752, f1347, f1351, f1611, f2063, f3343",
+        "frames": [
+          270,
+          270
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3679 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "61.317 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 61.316 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.0 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "2 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f751, f2555",
+        "frames": [
+          751,
+          751
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": false,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber from Ekena Millwork. Each beam is molded from real, weathered timber with no corner seams. Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth. Then a hand-stained finish, sandstone, Kona Brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed, ready to paint. Eight sizes, from 3.5 inches square to 9.5 by 11.5, in lengths from 4 to 24 feet. They're hollow, so they slide over a wood block on your ceiling and can hide wiring. And they ship fast, stained beams in 3 to 5 business days, primed in about 1 to 3 days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          251
+        ]
+      },
+      {
+        "scene": "reveal",
+        "expected": "Meet Heritage Timber, from Ekena Millwork. Each beam is molded from real, weathered timber, with no corner seams.",
+        "heard": "Meet Heritage Timber from Ekena Millwork. Each beam is molded from real, weathered timber with no corner seams.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          252,
+          721
+        ]
+      },
+      {
+        "scene": "textures",
+        "expected": "Pick from six textures. Mena. Salvaged Timber. Rustic Sawn. Resawn Rip. Reclaimed Axed Cut. And Sanded Smooth.",
+        "heard": "Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth.",
+        "match": 0.882,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          722,
+          1331
+        ]
+      },
+      {
+        "scene": "finishes",
+        "expected": "Then a hand-stained finish. Sandstone. Kona Brown. Vanilla Chai. Warm Caramel. Natural White Oak. Smokey Brown. Or primed, ready to paint.",
+        "heard": "Then a hand-stained finish, sandstone, Kona Brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed, ready to paint.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1332,
+          2044
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
+        "heard": "Eight sizes, from 3.5 inches square to 9.5 by 11.5, in lengths from 4 to 24 feet.",
+        "match": 0.593,
+        "flag": "scripted line not heard clearly in this scene",
+        "missing_terms": [],
+        "frames": [
+          2045,
+          2549
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+        "heard": "They're hollow, so they slide over a wood block on your ceiling and can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2550,
+          2889
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three days.",
+        "heard": "And they ship fast, stained beams in 3 to 5 business days, primed in about 1 to 3 days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2890,
+          3330
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3331,
+          3678
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Salvaged Timber",
+        "heard": true
+      },
+      {
+        "term": "Rustic Sawn",
+        "heard": true
+      },
+      {
+        "term": "Kona Brown",
+        "heard": true
+      },
+      {
+        "term": "Vanilla Chai",
+        "heard": true
+      },
+      {
+        "term": "Warm Caramel",
+        "heard": true
+      },
+      {
+        "term": "Smokey Brown",
+        "heard": true
+      },
+      {
+        "term": "primed",
+        "heard": true
+      },
+      {
+        "term": "Mena",
+        "heard": true
+      },
+      {
+        "term": "Resawn Rip",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      },
+      {
+        "term": "Reclaimed Axed Cut",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "BMSTKB-09 room photo; both cuts now open on the vaulted Heritage beams under 'The timber look.'"
+    },
+    {
+      "scene": "reveal",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [],
+      "comment": "Real Salvaged Timber Kona Brown cutout; bullets now say H2 + H18 only and land with the spoken words."
+    },
+    {
+      "scene": "textures",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Mena matches Ekena's swatch; all six names in full in both cuts; 'Primed only' pill backs H5."
+    },
+    {
+      "scene": "finishes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Sandstone matches the reference swatch; names now fade out before the next fades in. Label leads the image cross-fade by ~10 frames (minor)."
+    },
+    {
+      "scene": "sizes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "All 8 outlines in proportion (checked 9½×9½ and 9½×11½ in px); ruler dots match H9; 11½ callout now inside the 9:16 frame. Narration flag is numerals, not a mis-say."
+    },
+    {
+      "scene": "install",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "Diagram matches guide step 3 (block just under inside width, beam flush to ceiling). 16:9 callout crowds the card."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "16:9 now shows the ceiling beams; 3–5 and 24–72 land as the numbers are spoken; 'about one to three days' matches H11."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Real sample-kit and endcap photos; 9:16 now shows the bedroom beams. URL still unconfirmed (claims)."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "install",
+      "action": "install__inst_slide",
+      "cut": "16x9",
+      "frame": 2644,
+      "end_frame": 2889,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 16:9, once 'Slides over a block.' comes in (f2644), the 'Hollow inside' callout sits only 13 px below it (card baseline y≈252, callout cap top y≈265), in the same pale green and directly under 'block.'. It reads as a third line of the step card rather than a label on the beam end. The v2 move off the beam wall fixed legibility but parked the callout against the card.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'install' (inst_hollow callout, 16:9 layout): move 'Hollow inside' clear of the card, e.g. to the right of the dashed ring (x≈1060, y≈600, on the dark background between ring and diagram) with the leader pointing left, or below the ring as the 9:16 layout does; keep at least ~40 px from the card.",
+      "evidence": [
+        "review/v2/eval/frames/16x9_f002791.jpg",
+        "review/v2/eval/extra/16x9_f002791_label.jpg",
+        "review/v2/eval/sheets/16x9_install.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.17,
+        "w": 0.47,
+        "h": 0.1
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "sizes",
+      "action": null,
+      "cut": "16x9",
+      "frame": 2045,
+      "end_frame": 2549,
+      "severity": "major",
+      "criterion": "narration",
+      "scope": "local",
+      "rule": null,
+      "source": "faster-whisper small.en",
+      "what": "scripted line not heard clearly in this scene. Heard: “Eight sizes, from 3.5 inches square to 9.5 by 11.5, in lengths from 4 to 24 feet.”",
+      "fix": "Check the line's timing in the scene map, or its pronunciation.",
+      "evidence": [
+        "review/v2/eval/narration.json"
+      ],
+      "region": null,
+      "id": "e2"
+    },
+    {
+      "scene": "end",
+      "action": null,
+      "cut": null,
+      "frame": 3400,
+      "end_frame": 3678,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "H16 source: 'Site for the end card to be confirmed by Brody'",
+      "what": "The end card still sends viewers to 'ekenamillwork.com'. H16's own source says the destination is still to be confirmed by Brody, and every fact in the video was taken from FauxBeams.com. The builder declined the v1 note (e11) pending Brody; it remains open.",
+      "fix": "Brody to confirm the destination; then set the CTA in build/script-v2.json#end and update H16's source.",
+      "evidence": [
+        "review/v2/eval/sheets/16x9_end.jpg",
+        "review/v2/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.73,
+        "w": 0.2,
+        "h": 0.07
+      },
+      "id": "e3"
+    },
+    {
+      "scene": null,
+      "action": null,
+      "cut": null,
+      "frame": null,
+      "end_frame": null,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "Manifest housekeeping: every scene is marked transition_in 'dissolve', but the renders use hard wipes (that is what the unexpected_cuts warnings at f270, f752, f1347/1351, f2063, f2555 detect), and action reveal__rev_molded is still labelled 'Molded in one piece', wording v2 removed.",
+      "fix": "In the manifest writer, record the wipe transitions as they are (or 'other') and relabel reveal__rev_molded to 'Molded from real, weathered timber'.",
+      "evidence": [
+        "review/v2/eval/technical.json",
+        "review/v2/eval/extra/16x9_run_f266.jpg",
+        "review/v2/eval/extra/16x9_run_f1344.jpg"
+      ],
+      "region": null,
+      "id": "e4"
+    },
+    {
+      "scene": "reveal",
+      "action": null,
+      "cut": "16x9",
+      "frame": 270,
+      "end_frame": 270,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f270, f752, f1347, f1351, f1611, f2063, f3343",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v2/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e5"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": "9x16",
+      "frame": 751,
+      "end_frame": 751,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f751, f2555",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v2/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e6"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": null,
+      "frame": 996,
+      "end_frame": 1240,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The hard left-to-right wipe between textures carries the names with it, so for a few frames mid-wipe two names splice into one, e.g. 'Rusticged Timber' (f1001), 'ResawSawn' (f1074), 'Sandemed Axed Cut' (f1238). Brief, but it reads as a typo on a paused frame.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'textures': fade the outgoing name out before the wipe reaches the text column (as the finishes scene now does), or keep the name layer out of the wipe mask.",
+      "evidence": [
+        "review/v2/eval/extra/16x9_tex_strips.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.6,
+        "w": 0.6,
+        "h": 0.12
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "finishes",
+      "action": null,
+      "cut": null,
+      "frame": 1533,
+      "end_frame": 1945,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "At each finish change the new name is fully on screen ~10 frames before the beam, texture panel and swatch ring finish cross-fading, e.g. 'Kona Brown' at f1533 over the Sandstone beam until ~f1545; 'Primed' at f1931 over the Smokey Brown beam until ~f1940. Under 0.2 s, so it doesn't change the score.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'finishes' (fin_2…fin_7): start the image cross-fade ~10 frames earlier, or delay the name fade-in so name and image arrive together.",
+      "evidence": [
+        "review/v2/eval/extra/16x9_finswap_1527.jpg",
+        "review/v2/eval/extra/16x9_finswap_1923.jpg",
+        "review/v2/eval/extra/16x9_fin_strips.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 1.0
+      },
+      "id": "e8"
+    },
+    {
+      "scene": "finishes",
+      "action": "finishes__fin_7",
+      "cut": null,
+      "frame": 1931,
+      "end_frame": 2044,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "Still open from v1 (e14, declined by the builder, not yet seen by Brody): the Primed beam and texture read beige/tan, while the Sanded Smooth 'Primed only' beam in the textures scene is near-white. The builder says both are Ekena's Primed photos, but no Primed image is in the manifest's references, so it can't be checked.",
+      "fix": "Add the two Primed product photos (salvaged-timber/primed.jpg and the Sanded Smooth Primed listing photo) to references.product_images so the colour can be checked; Brody to say whether the mismatch is acceptable.",
+      "evidence": [
+        "review/v2/eval/extra/16x9_f001980.jpg",
+        "review/v2/eval/sheets/16x9_textures.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 1.0
+      },
+      "id": "e9"
+    }
+  ]
+}

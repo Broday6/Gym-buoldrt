@@ -330,8 +330,6 @@ export const scenes = {
           const bx0 = (P ? m * 0.5 : W * 0.30) - (bw / z) * (z - 1) * 0.5 - 30 * u * local, by0 = (P ? H * 0.20 : H * 0.10) - (bh / z) * (z - 1) * 0.5;
           cutout(g, A.tex[i], bx0, by0, bw, bh, { u, shadow: 0.25 });
           const y = P ? H * 0.70 : H - 200 * u;
-          kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u, color: BRAND.greenText });
-          text(g, name, m, y, { f: font('P', 700, (P ? 100 : 104) * u), color: BRAND.ink });
           const pw = measure(g, 'Primed only', font('F', 700, 30 * u)) + 48 * u;
           rr(g, m, y + 34 * u, pw, 56 * u, 28 * u); g.fillStyle = BRAND.green; g.fill();
           text(g, 'Primed only', m + pw / 2, y + 72 * u, { f: font('F', 700, 30 * u), color: '#fff', align: 'center' });
@@ -340,9 +338,6 @@ export const scenes = {
         cover(g, A.tex[i], 0, 0, W, H, { zoom: 1.14 - 0.06 * clamp(local / 2.5), px: i % 2 ? 0.3 : -0.3, py: 0 });
         scrim(g, L, { from: P ? 0.5 : 0.45, a1: 0.8 });
         const y = P ? H * 0.70 : H - 200 * u;
-        kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u });
-        const ns = Math.min((P ? 100 : 104) * u, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
-        text(g, name, m, y, { f: font('P', 700, ns), color: '#fff' });
         void cx;
       };
       panel(base, 0);
@@ -353,6 +348,18 @@ export const scenes = {
         g.save(); g.beginPath(); g.rect(0, 0, ex, H); g.clip(); panel(i); g.restore();
         if (ins[i] < 1) { g.fillStyle = SAGE_L; g.fillRect(ex - 3 * u, 0, 6 * u, H); }
       }
+      // Names: drawn over the wipe, never inside it, so two names never splice together.
+      TEXTURES.forEach(([name, sl], i) => {
+        const fin = ease.inOut(clamp((st - (ts[i] + 0.1)) / 0.3));
+        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.35)) / 0.25)) : 0;
+        const a = fin * (1 - fout);
+        if (a <= 0) return;
+        const light = sl === 'sanded-smooth';
+        const y = P ? H * 0.70 : H - 200 * u;
+        kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u, color: light ? BRAND.greenText : SAGE_L, alpha: a });
+        const ns = Math.min((P ? 100 : 104) * u, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
+        text(g, name, m, y + (1 - fin) * 18 * u, { f: font('P', 700, ns), color: light ? BRAND.ink : '#fff', alpha: a });
+      });
       // Progress ticks, top right.
       const n = 6, tw = (P ? 46 : 40) * u, tg = 10 * u, tx = W - m - n * tw - (n - 1) * tg, ty = (P ? 140 : 90) * u;
       const show = ease.out(clamp((st - (ts[0] - 0.3)) / 0.5));
@@ -396,8 +403,8 @@ export const scenes = {
       // Name + kicker.
       const ny = P ? H * 0.76 : H * 0.76, nsz = (P ? 84 : 80) * u;
       FINISHES.forEach((_, i) => {
-        const fin = ease.inOut(clamp((st - (ts[i] - 0.15)) / 0.25));
-        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.42)) / 0.25)) : 0;
+        const fin = ease.inOut(clamp((st - (ts[i] + 0.1)) / 0.3));
+        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.2)) / 0.25)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
         const primed = FINISHES[i][1] === 'primed';
@@ -501,16 +508,22 @@ export const scenes = {
         g.lineWidth = 5 * u; g.strokeStyle = SAGE_L; g.setLineDash([14 * u, 10 * u]); g.lineDashOffset = -st * 30 * u; g.stroke(); g.restore();
         // Label on the dark background below the beam, tied to the ring by a short line.
         const hw = measure(g, 'Hollow inside', font('F', 700, 30 * u));
-        // Portrait: below the beam. Landscape: above the ring (the caption owns the bottom).
-        const ly = P ? r.y + r.h + 46 * u : cy - rad - 40 * u, lx = Math.min(cx + hw / 2, W - m * 0.6);
+        // Portrait: below the beam. Landscape: right of the ring, between photo and diagram
+        // (the card owns the top, the caption the bottom).
         g.save(); g.globalAlpha *= ra; g.strokeStyle = SAGE_L; g.lineWidth = 3 * u;
         g.beginPath();
-        if (P) { g.moveTo(cx, cy + rad); g.lineTo(cx, ly - 34 * u); } else { g.moveTo(cx, cy - rad); g.lineTo(cx, ly + 12 * u); }
-        g.stroke(); g.restore();
-        text(g, 'Hollow inside', lx, ly, { f: font('F', 700, 30 * u), color: SAGE_L, align: 'right', alpha: ra });
+        if (P) {
+          const ly = r.y + r.h + 46 * u;
+          g.moveTo(cx, cy + rad); g.lineTo(cx, ly - 34 * u); g.stroke(); g.restore();
+          text(g, 'Hollow inside', Math.min(cx + hw / 2, W - m * 0.6), ly, { f: font('F', 700, 30 * u), color: SAGE_L, align: 'right', alpha: ra });
+        } else {
+          const ex = cx + rad * 0.62, lx = ex + 46 * u;
+          g.moveTo(ex, cy); g.lineTo(lx - 12 * u, cy); g.stroke(); g.restore();
+          text(g, 'Hollow inside', lx, cy + 10 * u, { f: font('F', 700, 30 * u), color: SAGE_L, alpha: ra });
+        }
       }
       // Coded diagram (not the product): ceiling, wood block, and the beam's outline sliding up over it.
-      const dx = P ? W * 0.25 : W * 0.6, dw = P ? W * 0.5 : W * 0.3, dy = P ? 990 * u : 300 * u;
+      const dx = P ? W * 0.25 : W * 0.64, dw = P ? W * 0.5 : W * 0.3, dy = P ? 990 * u : 300 * u;
       const ceilH = 30 * u;
       const da = ease.out(clamp((st - 0.6) / 0.6));
       g.save(); g.globalAlpha *= da;
