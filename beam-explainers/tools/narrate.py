@@ -18,7 +18,7 @@ import soundfile as sf
 from kokoro_onnx import Kokoro
 
 ROOT = Path(__file__).resolve().parent.parent
-VOICE = "am_michael"
+VOICE = "am_michael"  # default; a script can set "voice"
 BEAT_S = 0.32
 # Spoken forms Kokoro gets wrong on its own (checked by ear-substitute: Whisper).
 PHONEMES = {
@@ -89,7 +89,7 @@ def main() -> int:
         parts = [p.strip() for p in text.split("|") if p.strip()]
         chunks = []
         for p in parts:
-            a, sr = k.create(to_phonemes(k, p), voice=VOICE, speed=args.speed, lang="en-us", is_phonemes=True)
+            a, sr = k.create(to_phonemes(k, p), voice=script.get("voice", VOICE), speed=args.speed, lang="en-us", is_phonemes=True)
             chunks.append(trim(np.asarray(a, dtype=np.float32), sr))
         gap = np.zeros(int(BEAT_S * sr), dtype=np.float32)
         audio = np.concatenate([x for c in chunks for x in (c, gap)][:-1])

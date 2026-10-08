@@ -3028,5 +3028,89 @@
   "finish": "Toffee",
   "sku": "BMHH3C0060X060X096TF",
   "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_toffee.jpg"
+ },
+ "heritage/swatch-hi/finish-kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Kona Brown",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTKB.jpg"
+ },
+ "heritage/swatch-hi/finish-natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Natural White Oak",
+  "sku": "BMSTS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTWO.jpg"
+ },
+ "heritage/swatch-hi/finish-primed.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Primed",
+  "sku": "BMSTS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTOT.jpg"
+ },
+ "heritage/swatch-hi/finish-sandstone.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Sandstone",
+  "sku": "BMSTS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTSS.jpg"
+ },
+ "heritage/swatch-hi/finish-smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Smokey Brown",
+  "sku": "BMSTS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/variant_finish_smokey_brown.jpg"
+ },
+ "heritage/swatch-hi/finish-vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Vanilla Chai",
+  "sku": "BMSTS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTVC.jpg"
+ },
+ "heritage/swatch-hi/finish-warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Warm Caramel",
+  "sku": "BMSTS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/finish_BMSTWC.jpg"
+ },
+ "heritage/swatch-hi/texture-mena.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Mena",
+  "sku": "BMMAS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/texture_BMMAKB.jpg"
+ },
+ "heritage/swatch-hi/texture-reclaimed-axed-cut.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Reclaimed Axed Cut",
+  "sku": "BMRDS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/texture_BMRDKB.jpg"
+ },
+ "heritage/swatch-hi/texture-resawn-rip.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Resawn Rip",
+  "sku": "BMRRS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/texture_BMRRKB.jpg"
+ },
+ "heritage/swatch-hi/texture-rustic-sawn.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Rustic Sawn",
+  "sku": "BMRSS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/texture_BMRSKB.jpg"
+ },
+ "heritage/swatch-hi/texture-salvaged-timber.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Salvaged Timber",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/1200/texture_BMSTKB.jpg"
  }
 }

@@ -8,7 +8,8 @@ Reads <out>/timeline.json and the narration wavs. Writes:
   <out>/audio/mix.wav       narration over the bed, the bed ducked 12 dB under the voice,
                             loudness-normalised to -14 LUFS integrated, true peak <= -1.5 dBTP.
 The score: D major, I-V-vi-IV, warm pad, soft plucked arpeggio, round bass, light kick and shaker.
-No sound effects.
+With --hits, each scene change also gets a soft filtered-noise swell into a low thump, timed to the
+middle of the picture's transition (scene start + --hit-offset s), so the score moves with the cuts.
 """
 import argparse
 import json
@@ -137,6 +138,30 @@ def build_score(seconds: float, bpm: float, seed: int) -> np.ndarray:
     return out
 
 
+def add_hits(music: np.ndarray, times: list[float], seed: int) -> None:
+    """A soft swell (low-passed noise, rising) into a round low thump at each time."""
+    rng = np.random.default_rng(seed + 1)
+    sw = int(0.55 * SR)
+    for t in times:
+        nz = rng.standard_normal(sw)
+        lp = np.zeros(sw)
+        acc = 0.0
+        for i in range(sw):  # one-pole low-pass whose cutoff opens as the swell rises
+            k = 0.02 + 0.25 * (i / sw) ** 2
+            acc += k * (nz[i] - acc)
+            lp[i] = acc
+        swell = lp * (np.linspace(0, 1, sw) ** 2.2) * 0.9
+        s0 = int(t * SR) - sw
+        add(music[:, 0], max(0, s0), swell[max(0, -s0):], 0.05)
+        add(music[:, 1], max(0, s0), swell[max(0, -s0):], 0.05)
+        dn = int(0.6 * SR)
+        tk = np.arange(dn) / SR
+        ph = 2 * np.pi * np.cumsum(42 + 40 * np.exp(-tk * 18)) / SR
+        th = np.sin(ph) * np.exp(-tk * 6.5)
+        add(music[:, 0], int(t * SR), th, 0.14)
+        add(music[:, 1], int(t * SR), th, 0.14)
+
+
 def duck_envelope(n: int, spans: list[tuple[float, float]]) -> np.ndarray:
     g = np.ones(n)
     low = 10 ** (DUCK_DB / 20)
@@ -158,12 +183,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("out", type=Path)
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--hits", action="store_true", help="swell + thump on every scene change")
+    ap.add_argument("--hit-offset", type=float, default=0.3)
     args = ap.parse_args()
     tl = json.loads((args.out / "timeline.json").read_text(encoding="utf-8"))
     seconds = tl["frames"] / tl["fps"]
     (args.out / "audio").mkdir(exist_ok=True)
 
     music = build_score(seconds, tl["bpm"], args.seed)
+    if args.hits:
+        add_hits(music, [s["start_frame"] / tl["fps"] + args.hit_offset for s in tl["scenes"][1:]], args.seed)
     sf.write(args.out / "audio" / "music.wav", music.astype(np.float32), SR)
 
     n = len(music)

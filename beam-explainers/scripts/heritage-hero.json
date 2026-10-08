@@ -1,0 +1,234 @@
+{
+ "project": "Heritage Timber: Hero Edit",
+ "slug": "ekena-heritage-hero",
+ "voice": "af_heart",
+ "scenes": [
+  {
+   "id": "hook",
+   "title": "Hook",
+   "kind": "title",
+   "card": "The timber look. Without the weight.",
+   "vo": "Want the look of old timber beams, without the weight?",
+   "claims": [
+    "H17"
+   ],
+   "min_s": 4.2
+  },
+  {
+   "id": "reveal",
+   "title": "Meet Heritage Timber",
+   "kind": "title",
+   "card": "Heritage Timber",
+   "vo": "Meet Heritage Timber, from Ekena Millwork. | Each beam is molded in one piece, from real, weathered timber.",
+   "claims": [
+    "H1",
+    "H2",
+    "H18"
+   ]
+  },
+  {
+   "id": "textures",
+   "title": "Textures",
+   "kind": "diagram",
+   "card": "6 textures",
+   "vo": "Pick from six textures. | Mena. | Salvaged Timber. | Rustic Sawn. | Resawn Rip. | Reclaimed Axed Cut. | And Sanded Smooth.",
+   "claims": [
+    "H3",
+    "H5"
+   ]
+  },
+  {
+   "id": "finishes",
+   "title": "Finishes",
+   "kind": "diagram",
+   "card": "Hand-stained, or primed",
+   "vo": "Then a hand-stained finish. | Sandstone. | Kona Brown. | Vanilla Chai. | Warm Caramel. | Natural White Oak. | Smokey Brown. | Or primed, ready to paint.",
+   "claims": [
+    "H4",
+    "H14"
+   ]
+  },
+  {
+   "id": "sizes",
+   "title": "Sizes and lengths",
+   "kind": "diagram",
+   "card": "8 sizes, 4 to 24 ft long",
+   "vo": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
+   "claims": [
+    "H6",
+    "H9"
+   ]
+  },
+  {
+   "id": "install",
+   "title": "Hollow, easy install",
+   "kind": "diagram",
+   "card": "Hollow. Slides over a block.",
+   "vo": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+   "claims": [
+    "H17",
+    "H19"
+   ]
+  },
+  {
+   "id": "ship",
+   "title": "Quick Ship",
+   "kind": "diagram",
+   "card": "Quick Ship",
+   "vo": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three.",
+   "claims": [
+    "H10",
+    "H11"
+   ]
+  },
+  {
+   "id": "end",
+   "title": "End card",
+   "kind": "end",
+   "card": "Order a sample",
+   "vo": "Order a sample, and see it in your own light.",
+   "claims": [
+    "H13",
+    "H12",
+    "H16"
+   ],
+   "min_s": 5.8
+  }
+ ],
+ "claims": [
+  {
+   "id": "H1",
+   "text": "Heritage Timber is an Ekena Millwork faux wood beam line",
+   "source": "Heritage product record (brand Heritage Timber, manufacturer Ekena Millwork)"
+  },
+  {
+   "id": "H2",
+   "text": "Textures are cast from real weathered timbers",
+   "source": "Heritage key feature 02, long description"
+  },
+  {
+   "id": "H3",
+   "text": "U-beam textures: Mena, Salvaged Timber, Rustic Sawn, Resawn Rip, Reclaimed Axed Cut, Sanded Smooth",
+   "source": "Heritage variant data (BMSTS3), Texture by Style"
+  },
+  {
+   "id": "H4",
+   "text": "Finishes: Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak, Smokey Brown, Primed",
+   "source": "Heritage variant data, Finish"
+  },
+  {
+   "id": "H5",
+   "text": "Five textures in all 7 finishes; Sanded Smooth only Primed",
+   "source": "Heritage variant data combinations"
+  },
+  {
+   "id": "H6",
+   "text": "8 cross-sections: 3.5x3.5, 3.5x5.5, 5.5x5.5, 5.5x7.5, 7.5x7.5, 7.5x9.5, 9.5x9.5, 9.5x11.5 in",
+   "source": "Heritage variant data, Size (Width x Height)"
+  },
+  {
+   "id": "H9",
+   "text": "Lengths 4, 5, 6, 8, 10, 12, 16, 20, 24 ft",
+   "source": "Heritage variant data, Size (Length)"
+  },
+  {
+   "id": "H10",
+   "text": "Stained: usually ships in 3-5 business days",
+   "source": "Heritage product record leadTimeRaw (Kona Brown)"
+  },
+  {
+   "id": "H11",
+   "text": "Primed: usually ships in 24-72 hours",
+   "source": "Heritage product record leadTimeRaw (Primed, OT)"
+  },
+  {
+   "id": "H12",
+   "text": "Endcaps are sold separately and ship unstained",
+   "source": "Quick Ship FAQ"
+  },
+  {
+   "id": "H13",
+   "text": "Heritage samples are available: a 3 1/2 x 5 1/2 in U-beam piece, 8 in long",
+   "source": "BM-HT-SAMPLE listing; SAMPLE-KIT-BMSTS3KB description '3 1/2\"W x 5 1/2\"H x 8\"L 3-Sided SAMPLE (U-Beam)'"
+  },
+  {
+   "id": "H14",
+   "text": "Primed beams are ready to paint or stain",
+   "source": "Heritage key feature 03: 'a primed, ready-to-finish surface that accepts paint or stain'"
+  },
+  {
+   "id": "H16",
+   "text": "ekenamillwork.com sells Heritage Timber",
+   "source": "Product record: manufacturer Ekena Millwork, onEkena = 1 (listed on the Ekena site). Site for the end card to be confirmed by Brody"
+  },
+  {
+   "id": "H17",
+   "text": "Heritage beams are high-density polyurethane: hollow and lightweight",
+   "source": "Heritage key features / long description (high-density polyurethane, lightweight); beam-lines-facts.md 'Both lines'"
+  },
+  {
+   "id": "H18",
+   "text": "Each Heritage beam is molded as one piece, so there are no corner seams",
+   "source": "Heritage key features: one-piece molded U-beam, no seams; beam-lines-facts.md table 'How it's made'"
+  },
+  {
+   "id": "H19",
+   "text": "The beam slides over a wood mounting block fixed to the ceiling; the hollow inside can hide wiring",
+   "source": "INSTALL_BMU steps 1-3; Heritage long description (hollow core conceals wiring, ductwork or lighting)"
+  }
+ ],
+ "key_terms": [
+  "Heritage",
+  "Salvaged Timber",
+  "Rustic Sawn",
+  "Kona Brown",
+  "Vanilla Chai",
+  "Warm Caramel",
+  {
+   "term": "Smokey Brown",
+   "heard_as": [
+    "Smokey Brown",
+    "Smoky Brown"
+   ]
+  },
+  "primed",
+  {
+   "term": "Mena",
+   "heard_as": [
+    "Mena",
+    "Mina",
+    "Meena"
+   ]
+  },
+  {
+   "term": "Resawn Rip",
+   "heard_as": [
+    "Resawn Rip",
+    "Re-sawn Rip",
+    "Resun Rip"
+   ]
+  },
+  {
+   "term": "Ekena",
+   "heard_as": [
+    "Ekena",
+    "Eek and a",
+    "Eakin and",
+    "Eaken and",
+    "Eakin &",
+    "Eaken &",
+    "Akina",
+    "Ekina",
+    "Ekeena"
+   ]
+  },
+  {
+   "term": "Reclaimed Axed Cut",
+   "heard_as": [
+    "Reclaimed Axed Cut",
+    "Reclaimed Axe Cut",
+    "Reclaimed Axed-Cut"
+   ]
+  }
+ ]
+}

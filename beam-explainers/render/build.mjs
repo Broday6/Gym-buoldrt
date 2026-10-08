@@ -4,7 +4,7 @@
 //   node build.mjs <video> <cut> --stills dir [scene@t …]  preview PNGs (t in scene seconds; default: 3 per scene)
 //   node build.mjs <video> <cut> <out.mp4> --frames a:b   render only frames a..b-1 (for splice re-renders)
 //
-// <video> is a module in videos/ (which-one | heritage | timberthane). Timing comes from
+// <video> is a module in videos/ (which-one | heritage | timberthane | heritage-hero). Timing comes from
 // ../out/<video>/timeline.json; audio from ../out/<video>/audio/mix.wav.
 import { createCanvas } from '@napi-rs/canvas';
 import { spawn } from 'node:child_process';
@@ -35,6 +35,8 @@ function sceneAt(f) {
   return scenes[scenes.length - 1];
 }
 function drawFrame(f) {
+  // A video module can own the whole frame (its own transitions between scenes).
+  if (mod.drawFrame) { g.save(); mod.drawFrame(g, L, scenes, f); g.restore(); return; }
   const s = sceneAt(f);
   const T = f / FPS, st = (f - s.start_frame) / FPS;
   g.save();

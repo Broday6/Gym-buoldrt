@@ -3,7 +3,7 @@
 
     python tools/publish_review.py <video> <version> [--previous vN] [--changes changes.json]
 
-<video> is which-one | heritage | timberthane. Reads scripts/<video>.json and out/<video>/timeline.json,
+<video> is which-one | heritage | timberthane | heritage-hero. Reads scripts/<video>.json and out/<video>/timeline.json,
 copies the build data into the project (build/), and writes projects/<project>/review/<version>/manifest.json,
 then validates it with the review kit's validator. The cuts must already be at
 projects/<project>/renders/<version>/<slug>-16x9.mp4 and -9x16.mp4 (never overwritten later).
@@ -24,7 +24,7 @@ KIT = Path(os.environ.get("REVIEW_KIT", ROOT.parent / "install-video-kit"))
 sys.path.insert(0, str(KIT / "skills/ekena-install-video-review/scripts"))
 import validate_review as vr  # noqa: E402
 
-PROJECTS = {"which-one": "beams-which-one", "heritage": "heritage-explorer", "timberthane": "timberthane-explorer"}
+PROJECTS = {"which-one": "beams-which-one", "heritage": "heritage-explorer", "timberthane": "timberthane-explorer", "heritage-hero": "heritage-hero"}
 # Moments worth checking on their own: (id, label, the spoken words the picture reveals it on).
 ACTIONS = {
     "which-one": {
@@ -66,6 +66,20 @@ ACTIONS = {
         "length": [("len_grow", "Length 2 to 30 ft", "two")],
         "made": [("made_endcaps", "Endcap selector", "one"), ("made_hand", "Hand finished", "hand"), ("made_usa", "Made in the USA", "made"), ("made_ships", "10-12 business days", "ships")],
         "end": [("end_sample", "Sample appears", "sample")],
+    },
+    "heritage-hero": {
+        "hook": [("hook_line1", "The timber look.", "look"), ("hook_line2", "Without the weight.", "without")],
+        "reveal": [("rev_name", "Heritage Timber title", "Heritage"), ("rev_ekena", "Ekena Millwork kicker", "Ekena"),
+                   ("rev_molded", "Molded in one piece", "molded"), ("rev_seams", "No corner seams", "piece"), ("rev_real", "From real, weathered timber", "real")],
+        "textures": [(f"tex_{i}", f"Texture: {n}", p) for i, (n, p) in enumerate(
+            [("Mena", "Mina"), ("Salvaged Timber", "salvaged"), ("Rustic Sawn", "rustic"), ("Resawn Rip", "re"), ("Reclaimed Axed Cut", "reclaimed"), ("Sanded Smooth", "sanded")], 1)],
+        "finishes": [(f"fin_{i}", f"Finish: {n}", p) for i, (n, p) in enumerate(
+            [("Sandstone", "sandstone"), ("Kona Brown", "Kona"), ("Vanilla Chai", "vanilla"), ("Warm Caramel", "warm"), ("Natural White Oak", "natural"), ("Smokey Brown", "smoky"), ("Primed", "primed")], 1)],
+        "sizes": [("sizes_drop", "Eight outlines drop in", "sizes"), ("sizes_small", "3 1/2 in highlighted", "3"), ("sizes_big", "9 1/2 x 11 1/2 highlighted", "9"),
+                  ("sizes_len", "Length ruler 4-24 ft", "lengths")],
+        "install": [("inst_hollow", "Hollow end ringed", "hollow"), ("inst_slide", "Outline slides over block", "slide"), ("inst_wire", "Wiring through the hollow", "hide")],
+        "ship": [("ship_stained", "3-5 business days, stained", "three"), ("ship_primed", "24-72 hours, primed", "primed")],
+        "end": [("end_sample", "Sample + endcap appear", "sample")],
     },
 }
 
@@ -109,6 +123,9 @@ def main() -> int:
                       "timberthane/shapes/hand-hewn-box-beam.jpg", "heritage/accessories/endcap.jpg", "heritage/angles/BMSTKB-05.jpg"],
         "heritage": ["heritage/product/salvaged-timber/kona-brown.jpg", "heritage/product/mena/kona-brown.jpg",
                      "heritage/swatch/finish-kona-brown.jpg", "heritage/product/sanded-smooth/primed.jpg", "heritage/accessories/sample-kit.jpg"],
+        "heritage-hero": ["heritage/product/salvaged-timber/kona-brown.jpg", "heritage/angles/BMSTKB-05.jpg", "heritage/angles/BMSTKB-09.jpg",
+                          "heritage/swatch-hi/texture-mena.jpg", "heritage/swatch-hi/finish-sandstone.jpg", "heritage/accessories/sample-kit.jpg",
+                          "heritage/accessories/endcap.jpg"],
         "timberthane": ["timberthane/product/hand-hewn/aged.jpg", "timberthane/shapes/hand-hewn-plank.jpg", "timberthane/shapes/hand-hewn-l-beam.jpg",
                         "timberthane/shapes/hand-hewn-box-beam.jpg", "timberthane/builder/finish-driftwood.jpg",
                         "timberthane/accessories/material-sample.jpg"],
@@ -135,7 +152,7 @@ def main() -> int:
             "id": s["id"], "title": sc["title"], "kind": sc.get("kind", "other"),
             "start_frame": s["start_frame"], "end_frame": s["end_frame"],
             "step_card": sc["card"], "narration": " ".join(x.strip() for x in sc["vo"].split("|") if x.strip()), "claims": sc.get("claims", []),
-            "transition_in": "dissolve", "static_ok": sc.get("kind") == "end", "black_ok": False,
+            "transition_in": "continuous" if a.video == "heritage-hero" and s is tl["scenes"][0] else "dissolve", "static_ok": sc.get("kind") == "end", "black_ok": False,
             "actions": acts,
             "source": {"files": [f"render/videos/{a.video}.mjs", "render/lib/core.mjs"], "timeline_keys": [s["id"]],
                        "card": f"build/script-{a.version}.json#{s['id']}", "narration": f"build/script-{a.version}.json#{s['id']}"},
