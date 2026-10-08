@@ -15,3 +15,9 @@
 - Scenes failing: install
 - Blocker e1 (install, graphics): In 16:9, once 'Slides over a block.' comes in (f2644), the 'Hollow inside' callout sits only 13 px below it (card baseline y≈252, callout cap top y≈265), in the same pale green and directly under 'block.'. It reads as a third line of the step card rather than a label on the beam end. The v2 move off the beam wall fixed legibility but parked the callout against the card.
 
+## v3 — 2026-10-08T20:52:04Z — PASS
+
+- 0 blocker, 2 major, 3 minor
+- Technical checks: pass; narration: issues
+- Scenes failing: none
+
