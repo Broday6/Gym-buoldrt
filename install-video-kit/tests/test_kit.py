@@ -286,6 +286,14 @@ def main() -> int:
         sj = json.loads((bundle / "studio-static.json").read_text())
         check(sorted(sj["data"]) == ["v1", "v2"] and (bundle / "renders/v2/demo_9x16.webm").exists()
               and "window.REVIEW_BUNDLE" in (bundle / "index.html").read_text(), "a project bundles into a static copy")
+        proxy = root / "bundle-proxy"
+        run(PY, KIT / "tools/build_static_review.py", proj, proxy, "--proxy-mb", "1.5")
+        pf = proxy / "renders/v1/demo_16x9.webm"
+        n = subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
+                            "stream=nb_read_frames,width", "-of", "csv=p=0", str(pf)], capture_output=True, text=True).stdout.strip()
+        demo_frames = json.loads((proj / "review/v1/manifest.json").read_text())["frame_count"]
+        check(n == f"1280,{demo_frames}" and pf.stat().st_size <= 1.5e6,
+              f"review proxies keep every frame and fit the size budget ({n}, {pf.stat().st_size / 1e6:.2f} MB)")
         class Quiet(http.server.SimpleHTTPRequestHandler):
             def log_message(self, *a):
                 pass

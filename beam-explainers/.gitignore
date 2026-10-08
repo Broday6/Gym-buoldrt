@@ -1,0 +1,9 @@
+node_modules/
+img/*/
+models/
+out/
+projects/*/renders/
+projects/*/review/*/eval/
+.venv/
+__pycache__/
+*.pyc

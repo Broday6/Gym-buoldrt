@@ -1,0 +1,12 @@
+{
+  "name": "ekena-beam-explainers-render",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frame renderer for the coded Heritage / Timberthane beam explainer videos",
+  "type": "module",
+  "dependencies": {
+    "@fontsource/figtree": "5.2.8",
+    "@fontsource/poppins": "5.2.6",
+    "@napi-rs/canvas": "0.1.80"
+  }
+}

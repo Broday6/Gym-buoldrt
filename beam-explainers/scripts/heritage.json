@@ -1,0 +1,203 @@
+{
+ "project": "Heritage Timber: Finish & Size Explorer",
+ "slug": "ekena-heritage-explorer",
+ "scenes": [
+  {
+   "id": "hook",
+   "title": "Hook",
+   "kind": "title",
+   "card": "Heritage Timber",
+   "vo": "Heritage Timber faux wood beams, from Ekena Millwork. Here's every texture, finish, and size.",
+   "claims": [
+    "H1"
+   ],
+   "min_s": 6.8
+  },
+  {
+   "id": "textures",
+   "title": "Textures",
+   "kind": "diagram",
+   "card": "6 textures",
+   "vo": "Each texture is molded from real, weathered timber. | Mena. | Salvaged Timber. | Rustic Sawn. | Resawn Rip. | Reclaimed Axed Cut. | And Sanded Smooth.",
+   "claims": [
+    "H2",
+    "H3"
+   ]
+  },
+  {
+   "id": "finishes",
+   "title": "Finishes",
+   "kind": "diagram",
+   "card": "6 hand-stained finishes, or primed",
+   "vo": "Then pick a hand-stained finish. | Sandstone. | Kona Brown. | Vanilla Chai. | Warm Caramel. | Natural White Oak. | Smokey Brown. | Or primed, ready to paint or stain.",
+   "claims": [
+    "H4"
+   ]
+  },
+  {
+   "id": "matrix",
+   "title": "Every combination",
+   "kind": "diagram",
+   "card": "Every texture, every finish",
+   "vo": "Five textures come in every finish. Sanded Smooth comes primed.",
+   "claims": [
+    "H5"
+   ],
+   "min_s": 6.5
+  },
+  {
+   "id": "sizes",
+   "title": "Sizes",
+   "kind": "diagram",
+   "card": "8 sizes",
+   "vo": "There are eight sizes, from three and a half inches square, up to nine and a half by eleven and a half.",
+   "claims": [
+    "H6"
+   ]
+  },
+  {
+   "id": "fit",
+   "title": "Inside opening",
+   "kind": "diagram",
+   "card": "Check the inside opening",
+   "vo": "Check the inside opening. That's what slides over your mounting block. Cut the block an eighth of an inch narrower than the inside width.",
+   "claims": [
+    "H7",
+    "H8"
+   ]
+  },
+  {
+   "id": "lengths",
+   "title": "Lengths",
+   "kind": "diagram",
+   "card": "4 to 24 ft long",
+   "vo": "Lengths run from four feet to twenty-four feet.",
+   "claims": [
+    "H9"
+   ],
+   "min_s": 5.2
+  },
+  {
+   "id": "ship",
+   "title": "Quick Ship",
+   "kind": "diagram",
+   "card": "Quick Ship",
+   "vo": "Stained beams usually ship in three to five business days. Primed beams, in about one to three days. Endcaps are sold separately, unstained, so you can finish them to match.",
+   "claims": [
+    "H10",
+    "H11",
+    "H12"
+   ]
+  },
+  {
+   "id": "end",
+   "title": "End card",
+   "kind": "end",
+   "card": "Order a sample",
+   "vo": "Not sure on the finish? Order a sample first.",
+   "claims": [
+    "H13"
+   ],
+   "min_s": 5.5
+  }
+ ],
+ "claims": [
+  {
+   "id": "H1",
+   "text": "Heritage Timber is an Ekena Millwork faux wood beam line",
+   "source": "Heritage product record (brand Heritage Timber, manufacturer Ekena Millwork)"
+  },
+  {
+   "id": "H2",
+   "text": "Textures are cast from real weathered timbers",
+   "source": "Heritage key feature 02, long description"
+  },
+  {
+   "id": "H3",
+   "text": "U-beam textures: Mena, Salvaged Timber, Rustic Sawn, Resawn Rip, Reclaimed Axed Cut, Sanded Smooth",
+   "source": "Heritage variant data (BMSTS3), Texture by Style"
+  },
+  {
+   "id": "H4",
+   "text": "Finishes: Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak, Smokey Brown, Primed",
+   "source": "Heritage variant data, Finish"
+  },
+  {
+   "id": "H5",
+   "text": "Five textures in all 7 finishes; Sanded Smooth only Primed",
+   "source": "Heritage variant data combinations"
+  },
+  {
+   "id": "H6",
+   "text": "8 cross-sections: 3.5x3.5, 3.5x5.5, 5.5x5.5, 5.5x7.5, 7.5x7.5, 7.5x9.5, 9.5x9.5, 9.5x11.5 in",
+   "source": "Heritage variant data, Size (Width x Height)"
+  },
+  {
+   "id": "H7",
+   "text": "Inside openings, e.g. 5.5x5.5 opens 4 x 4 3/4 in",
+   "source": "Heritage product records (InsideWidth / InsideHeight)"
+  },
+  {
+   "id": "H8",
+   "text": "Cut blocks 1/8 in narrower than the inside width of the beam",
+   "source": "INSTALL_BMU step 1"
+  },
+  {
+   "id": "H9",
+   "text": "Lengths 4, 5, 6, 8, 10, 12, 16, 20, 24 ft",
+   "source": "Heritage variant data, Size (Length)"
+  },
+  {
+   "id": "H10",
+   "text": "Stained: usually ships in 3-5 business days",
+   "source": "Heritage product record leadTimeRaw (Kona Brown)"
+  },
+  {
+   "id": "H11",
+   "text": "Primed: usually ships in 24-72 hours",
+   "source": "Heritage product record leadTimeRaw (Primed, OT)"
+  },
+  {
+   "id": "H12",
+   "text": "Endcaps ship separately, unattached and unstained",
+   "source": "Quick Ship FAQ"
+  },
+  {
+   "id": "H13",
+   "text": "Heritage samples are available",
+   "source": "BM-HT-SAMPLE listing"
+  }
+ ],
+ "key_terms": [
+  "Heritage",
+  "Salvaged Timber",
+  "Rustic Sawn",
+  "Kona Brown",
+  "Vanilla Chai",
+  "Warm Caramel",
+  {
+   "term": "Smokey Brown",
+   "heard_as": [
+    "Smokey Brown",
+    "Smoky Brown"
+   ]
+  },
+  "primed",
+  {
+   "term": "Mena",
+   "heard_as": [
+    "Mena",
+    "Mina",
+    "Meena"
+   ]
+  },
+  {
+   "term": "Resawn Rip",
+   "heard_as": [
+    "Resawn Rip",
+    "Re-sawn Rip",
+    "Resun Rip"
+   ]
+  }
+ ]
+}

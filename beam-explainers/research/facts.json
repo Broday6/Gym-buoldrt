@@ -1,0 +1,346 @@
+{
+ "retrieved": "2026-10-08",
+ "sources": {
+  "heritage_listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3",
+  "heritage_variants": "https://www.fauxbeams.com/php/product/get_variant_data.php?parentSku=BMSTS3&combinations=true&mivaStoreID=1",
+  "heritage_flat": "https://www.fauxbeams.com/php/product/get_flat_data.php?sku=BMSTS3C00400X0400X96KB&related=true&multidomain_id=8&store_id=1",
+  "heritage_faq": "https://www.fauxbeams.com/quick-ship-faux-wood-beams (FAQ block)",
+  "timberthane_builder": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BM",
+  "timberthane_builder_data": "https://www.fauxbeams.com/php/product/get_variant_builder_data.php?sku=BM",
+  "timberthane_variants": "https://www.fauxbeams.com/php/product/get_variant_data.php?parentSku=BMHH3-ST&combinations=true&mivaStoreID=1",
+  "timberthane_flat": "https://www.fauxbeams.com/php/product/get_flat_data.php?sku=BMHH3C0040X040X096ZD&related=true&multidomain_id=8&store_id=1",
+  "images": "https://www.synergycdn.com/content/variant/get_variant_option_images.php (per child SKU, attribute 1837 texture / 1838 finish); cdn.synergycdn.com/images/id/zoom/*"
+ },
+ "heritage": {
+  "name": "Heritage Timber",
+  "nickname": "Quick Ship",
+  "construction": "Molded as a single piece from real weathered timbers; no corner seams",
+  "material": "High-density polyurethane, hollow, lightweight",
+  "shapes": [
+   "3-sided U-beam"
+  ],
+  "also": "Round log beams (Santa Fe Hand Hewn, Pueblo Sandblasted, Adobe Peeled) and Heritage mantels",
+  "cross_sections_in": [
+   [
+    3.5,
+    3.5
+   ],
+   [
+    3.5,
+    5.5
+   ],
+   [
+    5.5,
+    5.5
+   ],
+   [
+    5.5,
+    7.5
+   ],
+   [
+    7.5,
+    7.5
+   ],
+   [
+    7.5,
+    9.5
+   ],
+   [
+    9.5,
+    9.5
+   ],
+   [
+    9.5,
+    11.5
+   ]
+  ],
+  "inside_openings_in": {
+   "3.5x3.5": [
+    2,
+    2.75
+   ],
+   "3.5x5.5": [
+    2,
+    4.75
+   ],
+   "5.5x5.5": [
+    4,
+    4.75
+   ],
+   "5.5x7.5": [
+    4,
+    6.75
+   ],
+   "7.5x7.5": [
+    6,
+    6.75
+   ],
+   "7.5x9.5": [
+    6,
+    8.75
+   ],
+   "9.5x9.5": [
+    8,
+    8.75
+   ],
+   "9.5x11.5": [
+    8,
+    8.75
+   ]
+  },
+  "lengths_ft": [
+   4,
+   5,
+   6,
+   8,
+   10,
+   12,
+   16,
+   20,
+   24
+  ],
+  "textures": [
+   "Mena",
+   "Salvaged Timber",
+   "Rustic Sawn",
+   "Resawn Rip",
+   "Reclaimed Axed Cut",
+   "Sanded Smooth"
+  ],
+  "texture_note": "Sanded Smooth comes Primed only",
+  "finishes": [
+   "Primed",
+   "Sandstone",
+   "Kona Brown",
+   "Vanilla Chai",
+   "Warm Caramel",
+   "Natural White Oak",
+   "Smokey Brown"
+  ],
+  "stained_finishes": [
+   "Sandstone",
+   "Kona Brown",
+   "Vanilla Chai",
+   "Warm Caramel",
+   "Natural White Oak",
+   "Smokey Brown"
+  ],
+  "finish_note": "Hand stained in batches; slight colour variation between batches",
+  "lead_time": {
+   "stained": "Usually ships in 3-5 business days",
+   "primed": "Usually ships in 24-72 hours",
+   "faq": "typically ship within 3-7 business days"
+  },
+  "endcaps": "Sold separately; ship unattached and unstained (mantels come with endcaps attached)",
+  "outdoor": "Outdoors only with a proper UV-protective coating; may fade in direct sun without it",
+  "sample": "3 1/2\"W x 5 1/2\"H x 8\"L U-beam sample piece",
+  "install": "Slides over a mounting block; one-person install with standard tools",
+  "made_in_usa": false,
+  "price_examples": {
+   "5.5x5.5x8ft Kona Brown": 186.48,
+   "5.5x5.5x12ft Kona Brown": 279.72,
+   "7.5x7.5x12ft Kona Brown": 374.07,
+   "9.5x9.5x16ft Kona Brown": 625.85
+  },
+  "inside_openings_note": "9.5x11.5 lists inside height 8 3/4 in, same as 9.5x9.5; possibly a data-entry error (expected ~10 3/4). Videos show inside widths only."
+ },
+ "timberthane": {
+  "name": "Timberthane",
+  "nickname": "Made to Order / Custom",
+  "construction": "Made to your size from 1-inch-thick polyurethane sheets (inside dimensions include a 1/4-inch tolerance per joint)",
+  "material": "High-density polyurethane, hollow, lightweight",
+  "shapes": [
+   "1-sided plank",
+   "2-sided L-beam",
+   "3-sided U-beam",
+   "4-sided box beam"
+  ],
+  "custom_width_in": [
+   3,
+   24
+  ],
+  "custom_height_in": [
+   3,
+   24
+  ],
+  "custom_step_in": 0.5,
+  "custom_length_in": [
+   24,
+   360
+  ],
+  "custom_length_step_in": 1,
+  "stock_widths_in": [
+   4,
+   6,
+   8,
+   10,
+   12
+  ],
+  "stock_heights_in": [
+   4,
+   6,
+   8,
+   10,
+   12
+  ],
+  "stock_plank_thickness_in": 1,
+  "stock_lengths_ft": [
+   3,
+   6,
+   8,
+   10,
+   12,
+   14,
+   15,
+   16,
+   18,
+   20,
+   22,
+   24
+  ],
+  "inside_openings_in": {
+   "4x4": [
+    1.5,
+    2.75
+   ],
+   "6x6": [
+    3.5,
+    4.75
+   ],
+   "8x8": [
+    5.5,
+    6.75
+   ],
+   "10x10": [
+    7.5,
+    8.75
+   ]
+  },
+  "textures": [
+   "Hand Hewn",
+   "Rough Sawn",
+   "Rough Cedar",
+   "Sandblasted",
+   "Pecky Cypress",
+   "Riverwood",
+   "Knotty Pine",
+   "Rustic Smooth"
+  ],
+  "finishes": [
+   "Factory Prepped",
+   "Aged",
+   "Espresso",
+   "Mahogany",
+   "Ebony",
+   "Hickory",
+   "Russet",
+   "Cherry",
+   "Almond",
+   "Charcoal Grey",
+   "Sonora Desert",
+   "Driftwood",
+   "Buttercream",
+   "Slate",
+   "Cedar Bark",
+   "Redwood",
+   "Sangria",
+   "Seashell",
+   "Champagne Mist",
+   "Cashmere",
+   "Oatmeal",
+   "Sand Dune",
+   "Toffee",
+   "Harvest Oak",
+   "Honey Wheat",
+   "Rustic Taupe",
+   "Burnished Graphite",
+   "Merlot",
+   "Smoke"
+  ],
+  "stained_finishes": [
+   "Aged",
+   "Espresso",
+   "Mahogany",
+   "Ebony",
+   "Hickory",
+   "Russet",
+   "Cherry",
+   "Almond",
+   "Charcoal Grey",
+   "Sonora Desert",
+   "Driftwood",
+   "Buttercream",
+   "Slate",
+   "Cedar Bark",
+   "Redwood",
+   "Sangria",
+   "Seashell",
+   "Champagne Mist",
+   "Cashmere",
+   "Oatmeal",
+   "Sand Dune",
+   "Toffee",
+   "Harvest Oak",
+   "Honey Wheat",
+   "Rustic Taupe",
+   "Burnished Graphite",
+   "Merlot",
+   "Smoke"
+  ],
+  "finish_note": "Every batch is hand finished; undertones and colours vary",
+  "lead_time": {
+   "all": "Usually ships in 10-12 business days"
+  },
+  "endcaps": "Choose none, one or two endcaps on the builder",
+  "sample": "10\" x 7\" material sample",
+  "made_in_usa": true,
+  "price_examples": {
+   "6x6x8ft Rough Cedar Aged": 367.53,
+   "6x6x12ft Rough Cedar Aged": 551.29,
+   "8x8x12ft Rough Cedar Aged": 702.79,
+   "10x10x16ft Rough Cedar Aged": 1190.57
+  }
+ },
+ "swatch_colors": {
+  "heritage": {
+   "Primed": "#b59f7c",
+   "Sandstone": "#aa9985",
+   "Kona Brown": "#534841",
+   "Vanilla Chai": "#c4c0b6",
+   "Warm Caramel": "#a77a45",
+   "Natural White Oak": "#b39a73",
+   "Smokey Brown": "#847766"
+  },
+  "timberthane": {
+   "Factory Prepped": "#dbdad6",
+   "Aged": "#6a5646",
+   "Espresso": "#433c39",
+   "Mahogany": "#53443d",
+   "Ebony": "#4c4641",
+   "Hickory": "#453c35",
+   "Russet": "#544840",
+   "Cherry": "#423a37",
+   "Almond": "#927e67",
+   "Charcoal Grey": "#7b6955",
+   "Sonora Desert": "#e1c099",
+   "Driftwood": "#c7c0b6",
+   "Buttercream": "#b39070",
+   "Slate": "#68625f",
+   "Cedar Bark": "#6c5647",
+   "Redwood": "#78503e",
+   "Sangria": "#50494a",
+   "Seashell": "#918a7d",
+   "Champagne Mist": "#928067",
+   "Cashmere": "#bcb3a0",
+   "Oatmeal": "#a88c6c",
+   "Sand Dune": "#d8c3a8",
+   "Toffee": "#96694c",
+   "Harvest Oak": "#7e6e60",
+   "Honey Wheat": "#876750",
+   "Rustic Taupe": "#86715d",
+   "Burnished Graphite": "#5e5040",
+   "Merlot": "#4d3a33",
+   "Smoke": "#87735c"
+  }
+ }
+}

@@ -1,0 +1,212 @@
+{
+ "project": "Heritage Timber vs Timberthane: Which Beam Do You Need?",
+ "slug": "ekena-beams-which-one",
+ "scenes": [
+  {
+   "id": "hook",
+   "title": "Hook",
+   "kind": "title",
+   "card": "Heritage or Timberthane?",
+   "vo": "Heritage Timber, or Timberthane? Two faux wood beam lines from Ekena Millwork. Here's how to choose.",
+   "claims": [
+    "W1"
+   ],
+   "min_s": 7.5
+  },
+  {
+   "id": "both",
+   "title": "What they share",
+   "kind": "diagram",
+   "card": "What they share",
+   "vo": "Both are lightweight, high-density polyurethane, with textures molded from real wood. Both are hollow, and both install the same way, over a wood block.",
+   "claims": [
+    "W2",
+    "W3",
+    "W4"
+   ]
+  },
+  {
+   "id": "speed",
+   "title": "Lead time",
+   "kind": "diagram",
+   "card": "Need it fast?",
+   "vo": "Need it fast? Heritage is Quick Ship. Stained beams usually ship in three to five business days. Timberthane is made to order, and usually ships in ten to twelve.",
+   "claims": [
+    "W5",
+    "W6"
+   ]
+  },
+  {
+   "id": "sizes",
+   "title": "Sizes",
+   "kind": "diagram",
+   "card": "Set sizes, or your size",
+   "vo": "Heritage comes in eight set sizes, up to nine and a half by eleven and a half inches, and four to twenty-four feet long. Timberthane is built to your size: three to twenty-four inches, and up to thirty feet long.",
+   "claims": [
+    "W7",
+    "W8"
+   ]
+  },
+  {
+   "id": "shapes",
+   "title": "Shapes",
+   "kind": "diagram",
+   "card": "U-beam, or any shape",
+   "vo": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
+   "claims": [
+    "W9",
+    "W10"
+   ]
+  },
+  {
+   "id": "looks",
+   "title": "Textures and finishes",
+   "kind": "diagram",
+   "card": "Textures and finishes",
+   "vo": "Heritage has six textures and six hand-stained finishes, or primed to paint. Timberthane has eight textures and twenty-eight hand-finished colors.",
+   "claims": [
+    "W11",
+    "W12"
+   ]
+  },
+  {
+   "id": "details",
+   "title": "Seams, endcaps, origin",
+   "kind": "diagram",
+   "card": "The details",
+   "vo": "Heritage is molded in one piece, so its corners have no seams, and its endcaps ship separately, ready to stain. With Timberthane, you add endcaps when you order, and it's made in the U.S.A.",
+   "claims": [
+    "W13",
+    "W14",
+    "W15",
+    "W16"
+   ]
+  },
+  {
+   "id": "choose",
+   "title": "Which one",
+   "kind": "diagram",
+   "card": "So, which one?",
+   "vo": "A standard size, and need it soon? Go Heritage. It's the lower price, too. Need an exact size, another shape, or more colors? Go Timberthane.",
+   "claims": [
+    "W17"
+   ]
+  },
+  {
+   "id": "end",
+   "title": "End card",
+   "kind": "end",
+   "card": "Still deciding? Order a sample.",
+   "vo": "Still deciding? Order a sample of each.",
+   "claims": [
+    "W18"
+   ],
+   "min_s": 5.5
+  }
+ ],
+ "claims": [
+  {
+   "id": "W1",
+   "text": "Heritage Timber and Timberthane are Ekena Millwork faux wood beam lines",
+   "source": "facts.md, product records (brand Heritage Timber / TimberThane, manufacturer Ekena Millwork)"
+  },
+  {
+   "id": "W2",
+   "text": "Both are lightweight high-density polyurethane",
+   "source": "Heritage key features; Timberthane key features"
+  },
+  {
+   "id": "W3",
+   "text": "Textures are molded from real wood; both are hollow",
+   "source": "Heritage key features 02, 05; Timberthane short description"
+  },
+  {
+   "id": "W4",
+   "text": "Both install the same way, over wood blocking",
+   "source": "INSTALL_BMU: 'Heritage + TimberThane Faux Wood Beams General Installation Guide'"
+  },
+  {
+   "id": "W5",
+   "text": "Heritage stained beams usually ship in 3-5 business days (Quick Ship)",
+   "source": "Heritage product record leadTimeRaw"
+  },
+  {
+   "id": "W6",
+   "text": "Timberthane is made to order and usually ships in 10-12 business days",
+   "source": "Timberthane product record leadTimeRaw"
+  },
+  {
+   "id": "W7",
+   "text": "Heritage: 8 cross-sections, 3.5x3.5 to 9.5x11.5 in; 4-24 ft long",
+   "source": "Heritage variant data (BMSTS3)"
+  },
+  {
+   "id": "W8",
+   "text": "Timberthane: 3-24 in wide and high in 1/2 in steps; 24-360 in long",
+   "source": "Timberthane builder data (BM)"
+  },
+  {
+   "id": "W9",
+   "text": "Heritage beams are 3-sided U-beams",
+   "source": "Heritage variant data, Style"
+  },
+  {
+   "id": "W10",
+   "text": "Timberthane comes as plank, L-beam, U-beam or box beam",
+   "source": "Timberthane builder Shape"
+  },
+  {
+   "id": "W11",
+   "text": "Heritage: 6 textures; 6 hand-stained finishes plus Primed",
+   "source": "Heritage variant data; FAQ 'six different finishes, and six unique textures'"
+  },
+  {
+   "id": "W12",
+   "text": "Timberthane: 8 textures; 28 hand-finished colours plus Factory Prepped",
+   "source": "Timberthane builder data, Texture and Finish"
+  },
+  {
+   "id": "W13",
+   "text": "Heritage is molded as one piece, no corner seams",
+   "source": "Heritage key feature 01"
+  },
+  {
+   "id": "W14",
+   "text": "Heritage endcaps ship separately, unattached and unstained",
+   "source": "Quick Ship FAQ, 'Are the endcaps attached?'"
+  },
+  {
+   "id": "W15",
+   "text": "Timberthane builder offers none, one or two endcaps",
+   "source": "Timberthane builder Endcaps"
+  },
+  {
+   "id": "W16",
+   "text": "Timberthane is made in the USA",
+   "source": "Timberthane product record madeInUsa = 1; Endurathane copy 'Made in the USA'"
+  },
+  {
+   "id": "W17",
+   "text": "Heritage is the lower price for comparable sizes",
+   "source": "facts.md price comparison, four size pairs (Heritage about 51-53% of Timberthane)"
+  },
+  {
+   "id": "W18",
+   "text": "Samples are available for both lines",
+   "source": "BM-HT-SAMPLE, BM-MAT-SAMPLE listings"
+  }
+ ],
+ "key_terms": [
+  "Heritage",
+  {
+   "term": "Timberthane",
+   "heard_as": [
+    "Timberthane",
+    "Timber Thane",
+    "Timber-thane"
+   ]
+  },
+  "Quick Ship",
+  "polyurethane"
+ ]
+}

@@ -1,0 +1,3032 @@
+{
+ "heritage/accessories/endcap.jpg": {
+  "line": "heritage",
+  "kind": "endcap",
+  "sku": "BMC_P",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/2165632.jpg"
+ },
+ "heritage/accessories/sample-kit.jpg": {
+  "line": "heritage",
+  "kind": "sample",
+  "sku": "BM-HT-SAMPLE",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/SAMPLE-KIT-BMRSS3KB.jpg"
+ },
+ "heritage/angles/BMSTKB-0.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-0.jpg"
+ },
+ "heritage/angles/BMSTKB-01.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-01.jpg"
+ },
+ "heritage/angles/BMSTKB-02.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-02.jpg"
+ },
+ "heritage/angles/BMSTKB-03.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-03.jpg"
+ },
+ "heritage/angles/BMSTKB-04.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-04.jpg"
+ },
+ "heritage/angles/BMSTKB-05.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-05.jpg"
+ },
+ "heritage/angles/BMSTKB-06.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-06.jpg"
+ },
+ "heritage/angles/BMSTKB-07.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-07.jpg"
+ },
+ "heritage/angles/BMSTKB-08.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-08.jpg"
+ },
+ "heritage/angles/BMSTKB-09.jpg": {
+  "line": "heritage",
+  "kind": "angle",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB-09.jpg"
+ },
+ "heritage/product/mena/kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Kona Brown",
+  "sku": "BMMAS3C00400X0400X96KB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMAKB.jpg"
+ },
+ "heritage/product/mena/natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Natural White Oak",
+  "sku": "BMMAS3C00400X0400X96WO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMAWO.jpg"
+ },
+ "heritage/product/mena/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Primed",
+  "sku": "BMMAS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMAOT.jpg"
+ },
+ "heritage/product/mena/sandstone.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Sandstone",
+  "sku": "BMMAS3C00400X0400X96SS",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMASS.jpg"
+ },
+ "heritage/product/mena/smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Smokey Brown",
+  "sku": "BMMAS3C00400X0400X96SB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMASB.jpg"
+ },
+ "heritage/product/mena/vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Vanilla Chai",
+  "sku": "BMMAS3C00400X0400X96VC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMAVC.jpg"
+ },
+ "heritage/product/mena/warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Mena",
+  "finish": "Warm Caramel",
+  "sku": "BMMAS3C00400X0400X96WC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMMAS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMMAWC.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Kona Brown",
+  "sku": "BMRDS3C00400X0400X96KB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDKB.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Natural White Oak",
+  "sku": "BMRDS3C00400X0400X96WO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDWO.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Primed",
+  "sku": "BMRDS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDOT.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/sandstone.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Sandstone",
+  "sku": "BMRDS3C00400X0400X96SS",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDSS.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Smokey Brown",
+  "sku": "BMRDS3C00400X0400X96SB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDSB.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Vanilla Chai",
+  "sku": "BMRDS3C00400X0400X96VC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDVC.jpg"
+ },
+ "heritage/product/reclaimed-axed-cut/warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Reclaimed Axed Cut",
+  "finish": "Warm Caramel",
+  "sku": "BMRDS3C00400X0400X96WC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRDS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRDWC.jpg"
+ },
+ "heritage/product/resawn-rip/kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Kona Brown",
+  "sku": "BMRRS3C00400X0400X96KB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRKB.jpg"
+ },
+ "heritage/product/resawn-rip/natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Natural White Oak",
+  "sku": "BMRRS3C00400X0400X96WO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRWO.jpg"
+ },
+ "heritage/product/resawn-rip/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Primed",
+  "sku": "BMRRS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRROT.jpg"
+ },
+ "heritage/product/resawn-rip/sandstone.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Sandstone",
+  "sku": "BMRRS3C00400X0400X96SS",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRSS.jpg"
+ },
+ "heritage/product/resawn-rip/smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Smokey Brown",
+  "sku": "BMRRS3C00400X0400X96SB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRSB.jpg"
+ },
+ "heritage/product/resawn-rip/vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Vanilla Chai",
+  "sku": "BMRRS3C00400X0400X96VC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRVC.jpg"
+ },
+ "heritage/product/resawn-rip/warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Resawn Rip",
+  "finish": "Warm Caramel",
+  "sku": "BMRRS3C00400X0400X96WC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRRS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRRWC.jpg"
+ },
+ "heritage/product/rustic-sawn/kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Kona Brown",
+  "sku": "BMRSS3C00400X0400X96KB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSKB.jpg"
+ },
+ "heritage/product/rustic-sawn/natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Natural White Oak",
+  "sku": "BMRSS3C00400X0400X96WO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSWO.jpg"
+ },
+ "heritage/product/rustic-sawn/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Primed",
+  "sku": "BMRSS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSOT.jpg"
+ },
+ "heritage/product/rustic-sawn/sandstone.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Sandstone",
+  "sku": "BMRSS3C00400X0400X96SS",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSSS.jpg"
+ },
+ "heritage/product/rustic-sawn/smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Smokey Brown",
+  "sku": "BMRSS3C00400X0400X96SB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSSB.jpg"
+ },
+ "heritage/product/rustic-sawn/vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Vanilla Chai",
+  "sku": "BMRSS3C00400X0400X96VC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSVC.jpg"
+ },
+ "heritage/product/rustic-sawn/warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Rustic Sawn",
+  "finish": "Warm Caramel",
+  "sku": "BMRSS3C00400X0400X96WC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRSS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSWC.jpg"
+ },
+ "heritage/product/salvaged-timber/kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Kona Brown",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTKB.jpg"
+ },
+ "heritage/product/salvaged-timber/natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Natural White Oak",
+  "sku": "BMSTS3C00400X0400X96WO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTWO.jpg"
+ },
+ "heritage/product/salvaged-timber/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Primed",
+  "sku": "BMSTS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTOT.jpg"
+ },
+ "heritage/product/salvaged-timber/sandstone.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Sandstone",
+  "sku": "BMSTS3C00400X0400X96SS",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTSS.jpg"
+ },
+ "heritage/product/salvaged-timber/smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Smokey Brown",
+  "sku": "BMSTS3C00400X0400X96SB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTSB.jpg"
+ },
+ "heritage/product/salvaged-timber/vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Vanilla Chai",
+  "sku": "BMSTS3C00400X0400X96VC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTVC.jpg"
+ },
+ "heritage/product/salvaged-timber/warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Salvaged Timber",
+  "finish": "Warm Caramel",
+  "sku": "BMSTS3C00400X0400X96WC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSTS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSTWC.jpg"
+ },
+ "heritage/product/sanded-smooth/primed.jpg": {
+  "line": "heritage",
+  "kind": "product",
+  "texture": "Sanded Smooth",
+  "finish": "Primed",
+  "sku": "BMSSS3C00400X0400X96OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSSS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSSOT.jpg"
+ },
+ "heritage/rooms/08a3551e9fa957456e6d.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Spacious living room with a brick fireplace, faux wood beams, dark sectional sofa, and a neutral color palette.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/08a3551e9fa957456e6d.jpg"
+ },
+ "heritage/rooms/09dbbb9b73fd232f1651.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Ceiling with faux wood beams and large circular chandeliers in a spacious room with rows of chairs facing a stone fireplace.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/09dbbb9b73fd232f1651.jpg"
+ },
+ "heritage/rooms/12d6675cb63e4c701218.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Ceiling with a faux wood beam and floral artwork on the wall.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/12d6675cb63e4c701218.jpg"
+ },
+ "heritage/rooms/1ce6e3ec372c5bf600c9.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Elegant kitchen with faux wood beam above white cabinets and a fridge.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/1ce6e3ec372c5bf600c9.jpg"
+ },
+ "heritage/rooms/277a5467b4abd23331a8.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "A modern kitchen with white cabinets, stainless steel appliances, faux wood beams, and large windows offering natural light.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/277a5467b4abd23331a8.jpg"
+ },
+ "heritage/rooms/2e22160e736f1bc8aa58.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Ceiling with a faux wood beam and a hanging pendant light in a modern interior space.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/2e22160e736f1bc8aa58.jpg"
+ },
+ "heritage/rooms/2eb720f6dd3ad75fac8f.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Spacious living room with faux wood beams, dark faux wood fireplace mantel, neutral walls, and sleek modern furnishings.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/2eb720f6dd3ad75fac8f.jpg"
+ },
+ "heritage/rooms/397f7931fe0dd18244e2.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "A living room with a high ceiling featuring faux wood beams, large windows overlooking water, and a stone fireplace.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/397f7931fe0dd18244e2.jpg"
+ },
+ "heritage/rooms/3f1220cfc527a5d2adab.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "A kitchen with a faux wood beam on the ceiling, modern pendant lights, white cabinets, and an island with brown chairs.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/3f1220cfc527a5d2adab.jpg"
+ },
+ "heritage/rooms/4f4e84c0a5f9e98ed3fa.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/4f4e84c0a5f9e98ed3fa.jpg"
+ },
+ "heritage/rooms/57e2bc06e0a033024231.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/57e2bc06e0a033024231.jpg"
+ },
+ "heritage/rooms/6fb22e98bc6f4d043f34.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Kitchen with faux wood beams on the ceiling, wooden cabinetry, stainless steel appliances, and granite countertops.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/6fb22e98bc6f4d043f34.jpg"
+ },
+ "heritage/rooms/7652db729115ec792d44.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Spacious living room with faux wood beams, blue sofa, beige armchairs, wooden floor, and view into a modern kitchen.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/7652db729115ec792d44.jpg"
+ },
+ "heritage/rooms/791c590171a9eb41dae7.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Fireplace with a faux wood beam mantel, flanked by shelves, below a painting on a white shiplap wall.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/791c590171a9eb41dae7.jpg"
+ },
+ "heritage/rooms/9cfa08e1a43895f377cb.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "A hallway with faux wood beams on the ceiling, framed pictures on the wall, a geometric light fixture, and a woven rug.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/9cfa08e1a43895f377cb.jpg"
+ },
+ "heritage/rooms/a04fdb5f405bc4ee3305.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/a04fdb5f405bc4ee3305.jpg"
+ },
+ "heritage/rooms/acdc4e8b982933e851bf.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "A hallway with rustic faux wood beams on the ceiling, white walls, doors, and a decorated table by the entrance.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/acdc4e8b982933e851bf.jpg"
+ },
+ "heritage/rooms/aee951cae8affc940914.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/aee951cae8affc940914.jpg"
+ },
+ "heritage/rooms/dcc72bc0adbf8b0a2e33.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Bathroom with a faux wood beam, white subway tiles, oval mirror, wall-mounted light, and towel rack.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/dcc72bc0adbf8b0a2e33.jpg"
+ },
+ "heritage/rooms/dd67a9dead3baad6123e.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/dd67a9dead3baad6123e.jpg"
+ },
+ "heritage/rooms/e8dc8b7d09d1c5b83025.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/e8dc8b7d09d1c5b83025.jpg"
+ },
+ "heritage/rooms/ed0ccc91d40656a9897d.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Ceiling with a rustic faux wood beam and a decorative windmill-style ceiling fan, surrounded by wooden paneling and recessed ",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/ed0ccc91d40656a9897d.jpg"
+ },
+ "heritage/rooms/efd08492636de2a27a74.jpg": {
+  "line": "heritage",
+  "kind": "room",
+  "alt": "Spacious open-concept kitchen with faux wood beam, white cabinetry, island, and chandeliers above wooden floors.",
+  "sku": "BMSTS3",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/efd08492636de2a27a74.jpg"
+ },
+ "heritage/swatch/finish-kona-brown.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Kona Brown",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTKB.jpg"
+ },
+ "heritage/swatch/finish-natural-white-oak.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Natural White Oak",
+  "sku": "BMSTS3C00400X0400X96WO",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTWO.jpg"
+ },
+ "heritage/swatch/finish-primed.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Primed",
+  "sku": "BMSTS3C00400X0400X96OT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTOT.jpg"
+ },
+ "heritage/swatch/finish-sandstone.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Sandstone",
+  "sku": "BMSTS3C00400X0400X96SS",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTSS.jpg"
+ },
+ "heritage/swatch/finish-smokey-brown.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Smokey Brown",
+  "sku": "BMSTS3C00400X0400X96SB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_smokey_brown.jpg"
+ },
+ "heritage/swatch/finish-vanilla-chai.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Vanilla Chai",
+  "sku": "BMSTS3C00400X0400X96VC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTVC.jpg"
+ },
+ "heritage/swatch/finish-warm-caramel.jpg": {
+  "line": "heritage",
+  "kind": "finish-swatch",
+  "finish": "Warm Caramel",
+  "sku": "BMSTS3C00400X0400X96WC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/finish_BMSTWC.jpg"
+ },
+ "heritage/swatch/texture-mena.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Mena",
+  "sku": "BMMAS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/texture_BMMAKB.jpg"
+ },
+ "heritage/swatch/texture-reclaimed-axed-cut.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Reclaimed Axed Cut",
+  "sku": "BMRDS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/texture_BMRDKB.jpg"
+ },
+ "heritage/swatch/texture-resawn-rip.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Resawn Rip",
+  "sku": "BMRRS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/texture_BMRRKB.jpg"
+ },
+ "heritage/swatch/texture-rustic-sawn.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Rustic Sawn",
+  "sku": "BMRSS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/texture_BMRSKB.jpg"
+ },
+ "heritage/swatch/texture-salvaged-timber.jpg": {
+  "line": "heritage",
+  "kind": "texture-swatch",
+  "texture": "Salvaged Timber",
+  "sku": "BMSTS3C00400X0400X96KB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/texture_BMSTKB.jpg"
+ },
+ "timberthane/accessories/material-sample.jpg": {
+  "line": "timberthane",
+  "kind": "sample",
+  "sku": "BM-MAT-SAMPLE",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/2109321.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-0.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-0.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-01.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-01.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-02.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-02.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-03.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-03.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-04.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-04.jpg"
+ },
+ "timberthane/angles/BMHHS3C0ZD-05.jpg": {
+  "line": "timberthane",
+  "kind": "angle",
+  "sku": "BMHH3C0040X040X096ZD",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD-05.jpg"
+ },
+ "timberthane/builder/finish-aged.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Aged",
+  "code": "ZD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_aged.jpg"
+ },
+ "timberthane/builder/finish-almond.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Almond",
+  "code": "AL",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_almond.jpg"
+ },
+ "timberthane/builder/finish-burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Burnished Graphite",
+  "code": "BG",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_burnished_graphite.jpg"
+ },
+ "timberthane/builder/finish-buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Buttercream",
+  "code": "BC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_buttercream.jpg"
+ },
+ "timberthane/builder/finish-cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Cashmere",
+  "code": "CA",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_cashmere.jpg"
+ },
+ "timberthane/builder/finish-cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Cedar Bark",
+  "code": "CB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_cedar_bark.jpg"
+ },
+ "timberthane/builder/finish-champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Champagne Mist",
+  "code": "CM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_champagne_mist.jpg"
+ },
+ "timberthane/builder/finish-charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Charcoal Grey",
+  "code": "CG",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/custom_builder_variant_finish_charcoal_grey.jpg"
+ },
+ "timberthane/builder/finish-cherry.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Cherry",
+  "code": "ZY",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_cherry.jpg"
+ },
+ "timberthane/builder/finish-driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Driftwood",
+  "code": "DF",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_driftwood.jpg"
+ },
+ "timberthane/builder/finish-ebony.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Ebony",
+  "code": "ZB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_ebony.jpg"
+ },
+ "timberthane/builder/finish-espresso.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Espresso",
+  "code": "ZS",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_espresso.jpg"
+ },
+ "timberthane/builder/finish-factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Factory Prepped",
+  "code": "UN",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_factory_prepped.jpg"
+ },
+ "timberthane/builder/finish-harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Harvest Oak",
+  "code": "HO",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_harvest_oak.jpg"
+ },
+ "timberthane/builder/finish-hickory.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Hickory",
+  "code": "ZH",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_hickory.jpg"
+ },
+ "timberthane/builder/finish-honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Honey Wheat",
+  "code": "HW",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_honey_wheat.jpg"
+ },
+ "timberthane/builder/finish-mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Mahogany",
+  "code": "ZM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_mahogany.jpg"
+ },
+ "timberthane/builder/finish-merlot.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Merlot",
+  "code": "MT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_merlot.jpg"
+ },
+ "timberthane/builder/finish-oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Oatmeal",
+  "code": "OT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_oatmeal.jpg"
+ },
+ "timberthane/builder/finish-redwood.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Redwood",
+  "code": "RD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_redwood.jpg"
+ },
+ "timberthane/builder/finish-russet.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Russet",
+  "code": "ZT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_russet.jpg"
+ },
+ "timberthane/builder/finish-rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Rustic Taupe",
+  "code": "RT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_rustic_taupe.jpg"
+ },
+ "timberthane/builder/finish-sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Sand Dune",
+  "code": "SN",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_sand_dune.jpg"
+ },
+ "timberthane/builder/finish-sangria.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Sangria",
+  "code": "SA",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_sangria.jpg"
+ },
+ "timberthane/builder/finish-seashell.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Seashell",
+  "code": "SE",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_seashell.jpg"
+ },
+ "timberthane/builder/finish-slate.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Slate",
+  "code": "SL",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_slate.jpg"
+ },
+ "timberthane/builder/finish-smoke.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Smoke",
+  "code": "SM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_smoke.jpg"
+ },
+ "timberthane/builder/finish-sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Sonora Desert",
+  "code": "SD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_sonora_desert.jpg"
+ },
+ "timberthane/builder/finish-toffee.jpg": {
+  "line": "timberthane",
+  "kind": "builder-finish-swatch",
+  "name": "Toffee",
+  "code": "TF",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_finish_toffee.jpg"
+ },
+ "timberthane/builder/texture-hand-hewn.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Hand Hewn",
+  "code": "HH",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_hand_hewn.jpg"
+ },
+ "timberthane/builder/texture-knotty-pine.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Knotty Pine",
+  "code": "KP",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_knotty_pine.jpg"
+ },
+ "timberthane/builder/texture-pecky-cypress.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Pecky Cypress",
+  "code": "PC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_pecky_cypress.jpg"
+ },
+ "timberthane/builder/texture-riverwood.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Riverwood",
+  "code": "RW",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_riverwood.jpg"
+ },
+ "timberthane/builder/texture-rough-cedar.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Rough Cedar",
+  "code": "RC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_rough_cedar.jpg"
+ },
+ "timberthane/builder/texture-rough-sawn.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Rough Sawn",
+  "code": "RS",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_rough_sawn.jpg"
+ },
+ "timberthane/builder/texture-rustic-smooth.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Rustic Smooth",
+  "code": "SM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_rustic_smooth.jpg"
+ },
+ "timberthane/builder/texture-sandblasted.jpg": {
+  "line": "timberthane",
+  "kind": "builder-texture-swatch",
+  "name": "Sandblasted",
+  "code": "SD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/builder_texture_sandblasted.jpg"
+ },
+ "timberthane/product/hand-hewn/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Aged",
+  "sku": "BMHH3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD.jpg"
+ },
+ "timberthane/product/hand-hewn/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Almond",
+  "sku": "BMHH3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0AL.jpg"
+ },
+ "timberthane/product/hand-hewn/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Burnished Graphite",
+  "sku": "BMHH3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0BG.jpg"
+ },
+ "timberthane/product/hand-hewn/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Buttercream",
+  "sku": "BMHH3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0BC.jpg"
+ },
+ "timberthane/product/hand-hewn/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Cashmere",
+  "sku": "BMHH3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0CA.jpg"
+ },
+ "timberthane/product/hand-hewn/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Cedar Bark",
+  "sku": "BMHH3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0CB.jpg"
+ },
+ "timberthane/product/hand-hewn/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Champagne Mist",
+  "sku": "BMHH3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0CM.jpg"
+ },
+ "timberthane/product/hand-hewn/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Charcoal Grey",
+  "sku": "BMHH3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0CG.jpg"
+ },
+ "timberthane/product/hand-hewn/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Cherry",
+  "sku": "BMHH3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZY.jpg"
+ },
+ "timberthane/product/hand-hewn/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Driftwood",
+  "sku": "BMHH3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0DF.jpg"
+ },
+ "timberthane/product/hand-hewn/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Factory Prepped",
+  "sku": "BMHH3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0UN.jpg"
+ },
+ "timberthane/product/hand-hewn/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Harvest Oak",
+  "sku": "BMHH3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0HO.jpg"
+ },
+ "timberthane/product/hand-hewn/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Hickory",
+  "sku": "BMHH3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZH.jpg"
+ },
+ "timberthane/product/hand-hewn/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Honey Wheat",
+  "sku": "BMHH3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0HW.jpg"
+ },
+ "timberthane/product/hand-hewn/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Mahogany",
+  "sku": "BMHH3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZM.jpg"
+ },
+ "timberthane/product/hand-hewn/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Merlot",
+  "sku": "BMHH3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0MT.jpg"
+ },
+ "timberthane/product/hand-hewn/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Oatmeal",
+  "sku": "BMHH3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0OT.jpg"
+ },
+ "timberthane/product/hand-hewn/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Redwood",
+  "sku": "BMHH3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0RD.jpg"
+ },
+ "timberthane/product/hand-hewn/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Rustic Taupe",
+  "sku": "BMHH3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0RT.jpg"
+ },
+ "timberthane/product/hand-hewn/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Sand Dune",
+  "sku": "BMHH3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SN.jpg"
+ },
+ "timberthane/product/hand-hewn/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Sangria",
+  "sku": "BMHH3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SA.jpg"
+ },
+ "timberthane/product/hand-hewn/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Seashell",
+  "sku": "BMHH3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SE.jpg"
+ },
+ "timberthane/product/hand-hewn/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Slate",
+  "sku": "BMHH3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SL.jpg"
+ },
+ "timberthane/product/hand-hewn/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Smoke",
+  "sku": "BMHH3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SM.jpg"
+ },
+ "timberthane/product/hand-hewn/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Sonora Desert",
+  "sku": "BMHH3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0SD.jpg"
+ },
+ "timberthane/product/hand-hewn/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Hand Hewn",
+  "finish": "Toffee",
+  "sku": "BMHH3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0TF.jpg"
+ },
+ "timberthane/product/knotty-pine/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Aged",
+  "sku": "BMKP3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0ZD.jpg"
+ },
+ "timberthane/product/knotty-pine/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Almond",
+  "sku": "BMKP3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0AL.jpg"
+ },
+ "timberthane/product/knotty-pine/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Burnished Graphite",
+  "sku": "BMKP3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0BG.jpg"
+ },
+ "timberthane/product/knotty-pine/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Buttercream",
+  "sku": "BMKP3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0BC.jpg"
+ },
+ "timberthane/product/knotty-pine/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Cashmere",
+  "sku": "BMKP3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0CA.jpg"
+ },
+ "timberthane/product/knotty-pine/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Cedar Bark",
+  "sku": "BMKP3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0CB.jpg"
+ },
+ "timberthane/product/knotty-pine/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Champagne Mist",
+  "sku": "BMKP3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0CM.jpg"
+ },
+ "timberthane/product/knotty-pine/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Charcoal Grey",
+  "sku": "BMKP3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0CG.jpg"
+ },
+ "timberthane/product/knotty-pine/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Cherry",
+  "sku": "BMKP3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0ZY.jpg"
+ },
+ "timberthane/product/knotty-pine/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Driftwood",
+  "sku": "BMKP3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0DF.jpg"
+ },
+ "timberthane/product/knotty-pine/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Factory Prepped",
+  "sku": "BMKP3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0UN.jpg"
+ },
+ "timberthane/product/knotty-pine/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Harvest Oak",
+  "sku": "BMKP3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0HO.jpg"
+ },
+ "timberthane/product/knotty-pine/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Hickory",
+  "sku": "BMKP3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0ZH.jpg"
+ },
+ "timberthane/product/knotty-pine/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Honey Wheat",
+  "sku": "BMKP3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0HW.jpg"
+ },
+ "timberthane/product/knotty-pine/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Mahogany",
+  "sku": "BMKP3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0ZM.jpg"
+ },
+ "timberthane/product/knotty-pine/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Merlot",
+  "sku": "BMKP3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0MT.jpg"
+ },
+ "timberthane/product/knotty-pine/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Oatmeal",
+  "sku": "BMKP3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0OT.jpg"
+ },
+ "timberthane/product/knotty-pine/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Redwood",
+  "sku": "BMKP3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0RD.jpg"
+ },
+ "timberthane/product/knotty-pine/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Rustic Taupe",
+  "sku": "BMKP3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0RT.jpg"
+ },
+ "timberthane/product/knotty-pine/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Sand Dune",
+  "sku": "BMKP3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SN.jpg"
+ },
+ "timberthane/product/knotty-pine/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Sangria",
+  "sku": "BMKP3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SA.jpg"
+ },
+ "timberthane/product/knotty-pine/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Seashell",
+  "sku": "BMKP3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SE.jpg"
+ },
+ "timberthane/product/knotty-pine/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Slate",
+  "sku": "BMKP3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SL.jpg"
+ },
+ "timberthane/product/knotty-pine/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Smoke",
+  "sku": "BMKP3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SM.jpg"
+ },
+ "timberthane/product/knotty-pine/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Sonora Desert",
+  "sku": "BMKP3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0SD.jpg"
+ },
+ "timberthane/product/knotty-pine/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Knotty Pine",
+  "finish": "Toffee",
+  "sku": "BMKP3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMKP3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0TF.jpg"
+ },
+ "timberthane/product/pecky-cypress/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Aged",
+  "sku": "BMPC3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0ZD.jpg"
+ },
+ "timberthane/product/pecky-cypress/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Almond",
+  "sku": "BMPC3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0AL.jpg"
+ },
+ "timberthane/product/pecky-cypress/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Burnished Graphite",
+  "sku": "BMPC3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0BG.jpg"
+ },
+ "timberthane/product/pecky-cypress/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Buttercream",
+  "sku": "BMPC3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0BC.jpg"
+ },
+ "timberthane/product/pecky-cypress/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Cashmere",
+  "sku": "BMPC3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0CA.jpg"
+ },
+ "timberthane/product/pecky-cypress/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Cedar Bark",
+  "sku": "BMPC3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0CB.jpg"
+ },
+ "timberthane/product/pecky-cypress/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Champagne Mist",
+  "sku": "BMPC3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0CM.jpg"
+ },
+ "timberthane/product/pecky-cypress/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Charcoal Grey",
+  "sku": "BMPC3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0CG.jpg"
+ },
+ "timberthane/product/pecky-cypress/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Cherry",
+  "sku": "BMPC3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0ZY.jpg"
+ },
+ "timberthane/product/pecky-cypress/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Driftwood",
+  "sku": "BMPC3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0DF.jpg"
+ },
+ "timberthane/product/pecky-cypress/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Factory Prepped",
+  "sku": "BMPC3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0UN.jpg"
+ },
+ "timberthane/product/pecky-cypress/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Harvest Oak",
+  "sku": "BMPC3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0HO.jpg"
+ },
+ "timberthane/product/pecky-cypress/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Hickory",
+  "sku": "BMPC3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0ZH.jpg"
+ },
+ "timberthane/product/pecky-cypress/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Honey Wheat",
+  "sku": "BMPC3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0HW.jpg"
+ },
+ "timberthane/product/pecky-cypress/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Mahogany",
+  "sku": "BMPC3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0ZM.jpg"
+ },
+ "timberthane/product/pecky-cypress/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Merlot",
+  "sku": "BMPC3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0MT.jpg"
+ },
+ "timberthane/product/pecky-cypress/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Oatmeal",
+  "sku": "BMPC3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0OT.jpg"
+ },
+ "timberthane/product/pecky-cypress/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Redwood",
+  "sku": "BMPC3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0RD.jpg"
+ },
+ "timberthane/product/pecky-cypress/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Rustic Taupe",
+  "sku": "BMPC3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0RT.jpg"
+ },
+ "timberthane/product/pecky-cypress/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Sand Dune",
+  "sku": "BMPC3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SN.jpg"
+ },
+ "timberthane/product/pecky-cypress/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Sangria",
+  "sku": "BMPC3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SA.jpg"
+ },
+ "timberthane/product/pecky-cypress/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Seashell",
+  "sku": "BMPC3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SE.jpg"
+ },
+ "timberthane/product/pecky-cypress/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Slate",
+  "sku": "BMPC3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SL.jpg"
+ },
+ "timberthane/product/pecky-cypress/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Smoke",
+  "sku": "BMPC3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SM.jpg"
+ },
+ "timberthane/product/pecky-cypress/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Sonora Desert",
+  "sku": "BMPC3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0SD.jpg"
+ },
+ "timberthane/product/pecky-cypress/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Pecky Cypress",
+  "finish": "Toffee",
+  "sku": "BMPC3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMPC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0TF.jpg"
+ },
+ "timberthane/product/riverwood/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Aged",
+  "sku": "BMRW3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0ZD.jpg"
+ },
+ "timberthane/product/riverwood/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Almond",
+  "sku": "BMRW3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0AL.jpg"
+ },
+ "timberthane/product/riverwood/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Burnished Graphite",
+  "sku": "BMRW3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0BG.jpg"
+ },
+ "timberthane/product/riverwood/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Buttercream",
+  "sku": "BMRW3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0BC.jpg"
+ },
+ "timberthane/product/riverwood/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Cashmere",
+  "sku": "BMRW3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0CA.jpg"
+ },
+ "timberthane/product/riverwood/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Cedar Bark",
+  "sku": "BMRW3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0CB.jpg"
+ },
+ "timberthane/product/riverwood/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Champagne Mist",
+  "sku": "BMRW3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0CM.jpg"
+ },
+ "timberthane/product/riverwood/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Charcoal Grey",
+  "sku": "BMRW3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0CG.jpg"
+ },
+ "timberthane/product/riverwood/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Cherry",
+  "sku": "BMRW3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0ZY.jpg"
+ },
+ "timberthane/product/riverwood/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Driftwood",
+  "sku": "BMRW3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0DF.jpg"
+ },
+ "timberthane/product/riverwood/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Factory Prepped",
+  "sku": "BMRW3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0UN.jpg"
+ },
+ "timberthane/product/riverwood/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Harvest Oak",
+  "sku": "BMRW3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0HO.jpg"
+ },
+ "timberthane/product/riverwood/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Hickory",
+  "sku": "BMRW3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0ZH.jpg"
+ },
+ "timberthane/product/riverwood/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Honey Wheat",
+  "sku": "BMRW3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0HW.jpg"
+ },
+ "timberthane/product/riverwood/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Mahogany",
+  "sku": "BMRW3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0ZM.jpg"
+ },
+ "timberthane/product/riverwood/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Merlot",
+  "sku": "BMRW3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0MT.jpg"
+ },
+ "timberthane/product/riverwood/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Oatmeal",
+  "sku": "BMRW3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0OT.jpg"
+ },
+ "timberthane/product/riverwood/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Redwood",
+  "sku": "BMRW3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0RD.jpg"
+ },
+ "timberthane/product/riverwood/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Rustic Taupe",
+  "sku": "BMRW3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0RT.jpg"
+ },
+ "timberthane/product/riverwood/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Sand Dune",
+  "sku": "BMRW3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SN.jpg"
+ },
+ "timberthane/product/riverwood/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Sangria",
+  "sku": "BMRW3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SA.jpg"
+ },
+ "timberthane/product/riverwood/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Seashell",
+  "sku": "BMRW3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SE.jpg"
+ },
+ "timberthane/product/riverwood/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Slate",
+  "sku": "BMRW3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SL.jpg"
+ },
+ "timberthane/product/riverwood/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Smoke",
+  "sku": "BMRW3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SM.jpg"
+ },
+ "timberthane/product/riverwood/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Sonora Desert",
+  "sku": "BMRW3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0SD.jpg"
+ },
+ "timberthane/product/riverwood/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Riverwood",
+  "finish": "Toffee",
+  "sku": "BMRW3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRW3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0TF.jpg"
+ },
+ "timberthane/product/rough-cedar/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Aged",
+  "sku": "BMRC3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0ZD.jpg"
+ },
+ "timberthane/product/rough-cedar/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Almond",
+  "sku": "BMRC3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0AL.jpg"
+ },
+ "timberthane/product/rough-cedar/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Burnished Graphite",
+  "sku": "BMRC3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0BG.jpg"
+ },
+ "timberthane/product/rough-cedar/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Buttercream",
+  "sku": "BMRC3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0BC.jpg"
+ },
+ "timberthane/product/rough-cedar/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Cashmere",
+  "sku": "BMRC3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0CA.jpg"
+ },
+ "timberthane/product/rough-cedar/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Cedar Bark",
+  "sku": "BMRC3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0CB.jpg"
+ },
+ "timberthane/product/rough-cedar/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Champagne Mist",
+  "sku": "BMRC3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0CM.jpg"
+ },
+ "timberthane/product/rough-cedar/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Charcoal Grey",
+  "sku": "BMRC3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0CG.jpg"
+ },
+ "timberthane/product/rough-cedar/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Cherry",
+  "sku": "BMRC3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0ZY.jpg"
+ },
+ "timberthane/product/rough-cedar/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Driftwood",
+  "sku": "BMRC3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0DF.jpg"
+ },
+ "timberthane/product/rough-cedar/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Factory Prepped",
+  "sku": "BMRC3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0UN.jpg"
+ },
+ "timberthane/product/rough-cedar/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Harvest Oak",
+  "sku": "BMRC3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0HO.jpg"
+ },
+ "timberthane/product/rough-cedar/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Hickory",
+  "sku": "BMRC3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0ZH.jpg"
+ },
+ "timberthane/product/rough-cedar/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Honey Wheat",
+  "sku": "BMRC3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0HW.jpg"
+ },
+ "timberthane/product/rough-cedar/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Mahogany",
+  "sku": "BMRC3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0ZM.jpg"
+ },
+ "timberthane/product/rough-cedar/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Merlot",
+  "sku": "BMRC3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0MT.jpg"
+ },
+ "timberthane/product/rough-cedar/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Oatmeal",
+  "sku": "BMRC3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0OT.jpg"
+ },
+ "timberthane/product/rough-cedar/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Redwood",
+  "sku": "BMRC3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0RD.jpg"
+ },
+ "timberthane/product/rough-cedar/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Rustic Taupe",
+  "sku": "BMRC3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0RT.jpg"
+ },
+ "timberthane/product/rough-cedar/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Sand Dune",
+  "sku": "BMRC3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SN.jpg"
+ },
+ "timberthane/product/rough-cedar/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Sangria",
+  "sku": "BMRC3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SA.jpg"
+ },
+ "timberthane/product/rough-cedar/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Seashell",
+  "sku": "BMRC3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SE.jpg"
+ },
+ "timberthane/product/rough-cedar/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Slate",
+  "sku": "BMRC3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SL.jpg"
+ },
+ "timberthane/product/rough-cedar/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Smoke",
+  "sku": "BMRC3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SM.jpg"
+ },
+ "timberthane/product/rough-cedar/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Sonora Desert",
+  "sku": "BMRC3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0SD.jpg"
+ },
+ "timberthane/product/rough-cedar/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Cedar",
+  "finish": "Toffee",
+  "sku": "BMRC3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRC3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0TF.jpg"
+ },
+ "timberthane/product/rough-sawn/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Aged",
+  "sku": "BMRS3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0ZD.jpg"
+ },
+ "timberthane/product/rough-sawn/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Almond",
+  "sku": "BMRS3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0AL.jpg"
+ },
+ "timberthane/product/rough-sawn/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Burnished Graphite",
+  "sku": "BMRS3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0BG.jpg"
+ },
+ "timberthane/product/rough-sawn/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Buttercream",
+  "sku": "BMRS3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0BC.jpg"
+ },
+ "timberthane/product/rough-sawn/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Cashmere",
+  "sku": "BMRS3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0CA.jpg"
+ },
+ "timberthane/product/rough-sawn/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Cedar Bark",
+  "sku": "BMRS3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0CB.jpg"
+ },
+ "timberthane/product/rough-sawn/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Champagne Mist",
+  "sku": "BMRS3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0CM.jpg"
+ },
+ "timberthane/product/rough-sawn/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Charcoal Grey",
+  "sku": "BMRS3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0CG.jpg"
+ },
+ "timberthane/product/rough-sawn/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Cherry",
+  "sku": "BMRS3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0ZY.jpg"
+ },
+ "timberthane/product/rough-sawn/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Driftwood",
+  "sku": "BMRS3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0DF.jpg"
+ },
+ "timberthane/product/rough-sawn/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Factory Prepped",
+  "sku": "BMRS3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0UN.jpg"
+ },
+ "timberthane/product/rough-sawn/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Harvest Oak",
+  "sku": "BMRS3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0HO.jpg"
+ },
+ "timberthane/product/rough-sawn/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Hickory",
+  "sku": "BMRS3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0ZH.jpg"
+ },
+ "timberthane/product/rough-sawn/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Honey Wheat",
+  "sku": "BMRS3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0HW.jpg"
+ },
+ "timberthane/product/rough-sawn/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Mahogany",
+  "sku": "BMRS3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0ZM.jpg"
+ },
+ "timberthane/product/rough-sawn/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Merlot",
+  "sku": "BMRS3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0MT.jpg"
+ },
+ "timberthane/product/rough-sawn/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Oatmeal",
+  "sku": "BMRS3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0OT.jpg"
+ },
+ "timberthane/product/rough-sawn/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Redwood",
+  "sku": "BMRS3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0RD.jpg"
+ },
+ "timberthane/product/rough-sawn/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Rustic Taupe",
+  "sku": "BMRS3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0RT.jpg"
+ },
+ "timberthane/product/rough-sawn/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Sand Dune",
+  "sku": "BMRS3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SN.jpg"
+ },
+ "timberthane/product/rough-sawn/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Sangria",
+  "sku": "BMRS3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SA.jpg"
+ },
+ "timberthane/product/rough-sawn/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Seashell",
+  "sku": "BMRS3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SE.jpg"
+ },
+ "timberthane/product/rough-sawn/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Slate",
+  "sku": "BMRS3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SL.jpg"
+ },
+ "timberthane/product/rough-sawn/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Smoke",
+  "sku": "BMRS3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SM.jpg"
+ },
+ "timberthane/product/rough-sawn/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Sonora Desert",
+  "sku": "BMRS3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0SD.jpg"
+ },
+ "timberthane/product/rough-sawn/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rough Sawn",
+  "finish": "Toffee",
+  "sku": "BMRS3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMRS3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0TF.jpg"
+ },
+ "timberthane/product/rustic-smooth/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Rustic Smooth",
+  "finish": "Factory Prepped",
+  "sku": "BMSM3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSM3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSMS3C0UN.jpg"
+ },
+ "timberthane/product/sandblasted/aged.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Aged",
+  "sku": "BMSD3C0060X060X096ZD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0ZD.jpg"
+ },
+ "timberthane/product/sandblasted/almond.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Almond",
+  "sku": "BMSD3C0060X060X096AL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0AL.jpg"
+ },
+ "timberthane/product/sandblasted/burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Burnished Graphite",
+  "sku": "BMSD3C0060X060X096BG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0BG.jpg"
+ },
+ "timberthane/product/sandblasted/buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Buttercream",
+  "sku": "BMSD3C0060X060X096BC",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0BC.jpg"
+ },
+ "timberthane/product/sandblasted/cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Cashmere",
+  "sku": "BMSD3C0060X060X096CA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0CA.jpg"
+ },
+ "timberthane/product/sandblasted/cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Cedar Bark",
+  "sku": "BMSD3C0060X060X096CB",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0CB.jpg"
+ },
+ "timberthane/product/sandblasted/champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Champagne Mist",
+  "sku": "BMSD3C0060X060X096CM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0CM.jpg"
+ },
+ "timberthane/product/sandblasted/charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Charcoal Grey",
+  "sku": "BMSD3C0060X060X096CG",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0CG.jpg"
+ },
+ "timberthane/product/sandblasted/cherry.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Cherry",
+  "sku": "BMSD3C0060X060X096ZY",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0ZY.jpg"
+ },
+ "timberthane/product/sandblasted/driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Driftwood",
+  "sku": "BMSD3C0060X060X096DF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0DF.jpg"
+ },
+ "timberthane/product/sandblasted/factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Factory Prepped",
+  "sku": "BMSD3C0060X060X096UN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0UN.jpg"
+ },
+ "timberthane/product/sandblasted/harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Harvest Oak",
+  "sku": "BMSD3C0060X060X096HO",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0HO.jpg"
+ },
+ "timberthane/product/sandblasted/hickory.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Hickory",
+  "sku": "BMSD3C0060X060X096ZH",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0ZH.jpg"
+ },
+ "timberthane/product/sandblasted/honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Honey Wheat",
+  "sku": "BMSD3C0060X060X096HW",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0HW.jpg"
+ },
+ "timberthane/product/sandblasted/mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Mahogany",
+  "sku": "BMSD3C0060X060X096ZM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0ZM.jpg"
+ },
+ "timberthane/product/sandblasted/merlot.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Merlot",
+  "sku": "BMSD3C0060X060X096MT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0MT.jpg"
+ },
+ "timberthane/product/sandblasted/oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Oatmeal",
+  "sku": "BMSD3C0060X060X096OT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0OT.jpg"
+ },
+ "timberthane/product/sandblasted/redwood.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Redwood",
+  "sku": "BMSD3C0060X060X096RD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0RD.jpg"
+ },
+ "timberthane/product/sandblasted/rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Rustic Taupe",
+  "sku": "BMSD3C0060X060X096RT",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0RT.jpg"
+ },
+ "timberthane/product/sandblasted/sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Sand Dune",
+  "sku": "BMSD3C0060X060X096SN",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SN.jpg"
+ },
+ "timberthane/product/sandblasted/sangria.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Sangria",
+  "sku": "BMSD3C0060X060X096SA",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SA.jpg"
+ },
+ "timberthane/product/sandblasted/seashell.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Seashell",
+  "sku": "BMSD3C0060X060X096SE",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SE.jpg"
+ },
+ "timberthane/product/sandblasted/slate.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Slate",
+  "sku": "BMSD3C0060X060X096SL",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SL.jpg"
+ },
+ "timberthane/product/sandblasted/smoke.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Smoke",
+  "sku": "BMSD3C0060X060X096SM",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SM.jpg"
+ },
+ "timberthane/product/sandblasted/sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Sonora Desert",
+  "sku": "BMSD3C0060X060X096SD",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0SD.jpg"
+ },
+ "timberthane/product/sandblasted/toffee.jpg": {
+  "line": "timberthane",
+  "kind": "product",
+  "texture": "Sandblasted",
+  "finish": "Toffee",
+  "sku": "BMSD3C0060X060X096TF",
+  "listing": "https://www.fauxbeams.com/Ekena-Millwork-Beams-BMSD3-ST",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0TF.jpg"
+ },
+ "timberthane/rooms/b0780f502143e4f94e33.jpg": {
+  "line": "timberthane",
+  "kind": "room",
+  "alt": "shiplap on a ceiling with a faux wood beam in the center and a ceiling fan hanging from it",
+  "sku": "BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/b0780f502143e4f94e33.jpg"
+ },
+ "timberthane/rooms/cf85e2944e3e74422676.jpg": {
+  "line": "timberthane",
+  "kind": "room",
+  "alt": "back porch living space with fireplace, stove, and faux wood beams spanning the ceiling",
+  "sku": "BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/cf85e2944e3e74422676.jpg"
+ },
+ "timberthane/rooms/d699e20b616809ca930b.jpg": {
+  "line": "timberthane",
+  "kind": "room",
+  "alt": "bedroom with shiplap backdrop and faux wood beam beam at the top of a vaulted ceiling",
+  "sku": "BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/d699e20b616809ca930b.jpg"
+ },
+ "timberthane/rooms/de297206d8edd7757b4d.jpg": {
+  "line": "timberthane",
+  "kind": "room",
+  "alt": "Spacious modern kitchen with dark faux wood beams, island with bar stools, and sleek appliances.",
+  "sku": "BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/de297206d8edd7757b4d.jpg"
+ },
+ "timberthane/rooms/df66ad32a10b4734437d.jpg": {
+  "line": "timberthane",
+  "kind": "room",
+  "alt": "Kitchen with white cabinets, faux wood beams on the ceiling, island with bar stools, and stainless steel appliances.",
+  "sku": "BMHH3-ST",
+  "source": "https://cdn.synergycdn.com/images/customer_projects/zoom/df66ad32a10b4734437d.jpg"
+ },
+ "timberthane/shapes/hand-hewn-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Hand Hewn",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS4C0ZD.jpg"
+ },
+ "timberthane/shapes/hand-hewn-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Hand Hewn",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS2C0ZD.jpg"
+ },
+ "timberthane/shapes/hand-hewn-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Hand Hewn",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS1C0ZD.jpg"
+ },
+ "timberthane/shapes/hand-hewn-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Hand Hewn",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMHHS3C0ZD.jpg"
+ },
+ "timberthane/shapes/knotty-pine-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Knotty Pine",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS4C0ZD.jpg"
+ },
+ "timberthane/shapes/knotty-pine-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Knotty Pine",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS2C0ZD.jpg"
+ },
+ "timberthane/shapes/knotty-pine-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Knotty Pine",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS1C0ZD.jpg"
+ },
+ "timberthane/shapes/knotty-pine-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Knotty Pine",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMKPS3C0ZD.jpg"
+ },
+ "timberthane/shapes/pecky-cypress-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Pecky Cypress",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS4C0ZD.jpg"
+ },
+ "timberthane/shapes/pecky-cypress-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Pecky Cypress",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS2C0ZD.jpg"
+ },
+ "timberthane/shapes/pecky-cypress-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Pecky Cypress",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS1C0ZD.jpg"
+ },
+ "timberthane/shapes/pecky-cypress-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Pecky Cypress",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMPCS3C0ZD.jpg"
+ },
+ "timberthane/shapes/riverwood-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Riverwood",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS4C0ZD.jpg"
+ },
+ "timberthane/shapes/riverwood-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Riverwood",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS2C0ZD.jpg"
+ },
+ "timberthane/shapes/riverwood-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Riverwood",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS1C0ZD.jpg"
+ },
+ "timberthane/shapes/riverwood-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Riverwood",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRWS3C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-cedar-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Cedar",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS4C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-cedar-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Cedar",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS2C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-cedar-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Cedar",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS1C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-cedar-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Cedar",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRCS3C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-sawn-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Sawn",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS4C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-sawn-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Sawn",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS2C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-sawn-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Sawn",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS1C0ZD.jpg"
+ },
+ "timberthane/shapes/rough-sawn-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rough Sawn",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMRSS3C0ZD.jpg"
+ },
+ "timberthane/shapes/rustic-smooth-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rustic Smooth",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSMS4C0ZD.jpg"
+ },
+ "timberthane/shapes/rustic-smooth-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rustic Smooth",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSMS2C0ZD.jpg"
+ },
+ "timberthane/shapes/rustic-smooth-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rustic Smooth",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSMS1C0ZD.jpg"
+ },
+ "timberthane/shapes/rustic-smooth-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Rustic Smooth",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSMS3C0ZD.jpg"
+ },
+ "timberthane/shapes/sandblasted-box-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Sandblasted",
+  "shape": "box-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS4C0ZD.jpg"
+ },
+ "timberthane/shapes/sandblasted-l-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Sandblasted",
+  "shape": "l-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS2C0ZD.jpg"
+ },
+ "timberthane/shapes/sandblasted-plank.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Sandblasted",
+  "shape": "plank",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS1C0ZD.jpg"
+ },
+ "timberthane/shapes/sandblasted-u-beam.jpg": {
+  "line": "timberthane",
+  "kind": "shape",
+  "texture": "Sandblasted",
+  "shape": "u-beam",
+  "source": "https://cdn.synergycdn.com/images/id/zoom/BMSDS3C0ZD.jpg"
+ },
+ "timberthane/swatch/finish-aged.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Aged",
+  "sku": "BMHH3C0060X060X096ZD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_aged.jpg"
+ },
+ "timberthane/swatch/finish-almond.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Almond",
+  "sku": "BMHH3C0060X060X096AL",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_almond.jpg"
+ },
+ "timberthane/swatch/finish-burnished-graphite.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Burnished Graphite",
+  "sku": "BMHH3C0060X060X096BG",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_burnished_graphite.jpg"
+ },
+ "timberthane/swatch/finish-buttercream.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Buttercream",
+  "sku": "BMHH3C0060X060X096BC",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_buttercream.jpg"
+ },
+ "timberthane/swatch/finish-cashmere.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Cashmere",
+  "sku": "BMHH3C0060X060X096CA",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_cashmere.jpg"
+ },
+ "timberthane/swatch/finish-cedar-bark.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Cedar Bark",
+  "sku": "BMHH3C0060X060X096CB",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_cedar_bark.jpg"
+ },
+ "timberthane/swatch/finish-champagne-mist.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Champagne Mist",
+  "sku": "BMHH3C0060X060X096CM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_champagne_mist.jpg"
+ },
+ "timberthane/swatch/finish-charcoal-grey.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Charcoal Grey",
+  "sku": "BMHH3C0060X060X096CG",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_charcoal_grey.jpg"
+ },
+ "timberthane/swatch/finish-cherry.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Cherry",
+  "sku": "BMHH3C0060X060X096ZY",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_cherry.jpg"
+ },
+ "timberthane/swatch/finish-driftwood.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Driftwood",
+  "sku": "BMHH3C0060X060X096DF",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_driftwood.jpg"
+ },
+ "timberthane/swatch/finish-factory-prepped.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Factory Prepped",
+  "sku": "BMHH3C0060X060X096UN",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_factory_prepped.jpg"
+ },
+ "timberthane/swatch/finish-harvest-oak.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Harvest Oak",
+  "sku": "BMHH3C0060X060X096HO",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_harvest_oak.jpg"
+ },
+ "timberthane/swatch/finish-hickory.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Hickory",
+  "sku": "BMHH3C0060X060X096ZH",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_hickory.jpg"
+ },
+ "timberthane/swatch/finish-honey-wheat.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Honey Wheat",
+  "sku": "BMHH3C0060X060X096HW",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_honey_wheat.jpg"
+ },
+ "timberthane/swatch/finish-mahogany.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Mahogany",
+  "sku": "BMHH3C0060X060X096ZM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_mahogany.jpg"
+ },
+ "timberthane/swatch/finish-merlot.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Merlot",
+  "sku": "BMHH3C0060X060X096MT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_bmrcmt.jpg"
+ },
+ "timberthane/swatch/finish-oatmeal.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Oatmeal",
+  "sku": "BMHH3C0060X060X096OT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_oatmeal.jpg"
+ },
+ "timberthane/swatch/finish-redwood.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Redwood",
+  "sku": "BMHH3C0060X060X096RD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_redwood.jpg"
+ },
+ "timberthane/swatch/finish-rustic-taupe.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Rustic Taupe",
+  "sku": "BMHH3C0060X060X096RT",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_rustic_taupe.jpg"
+ },
+ "timberthane/swatch/finish-sand-dune.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Sand Dune",
+  "sku": "BMHH3C0060X060X096SN",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_sand_dune.jpg"
+ },
+ "timberthane/swatch/finish-sangria.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Sangria",
+  "sku": "BMHH3C0060X060X096SA",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_sangria.jpg"
+ },
+ "timberthane/swatch/finish-seashell.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Seashell",
+  "sku": "BMHH3C0060X060X096SE",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_seashell.jpg"
+ },
+ "timberthane/swatch/finish-slate.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Slate",
+  "sku": "BMHH3C0060X060X096SL",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_slate.jpg"
+ },
+ "timberthane/swatch/finish-smoke.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Smoke",
+  "sku": "BMHH3C0060X060X096SM",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_bmrcsm.jpg"
+ },
+ "timberthane/swatch/finish-sonora-desert.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Sonora Desert",
+  "sku": "BMHH3C0060X060X096SD",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_sonora_desert.jpg"
+ },
+ "timberthane/swatch/finish-toffee.jpg": {
+  "line": "timberthane",
+  "kind": "finish-swatch",
+  "finish": "Toffee",
+  "sku": "BMHH3C0060X060X096TF",
+  "source": "https://cdn.synergycdn.com/images/swatches/0600/variant_finish_toffee.jpg"
+ }
+}

@@ -1,0 +1,185 @@
+{
+ "project": "Timberthane: Finish & Size Explorer",
+ "slug": "ekena-timberthane-explorer",
+ "scenes": [
+  {
+   "id": "hook",
+   "title": "Hook",
+   "kind": "title",
+   "card": "Timberthane",
+   "vo": "Timberthane faux wood beams, from Ekena Millwork, are made to order: your shape, your texture, your finish, and your size.",
+   "claims": [
+    "T1"
+   ],
+   "min_s": 8.0
+  },
+  {
+   "id": "shapes",
+   "title": "Shapes",
+   "kind": "diagram",
+   "card": "4 shapes",
+   "vo": "Start with the shape. | A one-sided plank. | A two-sided L-beam. | A three-sided U-beam. | Or a four-sided box beam.",
+   "claims": [
+    "T2"
+   ]
+  },
+  {
+   "id": "textures",
+   "title": "Textures",
+   "kind": "diagram",
+   "card": "8 textures",
+   "vo": "Then the texture. | Hand Hewn. | Rough Sawn. | Rough Cedar. | Sandblasted. | Pecky Cypress. | Riverwood. | Knotty Pine. | And Rustic Smooth.",
+   "claims": [
+    "T3"
+   ]
+  },
+  {
+   "id": "finishes",
+   "title": "Finishes",
+   "kind": "diagram",
+   "card": "28 hand-finished colors",
+   "vo": "Then the finish. There are twenty-eight hand-finished colors, from light Sand Dune and Driftwood to deep Hickory and Cherry. Or Factory Prepped, ready for paint.",
+   "claims": [
+    "T4",
+    "T5"
+   ]
+  },
+  {
+   "id": "size",
+   "title": "Width and height",
+   "kind": "diagram",
+   "card": "3 to 24 in, to the half inch",
+   "vo": "Size it to the half inch: anywhere from three to twenty-four inches wide, and three to twenty-four inches tall.",
+   "claims": [
+    "T6"
+   ]
+  },
+  {
+   "id": "length",
+   "title": "Length",
+   "kind": "diagram",
+   "card": "2 to 30 ft long",
+   "vo": "Lengths run from two feet to thirty feet, to the inch.",
+   "claims": [
+    "T7"
+   ],
+   "min_s": 5.2
+  },
+  {
+   "id": "made",
+   "title": "Endcaps and lead time",
+   "kind": "diagram",
+   "card": "Made to order in the USA",
+   "vo": "Add one or two endcaps if you need them. Every beam is hand finished, made in the U.S.A., and usually ships in ten to twelve business days.",
+   "claims": [
+    "T8",
+    "T9",
+    "T10"
+   ]
+  },
+  {
+   "id": "end",
+   "title": "End card",
+   "kind": "end",
+   "card": "Order a sample",
+   "vo": "See the finish in person. Order a sample.",
+   "claims": [
+    "T11"
+   ],
+   "min_s": 5.5
+  }
+ ],
+ "claims": [
+  {
+   "id": "T1",
+   "text": "Timberthane is an Ekena Millwork made-to-order faux wood beam line",
+   "source": "Timberthane product record (brand TimberThane, manufacturer Ekena Millwork); builder listing"
+  },
+  {
+   "id": "T2",
+   "text": "Shapes: 1-sided plank, 2-sided L-beam, 3-sided U-beam, 4-sided box beam",
+   "source": "Timberthane builder Shape"
+  },
+  {
+   "id": "T3",
+   "text": "Textures: Hand Hewn, Rough Sawn, Rough Cedar, Sandblasted, Pecky Cypress, Riverwood, Knotty Pine, Rustic Smooth",
+   "source": "Timberthane builder Texture"
+  },
+  {
+   "id": "T4",
+   "text": "28 hand-finished colours plus Factory Prepped (29 options)",
+   "source": "Timberthane builder Finish"
+  },
+  {
+   "id": "T5",
+   "text": "Sand Dune and Driftwood are light; Hickory and Cherry are dark",
+   "source": "Real finish photos and swatches (img/timberthane/product/hand-hewn, builder swatches)"
+  },
+  {
+   "id": "T6",
+   "text": "Width and height 3-24 in, in 1/2 in steps",
+   "source": "Timberthane builder Size (Width), Size (Height)"
+  },
+  {
+   "id": "T7",
+   "text": "Length 24-360 in, in 1 in steps",
+   "source": "Timberthane builder Size (Length)"
+  },
+  {
+   "id": "T8",
+   "text": "Endcaps: none, one or two",
+   "source": "Timberthane builder Endcaps"
+  },
+  {
+   "id": "T9",
+   "text": "Every batch hand finished; made in the USA",
+   "source": "Timberthane key feature 01; product record madeInUsa = 1"
+  },
+  {
+   "id": "T10",
+   "text": "Usually ships in 10-12 business days",
+   "source": "Timberthane product record leadTimeRaw"
+  },
+  {
+   "id": "T11",
+   "text": "Timberthane material samples are available",
+   "source": "BM-MAT-SAMPLE listing"
+  }
+ ],
+ "key_terms": [
+  {
+   "term": "Timberthane",
+   "heard_as": [
+    "Timberthane",
+    "Timber Thane",
+    "Timber-thane"
+   ]
+  },
+  "Hand Hewn",
+  "Rough Sawn",
+  "Rough Cedar",
+  "Sandblasted",
+  "Riverwood",
+  {
+   "term": "Knotty Pine",
+   "heard_as": [
+    "Knotty Pine",
+    "Naughty Pine"
+   ]
+  },
+  "Rustic Smooth",
+  "box beam",
+  {
+   "term": "Pecky Cypress",
+   "heard_as": [
+    "Pecky Cypress",
+    "Pecke Cypress",
+    "Peci Cypress",
+    "Peckey Cypress"
+   ]
+  },
+  "Hickory",
+  "Cherry",
+  "Driftwood"
+ ]
+}

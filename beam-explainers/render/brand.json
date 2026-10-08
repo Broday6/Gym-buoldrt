@@ -1,0 +1,16 @@
+{
+  "_note": "Swap in the real Ekena values from the beam project on the PC: logo (a transparent PNG) and the exact brand green. With logo null, the renderer sets the wordmark in Poppins.",
+  "logo": null,
+  "wordmark": "EKENA MILLWORK",
+  "url": "ekenamillwork.com",
+  "green": "#2A5240",
+  "greenDeep": "#1C3A2D",
+  "greenSoft": "#DCE7DF",
+  "paper": "#F4F1EA",
+  "paperDeep": "#E9E3D8",
+  "card": "#FFFFFF",
+  "ink": "#1E2320",
+  "muted": "#6B6A63",
+  "line": "#D8D1C4",
+  "accent": "#A8743F"
+}
