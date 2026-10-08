@@ -110,7 +110,8 @@ def main() -> int:
         "heritage": ["heritage/product/salvaged-timber/kona-brown.jpg", "heritage/product/mena/kona-brown.jpg",
                      "heritage/swatch/finish-kona-brown.jpg", "heritage/product/sanded-smooth/primed.jpg", "heritage/accessories/sample-kit.jpg"],
         "timberthane": ["timberthane/product/hand-hewn/aged.jpg", "timberthane/shapes/hand-hewn-plank.jpg", "timberthane/shapes/hand-hewn-l-beam.jpg",
-                        "timberthane/shapes/hand-hewn-box-beam.jpg", "timberthane/builder/finish-driftwood.jpg"],
+                        "timberthane/shapes/hand-hewn-box-beam.jpg", "timberthane/builder/finish-driftwood.jpg",
+                        "timberthane/accessories/material-sample.jpg"],
     }[a.video]
     product_images = []
     for rel in picks:

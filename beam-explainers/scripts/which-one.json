@@ -52,7 +52,7 @@
    "id": "shapes",
    "title": "Shapes",
    "kind": "diagram",
-   "card": "U-beam, or 4 shapes",
+   "card": "U-beam, or 4 shapes",
    "vo": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
    "claims": [
     "W9",
@@ -90,6 +90,12 @@
    "card": "So, which one?",
    "vo": "A standard size, and need it soon? Go Heritage. It's the lower price, too. Need an exact size, another shape, or more colors? Go Timberthane.",
    "claims": [
+    "W5",
+    "W7",
+    "W8",
+    "W10",
+    "W11",
+    "W12",
     "W17"
    ]
   },
@@ -232,6 +238,14 @@
     "Akina",
     "Ekina",
     "Ekeena"
+   ]
+  },
+  {
+   "term": "endcaps",
+   "heard_as": [
+    "endcaps",
+    "end caps",
+    "end-caps"
    ]
   }
  ]

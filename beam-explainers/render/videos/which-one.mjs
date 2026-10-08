@@ -59,9 +59,9 @@ function colCard(g, L, c, p) {
 /** Small tile of a Heritage texture (Sanded Smooth has no close-up on the listing: crop its product shot). */
 function hTexTile(g, t, x, y, w, h, r) {
   if (A.hTex[t]) return cover(g, A.hTex[t], x, y, w, h, { r });
-  const b = A.hSmooth;
-  g.save(); rr(g, x, y, w, h, r); g.clip(); g.fillStyle = '#F2EFE6'; g.fillRect(x, y, w, h);
-  g.drawImage(b.im, b.bb.x + b.bb.w * 0.36, b.bb.y + b.bb.h * 0.4, b.bb.w * 0.32, b.bb.w * 0.32, x, y, w, h); g.restore();
+  // No Sanded Smooth close-up exists on the listing: show the whole real beam on a white tile.
+  card(g, x, y, w, h, { r, shadow: 0, stroke: BRAND.line, lw: 1.5 });
+  productFit(g, A.hSmooth, x + w * 0.08, y + h * 0.12, w * 0.84, h * 0.76, { multiply: true });
 }
 
 export const scenes = {
@@ -82,7 +82,7 @@ export const scenes = {
       } else {
         const hw = W / 2;
         cover(g, A.hRoom, -hw * (1 - open), 0, hw, HH, { zoom: z, px: 0.1 });
-        cover(g, A.tRoomWide, hw + hw * (1 - open), 0, hw, HH, { zoom: z, px: 0.3, src: A.tRoomWide.bb });
+        cover(g, A.tRoomWide, hw + hw * (1 - open), 0, hw, HH, { zoom: z, px: 0.2, py: -1, src: A.tRoomWide.bb });
       }
       const gr = g.createLinearGradient(0, 0, 0, HH);
       gr.addColorStop(0, 'rgba(20,24,20,0.15)'); gr.addColorStop(0.45, 'rgba(20,24,20,0.35)'); gr.addColorStop(1, 'rgba(20,24,20,0.86)');

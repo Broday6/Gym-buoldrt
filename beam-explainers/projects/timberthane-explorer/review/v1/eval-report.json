@@ -1,0 +1,875 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Timberthane: Finish & Size Explorer",
+  "version": "v1",
+  "evaluated_at": "2026-10-08T16:34:18Z",
+  "overall": "fail",
+  "summary": "Not ready: 4 blockers. (1) The Ekena logo in every scene is a code-drawn 'E' tile with a typeset wordmark (house rule 4). (2) The Factory Prepped beam photo is peach-tan and doesn't match its swatch or the white Factory Prepped beam in Textures. (3) The 2–30 ft length bar is a stretched, smeared wood texture. (4) The 16x9 lead-time calendar runs off its card. The audio, card text, claims and timing are otherwise sound.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "4251 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "70.850 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 70.850 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.5 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.0 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "2 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f2076, f2709",
+        "frames": [
+          2076,
+          2076
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "4251 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "70.850 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 70.850 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.5 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.0 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "4 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f2076, f2709, f3317, f3354",
+        "frames": [
+          2076,
+          2076
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": false,
+    "transcript": "Timber Thane Faux wood beams from Ekena Millwork are made to order your shape, your texture, your finish, and your size. Start with the shape, a one-sided plank, a two-sided L beam, a three-sided U beam, or a four-sided box beam. Then the texture, hand hewn, rough sawn, rough cedar, sandblasted, pecke cypress, river wood, knotty pine, and rustic smooth. Then the finish, there are 28 hand-finished colors from light sand, dune, and driftwood to deep hickory and cherry, or factory prepped ready for paint. Size it to the half inch, anywhere from 3 to 24 inches wide and 3 to 24 inches tall. Lengths run from 2 feet to 30 feet to the half inch. Add one or two end caps if you need them. Every beam is hand-finished, made in the U, S, A, and usually ships in 10 to 12 business days. See the finish in person, order a sample.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Timberthane faux wood beams, from Ekena Millwork, are made to order: your shape, your texture, your finish, and your size.",
+        "heard": "Timber Thane Faux wood beams from Ekena Millwork are made to order your shape, your texture, your finish, and your size.",
+        "match": 0.95,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          539
+        ]
+      },
+      {
+        "scene": "shapes",
+        "expected": "Start with the shape. A one-sided plank. A two-sided L-beam. A three-sided U-beam. Or a four-sided box beam.",
+        "heard": "Start with the shape, a one-sided plank, a two-sided L beam, a three-sided U beam, or a four-sided box beam.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          540,
+          1122
+        ]
+      },
+      {
+        "scene": "textures",
+        "expected": "Then the texture. Hand Hewn. Rough Sawn. Rough Cedar. Sandblasted. Pecky Cypress. Riverwood. Knotty Pine. And Rustic Smooth.",
+        "heard": "Then the texture, hand hewn, rough sawn, rough cedar, sandblasted, pecke cypress, river wood, knotty pine, and rustic smooth.",
+        "match": 0.944,
+        "flag": null,
+        "missing_terms": [
+          "Riverwood"
+        ],
+        "frames": [
+          1123,
+          1856
+        ]
+      },
+      {
+        "scene": "finishes",
+        "expected": "Then the finish. There are twenty-eight hand-finished colors, from light Sand Dune and Driftwood to deep Hickory and Cherry. Or Factory Prepped, ready for paint.",
+        "heard": "Then the finish, there are 28 hand-finished colors from light sand, dune, and driftwood to deep hickory and cherry, or factory prepped ready for paint.",
+        "match": 0.926,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1857,
+          2493
+        ]
+      },
+      {
+        "scene": "size",
+        "expected": "Size it to the half inch: anywhere from three to twenty-four inches wide, and three to twenty-four inches tall.",
+        "heard": "Size it to the half inch, anywhere from 3 to 24 inches wide and 3 to 24 inches tall.",
+        "match": 0.81,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2494,
+          2968
+        ]
+      },
+      {
+        "scene": "length",
+        "expected": "Lengths run from two feet to thirty feet, to the inch.",
+        "heard": "Lengths run from 2 feet to 30 feet to the half inch.",
+        "match": 0.909,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2969,
+          3280
+        ]
+      },
+      {
+        "scene": "made",
+        "expected": "Add one or two endcaps if you need them. Every beam is hand finished, made in the U.S.A., and usually ships in ten to twelve business days.",
+        "heard": "Add one or two end caps if you need them. Every beam is hand-finished, made in the U, S, A, and usually ships in 10 to 12 business days.",
+        "match": 0.966,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3281,
+          3907
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "See the finish in person. Order a sample.",
+        "heard": "See the finish in person, order a sample.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3908,
+          4250
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Timberthane",
+        "heard": true
+      },
+      {
+        "term": "Hand Hewn",
+        "heard": true
+      },
+      {
+        "term": "Rough Sawn",
+        "heard": true
+      },
+      {
+        "term": "Rough Cedar",
+        "heard": true
+      },
+      {
+        "term": "Sandblasted",
+        "heard": true
+      },
+      {
+        "term": "Riverwood",
+        "heard": false
+      },
+      {
+        "term": "Knotty Pine",
+        "heard": true
+      },
+      {
+        "term": "Rustic Smooth",
+        "heard": true
+      },
+      {
+        "term": "box beam",
+        "heard": true
+      },
+      {
+        "term": "Pecky Cypress",
+        "heard": true
+      },
+      {
+        "term": "Hickory",
+        "heard": true
+      },
+      {
+        "term": "Cherry",
+        "heard": true
+      },
+      {
+        "term": "Driftwood",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 8,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Real room photos, card matches; logo tile renders blank (white E on white)."
+    },
+    {
+      "scene": "shapes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "All four shape photos match Ekena's plank/L/U/box renders; highlights land on each spoken shape."
+    },
+    {
+      "scene": "textures",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Real beam photo swaps with each texture, in time with the line."
+    },
+    {
+      "scene": "finishes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 1,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 11,
+      "gate_reasons": [
+        "graphics scored 0",
+        "product below 2 (auto-fail criterion)"
+      ],
+      "comment": "Factory Prepped beam photo doesn't match its swatch; Hickory/Cherry/Driftwood photos match their swatches."
+    },
+    {
+      "scene": "size",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Cross-section stays to scale (checked 3x3, 24x3, 24x22); sliders track the narration."
+    },
+    {
+      "scene": "length",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 1,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 11,
+      "gate_reasons": [
+        "graphics scored 0",
+        "product below 2 (auto-fail criterion)"
+      ],
+      "comment": "Scale is right (6 ft figure vs 30 ft axis) but the beam is a stretched texture strip."
+    },
+    {
+      "scene": "made",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Endcap toggle, hand-finished swatches and 10-12 day calendar all land on their words; calendar overflows its card in 16x9."
+    },
+    {
+      "scene": "end",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 1
+      },
+      "total": 7,
+      "gate_reasons": [
+        "graphics scored 0",
+        "total 7 below 8 of 10"
+      ],
+      "comment": "Sample photo sits crooked and off-centre inside its white card."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "hook",
+      "scenes": [
+        "hook",
+        "shapes",
+        "textures",
+        "finishes",
+        "size",
+        "length",
+        "made",
+        "end"
+      ],
+      "cut": null,
+      "frame": 108,
+      "end_frame": 4250,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "systemic",
+      "rule": "HOUSE_RULES.md #4: the real Ekena logo",
+      "source": null,
+      "what": "The brand mark is a code-drawn rounded square holding a typeset letter 'E', next to letter-spaced 'EKENA MILLWORK' set in the UI font. It is not a logo image. On the hook's dark photo the tile renders as a blank white square because the 'E' is white on white. No logo reference was supplied, but a mark that changes with the background is not the real asset.",
+      "fix": "One shared cause: the logo component in render/lib/core.mjs (used by every scene in render/videos/timberthane.mjs) draws a CSS/canvas tile and text. Replace it with Ekena's real logo file (light and dark versions), add that file to the manifest references, and re-render all scenes.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f000431.jpg",
+        "review/v1/eval/frames/16x9_f001004.jpg",
+        "review/v1/eval/frames/16x9_f004063.jpg"
+      ],
+      "region": {
+        "x": 0.78,
+        "y": 0.04,
+        "w": 0.18,
+        "h": 0.05
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "finishes",
+      "action": "finishes__fin_prepped",
+      "cut": null,
+      "frame": 2326,
+      "end_frame": 2493,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES.md #2",
+      "source": "T4; on-screen Factory Prepped swatch; Factory Prepped beam at f1751-1856",
+      "what": "The beam labelled 'Factory Prepped' is a warm peach-tan (face colour about RGB 185,165,146). Its own swatch next to it is a neutral near-white (about 218,219,214), and the 'Rustic Smooth (Factory Prepped)' beam in Textures (f1751-1856) is white. The same finish shows as two different colours in one video. The 'Sand Dune' beam (f2126-2182) is also greyer than its peach Sand Dune swatch, so the photo-to-finish mapping looks off for the light finishes.",
+      "fix": "In render/videos/timberthane.mjs, finishes, check the Factory Prepped photo path (img/timberthane/product/hand-hewn/<finish>.jpg). Point it at the real Factory Prepped hand-hewn photo, or use the Factory Prepped Rustic Smooth photo already used in Textures. Re-check the Sand Dune photo against its swatch while there.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002341.jpg",
+        "review/v1/eval/frames/16x9_f002141.jpg",
+        "review/v1/eval/frames/16x9_f001766.jpg",
+        "review/v1/eval/strips/16x9_finishes__fin_prepped.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.28,
+        "w": 0.46,
+        "h": 0.48
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "length",
+      "cut": null,
+      "frame": 3000,
+      "end_frame": 3280,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES.md #2",
+      "source": "Ekena product images",
+      "what": "The 2-to-30 ft beam is a flat bar filled with one wood photo stretched along its length. The grain is smeared into long blurred streaks with one repeated dark knot, which doesn't look like Ekena's Hand Hewn texture. It is worst in the 9x16 cut, where the bar stands upright and fills the frame.",
+      "fix": "In render/videos/timberthane.mjs, length: fill the bar by tiling a real Ekena beam photo at its native scale (or a side-on crop of a real beam photo) instead of stretching one image to the bar's length. Or keep the bar plain and show a real beam photo beside it.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f003156.jpg",
+        "review/v1/eval/sheets/16x9_length.jpg",
+        "review/v1/eval/sheets/9x16_length.jpg"
+      ],
+      "region": {
+        "x": 0.53,
+        "y": 0.31,
+        "w": 0.11,
+        "h": 0.59
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "made",
+      "action": "made__made_ships",
+      "cut": "16x9",
+      "frame": 3738,
+      "end_frame": 3907,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 16x9 the 15-day lead-time calendar runs past the right edge of the 'Made in the USA' card. The last box ends at about x=1912, outside the card (which ends at about 1870) and almost at the frame edge. The 9x16 cut fits.",
+      "fix": "In render/videos/timberthane.mjs, made, size the calendar to the card's inner width in the 16x9 layout (smaller boxes or gaps), or wrap it to two rows.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f003738.jpg",
+        "review/v1/eval/sheets/16x9_made.jpg"
+      ],
+      "region": {
+        "x": 0.69,
+        "y": 0.49,
+        "w": 0.31,
+        "h": 0.05
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": "16x9",
+      "frame": 1123,
+      "end_frame": 1856,
+      "severity": "major",
+      "criterion": "narration",
+      "scope": "local",
+      "rule": null,
+      "source": "faster-whisper small.en",
+      "what": "Key term not heard clearly: Riverwood",
+      "fix": "Adjust the phonetic spelling for this word and re-generate the line.",
+      "evidence": [
+        "review/v1/eval/narration.json"
+      ],
+      "region": null,
+      "id": "e5"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 3960,
+      "end_frame": 4250,
+      "severity": "major",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The sample photo isn't aligned with the white card it sits in. It is tilted at a different angle, with about 85 px of white on the left and about 15 px on the right, so the photo looks like it slipped in its frame. The photo is also soft (upscaled) and nearly square, not the 10 x 7 in proportions stated just above it.",
+      "fix": "In render/videos/timberthane.mjs, end: put the photo and its card in one transform so they rotate together, centre it with even margins, crop it to 10:7, and use a higher-resolution sample image.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f004063.jpg",
+        "review/v1/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.59,
+        "y": 0.19,
+        "w": 0.33,
+        "h": 0.44
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "textures",
+      "action": "textures__tex_7",
+      "cut": null,
+      "frame": 1696,
+      "end_frame": 1750,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "local",
+      "rule": null,
+      "source": "T3",
+      "what": "The Knotty Pine swatch tile shows an almost featureless beige patch with no knots, while the Knotty Pine beam photo beside it is clearly knotty. A viewer can't tell Knotty Pine from Rustic Smooth by the swatches alone. (No texture-swatch reference was supplied to check the crop against.)",
+      "fix": "In render/videos/timberthane.mjs, textures: crop the Knotty Pine builder swatch to a region that includes a knot.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f001696.jpg"
+      ],
+      "region": {
+        "x": 0.74,
+        "y": 0.51,
+        "w": 0.1,
+        "h": 0.18
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "finishes",
+      "action": null,
+      "cut": "16x9",
+      "frame": 2076,
+      "end_frame": 2076,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f2076, f2709",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v1/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e8"
+    },
+    {
+      "scene": "finishes",
+      "action": null,
+      "cut": "9x16",
+      "frame": 2076,
+      "end_frame": 2076,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f2076, f2709, f3317, f3354",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v1/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e9"
+    },
+    {
+      "scene": "finishes",
+      "cut": null,
+      "frame": 2126,
+      "end_frame": 2335,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The finish-name label under the beam cross-fades in place, so for about 10 frames at each change two names are drawn on top of each other (e.g. 'Sand Dune' over 'Charcoal Grey' at f2131, 'Driftwood' over 'Sand Dune' at f2183).",
+      "fix": "In render/videos/timberthane.mjs, finishes: fade the old label out before the new one fades in, or slide them, so two names never overlap.",
+      "evidence": [
+        "review/v1/eval/strips/16x9_finishes__fin_sanddune.jpg",
+        "review/v1/eval/frames/9x16_f002183.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.76,
+        "w": 0.45,
+        "h": 0.07
+      },
+      "id": "e10"
+    },
+    {
+      "scene": "length",
+      "cut": null,
+      "frame": 3088,
+      "end_frame": 3140,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "'thirty feet' is spoken at f3088-3103, but the bar only reaches 30 ft at about f3135 (it reads 27 ft 8 in at f3110). That's about half a second behind.",
+      "fix": "In render/videos/timberthane.mjs, length: end the bar's grow animation by about f3100, or ease it out sooner.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_length.jpg"
+      ],
+      "region": {
+        "x": 0.35,
+        "y": 0.52,
+        "w": 0.6,
+        "h": 0.12
+      },
+      "id": "e11"
+    },
+    {
+      "scene": "made",
+      "cut": "9x16",
+      "frame": 3400,
+      "end_frame": 3907,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9x16 the logo sits on the headline's first line. The dot of the 'i' in 'in the' touches the logo row (also close in Finishes).",
+      "fix": "In the 9x16 header layout (render/lib/core.mjs), move the logo up onto the eyebrow line or add top margin to the headline.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f003738.jpg",
+        "review/v1/eval/frames/9x16_f002183.jpg"
+      ],
+      "region": {
+        "x": 0.6,
+        "y": 0.06,
+        "w": 0.35,
+        "h": 0.06
+      },
+      "id": "e12"
+    },
+    {
+      "scene": "end",
+      "cut": null,
+      "frame": 3960,
+      "end_frame": 4250,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "research/beam-lines-facts.md (Sample row, Sources)",
+      "what": "The subtitle 'Timberthane material samples are 10 x 7 in' and the URL 'ekenamillwork.com' are not in claim T11, which only says samples exist. The size is supported by the facts file. The research lists FauxBeams.com, not ekenamillwork.com, as the store with the sample listing (BM-MAT-SAMPLE).",
+      "fix": "Extend T11 in the manifest/README claims to cover the 10 x 7 in size, and confirm the end-card URL is where BM-MAT-SAMPLE can be ordered (render/videos/timberthane.mjs, end).",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f004063.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.34,
+        "w": 0.35,
+        "h": 0.06
+      },
+      "id": "e13"
+    }
+  ]
+}

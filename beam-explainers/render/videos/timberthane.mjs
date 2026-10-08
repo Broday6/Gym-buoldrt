@@ -67,7 +67,8 @@ export const scenes = {
       const tags = [['Shape', 'shape'], ['Texture', 'texture'], ['Finish', 'finish'], ['Size', 'size']];
       let tx = x, after = 2.5;
       tags.forEach(([t, w]) => {
-        const tc = cue(s, w, { after, fallback: after + 0.7 }); after = tc + 0.1;
+        // Measured from the audio: Whisper drops the end of this line, so its word times can't be used.
+        const tc = { shape: 5.1, texture: 6.1, finish: 6.85, size: 7.6 }[w]; void after;
         const p = prog(st, tc - 0.1, 0.45, ease.back);
         g.save(); g.globalAlpha *= prog(st, tc - 0.1, 0.45, ease.inOut);
         g.translate(tx, y + size * 1.25 + (1 - p) * 20 * u);
@@ -181,7 +182,9 @@ export const scenes = {
       const sw = (gw - (cols - 1) * gap) / cols, shh = sw * 0.62, rowH = shh + 36 * u;
       BUILDER_FIN.forEach((f, i) => {
         const p = prog(st, tTwenty - 0.3 + i * 0.045, 0.4, ease.back);
-        const x = gx + (i % cols) * (sw + gap), y = gy + Math.floor(i / cols) * rowH;
+        // Factory Prepped isn't one of the 28 colours: it takes the last slot, after a gap.
+        const slot = f === 'Factory Prepped' ? BUILDER_FIN.length : i - 1;
+        const x = gx + (slot % cols) * (sw + gap), y = gy + Math.floor(slot / cols) * rowH;
         const on = f === cur ? fi : f === prev ? 1 - fi : 0;
         g.save(); g.globalAlpha *= clamp(p);
         if (on > 0) { g.save(); g.globalAlpha *= on; rr(g, x - 5 * u, y - 5 * u, sw + 10 * u, shh + 10 * u, 12 * u); g.fillStyle = BRAND.green; g.fill(); g.restore(); }

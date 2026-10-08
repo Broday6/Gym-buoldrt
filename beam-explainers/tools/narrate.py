@@ -25,6 +25,9 @@ PHONEMES = {
     "Ekena": "ˈiːkˌɛnə",        # EE-ken-uh, house rule
     "Mena": "mˈiːnə",
     "Resawn": "ɹˌiːsˈɔːn",
+    "faux": "fˈoʊ",
+    "endcaps": "ˈɛndkˌæps",
+    "Endcaps": "ˈɛndkˌæps",
 }
 # The override word plus any punctuation right after it, so the pause after "Mena." survives.
 WORD = re.compile(r"\b(" + "|".join(map(re.escape, PHONEMES)) + r")\b([.,!?;:]*)")

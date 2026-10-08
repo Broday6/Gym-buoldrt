@@ -1,0 +1,560 @@
+{
+  "schema": "ekena-install-review/1",
+  "project": "Heritage Timber vs Timberthane: Which Beam Do You Need?",
+  "version": "v3",
+  "created": "2026-10-08T17:48:56Z",
+  "previous": null,
+  "fps": 60,
+  "frame_count": 5809,
+  "cuts": [
+    {
+      "id": "16x9",
+      "file": "renders/v3/ekena-beams-which-one-16x9.mp4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "9x16",
+      "file": "renders/v3/ekena-beams-which-one-9x16.mp4",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Hook",
+      "kind": "title",
+      "start_frame": 0,
+      "end_frame": 491,
+      "step_card": "Heritage or Timberthane?",
+      "narration": "Heritage Timber, or Timberthane? Two faux wood beam lines from Ekena Millwork. Here's how to choose.",
+      "claims": [
+        "W1"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "hook__hook_heritage",
+          "label": "Heritage Timber label",
+          "frame": 58
+        },
+        {
+          "id": "hook__hook_tt",
+          "label": "Timberthane label",
+          "frame": 88
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "hook"
+        ],
+        "card": "build/script-v3.json#hook",
+        "narration": "build/script-v3.json#hook"
+      }
+    },
+    {
+      "id": "both",
+      "title": "What they share",
+      "kind": "diagram",
+      "start_frame": 491,
+      "end_frame": 1198,
+      "step_card": "What they share",
+      "narration": "Both are lightweight, high-density polyurethane, with textures molded from real wood. Both are hollow, and both install the same way, over a wood block.",
+      "claims": [
+        "W2",
+        "W20",
+        "W3",
+        "W4"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "both__both_poly",
+          "label": "Polyurethane point",
+          "frame": 555
+        },
+        {
+          "id": "both__both_texture",
+          "label": "Real-wood textures point",
+          "frame": 736
+        },
+        {
+          "id": "both__both_hollow",
+          "label": "Hollow point + photo",
+          "frame": 925
+        },
+        {
+          "id": "both__both_install",
+          "label": "Same install + block diagram",
+          "frame": 994
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "both"
+        ],
+        "card": "build/script-v3.json#both",
+        "narration": "build/script-v3.json#both"
+      }
+    },
+    {
+      "id": "speed",
+      "title": "Lead time",
+      "kind": "diagram",
+      "start_frame": 1198,
+      "end_frame": 1926,
+      "step_card": "Need it fast?",
+      "narration": "Need it fast? Heritage is Quick Ship. Stained beams usually ship in three to five business days. Timberthane is made to order, and usually ships in ten to twelve.",
+      "claims": [
+        "W5",
+        "W6"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "speed__speed_h",
+          "label": "Heritage 3-5 days fills",
+          "frame": 1530
+        },
+        {
+          "id": "speed__speed_t",
+          "label": "Timberthane 10-12 days fills",
+          "frame": 1815
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "speed"
+        ],
+        "card": "build/script-v3.json#speed",
+        "narration": "build/script-v3.json#speed"
+      }
+    },
+    {
+      "id": "sizes",
+      "title": "Sizes",
+      "kind": "diagram",
+      "start_frame": 1926,
+      "end_frame": 2815,
+      "step_card": "Set sizes, or your size",
+      "narration": "Heritage comes in eight set sizes, up to nine and a half by eleven and a half inches, and four to twenty-four feet long. Timberthane is built to your size: three to twenty-four inches, and up to thirty feet long.",
+      "claims": [
+        "W7",
+        "W8"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "sizes__sizes_h",
+          "label": "Heritage 8 sizes drop in",
+          "frame": 1964
+        },
+        {
+          "id": "sizes__sizes_t",
+          "label": "Timberthane section grows 3 to 24 in",
+          "frame": 2597
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "sizes"
+        ],
+        "card": "build/script-v3.json#sizes",
+        "narration": "build/script-v3.json#sizes"
+      }
+    },
+    {
+      "id": "shapes",
+      "title": "Shapes",
+      "kind": "diagram",
+      "start_frame": 2815,
+      "end_frame": 3378,
+      "step_card": "U-beam, or 4 shapes",
+      "narration": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
+      "claims": [
+        "W9",
+        "W10"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "shapes__shapes_h",
+          "label": "Heritage U-beam",
+          "frame": 2852
+        },
+        {
+          "id": "shapes__shapes_plank",
+          "label": "Timberthane plank",
+          "frame": 3124
+        },
+        {
+          "id": "shapes__shapes_l",
+          "label": "Timberthane L-beam",
+          "frame": 3168
+        },
+        {
+          "id": "shapes__shapes_box",
+          "label": "Timberthane box beam",
+          "frame": 3288
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "shapes"
+        ],
+        "card": "build/script-v3.json#shapes",
+        "narration": "build/script-v3.json#shapes"
+      }
+    },
+    {
+      "id": "looks",
+      "title": "Textures and finishes",
+      "kind": "diagram",
+      "start_frame": 3378,
+      "end_frame": 4028,
+      "step_card": "Textures and finishes",
+      "narration": "Heritage has six textures and six hand-stained finishes, or primed to paint. Timberthane has eight textures and twenty-eight hand-finished colors.",
+      "claims": [
+        "W11",
+        "W12"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "looks__looks_h",
+          "label": "Heritage textures + finishes",
+          "frame": 3453
+        },
+        {
+          "id": "looks__looks_t",
+          "label": "Timberthane textures + 29 swatches",
+          "frame": 3808
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "looks"
+        ],
+        "card": "build/script-v3.json#looks",
+        "narration": "build/script-v3.json#looks"
+      }
+    },
+    {
+      "id": "details",
+      "title": "Seams, endcaps, origin",
+      "kind": "diagram",
+      "start_frame": 4028,
+      "end_frame": 4847,
+      "step_card": "The details",
+      "narration": "Heritage is molded in one piece, so its corners have no seams, and its endcaps ship separately, ready to stain. With Timberthane, you add endcaps when you order, and it's made in the U.S.A.",
+      "claims": [
+        "W13",
+        "W14",
+        "W15",
+        "W16"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "details__det_seams",
+          "label": "One piece, no corner seams",
+          "frame": 4098
+        },
+        {
+          "id": "details__det_endcap_h",
+          "label": "Heritage endcaps",
+          "frame": 4333
+        },
+        {
+          "id": "details__det_endcap_t",
+          "label": "Timberthane endcap selector",
+          "frame": 4564
+        },
+        {
+          "id": "details__det_usa",
+          "label": "Made in the USA",
+          "frame": 4697
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "details"
+        ],
+        "card": "build/script-v3.json#details",
+        "narration": "build/script-v3.json#details"
+      }
+    },
+    {
+      "id": "choose",
+      "title": "Which one",
+      "kind": "diagram",
+      "start_frame": 4847,
+      "end_frame": 5465,
+      "step_card": "So, which one?",
+      "narration": "A standard size, and need it soon? Go Heritage. It's the lower price, too. Need an exact size, another shape, or more colors? Go Timberthane.",
+      "claims": [
+        "W5",
+        "W7",
+        "W8",
+        "W10",
+        "W11",
+        "W12",
+        "W17"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "choose__choose_h",
+          "label": "Go Heritage",
+          "frame": 5013
+        },
+        {
+          "id": "choose__choose_t",
+          "label": "Go Timberthane",
+          "frame": 5196
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "choose"
+        ],
+        "card": "build/script-v3.json#choose",
+        "narration": "build/script-v3.json#choose"
+      }
+    },
+    {
+      "id": "end",
+      "title": "End card",
+      "kind": "end",
+      "start_frame": 5465,
+      "end_frame": 5809,
+      "step_card": "Still deciding? Order a sample.",
+      "narration": "Still deciding? Order a sample of each.",
+      "claims": [
+        "W18",
+        "W19"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": true,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "end__end_samples",
+          "label": "Both samples",
+          "frame": 5594
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/which-one.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "end"
+        ],
+        "card": "build/script-v3.json#end",
+        "narration": "build/script-v3.json#end"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "W1",
+      "text": "Heritage Timber and Timberthane are Ekena Millwork faux wood beam lines",
+      "source": "facts.md, product records (brand Heritage Timber / TimberThane, manufacturer Ekena Millwork)"
+    },
+    {
+      "id": "W2",
+      "text": "Both are lightweight high-density polyurethane",
+      "source": "Heritage key features; Timberthane key features"
+    },
+    {
+      "id": "W3",
+      "text": "Textures are molded from real wood; both are hollow",
+      "source": "Heritage key features 02, 05; Timberthane short description"
+    },
+    {
+      "id": "W4",
+      "text": "Both install the same way, over wood blocking",
+      "source": "INSTALL_BMU: 'Heritage + TimberThane Faux Wood Beams General Installation Guide'"
+    },
+    {
+      "id": "W5",
+      "text": "Heritage stained beams usually ship in 3-5 business days (Quick Ship)",
+      "source": "Heritage product record leadTimeRaw"
+    },
+    {
+      "id": "W6",
+      "text": "Timberthane is made to order and usually ships in 10-12 business days",
+      "source": "Timberthane product record leadTimeRaw"
+    },
+    {
+      "id": "W7",
+      "text": "Heritage: 8 cross-sections, 3.5x3.5 to 9.5x11.5 in; 4-24 ft long",
+      "source": "Heritage variant data (BMSTS3)"
+    },
+    {
+      "id": "W8",
+      "text": "Timberthane: 3-24 in wide and high in 1/2 in steps; 24-360 in long",
+      "source": "Timberthane builder data (BM)"
+    },
+    {
+      "id": "W9",
+      "text": "Heritage beams are 3-sided U-beams",
+      "source": "Heritage variant data, Style"
+    },
+    {
+      "id": "W10",
+      "text": "Timberthane comes as plank, L-beam, U-beam or box beam",
+      "source": "Timberthane builder Shape"
+    },
+    {
+      "id": "W11",
+      "text": "Heritage: 6 textures; 6 hand-stained finishes plus Primed",
+      "source": "Heritage variant data; FAQ 'six different finishes, and six unique textures'"
+    },
+    {
+      "id": "W12",
+      "text": "Timberthane: 8 textures; 28 hand-finished colours plus Factory Prepped",
+      "source": "Timberthane builder data, Texture and Finish"
+    },
+    {
+      "id": "W13",
+      "text": "Heritage is molded as one piece, no corner seams",
+      "source": "Heritage key feature 01"
+    },
+    {
+      "id": "W14",
+      "text": "Heritage endcaps ship separately, unattached and unstained",
+      "source": "Quick Ship FAQ, 'Are the endcaps attached?'"
+    },
+    {
+      "id": "W15",
+      "text": "Timberthane builder offers none, one or two endcaps",
+      "source": "Timberthane builder Endcaps"
+    },
+    {
+      "id": "W16",
+      "text": "Timberthane is made in the USA",
+      "source": "Timberthane product record madeInUsa = 1; Endurathane copy 'Made in the USA'"
+    },
+    {
+      "id": "W17",
+      "text": "Heritage is the lower price for comparable sizes",
+      "source": "facts.md price comparison, four size pairs (Heritage about 51-53% of Timberthane)"
+    },
+    {
+      "id": "W18",
+      "text": "Samples are available for both lines",
+      "source": "BM-HT-SAMPLE, BM-MAT-SAMPLE listings"
+    },
+    {
+      "id": "W19",
+      "text": "ekenamillwork.com sells these beams",
+      "source": "Product records: manufacturer Ekena Millwork, onEkena = 1. Site for the end card to be confirmed by Brody"
+    },
+    {
+      "id": "W20",
+      "text": "The hollow inside can hide wiring and ducts",
+      "source": "Heritage key feature 05 ('wraps existing beams, ductwork, wiring, or LED strip lighting'); Timberthane long description ('hide cable, pipes')"
+    }
+  ],
+  "key_terms": [
+    "Heritage",
+    {
+      "term": "Timberthane",
+      "heard_as": [
+        "Timberthane",
+        "Timber Thane",
+        "Timber-thane"
+      ]
+    },
+    "Quick Ship",
+    "polyurethane",
+    {
+      "term": "Ekena",
+      "heard_as": [
+        "Ekena",
+        "Eek and a",
+        "Eakin and",
+        "Eaken and",
+        "Eakin &",
+        "Eaken &",
+        "Akina",
+        "Ekina",
+        "Ekeena"
+      ]
+    },
+    {
+      "term": "endcaps",
+      "heard_as": [
+        "endcaps",
+        "end caps",
+        "end-caps"
+      ]
+    }
+  ],
+  "references": {
+    "install_guide": "research/INSTALL_BMU.pdf",
+    "product_images": [
+      "research/product-images/heritage__product__salvaged-timber__kona-brown.jpg",
+      "research/product-images/timberthane__product__hand-hewn__aged.jpg",
+      "research/product-images/timberthane__shapes__hand-hewn-box-beam.jpg",
+      "research/product-images/heritage__accessories__endcap.jpg",
+      "research/product-images/heritage__angles__BMSTKB-05.jpg"
+    ],
+    "house_rules": "HOUSE_RULES.md",
+    "readme": "research/beam-lines-facts.md",
+    "timeline": "build/timeline-v3.json"
+  },
+  "changes": []
+}

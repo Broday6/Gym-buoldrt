@@ -1,0 +1,681 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber vs Timberthane: Which Beam Do You Need?",
+  "version": "v3",
+  "evaluated_at": "2026-10-08T18:01:31Z",
+  "overall": "pass",
+  "summary": "No blockers: every card matches the manifest, every number matches the claims and facts table, the narration lands on its visuals, and the 9:16 cut keeps everything in frame. Two majors for Brody: the hook's Heritage room image is visibly a 3D render, and the end card's ekenamillwork.com URL is still marked 'to be confirmed by Brody' in claim W19.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "5809 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "96.817 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 96.816 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "0 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "5809 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "96.817 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 96.816 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "0 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Heritage Timber or Timberthane. Two full wood beam lines from Eek and a Millwork. Here's how to choose. Both are lightweight high-density polyurethane with textures molded from real wood. Both are hollow and both install the same way over a wood block. Need it fast? Heritage is quick ship. Stained beams usually ship in three to five business days. Timberthane is made to order and usually ships in ten to twelve. Heritage comes in eight set sizes up to nine and a half by eleven and a half inches and four to twenty four feet long. Timberthane is built to your size three to twenty four inches and up to thirty feet long. Heritage is a three-sided U-beam. Timberthane also comes as a flat plank an L-beam or a four-sided box beam. Heritage has six textures and six hand stained finishes or primed to paint. Timberthane has eight textures and 28 hand finished colors. Heritage is molded in one piece so its corners have no seams and its end caps ship separately ready to stain. With Timberthane you add end caps when you order and it's made in the U-S-A. A standard size and need it soon. Go Heritage. It's the lower price too. Need an exact size another shape or more colors? Go Timberthane. Still deciding? Order a sample of each.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Heritage Timber, or Timberthane? Two faux wood beam lines from Ekena Millwork. Here's how to choose.",
+        "heard": "Heritage Timber or Timberthane. Two full wood beam lines from Eek and a Millwork. Here's how to choose.",
+        "match": 0.875,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          490
+        ]
+      },
+      {
+        "scene": "both",
+        "expected": "Both are lightweight, high-density polyurethane, with textures molded from real wood. Both are hollow, and both install the same way, over a wood block.",
+        "heard": "Both are lightweight high-density polyurethane with textures molded from real wood. Both are hollow and both install the same way over a wood block.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          491,
+          1197
+        ]
+      },
+      {
+        "scene": "speed",
+        "expected": "Need it fast? Heritage is Quick Ship. Stained beams usually ship in three to five business days. Timberthane is made to order, and usually ships in ten to twelve.",
+        "heard": "Need it fast? Heritage is quick ship. Stained beams usually ship in three to five business days. Timberthane is made to order and usually ships in ten to twelve.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1198,
+          1925
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "Heritage comes in eight set sizes, up to nine and a half by eleven and a half inches, and four to twenty-four feet long. Timberthane is built to your size: three to twenty-four inches, and up to thirty feet long.",
+        "heard": "Heritage comes in eight set sizes up to nine and a half by eleven and a half inches and four to twenty four feet long. Timberthane is built to your size three to twenty four inches and up to thirty feet long.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1926,
+          2814
+        ]
+      },
+      {
+        "scene": "shapes",
+        "expected": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
+        "heard": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank an L-beam or a four-sided box beam.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2815,
+          3377
+        ]
+      },
+      {
+        "scene": "looks",
+        "expected": "Heritage has six textures and six hand-stained finishes, or primed to paint. Timberthane has eight textures and twenty-eight hand-finished colors.",
+        "heard": "Heritage has six textures and six hand stained finishes or primed to paint. Timberthane has eight textures and 28 hand finished colors.",
+        "match": 0.913,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3378,
+          4027
+        ]
+      },
+      {
+        "scene": "details",
+        "expected": "Heritage is molded in one piece, so its corners have no seams, and its endcaps ship separately, ready to stain. With Timberthane, you add endcaps when you order, and it's made in the U.S.A.",
+        "heard": "Heritage is molded in one piece so its corners have no seams and its end caps ship separately ready to stain. With Timberthane you add end caps when you order and it's made in the U-S-A.",
+        "match": 0.944,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          4028,
+          4846
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "A standard size, and need it soon? Go Heritage. It's the lower price, too. Need an exact size, another shape, or more colors? Go Timberthane.",
+        "heard": "A standard size and need it soon. Go Heritage. It's the lower price too. Need an exact size another shape or more colors? Go Timberthane.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          4847,
+          5464
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Still deciding? Order a sample of each.",
+        "heard": "Still deciding? Order a sample of each.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          5465,
+          5808
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Timberthane",
+        "heard": true
+      },
+      {
+        "term": "Quick Ship",
+        "heard": true
+      },
+      {
+        "term": "polyurethane",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      },
+      {
+        "term": "endcaps",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 1
+      },
+      "total": 9,
+      "gate_reasons": [],
+      "comment": "Real Ekena room images, labels on time; the Heritage room reads as a CG render."
+    },
+    {
+      "scene": "both",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Real product photos; block diagram agrees with INSTALL_BMU (beam slides over wood blocking)."
+    },
+    {
+      "scene": "speed",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "3-5 and 10-12 day fills land on the spoken numbers (f1530/f1524, f1815/f1830)."
+    },
+    {
+      "scene": "sizes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "8 Heritage profiles measured in the frame match 3.5x3.5 ... 9.5x11.5 in, and the 24x24 Timberthane box is on the same scale (about 12 px/in)."
+    },
+    {
+      "scene": "shapes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Plank, L-beam and box beam appear on their spoken words (f3118, f3162, f3288)."
+    },
+    {
+      "scene": "looks",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "6 textures, 6 finishes + primed, 8 textures, 29 swatches (15 + 14) counted in the frame."
+    },
+    {
+      "scene": "details",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "All four cards appear on their spoken words; the endcap and beam images are Ekena's own."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Heritage highlight on 'Go Heritage' (f5017), Timberthane highlight on 'Go Timberthane' (f5374)."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Both samples shown with the spoken line; the URL claim is unconfirmed (see the claims finding)."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "hook",
+      "cut": null,
+      "frame": 60,
+      "end_frame": 470,
+      "severity": "major",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The Heritage Timber half of the hook is a 3D architectural render, not a photograph: flat even light, a tiled stone texture on the fireplace and a generic CG yard outside the windows. It is the first image viewers see, and it reads as a render.",
+      "fix": "render/videos/which-one.mjs, hook: swap the Heritage room image for one of the real customer-project photos in img/heritage/rooms/ with the beams clearly visible. Keep the Timberthane half as it is.",
+      "evidence": [
+        "review/v3/eval/sheets/16x9_hook.jpg",
+        "review/v3/eval/frames/16x9_f000088.jpg",
+        "review/v3/eval/extra/hook_left_crop.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 0.5,
+        "h": 1.0
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_samples",
+      "cut": null,
+      "frame": 5520,
+      "end_frame": 5808,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W19; research/beam-lines-facts.md (facts retrieved from FauxBeams.com)",
+      "what": "The end card shows 'ekenamillwork.com', but claim W19's own source says 'Site for the end card to be confirmed by Brody', and the facts table was retrieved from FauxBeams.com. The URL viewers are sent to has no confirmed claim behind it.",
+      "fix": "Brody to confirm the end-card site. Then set the URL in build/script-v3.json#end and render/videos/which-one.mjs (end), and update W19's source to say it was confirmed.",
+      "evidence": [
+        "review/v3/eval/sheets/16x9_end.jpg",
+        "review/v3/eval/frames/16x9_f005594.jpg"
+      ],
+      "region": {
+        "x": 0.4,
+        "y": 0.65,
+        "w": 0.2,
+        "h": 0.12
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "hook",
+      "cut": null,
+      "frame": 204,
+      "end_frame": 264,
+      "severity": "minor",
+      "criterion": "narration",
+      "scope": "local",
+      "rule": "HOUSE_RULES 5 (phonetic narration where needed)",
+      "source": null,
+      "what": "Whisper hears 'Two full wood beam lines' for 'Two faux wood beam lines'. Kokoro may not be voicing 'faux' clearly. It is not a key term, so the check still passes.",
+      "fix": "narration line in build/script-v3.json#hook: spell 'faux' phonetically for Kokoro (e.g. 'foe') and re-check that it is heard as 'faux'.",
+      "evidence": [
+        "review/v3/eval/narration.json",
+        "review/v3/eval/words.txt"
+      ],
+      "region": null,
+      "id": "e3"
+    },
+    {
+      "scene": "sizes",
+      "scenes": [
+        "sizes",
+        "both"
+      ],
+      "cut": null,
+      "frame": 1964,
+      "end_frame": 2814,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "systemic",
+      "rule": "HOUSE_RULES 2",
+      "source": null,
+      "what": "The size comparison (and the small install icon in 'both', f994-1197) draws the beams as coded line profiles rather than Ekena images. I read rule 2 as being about the beam's look (texture and finish), which these outlines don't imitate, so I didn't score it down. The rule doesn't say whether to-scale schematics are allowed.",
+      "fix": "No code change needed if Brody agrees. Otherwise, add a line to HOUSE_RULES.md that allows to-scale line profiles of beams.",
+      "evidence": [
+        "review/v3/eval/extra/16x9_f002770.jpg",
+        "review/v3/eval/extra/16x9_f001100.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.38,
+        "w": 0.9,
+        "h": 0.3
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "looks",
+      "action": "looks__looks_h",
+      "cut": null,
+      "frame": 3453,
+      "end_frame": 4000,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W11",
+      "what": "The sixth Heritage texture tile is a small photo of a whole white primed beam, not a texture close-up like the other five, and it has no label. The seventh finish circle (the '+ primed' one) shows tan, wood-grained stain, not a white primer, so primed is hard to identify.",
+      "fix": "render/videos/which-one.mjs, looks: use the Sanded Smooth close-up from img/heritage/swatch/ for the sixth tile, and check that the seventh circle is Ekena's actual Primed swatch.",
+      "evidence": [
+        "review/v3/eval/extra/16x9_f003960.jpg",
+        "review/v3/eval/extra/9x16_f003960.jpg"
+      ],
+      "region": {
+        "x": 0.07,
+        "y": 0.4,
+        "w": 0.4,
+        "h": 0.33
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "details",
+      "action": "details__det_seams",
+      "cut": null,
+      "frame": 4069,
+      "end_frame": 4276,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "research/beam-lines-facts.md, 'Wording to be careful with: Heritage lengths'",
+      "what": "The narration says 'Heritage is molded in one piece'. W13 supports this for the corners, but the facts file warns not to imply one-piece moulding over 12 ft without checking with the plant, and the sizes scene just said Heritage runs to 24 ft.",
+      "fix": "build/script-v3.json#details narration: tie it to the profile, e.g. 'Heritage's three sides are molded as one piece, so its corners have no seams'.",
+      "evidence": [
+        "review/v3/eval/strips/16x9_details__det_seams.jpg"
+      ],
+      "region": null,
+      "id": "e6"
+    },
+    {
+      "scene": "details",
+      "action": "details__det_endcap_h",
+      "cut": null,
+      "frame": 4306,
+      "end_frame": 4460,
+      "severity": "minor",
+      "criterion": "narration",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W14",
+      "what": "The narration says Heritage endcaps ship separately, 'ready to stain'. The card and claim W14 say 'unstained'. 'Ready to stain' goes slightly beyond the claim.",
+      "fix": "build/script-v3.json#details narration: say '...its endcaps ship separately and unstained', to match the card and W14.",
+      "evidence": [
+        "review/v3/eval/frames/16x9_f004333.jpg"
+      ],
+      "region": null,
+      "id": "e7"
+    }
+  ]
+}

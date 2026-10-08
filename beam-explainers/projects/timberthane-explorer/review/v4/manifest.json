@@ -1,0 +1,511 @@
+{
+  "schema": "ekena-install-review/1",
+  "project": "Timberthane: Finish & Size Explorer",
+  "version": "v4",
+  "created": "2026-10-08T17:47:42Z",
+  "previous": null,
+  "fps": 60,
+  "frame_count": 4251,
+  "cuts": [
+    {
+      "id": "16x9",
+      "file": "renders/v4/ekena-timberthane-explorer-16x9.mp4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "9x16",
+      "file": "renders/v4/ekena-timberthane-explorer-9x16.mp4",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Hook",
+      "kind": "title",
+      "start_frame": 0,
+      "end_frame": 540,
+      "step_card": "Timberthane",
+      "narration": "Timberthane faux wood beams, from Ekena Millwork, are made to order: your shape, your texture, your finish, and your size.",
+      "claims": [
+        "T1"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "hook"
+        ],
+        "card": "build/script-v4.json#hook",
+        "narration": "build/script-v4.json#hook"
+      }
+    },
+    {
+      "id": "shapes",
+      "title": "Shapes",
+      "kind": "diagram",
+      "start_frame": 540,
+      "end_frame": 1123,
+      "step_card": "4 shapes",
+      "narration": "Start with the shape. A one-sided plank. A two-sided L-beam. A three-sided U-beam. Or a four-sided box beam.",
+      "claims": [
+        "T2"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "shapes__shape_1",
+          "label": "Shape: plank",
+          "frame": 660
+        },
+        {
+          "id": "shapes__shape_2",
+          "label": "Shape: L-beam",
+          "frame": 760
+        },
+        {
+          "id": "shapes__shape_3",
+          "label": "Shape: U-beam",
+          "frame": 866
+        },
+        {
+          "id": "shapes__shape_4",
+          "label": "Shape: box beam",
+          "frame": 1004
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "shapes"
+        ],
+        "card": "build/script-v4.json#shapes",
+        "narration": "build/script-v4.json#shapes"
+      }
+    },
+    {
+      "id": "textures",
+      "title": "Textures",
+      "kind": "diagram",
+      "start_frame": 1123,
+      "end_frame": 1857,
+      "step_card": "8 textures",
+      "narration": "Then the texture. Hand Hewn. Rough Sawn. Rough Cedar. Sandblasted. Pecky Cypress. Riverwood. Knotty Pine. And Rustic Smooth.",
+      "claims": [
+        "T3"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "textures__tex_1",
+          "label": "Texture: Hand Hewn",
+          "frame": 1241
+        },
+        {
+          "id": "textures__tex_2",
+          "label": "Texture: Rough Sawn",
+          "frame": 1314
+        },
+        {
+          "id": "textures__tex_3",
+          "label": "Texture: Rough Cedar",
+          "frame": 1383
+        },
+        {
+          "id": "textures__tex_4",
+          "label": "Texture: Sandblasted",
+          "frame": 1455
+        },
+        {
+          "id": "textures__tex_5",
+          "label": "Texture: Pecky Cypress",
+          "frame": 1541
+        },
+        {
+          "id": "textures__tex_6",
+          "label": "Texture: Riverwood",
+          "frame": 1610
+        },
+        {
+          "id": "textures__tex_7",
+          "label": "Texture: Knotty Pine",
+          "frame": 1696
+        },
+        {
+          "id": "textures__tex_8",
+          "label": "Texture: Rustic Smooth",
+          "frame": 1751
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "textures"
+        ],
+        "card": "build/script-v4.json#textures",
+        "narration": "build/script-v4.json#textures"
+      }
+    },
+    {
+      "id": "finishes",
+      "title": "Finishes",
+      "kind": "diagram",
+      "start_frame": 1857,
+      "end_frame": 2494,
+      "step_card": "28 hand-finished colors",
+      "narration": "Then the finish. There are twenty-eight hand-finished colors, from light Sand Dune and Driftwood to deep Hickory and Cherry. Or Factory Prepped, ready for paint.",
+      "claims": [
+        "T13",
+        "T4",
+        "T5"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "finishes__fin_cycle",
+          "label": "Finish photos cycle",
+          "frame": 2025
+        },
+        {
+          "id": "finishes__fin_sanddune",
+          "label": "Sand Dune",
+          "frame": 2126
+        },
+        {
+          "id": "finishes__fin_driftwood",
+          "label": "Driftwood",
+          "frame": 2183
+        },
+        {
+          "id": "finishes__fin_hickory",
+          "label": "Hickory",
+          "frame": 2240
+        },
+        {
+          "id": "finishes__fin_cherry",
+          "label": "Cherry",
+          "frame": 2268
+        },
+        {
+          "id": "finishes__fin_prepped",
+          "label": "Factory Prepped",
+          "frame": 2326
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "finishes"
+        ],
+        "card": "build/script-v4.json#finishes",
+        "narration": "build/script-v4.json#finishes"
+      }
+    },
+    {
+      "id": "size",
+      "title": "Width and height",
+      "kind": "diagram",
+      "start_frame": 2494,
+      "end_frame": 2969,
+      "step_card": "3 to 24 in, to the half inch",
+      "narration": "Size it to the half inch: anywhere from three to twenty-four inches wide, and three to twenty-four inches tall.",
+      "claims": [
+        "T6"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "size__size_h",
+          "label": "Height 3 to 24 in",
+          "frame": 2905
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "size"
+        ],
+        "card": "build/script-v4.json#size",
+        "narration": "build/script-v4.json#size"
+      }
+    },
+    {
+      "id": "length",
+      "title": "Length",
+      "kind": "diagram",
+      "start_frame": 2969,
+      "end_frame": 3281,
+      "step_card": "2 to 30 ft long",
+      "narration": "Lengths run from two feet to thirty feet, to the inch.",
+      "claims": [
+        "T7"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "length"
+        ],
+        "card": "build/script-v4.json#length",
+        "narration": "build/script-v4.json#length"
+      }
+    },
+    {
+      "id": "made",
+      "title": "Endcaps and lead time",
+      "kind": "diagram",
+      "start_frame": 3281,
+      "end_frame": 3908,
+      "step_card": "Made to order in the USA",
+      "narration": "Add one or two endcaps if you need them. Every beam is hand finished, made in the U.S.A., and usually ships in ten to twelve business days.",
+      "claims": [
+        "T8",
+        "T9",
+        "T10"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "made__made_endcaps",
+          "label": "Endcap selector",
+          "frame": 3316
+        },
+        {
+          "id": "made__made_hand",
+          "label": "Hand finished",
+          "frame": 3518
+        },
+        {
+          "id": "made__made_usa",
+          "label": "Made in the USA",
+          "frame": 3579
+        },
+        {
+          "id": "made__made_ships",
+          "label": "10-12 business days",
+          "frame": 3738
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "made"
+        ],
+        "card": "build/script-v4.json#made",
+        "narration": "build/script-v4.json#made"
+      }
+    },
+    {
+      "id": "end",
+      "title": "End card",
+      "kind": "end",
+      "start_frame": 3908,
+      "end_frame": 4251,
+      "step_card": "Order a sample",
+      "narration": "See the finish in person. Order a sample.",
+      "claims": [
+        "T11",
+        "T12"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": true,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "end__end_sample",
+          "label": "Sample appears",
+          "frame": 4063
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/timberthane.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "end"
+        ],
+        "card": "build/script-v4.json#end",
+        "narration": "build/script-v4.json#end"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "T1",
+      "text": "Timberthane is an Ekena Millwork made-to-order faux wood beam line",
+      "source": "Timberthane product record (brand TimberThane, manufacturer Ekena Millwork); builder listing"
+    },
+    {
+      "id": "T2",
+      "text": "Shapes: 1-sided plank, 2-sided L-beam, 3-sided U-beam, 4-sided box beam",
+      "source": "Timberthane builder Shape"
+    },
+    {
+      "id": "T3",
+      "text": "Textures: Hand Hewn, Rough Sawn, Rough Cedar, Sandblasted, Pecky Cypress, Riverwood, Knotty Pine, Rustic Smooth",
+      "source": "Timberthane builder Texture"
+    },
+    {
+      "id": "T4",
+      "text": "28 hand-finished colours plus Factory Prepped (29 options)",
+      "source": "Timberthane builder Finish"
+    },
+    {
+      "id": "T5",
+      "text": "Sand Dune and Driftwood are light; Hickory and Cherry are dark",
+      "source": "Real finish photos and swatches (img/timberthane/product/hand-hewn, builder swatches)"
+    },
+    {
+      "id": "T6",
+      "text": "Width and height 3-24 in, in 1/2 in steps",
+      "source": "Timberthane builder Size (Width), Size (Height)"
+    },
+    {
+      "id": "T7",
+      "text": "Length 24-360 in, in 1 in steps",
+      "source": "Timberthane builder Size (Length)"
+    },
+    {
+      "id": "T8",
+      "text": "Endcaps: none, one or two",
+      "source": "Timberthane builder Endcaps"
+    },
+    {
+      "id": "T9",
+      "text": "Every batch hand finished; made in the USA",
+      "source": "Timberthane key feature 01; product record madeInUsa = 1"
+    },
+    {
+      "id": "T10",
+      "text": "Usually ships in 10-12 business days",
+      "source": "Timberthane product record leadTimeRaw"
+    },
+    {
+      "id": "T11",
+      "text": "Timberthane material samples are available, 10 x 7 in (one per texture)",
+      "source": "BM-MAT-SAMPLE listing and its photo (img/timberthane/accessories/material-sample.jpg); sample descriptions SAMPLE-KIT-BMHHZD and SAMPLE-KIT-BMSDZD: '10\" x 7\" SAMPLE'"
+    },
+    {
+      "id": "T12",
+      "text": "ekenamillwork.com sells these beams",
+      "source": "Product records: manufacturer Ekena Millwork, onEkena = 1. Site for the end card to be confirmed by Brody"
+    },
+    {
+      "id": "T13",
+      "text": "Factory Prepped comes ready for paint",
+      "source": "Timberthane finish option name 'Factory Prepped, Ready for Paint' (BM-MAT-SAMPLE finish list, raw/ss-timberthane.json)"
+    }
+  ],
+  "key_terms": [
+    {
+      "term": "Timberthane",
+      "heard_as": [
+        "Timberthane",
+        "Timber Thane",
+        "Timber-thane"
+      ]
+    },
+    "Hand Hewn",
+    "Rough Sawn",
+    "Rough Cedar",
+    "Sandblasted",
+    {
+      "term": "Knotty Pine",
+      "heard_as": [
+        "Knotty Pine",
+        "Naughty Pine"
+      ]
+    },
+    "Rustic Smooth",
+    "box beam",
+    {
+      "term": "Pecky Cypress",
+      "heard_as": [
+        "Pecky Cypress",
+        "Pecke Cypress",
+        "Peci Cypress",
+        "Peckey Cypress"
+      ]
+    },
+    "Hickory",
+    "Cherry",
+    "Driftwood",
+    {
+      "term": "Ekena",
+      "heard_as": [
+        "Ekena",
+        "Eek and a",
+        "Eakin and",
+        "Eaken and",
+        "Eakin &",
+        "Eaken &",
+        "Akina",
+        "Ekina",
+        "Ekeena"
+      ]
+    },
+    {
+      "term": "Riverwood",
+      "heard_as": [
+        "Riverwood",
+        "River wood",
+        "River-wood"
+      ]
+    }
+  ],
+  "references": {
+    "install_guide": "research/INSTALL_BMU.pdf",
+    "product_images": [
+      "research/product-images/timberthane__product__hand-hewn__aged.jpg",
+      "research/product-images/timberthane__shapes__hand-hewn-plank.jpg",
+      "research/product-images/timberthane__shapes__hand-hewn-l-beam.jpg",
+      "research/product-images/timberthane__shapes__hand-hewn-box-beam.jpg",
+      "research/product-images/timberthane__builder__finish-driftwood.jpg",
+      "research/product-images/timberthane__accessories__material-sample.jpg"
+    ],
+    "house_rules": "HOUSE_RULES.md",
+    "readme": "research/beam-lines-facts.md",
+    "timeline": "build/timeline-v4.json"
+  },
+  "changes": []
+}

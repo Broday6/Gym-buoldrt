@@ -1,0 +1,891 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Finish & Size Explorer",
+  "version": "v1",
+  "evaluated_at": "2026-10-08T16:21:21Z",
+  "overall": "fail",
+  "summary": "Not ready. Every scene fails on brand: the Ekena logo is redrawn as a lettered square and the green is not Ekena green. The sizes, fit and lengths scenes draw the beams as coded shapes, which breaks house rule 2, and the 16:9 lengths bars run the grain across the beam. The textures, finishes and figures are otherwise accurate.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "4803 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "80.050 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 80.050 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.1 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "0 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "4803 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "80.050 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 80.050 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.1 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f1086",
+        "frames": [
+          1086,
+          1086
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Heritage Timber Faux Wood Beams from Eek and a Millwork. Here's every texture, finish, and size. Each texture is molded from real, weathered timber, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth. Then pick a hand-stained finish, sandstone, Kona brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed ready to paint or stain. Five textures come in every finish, sanded smooth comes primed. There are eight sizes, from three and a half inches square, up to nine and a half by eleven and a half. Check the inside opening. That's what slides over your mounting block. Cut the block an eighth of an inch narrower than the inside width. Lengths run from four feet to twenty-four feet. Stained beams usually ship in three to five business days. Primed beams in about one to three days. End caps are sold separately, unstained, so you can finish them to match. Not sure on the finish? Order a sample first.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Heritage Timber faux wood beams, from Ekena Millwork. Here's every texture, finish, and size.",
+        "heard": "Heritage Timber Faux Wood Beams from Eek and a Millwork. Here's every texture, finish, and size.",
+        "match": 0.929,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          441
+        ]
+      },
+      {
+        "scene": "textures",
+        "expected": "Each texture is molded from real, weathered timber. Mena. Salvaged Timber. Rustic Sawn. Resawn Rip. Reclaimed Axed Cut. And Sanded Smooth.",
+        "heard": "Each texture is molded from real, weathered timber, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth.",
+        "match": 0.905,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          442,
+          1183
+        ]
+      },
+      {
+        "scene": "finishes",
+        "expected": "Then pick a hand-stained finish. Sandstone. Kona Brown. Vanilla Chai. Warm Caramel. Natural White Oak. Smokey Brown. Or primed, ready to paint or stain.",
+        "heard": "Then pick a hand-stained finish, sandstone, Kona brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed ready to paint or stain.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1184,
+          1979
+        ]
+      },
+      {
+        "scene": "matrix",
+        "expected": "Five textures come in every finish. Sanded Smooth comes primed.",
+        "heard": "Five textures come in every finish, sanded smooth comes primed.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1980,
+          2369
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "There are eight sizes, from three and a half inches square, up to nine and a half by eleven and a half.",
+        "heard": "There are eight sizes, from three and a half inches square, up to nine and a half by eleven and a half.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2370,
+          2787
+        ]
+      },
+      {
+        "scene": "fit",
+        "expected": "Check the inside opening. That's what slides over your mounting block. Cut the block an eighth of an inch narrower than the inside width.",
+        "heard": "Check the inside opening. That's what slides over your mounting block. Cut the block an eighth of an inch narrower than the inside width.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2788,
+          3369
+        ]
+      },
+      {
+        "scene": "lengths",
+        "expected": "Lengths run from four feet to twenty-four feet.",
+        "heard": "Lengths run from four feet to twenty-four feet.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3370,
+          3681
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "Stained beams usually ship in three to five business days. Primed beams, in about one to three days. Endcaps are sold separately, unstained, so you can finish them to match.",
+        "heard": "Stained beams usually ship in three to five business days. Primed beams in about one to three days. End caps are sold separately, unstained, so you can finish them to match.",
+        "match": 0.967,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3682,
+          4446
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Not sure on the finish? Order a sample first.",
+        "heard": "Not sure on the finish? Order a sample first.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          4447,
+          4802
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Salvaged Timber",
+        "heard": true
+      },
+      {
+        "term": "Rustic Sawn",
+        "heard": true
+      },
+      {
+        "term": "Kona Brown",
+        "heard": true
+      },
+      {
+        "term": "Vanilla Chai",
+        "heard": true
+      },
+      {
+        "term": "Warm Caramel",
+        "heard": true
+      },
+      {
+        "term": "Smokey Brown",
+        "heard": true
+      },
+      {
+        "term": "primed",
+        "heard": true
+      },
+      {
+        "term": "Mena",
+        "heard": true
+      },
+      {
+        "term": "Resawn Rip",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 8,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Room photo reads as real and the beams look right. The photo is not among the manifest's product_images, so which product it shows was not checked."
+    },
+    {
+      "scene": "textures",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Real swatches and beam images. Mena and Salvaged Timber match the references, and each name lands with its swap. The 9x16 'cut' at f1086 is just the fast Reclaimed-to-Sanded crossfade."
+    },
+    {
+      "scene": "finishes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Kona Brown beam and swatch match the references. Every finish swaps on its spoken name."
+    },
+    {
+      "scene": "matrix",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 1,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 11,
+      "gate_reasons": [
+        "graphics scored 0",
+        "install below 2 (auto-fail criterion)"
+      ],
+      "comment": "The grid is right (Sanded Smooth primed only), but the headline says every texture comes in every finish."
+    },
+    {
+      "scene": "sizes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 0,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [
+        "product scored 0",
+        "graphics scored 0",
+        "total 10 below 11 of 14"
+      ],
+      "comment": "All 8 sections are to scale (checked in px) with 3/4 in walls, but they are coded beam drawings."
+    },
+    {
+      "scene": "fit",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 0,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 1,
+        "craft": 2
+      },
+      "total": 9,
+      "gate_reasons": [
+        "product scored 0",
+        "graphics scored 0",
+        "total 9 below 11 of 14"
+      ],
+      "comment": "Dimensions are correct (5.5 outer, 4 x 4 3/4 inside, 3 7/8 block), as is the guide's 1/8 in rule. The beam is a coded model."
+    },
+    {
+      "scene": "lengths",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 0,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [
+        "product scored 0",
+        "graphics scored 0",
+        "total 10 below 11 of 14"
+      ],
+      "comment": "The bars and the 6 ft person are to scale. The bars are coded beams, and in 16:9 the grain runs across the length."
+    },
+    {
+      "scene": "ship",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "3-5 business days and 24-72 h match H10 and H11, and each card lands on its line."
+    },
+    {
+      "scene": "end",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 8,
+      "gate_reasons": [
+        "graphics scored 0"
+      ],
+      "comment": "Real sample-kit image."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "hook",
+      "scenes": [
+        "hook",
+        "textures",
+        "finishes",
+        "matrix",
+        "sizes",
+        "fit",
+        "lengths",
+        "ship",
+        "end"
+      ],
+      "cut": null,
+      "frame": 88,
+      "end_frame": 4802,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "systemic",
+      "rule": "HOUSE_RULES.md #4: Ekena green, Poppins/Figtree, and the real Ekena logo",
+      "source": "INSTALL_BMU p.1 header (real Ekena logo and green)",
+      "what": "The 'logo' is a rounded square with an 'E' in it, followed by 'EKENA MILLWORK' typed in Poppins. It is white on the hook and dark green on every other card. The real mark is a sage-green circle with a white leaf. The accent green is #2C573E forest green; Ekena's logo green is about #8E9C5D sage.",
+      "fix": "One shared cause: the brand lockup and accent token in render/lib/core.mjs. Replace the drawn square and text with the real Ekena logo file (white version on the hook photo). Set the accent colour token to Ekena green. Every scene picks both up, so don't patch them scene by scene.",
+      "evidence": [
+        "review/v1/eval/crops/16x9_f000298_logo.png",
+        "review/v1/eval/frames/16x9_f004293.jpg",
+        "review/v1/eval/guide/p-1.png"
+      ],
+      "region": {
+        "x": 0.78,
+        "y": 0.04,
+        "w": 0.18,
+        "h": 0.04
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "finishes",
+      "cut": "9x16",
+      "frame": 1250,
+      "end_frame": 1979,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H4 finish names",
+      "what": "The 9:16 swatch row shortens the names to 'Sandstone, Brown, Chai, Caramel, Oak, Brown, Primed'. Kona Brown and Smokey Brown both read 'Brown', and none of the shortened names is a real finish name.",
+      "fix": "render/videos/heritage.mjs, finishes 9:16 swatch labels: use the full finish names on two lines, as the 9:16 matrix already does, or drop the labels and rely on the large name.",
+      "evidence": [
+        "review/v1/eval/crops/9x16_smokey.jpg",
+        "review/v1/eval/sheets/9x16_finishes.jpg"
+      ],
+      "region": {
+        "x": 0.04,
+        "y": 0.83,
+        "w": 0.92,
+        "h": 0.04
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "matrix",
+      "cut": null,
+      "frame": 2000,
+      "end_frame": 2369,
+      "severity": "blocker",
+      "criterion": "install",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H5: five textures in all 7 finishes; Sanded Smooth only Primed",
+      "what": "The headline reads 'Every texture, every finish'. The grid under it and the narration both say Sanded Smooth comes only primed, so the card overstates what can be ordered.",
+      "fix": "build/script-v1.json#matrix step_card: reword it to match H5, e.g. 'Five textures in every finish'. Update the manifest card to match.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002213.jpg",
+        "review/v1/eval/frames/9x16_f002250.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.07,
+        "w": 0.55,
+        "h": 0.09
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "sizes",
+      "scenes": [
+        "sizes",
+        "fit",
+        "lengths"
+      ],
+      "cut": null,
+      "frame": 2420,
+      "end_frame": 3681,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "systemic",
+      "rule": "HOUSE_RULES.md #2: show real Ekena product images whenever the product is on screen; coded models only for things that aren't the beams",
+      "what": "These scenes draw the beam in code: wood-texture-filled U sections in sizes and fit, and texture-filled bars in lengths. No product image is used. The ceiling, block and person are allowed as coded objects; the beam is not.",
+      "fix": "One shared cause: the coded beam primitive in render/lib/core.mjs (texture-filled U and bar shapes), used by the sizes, fit and lengths timeline keys in render/videos/heritage.mjs. Build these from real Ekena images: the real end view or product photo for each section, and the real product photo scaled per length. Or ask Brody whether a plain line diagram, with no wood texture, counts as an allowed diagram. Then record that as a house rule.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002704.jpg",
+        "review/v1/eval/frames/16x9_f003253.jpg",
+        "review/v1/eval/pairs/lengths_mid.jpg"
+      ],
+      "region": {
+        "x": 0.04,
+        "y": 0.31,
+        "w": 0.92,
+        "h": 0.36
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "fit",
+      "action": "fit__fit_slide",
+      "cut": null,
+      "frame": 2965,
+      "end_frame": 2992,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "While the beam is still sliding up, the '4 in inside' dimension fades in at its final spot and is drawn over the beam's moving bottom wall. The 5½ in and 4¾ in leaders already show final positions that don't match the beam.",
+      "fix": "render/videos/heritage.mjs, fit: hold the dimension leaders and the '4 in inside' label until fit_slide ends (around f2995), or attach them to the beam so they move with it.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002979.jpg",
+        "review/v1/eval/crops/fit_slide_overlap.jpg"
+      ],
+      "region": {
+        "x": 0.2,
+        "y": 0.79,
+        "w": 0.22,
+        "h": 0.07
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "lengths",
+      "cut": "16x9",
+      "frame": 3420,
+      "end_frame": 3681,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the 16:9 cut the wood grain on every length bar runs vertically, across the beam, not along it. The same swatch is also stretched to each bar's width, so the grain scale changes from bar to bar. No real beam looks like this. The 9:16 bars are upright and have the grain along their length.",
+      "fix": "render/videos/heritage.mjs, lengths: rotate the texture 90° in the 16:9 layout and tile it at a fixed scale instead of stretching. Better still, use the real product photo (see the coded-beam finding).",
+      "evidence": [
+        "review/v1/eval/crops/16x9_f003619_bars.jpg",
+        "review/v1/eval/pairs/lengths_mid.jpg"
+      ],
+      "region": {
+        "x": 0.16,
+        "y": 0.32,
+        "w": 0.66,
+        "h": 0.58
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "finishes",
+      "cut": null,
+      "frame": 1828,
+      "end_frame": 1979,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "INSTALL_BMU p.5 (staining; Heritage base-coat is stain-ready) would support it",
+      "what": "'Ready to paint or stain', in the narration and under 'Primed', has no claim behind it. H4 only lists the finish names.",
+      "fix": "Add a claim citing INSTALL_BMU p.5 to the manifest and README claims table and list it on the finishes scene. Or cut the phrase from build/script-v1.json#finishes.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f001880.jpg"
+      ],
+      "region": {
+        "x": 0.18,
+        "y": 0.86,
+        "w": 0.2,
+        "h": 0.06
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "fit",
+      "action": "fit__fit_slide",
+      "cut": "9x16",
+      "frame": 2880,
+      "end_frame": 2975,
+      "severity": "major",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16 the beam starts its slide from behind the width table, so its lower half is hidden by the card for the first part of the action.",
+      "fix": "render/videos/heritage.mjs, fit 9:16 layout: start the beam below the block but above the table card, or move the table lower or fade it in after fit_slide.",
+      "evidence": [
+        "review/v1/eval/sheets/9x16_fit.jpg",
+        "review/v1/eval/frames/9x16_f002960.jpg"
+      ],
+      "region": {
+        "x": 0.08,
+        "y": 0.55,
+        "w": 0.6,
+        "h": 0.15
+      },
+      "id": "e8"
+    },
+    {
+      "scene": "ship",
+      "cut": null,
+      "frame": 4314,
+      "end_frame": 4446,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H12 says only that endcaps ship unattached and unstained",
+      "what": "The narration line 'so you can finish them to match' has no claim behind it.",
+      "fix": "Add a sourced claim (FAQ or guide p.5 staining instructions) or end the line at 'unstained' in build/script-v1.json#ship.",
+      "evidence": [
+        "review/v1/eval/narration.json"
+      ],
+      "region": null,
+      "id": "e9"
+    },
+    {
+      "scene": "end",
+      "cut": null,
+      "frame": 4500,
+      "end_frame": 4802,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H13 cites the BM-HT-SAMPLE listing; README sources are FauxBeams.com",
+      "what": "The end card gives 'ekenamillwork.com' as the destination and the sample as '3½ × 5½ in U-beam piece, 8 in long'. Neither is in a claim. The README puts the sample listing on FauxBeams.com.",
+      "fix": "Add the sample size and the order URL to the H13 claim with their source, and check with Brody which site the CTA should send people to (build/script-v1.json#end).",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_end.jpg"
+      ],
+      "region": {
+        "x": 0.02,
+        "y": 0.6,
+        "w": 0.4,
+        "h": 0.12
+      },
+      "id": "e10"
+    },
+    {
+      "scene": "hook",
+      "cut": null,
+      "frame": 164,
+      "end_frame": 1111,
+      "severity": "minor",
+      "criterion": "narration",
+      "scope": "local",
+      "rule": "HOUSE_RULES.md #5: the speech check must hear every key term",
+      "source": null,
+      "what": "'Ekena' is not in key_terms, so the speech check never tested it; Whisper heard 'Eek and a', which fits EE-ken-uh. 'Reclaimed Axed Cut' was heard as 'reclaimed axe cut'.",
+      "fix": "Add {term: 'Ekena', heard_as: ['Ekena', 'Eek and a', 'Ekana']} and 'Reclaimed Axed Cut' to key_terms. If 'Axed' keeps dropping its d, add a short pause or a phonetic spelling in the Kokoro line.",
+      "evidence": [
+        "review/v1/eval/narration.json",
+        "review/v1/eval/words.json"
+      ],
+      "region": null,
+      "id": "e11"
+    },
+    {
+      "scene": "matrix",
+      "scenes": [
+        "textures",
+        "finishes",
+        "matrix"
+      ],
+      "cut": null,
+      "frame": 1078,
+      "end_frame": 2369,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "systemic",
+      "rule": null,
+      "source": "research/product-images/heritage__product__sanded-smooth__primed.jpg",
+      "what": "'Primed' looks tan on the textured beams (finishes swatch, matrix Primed row) but white on Sanded Smooth. A viewer can't tell which colour primed is.",
+      "fix": "If both are real Ekena photos, add a word on the card (e.g. 'tan stain-ready base coat') so the difference reads as intended.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002213.jpg",
+        "review/v1/eval/frames/16x9_f001880.jpg"
+      ],
+      "region": {
+        "x": 0.84,
+        "y": 0.27,
+        "w": 0.11,
+        "h": 0.66
+      },
+      "id": "e12"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": "9x16",
+      "frame": 1086,
+      "end_frame": 1086,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f1086",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v1/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e13"
+    }
+  ]
+}

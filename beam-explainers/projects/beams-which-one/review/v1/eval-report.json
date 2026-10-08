@@ -1,0 +1,786 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber vs Timberthane: Which Beam Do You Need?",
+  "version": "v1",
+  "evaluated_at": "2026-10-08T17:04:22Z",
+  "overall": "fail",
+  "summary": "Not ready: one blocker. In the 16x9 'The details' scene the 'separately, unstained' line runs to within ~11 px of its card's right edge. Facts, sizes, lead times and product photos are otherwise accurate and well synced; three card lines need a claim or a rewording ('any shape', 'hides wiring and ducts', the ekenamillwork.com URL), and the 9x16 hook pillarboxes the Timberthane photo.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "5803 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "96.717 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 96.716 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.2 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "5803 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "96.717 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 96.716 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.4 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.2 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "0 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Heritage Timber or Timberthane. Two full wood beam lines from Eek and a Millwork. Here's how to choose. Both are lightweight high-density polyurethane with textures molded from real wood. Both are hollow and both install the same way over a wood block. Need it fast? Heritage is quick ship. Stained beams usually ship in three to five business days. Timberthane is made to order and usually ships in ten to twelve. Heritage comes in eight set sizes up to nine and a half by eleven and a half inches and four to twenty four feet long. Timberthane is built to your size three to twenty four inches and up to thirty feet long. Heritage is a three-sided U-beam. Timberthane also comes as a flat plank and L-beam or a four-sided box beam. Heritage has six textures and six hand stained finishes or prime to paint. Timberthane has eight textures and twenty eight hand finished colors. Heritage is molded in one piece so its corners have no seams and it's in caps shipped separately ready to stain. With Timberthane you add in caps when you order and it's made in the U-S-A. A standard size and need it soon. Go Heritage. It's the lower price too. Need an exact size another shape or more colors. Go Timberthane. Still deciding order a sample of each.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Heritage Timber, or Timberthane? Two faux wood beam lines from Ekena Millwork. Here's how to choose.",
+        "heard": "Heritage Timber or Timberthane. Two full wood beam lines from Eek and a Millwork. Here's how to choose.",
+        "match": 0.875,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          490
+        ]
+      },
+      {
+        "scene": "both",
+        "expected": "Both are lightweight, high-density polyurethane, with textures molded from real wood. Both are hollow, and both install the same way, over a wood block.",
+        "heard": "Both are lightweight high-density polyurethane with textures molded from real wood. Both are hollow and both install the same way over a wood block.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          491,
+          1197
+        ]
+      },
+      {
+        "scene": "speed",
+        "expected": "Need it fast? Heritage is Quick Ship. Stained beams usually ship in three to five business days. Timberthane is made to order, and usually ships in ten to twelve.",
+        "heard": "Need it fast? Heritage is quick ship. Stained beams usually ship in three to five business days. Timberthane is made to order and usually ships in ten to twelve.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1198,
+          1925
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "Heritage comes in eight set sizes, up to nine and a half by eleven and a half inches, and four to twenty-four feet long. Timberthane is built to your size: three to twenty-four inches, and up to thirty feet long.",
+        "heard": "Heritage comes in eight set sizes up to nine and a half by eleven and a half inches and four to twenty four feet long. Timberthane is built to your size three to twenty four inches and up to thirty feet long.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1926,
+          2814
+        ]
+      },
+      {
+        "scene": "shapes",
+        "expected": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank, an L-beam, or a four-sided box beam.",
+        "heard": "Heritage is a three-sided U-beam. Timberthane also comes as a flat plank and L-beam or a four-sided box beam.",
+        "match": 0.957,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2815,
+          3377
+        ]
+      },
+      {
+        "scene": "looks",
+        "expected": "Heritage has six textures and six hand-stained finishes, or primed to paint. Timberthane has eight textures and twenty-eight hand-finished colors.",
+        "heard": "Heritage has six textures and six hand stained finishes or prime to paint. Timberthane has eight textures and twenty eight hand finished colors.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3378,
+          4027
+        ]
+      },
+      {
+        "scene": "details",
+        "expected": "Heritage is molded in one piece, so its corners have no seams, and its endcaps ship separately, ready to stain. With Timberthane, you add endcaps when you order, and it's made in the U.S.A.",
+        "heard": "Heritage is molded in one piece so its corners have no seams and it's in caps shipped separately ready to stain. With Timberthane you add in caps when you order and it's made in the U-S-A.",
+        "match": 0.889,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          4028,
+          4840
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "A standard size, and need it soon? Go Heritage. It's the lower price, too. Need an exact size, another shape, or more colors? Go Timberthane.",
+        "heard": "A standard size and need it soon. Go Heritage. It's the lower price too. Need an exact size another shape or more colors. Go Timberthane.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          4841,
+          5458
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Still deciding? Order a sample of each.",
+        "heard": "Still deciding order a sample of each.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          5459,
+          5802
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Timberthane",
+        "heard": true
+      },
+      {
+        "term": "Quick Ship",
+        "heard": true
+      },
+      {
+        "term": "polyurethane",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 1,
+        "craft": 2
+      },
+      "total": 9,
+      "gate_reasons": [],
+      "comment": "Real room photos; 9x16 Timberthane half is pillarboxed and shows only a stub of beam."
+    },
+    {
+      "scene": "both",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Real product photos; block diagram agrees with guide fig. 1/3. 'Hides wiring and ducts' has no claim."
+    },
+    {
+      "scene": "speed",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Day grids fill days 3-5 and 10-12 exactly as narrated."
+    },
+    {
+      "scene": "sizes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Measured: all 8 Heritage sections and the 24x24 Timberthane section are drawn to one scale (~11.7 px/in)."
+    },
+    {
+      "scene": "shapes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Each shape appears on its spoken word; card title 'any shape' overstates the four shapes."
+    },
+    {
+      "scene": "looks",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "6 textures, 6+primed finishes, 8 textures and 29 swatches counted on screen."
+    },
+    {
+      "scene": "details",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "16x9 card 2 text cramped against its right edge."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Highlights move with 'Go Heritage' / 'Go Timberthane'."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 1
+      },
+      "total": 9,
+      "gate_reasons": [],
+      "comment": "A grey shadow of the Timberthane sample card sits alone on screen for ~1.5 s before the samples fade in."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "details",
+      "action": "details__det_endcap_h",
+      "cut": "16x9",
+      "frame": 4326,
+      "end_frame": 4840,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": "HOUSE_RULES 4 (brand layout); rubric: text tight to a card",
+      "source": null,
+      "what": "In the 16x9 cut the second card's line 'separately, unstained' ends about 11 px from the card's right edge, against ~31 px padding on the left, so the text looks jammed against the edge. The 9x16 cut is fine.",
+      "fix": "In render/videos/which-one.mjs (details scene, 16x9 layout), give the four detail cards the same inner padding on both sides: drop the second line's font size a step, or wrap it ('separately,' / 'unstained'), or widen the cards slightly. Check the other three cards stay aligned.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_details.jpg",
+        "review/v1/eval/frames/16x9_f004326.jpg"
+      ],
+      "region": {
+        "x": 0.28,
+        "y": 0.76,
+        "w": 0.22,
+        "h": 0.1
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "hook",
+      "action": "hook__hook_tt",
+      "cut": "9x16",
+      "frame": 88,
+      "end_frame": 490,
+      "severity": "major",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": null,
+      "what": "In the 9x16 cut the Timberthane room photo (bedroom) does not fill its half of the frame: grey bars about 10% wide show on both sides. The photo also shows only a short stub of beam at the top edge, so the Timberthane product is barely visible behind the headline.",
+      "fix": "In render/videos/which-one.mjs (hook, 9x16 layout), cover-fit the Timberthane photo to the lower panel (scale to fill, crop the overflow), and pick or crop a Timberthane room image where the beams are clearly in view (the 16x9 kitchen photo shows them well).",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f000294.jpg",
+        "review/v1/eval/pairs/hook_hook__hook_tt.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.5,
+        "w": 1.0,
+        "h": 0.5
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "both",
+      "action": "both__both_hollow",
+      "cut": null,
+      "frame": 925,
+      "end_frame": 1197,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "research/beam-lines-facts.md 'Both lines' (not in claims table)",
+      "what": "The third bullet reads 'Hollow: hides wiring and ducts'. Claim W3 only covers 'both are hollow'; nothing in the manifest's claims backs hiding wiring or ducts (the facts README mentions it, but it isn't a listed claim).",
+      "fix": "Add a claim for it to the claims table / manifest (source: facts README 'Both lines', from the listing copy) or cut the bullet back to 'Hollow' in render/videos/which-one.mjs (both scene).",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f001056.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.6,
+        "w": 0.45,
+        "h": 0.15
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "shapes",
+      "action": null,
+      "cut": null,
+      "frame": 2815,
+      "end_frame": 3377,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W10 (Timberthane builder Shape)",
+      "what": "The card title reads 'U-beam, or any shape', but claim W10 and the scene itself give Timberthane exactly four shapes (badge reads '4 shapes'). No claim supports 'any shape'.",
+      "fix": "Reword the card in build/script-v1.json#shapes (and the title text in render/videos/which-one.mjs), e.g. 'U-beam, or four shapes' / 'One shape, or four'. Brody decides the wording.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_shapes.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.06,
+        "w": 0.48,
+        "h": 0.09
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_samples",
+      "cut": null,
+      "frame": 5459,
+      "end_frame": 5802,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W19: 'Site for the end card to be confirmed by Brody'",
+      "what": "The end card shows 'ekenamillwork.com', but claim W19's own source says the site is still to be confirmed, and every fact in the video was retrieved from FauxBeams.com. The URL viewers are sent to is unconfirmed.",
+      "fix": "Have Brody confirm the destination (ekenamillwork.com vs fauxbeams.com, and that samples can be ordered there), update W19's source, then set the URL in render/videos/which-one.mjs (end scene).",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f005528.jpg"
+      ],
+      "region": {
+        "x": 0.4,
+        "y": 0.88,
+        "w": 0.2,
+        "h": 0.06
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "end",
+      "action": null,
+      "cut": null,
+      "frame": 5459,
+      "end_frame": 5552,
+      "severity": "major",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "For about 1.5 s at the start of the end card a soft grey rectangle (the Timberthane sample card's drop shadow) sits alone on the right with no card or image on it; the samples only fade in from about f5553.",
+      "fix": "In render/videos/which-one.mjs (end scene) / render/lib/core.mjs card helper, tie the drop shadow's opacity to its card's opacity so the shadow fades in with the card, not before it.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f005528.jpg",
+        "review/v1/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.54,
+        "y": 0.33,
+        "w": 0.26,
+        "h": 0.36
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "hook",
+      "action": null,
+      "cut": "16x9",
+      "frame": 98,
+      "end_frame": 460,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the 16x9 cut the vertical divider between the two photos passes through the kicker 'WHICH BEAM DO YOU NEED?' between 'BEAM' and 'DO', and runs behind the 'T' of the headline.",
+      "fix": "In render/videos/which-one.mjs (hook, 16x9), stop the divider above the text block, or put a soft scrim behind the headline so the line doesn't cut through it.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f000294.jpg"
+      ],
+      "region": {
+        "x": 0.37,
+        "y": 0.64,
+        "w": 0.27,
+        "h": 0.18
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "both",
+      "scenes": [
+        "both",
+        "speed",
+        "sizes",
+        "shapes",
+        "looks",
+        "details",
+        "choose"
+      ],
+      "action": null,
+      "cut": null,
+      "frame": 491,
+      "end_frame": 4900,
+      "severity": "minor",
+      "criterion": "craft",
+      "scope": "systemic",
+      "rule": null,
+      "source": null,
+      "what": "At the start of each diagram scene the cards' drop shadows are already on screen, faintly, before the cards themselves fade in (most visible at f4028). Faint at full speed, so it changes no score here; it is the same cause as the end-card ghost.",
+      "fix": "One shared cause in the card helper in render/lib/core.mjs: the shadow layer isn't multiplied by the card's entry opacity. Fix it once there rather than per scene.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f004028.jpg",
+        "review/v1/eval/frames/16x9_f001198.jpg"
+      ],
+      "region": null,
+      "id": "e8"
+    },
+    {
+      "scene": "both",
+      "action": "both__both_hollow",
+      "cut": null,
+      "frame": 925,
+      "end_frame": 1197,
+      "severity": "minor",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The thumbnail next to 'Hollow' is an extreme close crop of a beam's cream interior; at phone size it reads as a pale green-yellow blob, not a hollow beam.",
+      "fix": "In render/videos/which-one.mjs (both scene), use an end-on crop that shows the U opening (e.g. the end of heritage__angles__BMSTKB-05.jpg) for the hollow thumbnail.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f001056.jpg"
+      ],
+      "region": {
+        "x": 0.82,
+        "y": 0.61,
+        "w": 0.12,
+        "h": 0.12
+      },
+      "id": "e9"
+    },
+    {
+      "scene": "sizes",
+      "action": null,
+      "cut": null,
+      "frame": 1926,
+      "end_frame": 2814,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": null,
+      "what": "The size comparison and the install inset draw the beams as coded line cross-sections. I read these as schematic diagrams rather than product depictions, so I did not treat them as breaking house rule 2 ('coded models are only for things that aren't the beams'), but Brody should confirm that reading.",
+      "fix": "No change unless Brody rules otherwise; if he does, add the rule's scope to HOUSE_RULES.md.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_sizes.jpg"
+      ],
+      "region": null,
+      "id": "e10"
+    },
+    {
+      "scene": "sizes",
+      "action": "sizes__sizes_t",
+      "cut": null,
+      "frame": 2597,
+      "end_frame": 2814,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim W8 (3-24 in in 1/2 in steps)",
+      "what": "The Timberthane line reads '3 to 24 in, any size'; W8 says sizes come in 1/2 in steps, so 'any size' is slightly loose. The cross-sections themselves are drawn accurately to one scale.",
+      "fix": "Optional: in render/videos/which-one.mjs (sizes), read '3 to 24 in, in ½ in steps'.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f002636.jpg"
+      ],
+      "region": {
+        "x": 0.53,
+        "y": 0.78,
+        "w": 0.2,
+        "h": 0.06
+      },
+      "id": "e11"
+    }
+  ]
+}
