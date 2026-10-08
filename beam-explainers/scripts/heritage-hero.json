@@ -19,7 +19,7 @@
    "title": "Meet Heritage Timber",
    "kind": "title",
    "card": "Heritage Timber",
-   "vo": "Meet Heritage Timber, from Ekena Millwork. | Each beam is molded in one piece, from real, weathered timber.",
+   "vo": "Meet Heritage Timber, from Ekena Millwork. | Each beam is molded from real, weathered timber, with no corner seams.",
    "claims": [
     "H1",
     "H2",
@@ -52,7 +52,7 @@
    "id": "sizes",
    "title": "Sizes and lengths",
    "kind": "diagram",
-   "card": "8 sizes, 4 to 24 ft long",
+   "card": "8 sizes",
    "vo": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
    "claims": [
     "H6",
@@ -75,7 +75,7 @@
    "title": "Quick Ship",
    "kind": "diagram",
    "card": "Quick Ship",
-   "vo": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three.",
+   "vo": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three days.",
    "claims": [
     "H10",
     "H11"
@@ -168,7 +168,7 @@
   },
   {
    "id": "H18",
-   "text": "Each Heritage beam is molded as one piece, so there are no corner seams",
+   "text": "Heritage U-beams are molded with no corner seams",
    "source": "Heritage key features: one-piece molded U-beam, no seams; beam-lines-facts.md table 'How it's made'"
   },
   {

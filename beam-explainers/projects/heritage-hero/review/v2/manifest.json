@@ -1,0 +1,647 @@
+{
+  "schema": "ekena-install-review/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v2",
+  "created": "2026-10-08T20:23:37Z",
+  "previous": "v1",
+  "fps": 60,
+  "frame_count": 3679,
+  "cuts": [
+    {
+      "id": "16x9",
+      "file": "renders/v2/ekena-heritage-hero-16x9.mp4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "9x16",
+      "file": "renders/v2/ekena-heritage-hero-9x16.mp4",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Hook",
+      "kind": "title",
+      "start_frame": 0,
+      "end_frame": 252,
+      "step_card": "The timber look. Without the weight.",
+      "narration": "Want the look of old timber beams, without the weight?",
+      "claims": [
+        "H17"
+      ],
+      "transition_in": "continuous",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "hook__hook_line1",
+          "label": "The timber look.",
+          "frame": 76
+        },
+        {
+          "id": "hook__hook_line2",
+          "label": "Without the weight.",
+          "frame": 149
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "hook"
+        ],
+        "card": "build/script-v2.json#hook",
+        "narration": "build/script-v2.json#hook"
+      }
+    },
+    {
+      "id": "reveal",
+      "title": "Meet Heritage Timber",
+      "kind": "title",
+      "start_frame": 252,
+      "end_frame": 722,
+      "step_card": "Heritage Timber",
+      "narration": "Meet Heritage Timber, from Ekena Millwork. Each beam is molded from real, weathered timber, with no corner seams.",
+      "claims": [
+        "H1",
+        "H2",
+        "H18"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "reveal__rev_name",
+          "label": "Heritage Timber title",
+          "frame": 287
+        },
+        {
+          "id": "reveal__rev_ekena",
+          "label": "Ekena Millwork kicker",
+          "frame": 365
+        },
+        {
+          "id": "reveal__rev_molded",
+          "label": "Molded in one piece",
+          "frame": 485
+        },
+        {
+          "id": "reveal__rev_real",
+          "label": "From real, weathered timber",
+          "frame": 517
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "reveal"
+        ],
+        "card": "build/script-v2.json#reveal",
+        "narration": "build/script-v2.json#reveal"
+      }
+    },
+    {
+      "id": "textures",
+      "title": "Textures",
+      "kind": "diagram",
+      "start_frame": 722,
+      "end_frame": 1332,
+      "step_card": "6 textures",
+      "narration": "Pick from six textures. Mena. Salvaged Timber. Rustic Sawn. Resawn Rip. Reclaimed Axed Cut. And Sanded Smooth.",
+      "claims": [
+        "H3",
+        "H5"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "textures__tex_1",
+          "label": "Texture: Mena",
+          "frame": 862
+        },
+        {
+          "id": "textures__tex_2",
+          "label": "Texture: Salvaged Timber",
+          "frame": 916
+        },
+        {
+          "id": "textures__tex_3",
+          "label": "Texture: Rustic Sawn",
+          "frame": 996
+        },
+        {
+          "id": "textures__tex_4",
+          "label": "Texture: Resawn Rip",
+          "frame": 1069
+        },
+        {
+          "id": "textures__tex_5",
+          "label": "Texture: Reclaimed Axed Cut",
+          "frame": 1143
+        },
+        {
+          "id": "textures__tex_6",
+          "label": "Texture: Sanded Smooth",
+          "frame": 1233
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "textures"
+        ],
+        "card": "build/script-v2.json#textures",
+        "narration": "build/script-v2.json#textures"
+      }
+    },
+    {
+      "id": "finishes",
+      "title": "Finishes",
+      "kind": "diagram",
+      "start_frame": 1332,
+      "end_frame": 2045,
+      "step_card": "Hand-stained, or primed",
+      "narration": "Then a hand-stained finish. Sandstone. Kona Brown. Vanilla Chai. Warm Caramel. Natural White Oak. Smokey Brown. Or primed, ready to paint.",
+      "claims": [
+        "H4",
+        "H14"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "finishes__fin_1",
+          "label": "Finish: Sandstone",
+          "frame": 1468
+        },
+        {
+          "id": "finishes__fin_2",
+          "label": "Finish: Kona Brown",
+          "frame": 1534
+        },
+        {
+          "id": "finishes__fin_3",
+          "label": "Finish: Vanilla Chai",
+          "frame": 1606
+        },
+        {
+          "id": "finishes__fin_4",
+          "label": "Finish: Warm Caramel",
+          "frame": 1678
+        },
+        {
+          "id": "finishes__fin_5",
+          "label": "Finish: Natural White Oak",
+          "frame": 1750
+        },
+        {
+          "id": "finishes__fin_6",
+          "label": "Finish: Smokey Brown",
+          "frame": 1841
+        },
+        {
+          "id": "finishes__fin_7",
+          "label": "Finish: Primed",
+          "frame": 1930
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "finishes"
+        ],
+        "card": "build/script-v2.json#finishes",
+        "narration": "build/script-v2.json#finishes"
+      }
+    },
+    {
+      "id": "sizes",
+      "title": "Sizes and lengths",
+      "kind": "diagram",
+      "start_frame": 2045,
+      "end_frame": 2550,
+      "step_card": "8 sizes",
+      "narration": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
+      "claims": [
+        "H6",
+        "H9"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "sizes__sizes_drop",
+          "label": "Eight outlines drop in",
+          "frame": 2080
+        },
+        {
+          "id": "sizes__sizes_small",
+          "label": "3 1/2 in highlighted",
+          "frame": 2143
+        },
+        {
+          "id": "sizes__sizes_big",
+          "label": "9 1/2 x 11 1/2 highlighted",
+          "frame": 2239
+        },
+        {
+          "id": "sizes__sizes_len",
+          "label": "Length ruler 4-24 ft",
+          "frame": 2386
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "sizes"
+        ],
+        "card": "build/script-v2.json#sizes",
+        "narration": "build/script-v2.json#sizes"
+      }
+    },
+    {
+      "id": "install",
+      "title": "Hollow, easy install",
+      "kind": "diagram",
+      "start_frame": 2550,
+      "end_frame": 2890,
+      "step_card": "Hollow. Slides over a block.",
+      "narration": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+      "claims": [
+        "H17",
+        "H19"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "install__inst_hollow",
+          "label": "Hollow end ringed",
+          "frame": 2586
+        },
+        {
+          "id": "install__inst_slide",
+          "label": "Outline slides over block",
+          "frame": 2651
+        },
+        {
+          "id": "install__inst_wire",
+          "label": "Wiring through the hollow",
+          "frame": 2791
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "install"
+        ],
+        "card": "build/script-v2.json#install",
+        "narration": "build/script-v2.json#install"
+      }
+    },
+    {
+      "id": "ship",
+      "title": "Quick Ship",
+      "kind": "diagram",
+      "start_frame": 2890,
+      "end_frame": 3331,
+      "step_card": "Quick Ship",
+      "narration": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three days.",
+      "claims": [
+        "H10",
+        "H11"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "ship__ship_stained",
+          "label": "3-5 business days, stained",
+          "frame": 3066
+        },
+        {
+          "id": "ship__ship_primed",
+          "label": "24-72 hours, primed",
+          "frame": 3175
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "ship"
+        ],
+        "card": "build/script-v2.json#ship",
+        "narration": "build/script-v2.json#ship"
+      }
+    },
+    {
+      "id": "end",
+      "title": "End card",
+      "kind": "end",
+      "start_frame": 3331,
+      "end_frame": 3679,
+      "step_card": "Order a sample",
+      "narration": "Order a sample, and see it in your own light.",
+      "claims": [
+        "H13",
+        "H12",
+        "H16"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": true,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "end__end_sample",
+          "label": "Sample + endcap appear",
+          "frame": 3386
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "end"
+        ],
+        "card": "build/script-v2.json#end",
+        "narration": "build/script-v2.json#end"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "H1",
+      "text": "Heritage Timber is an Ekena Millwork faux wood beam line",
+      "source": "Heritage product record (brand Heritage Timber, manufacturer Ekena Millwork)"
+    },
+    {
+      "id": "H2",
+      "text": "Textures are cast from real weathered timbers",
+      "source": "Heritage key feature 02, long description"
+    },
+    {
+      "id": "H3",
+      "text": "U-beam textures: Mena, Salvaged Timber, Rustic Sawn, Resawn Rip, Reclaimed Axed Cut, Sanded Smooth",
+      "source": "Heritage variant data (BMSTS3), Texture by Style"
+    },
+    {
+      "id": "H4",
+      "text": "Finishes: Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak, Smokey Brown, Primed",
+      "source": "Heritage variant data, Finish"
+    },
+    {
+      "id": "H5",
+      "text": "Five textures in all 7 finishes; Sanded Smooth only Primed",
+      "source": "Heritage variant data combinations"
+    },
+    {
+      "id": "H6",
+      "text": "8 cross-sections: 3.5x3.5, 3.5x5.5, 5.5x5.5, 5.5x7.5, 7.5x7.5, 7.5x9.5, 9.5x9.5, 9.5x11.5 in",
+      "source": "Heritage variant data, Size (Width x Height)"
+    },
+    {
+      "id": "H9",
+      "text": "Lengths 4, 5, 6, 8, 10, 12, 16, 20, 24 ft",
+      "source": "Heritage variant data, Size (Length)"
+    },
+    {
+      "id": "H10",
+      "text": "Stained: usually ships in 3-5 business days",
+      "source": "Heritage product record leadTimeRaw (Kona Brown)"
+    },
+    {
+      "id": "H11",
+      "text": "Primed: usually ships in 24-72 hours",
+      "source": "Heritage product record leadTimeRaw (Primed, OT)"
+    },
+    {
+      "id": "H12",
+      "text": "Endcaps are sold separately and ship unstained",
+      "source": "Quick Ship FAQ"
+    },
+    {
+      "id": "H13",
+      "text": "Heritage samples are available: a 3 1/2 x 5 1/2 in U-beam piece, 8 in long",
+      "source": "BM-HT-SAMPLE listing; SAMPLE-KIT-BMSTS3KB description '3 1/2\"W x 5 1/2\"H x 8\"L 3-Sided SAMPLE (U-Beam)'"
+    },
+    {
+      "id": "H14",
+      "text": "Primed beams are ready to paint or stain",
+      "source": "Heritage key feature 03: 'a primed, ready-to-finish surface that accepts paint or stain'"
+    },
+    {
+      "id": "H16",
+      "text": "ekenamillwork.com sells Heritage Timber",
+      "source": "Product record: manufacturer Ekena Millwork, onEkena = 1 (listed on the Ekena site). Site for the end card to be confirmed by Brody"
+    },
+    {
+      "id": "H17",
+      "text": "Heritage beams are high-density polyurethane: hollow and lightweight",
+      "source": "Heritage key features / long description (high-density polyurethane, lightweight); beam-lines-facts.md 'Both lines'"
+    },
+    {
+      "id": "H18",
+      "text": "Heritage U-beams are molded with no corner seams",
+      "source": "Heritage key features: one-piece molded U-beam, no seams; beam-lines-facts.md table 'How it's made'"
+    },
+    {
+      "id": "H19",
+      "text": "The beam slides over a wood mounting block fixed to the ceiling; the hollow inside can hide wiring",
+      "source": "INSTALL_BMU steps 1-3; Heritage long description (hollow core conceals wiring, ductwork or lighting)"
+    }
+  ],
+  "key_terms": [
+    "Heritage",
+    "Salvaged Timber",
+    "Rustic Sawn",
+    "Kona Brown",
+    "Vanilla Chai",
+    "Warm Caramel",
+    {
+      "term": "Smokey Brown",
+      "heard_as": [
+        "Smokey Brown",
+        "Smoky Brown"
+      ]
+    },
+    "primed",
+    {
+      "term": "Mena",
+      "heard_as": [
+        "Mena",
+        "Mina",
+        "Meena"
+      ]
+    },
+    {
+      "term": "Resawn Rip",
+      "heard_as": [
+        "Resawn Rip",
+        "Re-sawn Rip",
+        "Resun Rip"
+      ]
+    },
+    {
+      "term": "Ekena",
+      "heard_as": [
+        "Ekena",
+        "Eek and a",
+        "Eakin and",
+        "Eaken and",
+        "Eakin &",
+        "Eaken &",
+        "Akina",
+        "Ekina",
+        "Ekeena"
+      ]
+    },
+    {
+      "term": "Reclaimed Axed Cut",
+      "heard_as": [
+        "Reclaimed Axed Cut",
+        "Reclaimed Axe Cut",
+        "Reclaimed Axed-Cut"
+      ]
+    }
+  ],
+  "references": {
+    "install_guide": "research/INSTALL_BMU.pdf",
+    "product_images": [
+      "research/product-images/heritage__product__salvaged-timber__kona-brown.jpg",
+      "research/product-images/heritage__angles__BMSTKB-05.jpg",
+      "research/product-images/heritage__angles__BMSTKB-09.jpg",
+      "research/product-images/heritage__swatch-hi__texture-mena.jpg",
+      "research/product-images/heritage__swatch-hi__finish-sandstone.jpg",
+      "research/product-images/heritage__accessories__sample-kit.jpg",
+      "research/product-images/heritage__accessories__endcap.jpg"
+    ],
+    "house_rules": "HOUSE_RULES.md",
+    "readme": "research/beam-lines-facts.md",
+    "timeline": "build/timeline-v2.json"
+  },
+  "changes": [
+    {
+      "kind": "finding",
+      "finding": "e1",
+      "scene": "hook",
+      "status": "addressed",
+      "summary": "16:9 crop moved up to the ceiling: the beams now fill the top of the frame (cover() pans to the top with positive py; v1 had the sign backwards)."
+    },
+    {
+      "kind": "finding",
+      "finding": "e2",
+      "scene": "textures",
+      "status": "addressed",
+      "summary": "Texture names shrink to fit the safe width; Reclaimed Axed Cut fits in 9:16."
+    },
+    {
+      "kind": "finding",
+      "finding": "e3",
+      "scene": "finishes",
+      "status": "addressed",
+      "summary": "Each finish name and eyebrow fades out before the next fades in; no overprint."
+    },
+    {
+      "kind": "finding",
+      "finding": "e4",
+      "scene": "install",
+      "status": "addressed",
+      "summary": "'Hollow inside' sits on the dark background (above the ring in 16:9, below the beam in 9:16) with a leader line."
+    },
+    {
+      "kind": "finding",
+      "finding": "e5",
+      "scene": "reveal",
+      "status": "addressed",
+      "summary": "Dropped 'molded in one piece'. Line is now 'molded from real, weathered timber, with no corner seams' (H2, H18)."
+    },
+    {
+      "kind": "finding",
+      "finding": "e6",
+      "scene": "sizes",
+      "status": "addressed",
+      "summary": "Outlines scaled to leave room for the 11-1/2 callout in both cuts."
+    },
+    {
+      "kind": "finding",
+      "finding": "e7",
+      "scene": "install",
+      "status": "addressed",
+      "summary": "9:16 diagram moved up and made smaller; the caption no longer covers it."
+    },
+    {
+      "kind": "finding",
+      "finding": "e8",
+      "scene": "ship",
+      "status": "addressed",
+      "summary": "16:9 crop moved up so the ceiling beams show."
+    },
+    {
+      "kind": "finding",
+      "finding": "e9",
+      "scene": "ship",
+      "status": "addressed",
+      "summary": "Narration now says 'about one to three days'."
+    },
+    {
+      "kind": "finding",
+      "finding": "e10",
+      "scene": "end",
+      "status": "addressed",
+      "summary": "9:16 crop moved up so the bedroom's ceiling beams show."
+    },
+    {
+      "kind": "finding",
+      "finding": "e15",
+      "scene": "sizes",
+      "status": "addressed",
+      "summary": "Card is '8 sizes'; '4 to 24 ft long' stays as the eyebrow."
+    },
+    {
+      "kind": "finding",
+      "finding": "e11",
+      "scene": "end",
+      "status": "declined",
+      "summary": "URL kept as ekenamillwork.com until Brody confirms the site (open question to Brody)."
+    },
+    {
+      "kind": "finding",
+      "finding": "e14",
+      "scene": "finishes",
+      "status": "declined",
+      "summary": "Both are Ekena's real Primed photos: Salvaged Timber Primed (heritage/product/salvaged-timber/primed.jpg) reads beige; the Sanded Smooth Primed listing photo reads near-white. Not altered."
+    }
+  ]
+}

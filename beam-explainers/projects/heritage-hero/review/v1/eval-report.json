@@ -1,0 +1,909 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v1",
+  "evaluated_at": "2026-10-08T20:10:34Z",
+  "overall": "fail",
+  "summary": "Not ready: 4 blockers. The 16:9 hook crops every beam out of the room photo while the narration says 'old timber beams'; the 9:16 cut chops 'Reclaimed Axed Cut' to 'Reclaimed Axed Cu'; each finish change double-prints the old and new names for ~13 frames; the 'Hollow inside' callout sits on the beam's cream wall (reads 'ollow inside' in 9:16).",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3632 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60.533 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 60.533 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.0 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "6 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f1325, f1329, f1589, f1933, f2041, f3296",
+        "frames": [
+          1325,
+          1325
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3632 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60.533 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 60.533 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.0 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-1.4 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f729",
+        "frames": [
+          729,
+          729
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber from Ekena Millwork. Each beam is molded in one piece from real, weathered timber. Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth. Then a hand-stained finish, sandstone, kona brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed ready to paint. Eight sizes from three and a half inches square to nine and a half by 11 and a half in lengths from four to 24 feet. They're hollow, so they slide over a wood block on your ceiling and can hide wiring. And they ship fast, stained beams in three to five business days, primed in about one to three. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          251
+        ]
+      },
+      {
+        "scene": "reveal",
+        "expected": "Meet Heritage Timber, from Ekena Millwork. Each beam is molded in one piece, from real, weathered timber.",
+        "heard": "Meet Heritage Timber from Ekena Millwork. Each beam is molded in one piece from real, weathered timber.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          252,
+          699
+        ]
+      },
+      {
+        "scene": "textures",
+        "expected": "Pick from six textures. Mena. Salvaged Timber. Rustic Sawn. Resawn Rip. Reclaimed Axed Cut. And Sanded Smooth.",
+        "heard": "Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth.",
+        "match": 0.882,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          700,
+          1309
+        ]
+      },
+      {
+        "scene": "finishes",
+        "expected": "Then a hand-stained finish. Sandstone. Kona Brown. Vanilla Chai. Warm Caramel. Natural White Oak. Smokey Brown. Or primed, ready to paint.",
+        "heard": "Then a hand-stained finish, sandstone, kona brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed ready to paint.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1310,
+          2022
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
+        "heard": "Eight sizes from three and a half inches square to nine and a half by 11 and a half in lengths from four to 24 feet.",
+        "match": 0.926,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2023,
+          2527
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+        "heard": "They're hollow, so they slide over a wood block on your ceiling and can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2528,
+          2867
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three.",
+        "heard": "And they ship fast, stained beams in three to five business days, primed in about one to three.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2868,
+          3283
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3284,
+          3631
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Salvaged Timber",
+        "heard": true
+      },
+      {
+        "term": "Rustic Sawn",
+        "heard": true
+      },
+      {
+        "term": "Kona Brown",
+        "heard": true
+      },
+      {
+        "term": "Vanilla Chai",
+        "heard": true
+      },
+      {
+        "term": "Warm Caramel",
+        "heard": true
+      },
+      {
+        "term": "Smokey Brown",
+        "heard": true
+      },
+      {
+        "term": "primed",
+        "heard": true
+      },
+      {
+        "term": "Mena",
+        "heard": true
+      },
+      {
+        "term": "Resawn Rip",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      },
+      {
+        "term": "Reclaimed Axed Cut",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 0,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 8,
+      "gate_reasons": [
+        "sync scored 0"
+      ],
+      "comment": "Real room photo (BMSTKB-09); 9:16 shows the vaulted beams, 16:9 crops them out."
+    },
+    {
+      "scene": "reveal",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [],
+      "comment": "Real BMSTKB-05 cutout, bullets match narration; one-piece wording needs a check (major claims finding)."
+    },
+    {
+      "scene": "textures",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 0,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "reframe scored 0"
+      ],
+      "comment": "Names land on the spoken word; Mena matches the Ekena swatch. 9:16 cuts off the longest name."
+    },
+    {
+      "scene": "finishes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "Real swatches and beams; Sandstone matches the reference swatch, Kona Brown matches the product photo. Name swap overprints."
+    },
+    {
+      "scene": "sizes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 1,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [],
+      "comment": "Outline proportions and wall thickness check out against the 8 cross-sections; lengths ruler matches H9."
+    },
+    {
+      "scene": "install",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 1,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "Diagram matches guide step 3 (beam slides over a ceiling block); label and caption placement problems."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 1,
+        "reframe": 2,
+        "craft": 1
+      },
+      "total": 12,
+      "gate_reasons": [],
+      "comment": "Card matches H10/H11; narration drops the unit for primed; 16:9 room photo shows almost no beam."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 1,
+        "craft": 2
+      },
+      "total": 9,
+      "gate_reasons": [],
+      "comment": "Real sample-kit and endcap photos; 9:16 crops the bedroom's beams out."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "hook",
+      "action": "hook__hook_line1",
+      "cut": "16x9",
+      "frame": 0,
+      "end_frame": 251,
+      "severity": "blocker",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the 16:9 cut the room photo is cropped to the lower room: the ceiling beams are out of frame (only two dark corners show at the very top) while the narration says 'the look of old timber beams' and the card says 'The timber look.' The opening 4 s show no beam. The 9:16 cut of the same photo shows the beams.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'hook': re-anchor the 16:9 crop/Ken-Burns of research/product-images/heritage__angles__BMSTKB-09.jpg to the top of the photo (vaulted ceiling and beams in frame), or use a landscape room photo where the beams sit in the 16:9 frame; move the card down/left so it stays off the beams.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_hook.jpg",
+        "review/v1/eval/frames/16x9_f000188.jpg",
+        "review/v1/eval/sheets/9x16_hook.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 0.08
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "textures",
+      "action": "textures__tex_5",
+      "cut": "9x16",
+      "frame": 1106,
+      "end_frame": 1232,
+      "severity": "blocker",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the 9:16 cut the texture title 'Reclaimed Axed Cut' runs off the right edge and reads 'Reclaimed Axed Cu' for the whole slide.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'textures' (tex_5): in the 9:16 layout shrink-to-fit the texture name to the safe width (or wrap to two lines) instead of using the fixed 16:9 font size.",
+      "evidence": [
+        "review/v1/eval/strips/9x16_textures__tex_5.jpg",
+        "review/v1/eval/frames/9x16_f001157.jpg"
+      ],
+      "region": {
+        "x": 0.7,
+        "y": 0.64,
+        "w": 0.3,
+        "h": 0.07
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "finishes",
+      "action": null,
+      "cut": null,
+      "frame": 1523,
+      "end_frame": 1932,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "At every finish change the outgoing and incoming names (and their eyebrows) are drawn on top of each other at full strength for about 13 frames: f1523-1535, 1595-1607 ('Vanilla Chai' over 'Kona Brown'), 1667-1680 ('Vanilla Chai'/'Warm Caramel'), 1739-1751, 1831-1843 and 1920-1932 ('Primed' over 'Smokey Brown', eyebrow 'READY TO PAINT' over 'HAND-STAINED'). The overprint lands right as each name is spoken. Same in both cuts.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'finishes' (fin_2...fin_7 name swap): fade/slide the old name out before the new one comes in (or offset them vertically with a mask) so the two labels never share the same pixels; same for the eyebrow line.",
+      "evidence": [
+        "review/v1/eval/extra/16x9_f001932.jpg",
+        "review/v1/eval/extra/16x9_f001589.jpg",
+        "review/v1/eval/sheets/16x9_finishes.jpg",
+        "review/v1/eval/sheets/9x16_finishes.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.66,
+        "w": 0.35,
+        "h": 0.12
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "install",
+      "action": "install__inst_hollow",
+      "cut": "9x16",
+      "frame": 2564,
+      "end_frame": 2867,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The 'Hollow inside' callout sits on the beam's cream end wall: in 9:16 the 'H' disappears into the wall and it reads 'ollow inside'; in 16:9 the 'H' also overlaps the wall edge.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'install' (inst_hollow): anchor the callout outside the beam silhouette (below-right of the dashed ring, on the dark background) in both layouts.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f002769.jpg",
+        "review/v1/eval/frames/16x9_f002769.jpg"
+      ],
+      "region": {
+        "x": 0.6,
+        "y": 0.46,
+        "w": 0.22,
+        "h": 0.03
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "reveal",
+      "action": "reveal__rev_molded",
+      "cut": null,
+      "frame": 450,
+      "end_frame": 699,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "research/beam-lines-facts.md, 'Wording to be careful with: Heritage lengths'",
+      "what": "Card 'Molded in one piece' and narration 'Each beam is molded in one piece', while the sizes scene offers lengths to 24 ft. The README says 16, 20 and 24 ft ship as one long item by freight and warns not to claim one-piece moulding over 12 ft without checking with the plant. H18 is about corner seams, not length.",
+      "fix": "build/script-v1.json#reveal: say what H18 supports ('Each beam is molded as one piece, with no corner seams' framed as the U-shape), or get the plant to confirm one-piece over 12 ft. Brody to decide.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f000577.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.5,
+        "w": 0.3,
+        "h": 0.06
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "sizes",
+      "action": "sizes__sizes_big",
+      "cut": "9x16",
+      "frame": 2217,
+      "end_frame": 2360,
+      "severity": "major",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16 the '11½' height callout beside the 9½×11½ outline is cut off by the right edge (only '11' and part of the fraction show). The '9½×11½' label below still reads.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'sizes' (sizes_big): in the 9:16 layout pull the second row in from the right edge, or place the height callout inside the frame (left of the outline).",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f002217.jpg",
+        "review/v1/eval/sheets/9x16_sizes.jpg"
+      ],
+      "region": {
+        "x": 0.94,
+        "y": 0.46,
+        "w": 0.06,
+        "h": 0.15
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "install",
+      "action": "install__inst_wire",
+      "cut": "9x16",
+      "frame": 2740,
+      "end_frame": 2830,
+      "severity": "major",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16 the burned-in caption 'and can hide wiring.' sits on the bottom of the U-beam diagram, covering the beam's bottom wall right where the wiring is being drawn.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'install': in the 9:16 layout move the diagram up (or the caption down to the lower third, which is empty) so the caption clears the diagram.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f002769.jpg",
+        "review/v1/eval/sheets/9x16_install.jpg"
+      ],
+      "region": {
+        "x": 0.26,
+        "y": 0.75,
+        "w": 0.48,
+        "h": 0.07
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "ship",
+      "action": null,
+      "cut": "16x9",
+      "frame": 2868,
+      "end_frame": 3283,
+      "severity": "major",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 16:9 the Quick Ship room photo is cropped so only the end of one beam shows at the top edge; the scene reads as a living room with no product. The 9:16 cut shows the beams.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'ship': re-anchor the 16:9 crop of the room photo toward the ceiling, or pick a room photo whose beams fall in the landscape frame.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f003283.jpg",
+        "review/v1/eval/sheets/16x9_ship.jpg"
+      ],
+      "region": {
+        "x": 0.45,
+        "y": 0.0,
+        "w": 0.2,
+        "h": 0.05
+      },
+      "id": "e8"
+    },
+    {
+      "scene": "ship",
+      "action": "ship__ship_primed",
+      "cut": null,
+      "frame": 3126,
+      "end_frame": 3259,
+      "severity": "major",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": "H11: Primed usually ships in 24-72 hours",
+      "what": "The card says '24–72 hours, Primed' but the narration says 'Primed, in about one to three' with no unit, straight after 'three to five business days', so it is heard as 'one to three business days', which is not the claim (24–72 hours).",
+      "fix": "build/script-v1.json#ship narration: say the unit, e.g. 'Primed, in about one to three days' or 'Primed, in twenty-four to seventy-two hours', to match the card and H11.",
+      "evidence": [
+        "review/v1/eval/narration.json",
+        "review/v1/eval/frames/16x9_f003283.jpg"
+      ],
+      "region": {
+        "x": 0.3,
+        "y": 0.45,
+        "w": 0.3,
+        "h": 0.25
+      },
+      "id": "e9"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": "9x16",
+      "frame": 3284,
+      "end_frame": 3631,
+      "severity": "major",
+      "criterion": "reframe",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16 the bedroom photo on the end card is cropped to the lower room, so its ceiling beams are out of frame; the 16:9 cut shows them.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'end': in the 9:16 layout anchor the photo crop to the top (ceiling and beams), or make the photo panel taller.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f003631.jpg",
+        "review/v1/eval/sheets/16x9_end.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 0.36
+      },
+      "id": "e10"
+    },
+    {
+      "scene": "end",
+      "action": null,
+      "cut": null,
+      "frame": 3414,
+      "end_frame": 3631,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "H16 source: 'Site for the end card to be confirmed by Brody'",
+      "what": "The end card sends viewers to 'ekenamillwork.com', but H16's own source says the site is still to be confirmed by Brody, and the facts and prices come from FauxBeams.com.",
+      "fix": "Brody to confirm the destination; then set the CTA in build/script-v1.json#end and update H16's source.",
+      "evidence": [
+        "review/v1/eval/frames/9x16_f003631.jpg"
+      ],
+      "region": {
+        "x": 0.07,
+        "y": 0.89,
+        "w": 0.35,
+        "h": 0.05
+      },
+      "id": "e11"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": "9x16",
+      "frame": 729,
+      "end_frame": 729,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f729",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v1/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e12"
+    },
+    {
+      "scene": "finishes",
+      "action": null,
+      "cut": "16x9",
+      "frame": 1325,
+      "end_frame": 1325,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f1325, f1329, f1589, f1933, f2041, f3296",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v1/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e13"
+    },
+    {
+      "scene": "finishes",
+      "action": "finishes__fin_7",
+      "cut": null,
+      "frame": 1920,
+      "end_frame": 2022,
+      "severity": "minor",
+      "criterion": "product",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "Primed reads tan/beige here (textured beam and swatch), while the Sanded Smooth 'Primed only' beam two scenes earlier is near-white. No primed reference was supplied, so check both images are the real Primed photos.",
+      "fix": "Confirm the Primed beam and swatch in the 'finishes' timeline key come from the Primed product images; if one is a different finish, swap it.",
+      "evidence": [
+        "review/v1/eval/frames/16x9_f001233.jpg",
+        "review/v1/eval/extra/16x9_f001934.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 1.0
+      },
+      "id": "e14"
+    },
+    {
+      "scene": "sizes",
+      "action": null,
+      "cut": null,
+      "frame": 2364,
+      "end_frame": 2527,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "On screen the card is split into '8 sizes' and an uppercase eyebrow '4 TO 24 FT LONG' (no comma); the manifest card text is '8 sizes, 4 to 24 ft long'.",
+      "fix": "Either update step_card in the manifest/script to the two-part wording, or render it as written.",
+      "evidence": [
+        "review/v1/eval/sheets/16x9_sizes.jpg"
+      ],
+      "region": {
+        "x": 0.05,
+        "y": 0.05,
+        "w": 0.45,
+        "h": 0.1
+      },
+      "id": "e15"
+    }
+  ]
+}

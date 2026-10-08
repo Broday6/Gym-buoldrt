@@ -254,7 +254,7 @@ export const scenes = {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
       const k = ease.inOut(clamp(st / (s.sd + TR)));
-      cover(g, A.hook, 0, 0, W, H, { zoom: lerp(1.18, 1.04, k), py: P ? -0.1 : -0.62, px: P ? 0.05 : 0 });
+      cover(g, A.hook, 0, 0, W, H, { zoom: lerp(1.18, 1.04, k), py: P ? 0 : 0.85, px: P ? 0.05 : 0 });
       scrim(g, L, { from: P ? 0.42 : 0.3, a1: 0.82 });
       vignette(g, L, 0.3);
       const size = Math.min(HS(L), (W - 2 * m) / measure(g, 'Without the weight.', font('P', 700, 1)) * 0.98);
@@ -288,7 +288,7 @@ export const scenes = {
       const y1 = P ? 400 * u : H * 0.30;
       kicker(g, 'Ekena Millwork', m, y1 - size * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - tE) / 0.5)) });
       const yl = kinetic(g, [['Heritage', '#fff'], ['Timber', '#fff']], m, y1, st, tH, { size, stagger: 0.12 });
-      const feats = [['Molded in one piece', 'molded'], ['No corner seams', 'piece'], ['From real, weathered timber', 'real']];
+      const feats = [['Molded from real, weathered timber', 'molded'], ['No corner seams', 'corner']];
       const fs = (P ? 38 : 34) * u, gap = (P ? 70 : 66) * u;
       const fy = P ? H * 0.665 : yl + 120 * u;
       let after = 0;
@@ -325,7 +325,10 @@ export const scenes = {
         const name = TEXTURES[i][0];
         if (TEXTURES[i][1] === 'sanded-smooth') {
           paper(g, L, st);
-          cutout(g, A.tex[i], P ? m * 0.5 : W * 0.30, P ? H * 0.20 : H * 0.10, P ? W - m : W * 0.66, P ? H * 0.42 : H * 0.62, { u, shadow: 0.25 });
+          // The beam keeps easing toward the camera, so the page never sits still.
+          const z = 1 + 0.08 * ease.out(clamp(local / 2.5)), bw = (P ? W - m : W * 0.66) * z, bh = (P ? H * 0.42 : H * 0.62) * z;
+          const bx0 = (P ? m * 0.5 : W * 0.30) - (bw / z) * (z - 1) * 0.5 - 30 * u * local, by0 = (P ? H * 0.20 : H * 0.10) - (bh / z) * (z - 1) * 0.5;
+          cutout(g, A.tex[i], bx0, by0, bw, bh, { u, shadow: 0.25 });
           const y = P ? H * 0.70 : H - 200 * u;
           kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u, color: BRAND.greenText });
           text(g, name, m, y, { f: font('P', 700, (P ? 100 : 104) * u), color: BRAND.ink });
@@ -338,7 +341,8 @@ export const scenes = {
         scrim(g, L, { from: P ? 0.5 : 0.45, a1: 0.8 });
         const y = P ? H * 0.70 : H - 200 * u;
         kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u });
-        text(g, name, m, y, { f: font('P', 700, (P ? 100 : 104) * u), color: '#fff' });
+        const ns = Math.min((P ? 100 : 104) * u, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
+        text(g, name, m, y, { f: font('P', 700, ns), color: '#fff' });
         void cx;
       };
       panel(base, 0);
@@ -370,7 +374,7 @@ export const scenes = {
       const pw = P ? W : W * 0.46, ph = P ? H * 0.40 : H;
       g.save(); g.beginPath(); g.rect(0, 0, pw, ph); g.clip();
       for (const { i, a } of stack) {
-        if (i < 0) cover(g, A.room7, 0, 0, pw, ph, { zoom: 1.1 - 0.04 * clamp(st / 2), px: P ? 0 : 0.2, py: P ? -0.5 : -0.3, alpha: a });
+        if (i < 0) cover(g, A.room7, 0, 0, pw, ph, { zoom: 1.1 - 0.04 * clamp(st / 2), px: P ? 0 : 0.2, py: P ? 0.6 : 0, alpha: a });
         else cover(g, A.finSw[i], 0, 0, pw, ph, { zoom: 1.12 - 0.05 * clamp((st - ts[i]) / 2), px: i % 2 ? 0.25 : -0.25, alpha: a });
       }
       g.restore();
@@ -391,12 +395,15 @@ export const scenes = {
       }
       // Name + kicker.
       const ny = P ? H * 0.76 : H * 0.76, nsz = (P ? 84 : 80) * u;
-      for (const { i, a } of stack) {
-        if (i < 0) continue;
+      FINISHES.forEach((_, i) => {
+        const fin = ease.inOut(clamp((st - (ts[i] - 0.15)) / 0.25));
+        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.42)) / 0.25)) : 0;
+        const a = fin * (1 - fout);
+        if (a <= 0) return;
         const primed = FINISHES[i][1] === 'primed';
         kicker(g, primed ? 'Ready to paint' : 'Hand-stained', cx0, ny - nsz * 0.95, { size: (P ? 28 : 24) * u, color: BRAND.greenText, alpha: a });
-        text(g, FINISHES[i][0], cx0, ny, { f: font('P', 700, nsz), color: BRAND.ink, alpha: a });
-      }
+        text(g, FINISHES[i][0], cx0, ny + (1 - fin) * 18 * u, { f: font('P', 700, nsz), color: BRAND.ink, alpha: a });
+      });
       // Swatch row: every finish, the current one ringed.
       const r = (P ? 30 : 28) * u, gap = (P ? 18 : 18) * u, rowY = P ? H * 0.85 : H * 0.865;
       const ins = ts.map((_, i) => inAmt(ts, i, st, 0.55));
@@ -422,7 +429,7 @@ export const scenes = {
       const rows = P ? [SIZES.slice(0, 4), SIZES.slice(4)] : [SIZES];
       const gapIn = 1.5;
       const widest = Math.max(...rows.map(r => r.reduce((a, [w]) => a + w, 0) + gapIn * (r.length - 1)));
-      const sc = (W - 2 * m) / (widest + (P ? 0 : 3));
+      const sc = (W - 2 * m) / (widest + 3);
       const ceil = P ? [520 * u, 900 * u] : [H * 0.34];
       const t3 = cue(s, '3', { fallback: 1.6, alts: ['three'] }), t9 = cue(s, '9', { fallback: 3.2, alts: ['nine'], after: t3 + 0.3 });
       let idx = 0;
@@ -482,7 +489,7 @@ export const scenes = {
       const size = (P ? 88 : 80) * u;
       kinetic(g, [['Hollow.', '#fff'], ['Slides over a block.', SAGE_L, cue(s, 'slide', { fallback: 1.7 }) - 0.3]], m, P ? 260 * u : 170 * u, st, 0.15, { size });
       // Real photo: the open end of a Heritage beam.
-      const box = P ? [m, 470 * u, W - 2.4 * m, 480 * u] : [m * 0.4, 330 * u, W * 0.52, 640 * u];
+      const box = P ? [m, 440 * u, W - 2.4 * m, 420 * u] : [m * 0.4, 330 * u, W * 0.52, 640 * u];
       const pin = ease.out(clamp((st - 0.1) / 0.8));
       const r = cutout(g, A.uEnd, box[0] - (1 - pin) * 60 * u, box[1], box[2], box[3], { alpha: pin, u, shadow: 0.5 });
       // Ring on the hollow end.
@@ -492,11 +499,18 @@ export const scenes = {
         const cx = r.x + r.w * 0.86, cy = r.y + r.h * 0.42, rad = r.h * 0.42 * (0.9 + 0.1 * ra);
         g.save(); g.globalAlpha *= ra; g.beginPath(); g.ellipse(cx, cy, rad * 0.62, rad, 0, 0, Math.PI * 2);
         g.lineWidth = 5 * u; g.strokeStyle = SAGE_L; g.setLineDash([14 * u, 10 * u]); g.lineDashOffset = -st * 30 * u; g.stroke(); g.restore();
-        const hw = measure(g, 'Hollow inside', font('F', 700, 30 * u)) / 2;
-        text(g, 'Hollow inside', Math.min(cx, W - m * 0.5 - hw), cy + rad + 50 * u, { f: font('F', 700, 30 * u), color: SAGE_L, align: 'center', alpha: ra });
+        // Label on the dark background below the beam, tied to the ring by a short line.
+        const hw = measure(g, 'Hollow inside', font('F', 700, 30 * u));
+        // Portrait: below the beam. Landscape: above the ring (the caption owns the bottom).
+        const ly = P ? r.y + r.h + 46 * u : cy - rad - 40 * u, lx = Math.min(cx + hw / 2, W - m * 0.6);
+        g.save(); g.globalAlpha *= ra; g.strokeStyle = SAGE_L; g.lineWidth = 3 * u;
+        g.beginPath();
+        if (P) { g.moveTo(cx, cy + rad); g.lineTo(cx, ly - 34 * u); } else { g.moveTo(cx, cy - rad); g.lineTo(cx, ly + 12 * u); }
+        g.stroke(); g.restore();
+        text(g, 'Hollow inside', lx, ly, { f: font('F', 700, 30 * u), color: SAGE_L, align: 'right', alpha: ra });
       }
       // Coded diagram (not the product): ceiling, wood block, and the beam's outline sliding up over it.
-      const dx = P ? W * 0.2 : W * 0.6, dw = P ? W * 0.6 : W * 0.3, dy = P ? 1010 * u : 300 * u;
+      const dx = P ? W * 0.25 : W * 0.6, dw = P ? W * 0.5 : W * 0.3, dy = P ? 990 * u : 300 * u;
       const ceilH = 30 * u;
       const da = ease.out(clamp((st - 0.6) / 0.6));
       g.save(); g.globalAlpha *= da;
@@ -532,7 +546,7 @@ export const scenes = {
   ship: {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
-      cover(g, A.ship, 0, 0, W, H, { src: A.shipBox, zoom: lerp(1.04, 1.14, ease.inOut(clamp(st / (s.sd + TR)))), py: -0.4, px: P ? 0.1 : 0 });
+      cover(g, A.ship, 0, 0, W, H, { src: A.shipBox, zoom: lerp(1.04, 1.14, ease.inOut(clamp(st / (s.sd + TR)))), py: 0.75, px: P ? 0.1 : 0 });
       if (P) scrim(g, L, { from: 0.15, to: 0.9, a0: 0.25, a1: 0.85 }); else scrim(g, L, { from: 0, to: 0.75, a0: 0.82, a1: 0.15, dir: 'right' });
       vignette(g, L, 0.3);
       const size = HS(L);
@@ -562,7 +576,7 @@ export const scenes = {
       const { W, H, u, P, m } = L;
       paper(g, L, T);
       const pw = P ? W : W * 0.46, ph = P ? H * 0.36 : H;
-      cover(g, A.room6, 0, 0, pw, ph, { zoom: lerp(1.06, 1.14, clamp(st / s.sd)), py: P ? -0.55 : -0.2, px: P ? 0 : -0.1 });
+      cover(g, A.room6, 0, 0, pw, ph, { zoom: lerp(1.06, 1.14, clamp(st / s.sd)), py: P ? 0.8 : 0, px: P ? 0 : -0.1 });
       const cx = P ? m : pw + 90 * u, cw = P ? W - 2 * m : W - pw - 90 * u - m;
       const ly = P ? ph + 110 * u : 150 * u;
       wordmark(g, cx, ly, 24 * u, { alpha: ease.out(clamp(st / 0.6)) });
