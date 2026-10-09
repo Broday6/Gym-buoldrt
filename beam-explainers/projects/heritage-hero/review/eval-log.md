@@ -71,3 +71,11 @@
 - Blocker e2 (choose, graphics): In 9:16 the top-left corner of the Smokey Brown beam (x ≈ 205–300, y ≈ 305–320) runs under 'Your' in the 'Your size.' headline (baseline ≈ y 312), so the text overlaps the product. The beam does clear the name panel (beam bottom ≈ y 755, panel top ≈ y 790).
 - Blocker e3 (ship, graphics): In 9:16 the new dark stats panel runs from y ≈ 718 to 1512, and its bottom edge goes straight through the narration caption pills (y ≈ 1483–1558): 'three to five business' (f≈2750–2800) and 'days.' (f≈2800–2840) are half on the panel and half on the room. The panel also dims the front beams behind '3–5'.
 
+## v10 — 2026-10-09T20:40:08Z — FAIL
+
+- 1 blocker, 1 major, 3 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: ship
+- Carried from v9 unchanged: hook, real, weight, install
+- Blocker e1 (ship, graphics): In 9:16 the stats panel now ends at about y 1474 and the narration caption pill starts at about y 1482, so there is only about 8 px between them. At phone size 'three to five business' and 'days.' look stuck to the bottom of the panel, like a tab hanging off it, rather than a separate caption. The overlap from v9 is gone, but the caption is still tight to the card.
+

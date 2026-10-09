@@ -1,0 +1,614 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v10",
+  "evaluated_at": "2026-10-09T20:40:08Z",
+  "overall": "fail",
+  "summary": "Not ready for Brody: 1 blocker. v9's Smokey Brown overlaps are fixed in both cuts (beam clear of 'Your size.', cropped end now off the left edge) and the 9:16 ship panel no longer cuts the captions, but it now ends about 8 px above the caption pill, so at phone size the caption reads as stuck to the bottom of the stats panel.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3242 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "54.033 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 54.033 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.7 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "9 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f2313, f2352, f2356",
+        "frames": [
+          2313,
+          2313
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3242 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "54.033 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 54.033 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.7 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "14 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f289, f294, f991, f1001, f1005, f2352, f2356, f2725",
+        "frames": [
+          289,
+          289
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A five and a half inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. Pick from six hand-stained finishes, or primed, eight cross-section sizes in lengths from four to twenty-four feet. It's in stock and usually ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          266
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          267,
+          775
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "heard": "A five and a half inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          776,
+          1198
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1199,
+          1622
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1623,
+          2046
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+        "heard": "Pick from six hand-stained finishes, or primed, eight cross-section sizes in lengths from four to twenty-four feet.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2047,
+          2597
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and usually ships in three to five business days.",
+        "heard": "It's in stock and usually ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2598,
+          2893
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2894,
+          3241
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Ekena's BMSTKB-09 vaulted room in both cuts. Card matches the manifest and lands on the words."
+    },
+    {
+      "scene": "real",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Unchanged since v8 (pixel-identical); re-judged as a neighbour of weight. Ekena Mena close-up and Kona Brown room."
+    },
+    {
+      "scene": "weight",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Count-up shows 17 at f1003 and 18 from f1006, when Whisper hears 'eighteen' start (f1006–1028). v8 e5 fixed. 18 lb matches record BMSTS3C00600X0600X144KB (weight = shippingWeight 18)."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Unchanged; block-in-beam diagram matches INSTALL_BMU step 3 (slide beam over wood blocking)."
+    },
+    {
+      "scene": "compare",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Pixel-identical to v9 in both cuts; re-judged as choose's neighbour. Every row traces to H21-H24; 18 lb qualified '5 1/2 in, 12 ft' matches record BMSTS3C00600X0600X144KB (weight = shippingWeight 18)."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Smokey Brown beat (f2305-2361) re-rendered: Ekena's BMSTSB-05 studio shot matches the Smokey Brown swatch; 16:9 beam top about y 320 vs headline bottom about y 240, bottom about y 740 vs 'HAND-STAINED' about y 772; 9:16 beam y 380-767, headline ends about y 315, name panel starts about y 792. Cropped end now runs off the left frame edge. Dissolves in and out are smooth (no flash). v9 e1, e2, e4 fixed."
+    },
+    {
+      "scene": "ship",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "9:16 panel now ends at y 1474, so it no longer cuts through the caption (v9 e3 fixed), but the caption pill starts at about y 1482: an 8 px gap that reads as touching at phone size. 16:9 pixel-identical to v9."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Only the 9:16 dissolve in from ship (f2894-2909) changed. Card, sample, endcap and logo unchanged; the site in the pill still waits on Brody (H16)."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "ship",
+      "action": "ship__ship_stained",
+      "cut": "9x16",
+      "frame": 2740,
+      "end_frame": 2885,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": "Claims H10, H11",
+      "what": "In 9:16 the stats panel now ends at about y 1474 and the narration caption pill starts at about y 1482, so there is only about 8 px between them. At phone size 'three to five business' and 'days.' look stuck to the bottom of the panel, like a tab hanging off it, rather than a separate caption. The overlap from v9 is gone, but the caption is still tight to the card.",
+      "fix": "render/videos/heritage-hero.mjs, 'ship' key, 9:16 layout: leave at least about 32 px between the panel and the caption. Either end the panel near y 1440 (tighten the space between 'Primed' and 'Usual ship times', which sits at about y 1446) or move this scene's 9:16 caption down about 30 px. Keep the dark fill, which fixed legibility in v9.",
+      "evidence": [
+        "review/v10/eval/extra/9x16_f2834.jpg",
+        "review/v10/eval/extra/9x16_f2834_panel_caption_zoom.jpg",
+        "review/v10/eval/extra/ship_phone_size_9x16.jpg",
+        "review/v10/eval/extra/ship_all_9x16.jpg"
+      ],
+      "region": {
+        "x": 0.04,
+        "y": 0.75,
+        "w": 0.92,
+        "h": 0.07
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 2949,
+      "end_frame": 3241,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 ('Site for the end card to be confirmed by Brody')",
+      "what": "The end-card pill still reads 'ekenamillwork.com'. H16's own source says Brody hasn't confirmed the site, and the researched store is FauxBeams.com. Declined again in v10 while it waits on Brody.",
+      "fix": "Brody to choose ekenamillwork.com or FauxBeams.com. Then set the pill in render/videos/heritage-hero.mjs ('end' key) and update H16's source.",
+      "evidence": [
+        "review/v10/eval/sheets/16x9_end.jpg",
+        "review/v10/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.79,
+        "w": 0.21,
+        "h": 0.08
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "real",
+      "action": null,
+      "cut": "9x16",
+      "frame": 289,
+      "end_frame": 289,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f289, f294, f991, f1001, f1005, f2352, f2356, f2725",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v10/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e3"
+    },
+    {
+      "scene": "choose",
+      "action": null,
+      "cut": "16x9",
+      "frame": 2313,
+      "end_frame": 2313,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f2313, f2352, f2356",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v10/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e4"
+    },
+    {
+      "scene": "end",
+      "action": null,
+      "cut": "16x9",
+      "frame": 2960,
+      "end_frame": 3060,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 16:9 the end-card caption pill ('and see it in' / 'your own light.') is centred on the frame, so it straddles the seam between the room photo and the cream panel (x about 800-1120 against the seam at x about 882).",
+      "fix": "render/videos/heritage-hero.mjs, 'end' key, 16:9: centre the caption under the cream panel (x about 1400) or entirely over the room photo for this scene.",
+      "evidence": [
+        "review/v10/eval/extra/16x9_f3033.jpg"
+      ],
+      "region": {
+        "x": 0.41,
+        "y": 0.9,
+        "w": 0.18,
+        "h": 0.06
+      },
+      "id": "e5"
+    }
+  ]
+}

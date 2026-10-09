@@ -17,6 +17,8 @@ const TR = 0.6; // scene-to-scene transition length (s), at the start of the inc
 const TRANS = { real: 'wipe', weight: 'wipe', install: 'fade', compare: 'wipe', choose: 'wipe', ship: 'wipe', end: 'fade' };
 // Caption parts (split on "|") left off screen because the picture already shows the words in big type.
 const NOCAP = {};
+// Caption centre per scene (default: frame centre). The 16:9 end card centres it under the cream panel.
+const CAPX = { end: L => (L.P ? L.W / 2 : L.W * 0.73) };
 
 const TEXTURES = [
   ['Mena', 'mena', ['Mina', 'Meena']], ['Salvaged Timber', 'salvaged-timber'], ['Rustic Sawn', 'rustic-sawn'],
@@ -216,10 +218,11 @@ function captions(g, L, s, st) {
     const padX = size * 0.55, padY = size * 0.42;
     g.save();
     g.globalAlpha *= a;
-    rr(g, L.W / 2 - tw / 2 - padX, y - size * 0.95 - padY * 0.3, tw + padX * 2, size * 1.3 + padY * 0.6, size * 0.3);
+    const cx = CAPX[s.id] ? CAPX[s.id](L) : L.W / 2;
+    rr(g, cx - tw / 2 - padX, y - size * 0.95 - padY * 0.3, tw + padX * 2, size * 1.3 + padY * 0.6, size * 0.3);
     g.fillStyle = 'rgba(12,14,14,0.62)';
     g.fill();
-    let x = L.W / 2 - tw / 2;
+    let x = cx - tw / 2;
     c.words.forEach((w, i) => {
       const said = st >= w.t0 - 0.05;
       const nxt = c.words[i + 1];
@@ -563,11 +566,11 @@ export const scenes = {
       g.globalAlpha *= 1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3));
       if (P) {
         g.save(); g.globalAlpha *= ease.out(clamp((st - t3 + 0.2) / 0.4)) * 0.78 * (1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3)));
-        rr(g, m - 30 * u, 720 * u, W - 2 * m + 60 * u, 750 * u, 20 * u); g.fillStyle = '#141818'; g.fill(); g.restore(); // the panel ends above the caption band
+        rr(g, m - 30 * u, 720 * u, W - 2 * m + 60 * u, 715 * u, 20 * u); g.fillStyle = '#141818'; g.fill(); g.restore(); // the panel ends above the caption band
       }
       if (P) { stat('3–5', 'business days', 'Stained', t3, m, 900 * u); stat('24–72', 'hours', 'Primed', t1, m, 1260 * u); }
       else { stat('3–5', 'business days', 'Stained', t3, m, 640 * u); stat('24–72', 'hours', 'Primed', t1, m + 470 * u, 640 * u); }
-      text(g, 'Usual ship times', m, P ? 1450 * u : 880 * u, { f: font('F', 500, 24 * u), color: 'rgba(255,255,255,0.7)', alpha: ease.out(clamp((st - t1) / 0.6)) });
+      text(g, 'Usual ship times', m, P ? 1405 * u : 880 * u, { f: font('F', 500, 24 * u), color: 'rgba(255,255,255,0.7)', alpha: ease.out(clamp((st - t1) / 0.6)) });
     },
   },
 
