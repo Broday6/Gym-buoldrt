@@ -1,0 +1,627 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v5",
+  "evaluated_at": "2026-10-09T14:12:23Z",
+  "overall": "pass",
+  "summary": "Ready for Brody: no blockers. The v4 wipe fix works: every scene change now starts on its boundary frame (each within a frame of a beat) and is about half done 0.1 s later, so the change lands on the beat; the 'Primed only' tag now fades in with 'Sanded Smooth'. Still open: the end card's ekenamillwork.com URL (H16 unconfirmed).",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3676 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "61.267 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 61.266 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.2 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.6 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "8 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f284",
+        "frames": [
+          284,
+          284
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3676 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "61.267 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 61.266 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.2 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.6 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "9 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f1000, f1250",
+        "frames": [
+          1000,
+          1000
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber from Ekena Millwork. Each beam is molded from real, weathered timber with no corner seams. Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth, then a hand-stained finish, sandstone, Kona Brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed, ready to paint. Eight sizes, from three and a half inches square to nine and a half by eleven and a half, in lengths from four to twenty-four feet. They're hollow, so they slide over a wood block on your ceiling and can hide wiring. And they ship fast, stained beams in three to five business days, primed in about one to three days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          277
+        ]
+      },
+      {
+        "scene": "reveal",
+        "expected": "Meet Heritage Timber, from Ekena Millwork. Each beam is molded from real, weathered timber, with no corner seams.",
+        "heard": "Meet Heritage Timber from Ekena Millwork. Each beam is molded from real, weathered timber with no corner seams.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          278,
+          743
+        ]
+      },
+      {
+        "scene": "textures",
+        "expected": "Pick from six textures. Mena. Salvaged Timber. Rustic Sawn. Resawn Rip. Reclaimed Axed Cut. And Sanded Smooth.",
+        "heard": "Pick from six textures, Mina, salvaged timber, rustic sawn, resawn rip, reclaimed axe cut, and sanded smooth,",
+        "match": 0.882,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          744,
+          1336
+        ]
+      },
+      {
+        "scene": "finishes",
+        "expected": "Then a hand-stained finish. Sandstone. Kona Brown. Vanilla Chai. Warm Caramel. Natural White Oak. Smokey Brown. Or primed, ready to paint.",
+        "heard": "then a hand-stained finish, sandstone, Kona Brown, vanilla chai, warm caramel, natural white oak, smoky brown, or primed, ready to paint.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1337,
+          2056
+        ]
+      },
+      {
+        "scene": "sizes",
+        "expected": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
+        "heard": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half, in lengths from four to twenty-four feet.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2057,
+          2565
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+        "heard": "They're hollow, so they slide over a wood block on your ceiling and can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2566,
+          2904
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three days.",
+        "heard": "And they ship fast, stained beams in three to five business days, primed in about one to three days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2905,
+          3327
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3328,
+          3675
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Salvaged Timber",
+        "heard": true
+      },
+      {
+        "term": "Rustic Sawn",
+        "heard": true
+      },
+      {
+        "term": "Kona Brown",
+        "heard": true
+      },
+      {
+        "term": "Vanilla Chai",
+        "heard": true
+      },
+      {
+        "term": "Warm Caramel",
+        "heard": true
+      },
+      {
+        "term": "Smokey Brown",
+        "heard": true
+      },
+      {
+        "term": "primed",
+        "heard": true
+      },
+      {
+        "term": "Mena",
+        "heard": true
+      },
+      {
+        "term": "Resawn Rip",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      },
+      {
+        "term": "Reclaimed Axed Cut",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Ekena BMSTKB-09 vaulted room, beams in frame in both cuts; card lines land with the words. Judged as the neighbour of the changed hook->reveal wipe."
+    },
+    {
+      "scene": "reveal",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [],
+      "comment": "Wipe in from the hook starts on f278 (beat f278.2), ~50% by f284; tech flag f284 is that wipe. Kona Brown Salvaged Timber shot matches Ekena's studio image."
+    },
+    {
+      "scene": "textures",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "'Primed only' pill now fades in with 'Sanded Smooth' after the wipe (f1270), not before it; Sanded Smooth primed beam matches Ekena's image. 9:16 flags f1000/f1250 are the planned name fade and wipe."
+    },
+    {
+      "scene": "finishes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "All six bedroom finishes now checked against Ekena's BMST*-07 renders (SS, KB, VC, WC, WO, OT) and match; Smokey Brown close-up is Ekena's swatch (mean 127,113,97 vs 135,121,103)."
+    },
+    {
+      "scene": "sizes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "8 cross-sections and 9 lengths match H6/H9; highlights land on the spoken sizes."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Matches INSTALL_BMU step 3 / fig. 3 (beam slides over wood blocking); callout clear of the card in both cuts."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Ekena BMRSWC-08 kitchen; 3-5 and 24-72 appear as each is spoken (narration 'about one to three days' = 24-72 h, H11)."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Bedroom matches Ekena BMSTKB-06; real sample-kit, endcap and logo. Dissolve tail ghost noted as minor."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 3440,
+      "end_frame": 3675,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 source: 'Site for the end card to be confirmed by Brody'; beam-lines-facts.md retrieved every fact from FauxBeams.com",
+      "what": "The end card still sends viewers to 'ekenamillwork.com', and its claim (H16) still says the destination is to be confirmed by Brody. Declined in v5 pending Brody's choice; unchanged since v2.",
+      "fix": "Brody to choose ekenamillwork.com or FauxBeams.com. Then set the CTA in build/script-v5.json#end (timeline key 'end' in render/videos/heritage-hero.mjs) and update H16's source to record the decision.",
+      "evidence": [
+        "review/v5/eval/sheets/16x9_end.jpg",
+        "review/v5/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.79,
+        "w": 0.21,
+        "h": 0.09
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "reveal",
+      "action": null,
+      "cut": "16x9",
+      "frame": 284,
+      "end_frame": 284,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f284",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v5/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e2"
+    },
+    {
+      "scene": "textures",
+      "action": null,
+      "cut": "9x16",
+      "frame": 1000,
+      "end_frame": 1000,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f1000, f1250",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v5/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e3"
+    },
+    {
+      "scene": "end",
+      "action": null,
+      "cut": "9x16",
+      "frame": 3344,
+      "end_frame": 3356,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the ship-to-end dissolve, the faded '3-5' and '24-72' from Quick Ship are still visible on the cream panel while 'Order a sample' starts fading in, so for about 0.2 s the new headline sits over the old numbers (clearest at f3348-3352 in 9:16; fainter in 16:9). Less than in v4, and it changes no score.",
+      "fix": "render/videos/heritage-hero.mjs, timeline key 'end': start the 'Order a sample' headline fade a few frames later (after about f3356), or fade the outgoing ship text out on the boundary frame instead of letting it ride the dissolve tail.",
+      "evidence": [
+        "review/v5/eval/extra/end_ghost9.jpg",
+        "review/v5/eval/extra/end_ghost16.jpg",
+        "review/v5/eval/extra/f16_3348.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.28,
+        "w": 0.6,
+        "h": 0.4
+      },
+      "id": "e4"
+    }
+  ]
+}
