@@ -1,20 +1,22 @@
-// Heritage Timber hero edit: problem-led, full-bleed photography, kinetic type, burned-in captions,
-// and wipes between scenes. Every beam, finish and texture on screen is a real Ekena photo (rooms,
+// Heritage Timber hero edit: objection-led (each scene answers one reason a buyer hesitates),
+// full-bleed photography, kinetic type, burned-in captions, and wipes that land on the music's beats. Every beam, finish and texture on screen is a real Ekena photo (rooms,
 // texture close-ups, and product shots cut out of their white backgrounds by tools/cutout.py).
 // Coded drawing is only used for things that aren't the product: the ceiling and block, the size
 // outlines, the length ruler, captions and UI.
 import { createCanvas } from '@napi-rs/canvas';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
-  BRAND, FPS, clamp, lerp, ease, cue, cues, img, cover, rr, text, measure, wrap, font, wordmark,
+  ROOT, IMG, BRAND, FPS, clamp, lerp, ease, cue, cues, img, cover, rr, text, measure, wrap, font, wordmark,
   inAmt, listStack, paper, dim, inch, sectionPath, block,
 } from '../lib/core.mjs';
 
 const SAGE_L = '#CBD5A2';
 const DARK = '#141818';
 const TR = 0.6; // scene-to-scene transition length (s), at the start of the incoming scene
-const TRANS = { reveal: 'wipe', textures: 'wipe', finishes: 'wipe', sizes: 'wipe', install: 'fade', ship: 'wipe', end: 'fade' };
-// Caption parts (split on "|") left off screen because the picture already shows the name in big type.
-const NOCAP = { textures: [1, 2, 3, 4, 5, 6], finishes: [1, 2, 3, 4, 5, 6] };
+const TRANS = { real: 'wipe', weight: 'wipe', install: 'fade', compare: 'wipe', choose: 'wipe', ship: 'wipe', end: 'fade' };
+// Caption parts (split on "|") left off screen because the picture already shows the words in big type.
+const NOCAP = {};
 
 const TEXTURES = [
   ['Mena', 'mena', ['Mina', 'Meena']], ['Salvaged Timber', 'salvaged-timber'], ['Rustic Sawn', 'rustic-sawn'],
@@ -25,11 +27,22 @@ const FINISHES = [
   ['Warm Caramel', 'warm-caramel', ['warm']], ['Natural White Oak', 'natural-white-oak', ['natural']],
   ['Smokey Brown', 'smokey-brown', ['smoky', 'Smoky Brown']], ['Primed', 'primed', ['primed']],
 ];
-const SIZES = [[3.5, 3.5], [3.5, 5.5], [5.5, 5.5], [5.5, 7.5], [7.5, 7.5], [7.5, 9.5], [9.5, 9.5], [9.5, 11.5]];
-const LENGTHS = [4, 5, 6, 8, 10, 12, 16, 20, 24];
+// Why not solid wood: [row, Heritage, solid wood]. Sources: claims H21-H24 (product record + Ekena's copy).
+const COMPARE = [
+  ['Weight', '18 lb for a 12 ft beam', 'Heavy'],
+  ['Install', 'One person, household tools', 'More labor'],
+  ['Upkeep', 'Resists warping and cracking', 'More upkeep'],
+  ['Texture', 'Cast from real timber', 'Real timber'],
+];
+const SPECS = [['Finishes', '6 hand-stained, or primed'], ['Textures', '6, cast from real timber'], ['Sizes', '8, from 3½×3½ to 9½×11½ in'], ['Lengths', '4 to 24 ft']];
 
 const A = {};
 let OC = null, O = null; // offscreen canvas for the incoming scene during a transition
+/** Beats of the music that fall in [a, b] of scene time (the edit is cut to them). */
+function beatsIn(s, a, b) {
+  const t0 = s.start_frame / FPS;
+  return A.beats.map(x => x - A.off - t0).filter(x => x >= a && x <= b);
+}
 
 // ---- helpers ------------------------------------------------------------------------------------------
 /** The rect a photo's content occupies (photos letterboxed in a white square). */
@@ -250,6 +263,14 @@ export async function preload(L) {
   A.uEnd = await cut('angles__BMSTKB-05');
   A.sample = await cut('accessories__sample-kit');
   A.endcap = await img('heritage/accessories/endcap.jpg', { maxSide: 1200 });
+  A.cmp = await hi('BMRDWO-09');
+  // Generated stills (see deliver/generation-pack): used when present, real Ekena images otherwise.
+  const shape = L.P ? '9x16' : '16x9';
+  const opt = rel => fs.existsSync(path.join(IMG, rel)) ? img(rel, { maxSide: 2400 }) : null;
+  A.before = await opt(`heritage/generated/before-09-${shape}.jpg`);
+  A.person = await opt(`heritage/generated/person-lift-${shape}.jpg`);
+  A.beats = JSON.parse(fs.readFileSync(path.join(ROOT, 'music', 'peaceful-beats.json'), 'utf8')).beats;
+  A.off = JSON.parse(fs.readFileSync(path.join(ROOT, 'out', 'heritage-hero', 'timeline.json'), 'utf8')).music_offset_s ?? 0;
   OC = createCanvas(L.W, L.H);
   O = OC.getContext('2d');
 }
@@ -260,7 +281,18 @@ export const scenes = {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
       const k = ease.inOut(clamp(st / (s.sd + TR)));
-      cover(g, A.hook, 0, 0, W, H, { zoom: lerp(1.18, 1.04, k), py: P ? 0 : 0.85, px: P ? 0.05 : 0 });
+      const cam = { zoom: lerp(1.18, 1.04, k), py: P ? 0 : 0.85, px: P ? 0.05 : 0 };
+      cover(g, A.hook, 0, 0, W, H, cam);
+      if (A.before) {
+        // Bare ceiling first; the beams wipe in on the beat nearest "beams".
+        const tb = cue(s, 'beams', { fallback: 2.0 });
+        const bt = beatsIn(s, tb - 0.5, tb + 0.5).sort((x, y) => Math.abs(x - tb) - Math.abs(y - tb))[0] ?? tb;
+        const p = ease.out(clamp((st - bt) / 0.6));
+        if (p < 1) {
+          g.save(); g.beginPath(); g.rect(p * W, 0, W, H); g.clip(); cover(g, A.before, 0, 0, W, H, cam); g.restore();
+          if (p > 0) { g.fillStyle = SAGE_L; g.fillRect(p * W - 3 * u, 0, 6 * u, H); }
+        }
+      }
       scrim(g, L, { from: P ? 0.42 : 0.3, a1: 0.82 });
       vignette(g, L, 0.3);
       const size = Math.min(HS(L), (W - 2 * m) / measure(g, 'Without the weight.', font('P', 700, 1)) * 0.98);
@@ -274,215 +306,150 @@ export const scenes = {
     },
   },
 
-  reveal: {
-    draw(g, L, s, st, T) {
-      const { W, H, u, P, m } = L;
-      cover(g, A.room8blur, 0, 0, W, H, { zoom: 1.12 + 0.03 * st / s.sd });
-      g.fillStyle = 'rgba(14,17,17,0.62)'; g.fillRect(0, 0, W, H);
-      const gx = P ? W * 0.5 : W * 0.68, gy = P ? H * 0.47 : H * 0.48;
-      const gr = g.createRadialGradient(gx, gy, 0, gx, gy, Math.max(W, H) * 0.5);
-      gr.addColorStop(0, 'rgba(203,213,162,0.20)'); gr.addColorStop(1, 'rgba(203,213,162,0)');
-      g.fillStyle = gr; g.fillRect(0, 0, W, H);
-      // The beam glides in from the right, ahead of the background (parallax), then keeps drifting.
-      const pin = ease.out(clamp((st - 0.05) / 1.2));
-      const drift = -30 * u * (st / s.sd);
-      const bx = (P ? 0 : W * 0.36) + (1 - pin) * W * 0.35 + drift, by = P ? H * 0.29 : H * 0.12;
-      cutout(g, A.hero, bx, by, P ? W : W * 0.64, P ? H * 0.33 : H * 0.74, { alpha: ease.out(clamp((st - 0.05) / 0.6)), u });
-      // Words.
-      const size = (P ? 128 : 124) * u;
-      const tH = cue(s, 'Heritage', { fallback: 0.6 }) - 0.15, tE = cue(s, 'Ekena', { fallback: 1.9, alts: ['Ikenna'] }) - 0.1;
-      const y1 = P ? 400 * u : H * 0.30;
-      kicker(g, 'Ekena Millwork', m, y1 - size * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - tE) / 0.5)) });
-      const yl = kinetic(g, [['Heritage', '#fff'], ['Timber', '#fff']], m, y1, st, tH, { size, stagger: 0.12 });
-      const feats = [['Molded from real, weathered timber', 'molded'], ['No corner seams', 'corner']];
-      const fs = (P ? 38 : 34) * u, gap = (P ? 70 : 66) * u;
-      const fy = P ? H * 0.665 : yl + 120 * u;
-      let after = 0;
-      feats.forEach(([lab, ph], i) => {
-        const t = cue(s, ph, { after, fallback: 3.5 + i }) - 0.15; after = t + 0.2;
-        const p = ease.out(clamp((st - t) / 0.5));
-        const y = fy + i * gap;
-        checkDot(g, m + fs * 0.5, y - fs * 0.35, fs * 0.55, { alpha: p });
-        text(g, lab, m + fs * 1.5 + (1 - p) * 24 * u, y, { f: font('F', 600, fs), color: '#fff', alpha: p });
-      });
-    },
-  },
-
-  textures: {
+  real: {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
-      const ts = cues(s, TEXTURES.map(([n, , alts]) => [n, ...(alts || [])]), { after: 1.6 });
-      s._ts = ts;
-      const ins = ts.map((_, i) => inAmt(ts, i, st, 0.6));
-      // Intro panel: a close-up of Salvaged Timber with the headline.
-      let base = -1;
-      ins.forEach((v, i) => { if (v >= 1) base = i; });
-      const panel = (i, cx) => {
-        if (i < 0) {
-          cover(g, A.texIntro, 0, 0, W, H, { zoom: 1.12 - 0.06 * clamp(st / 3) });
-          g.fillStyle = 'rgba(12,14,14,0.45)'; g.fillRect(0, 0, W, H);
-          const size = (P ? 128 : 150) * u;
-          kicker(g, 'Pick a texture', W / 2, H / 2 - size * 0.85, { size: (P ? 32 : 28) * u, align: 'center', alpha: ease.out(clamp(st / 0.6)) });
-          kinetic(g, [['6 textures', '#fff']], W / 2, H / 2 + size * 0.35, st, 0.25, { size, align: 'center' });
-          return;
-        }
-        const t0 = ts[i];
-        const local = Math.max(0, st - t0);
-        const name = TEXTURES[i][0];
-        if (TEXTURES[i][1] === 'sanded-smooth') {
-          paper(g, L, st);
-          // The beam keeps easing toward the camera, so the page never sits still.
-          const z = 1 + 0.08 * ease.out(clamp(local / 2.5)), bw = (P ? W - m : W * 0.66) * z, bh = (P ? H * 0.42 : H * 0.62) * z;
-          const bx0 = (P ? m * 0.5 : W * 0.30) - (bw / z) * (z - 1) * 0.5 - 30 * u * local, by0 = (P ? H * 0.20 : H * 0.10) - (bh / z) * (z - 1) * 0.5;
-          cutout(g, A.tex[i], bx0, by0, bw, bh, { u, shadow: 0.25 });
-          return;
-        }
-        cover(g, A.tex[i], 0, 0, W, H, { zoom: 1.14 - 0.06 * clamp(local / 2.5), px: i % 2 ? 0.3 : -0.3, py: 0 });
-        scrim(g, L, { from: P ? 0.5 : 0.45, a1: 0.8 });
-        const y = P ? H * 0.70 : H - 200 * u;
-        void cx;
-      };
-      panel(base, 0);
-      for (let i = base + 1; i < ts.length; i++) {
-        if (ins[i] <= 0) continue;
-        // Wipe: the next texture slides its edge across from the left, with a sage line on the edge.
-        const ex = ins[i] * W;
-        g.save(); g.beginPath(); g.rect(0, 0, ex, H); g.clip(); panel(i); g.restore();
-        if (ins[i] < 1) { g.fillStyle = SAGE_L; g.fillRect(ex - 3 * u, 0, 6 * u, H); }
-      }
-      // Names: drawn over the wipe, never inside it, so two names never splice together.
-      TEXTURES.forEach(([name, sl], i) => {
-        const fin = ease.inOut(clamp((st - (ts[i] + 0.1)) / 0.3));
-        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.35)) / 0.25)) : 0;
-        const a = fin * (1 - fout);
-        if (a <= 0) return;
-        const light = sl === 'sanded-smooth';
-        const y = P ? H * 0.70 : H - 200 * u;
-        kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u, color: light ? BRAND.greenText : SAGE_L, alpha: a });
-        const ns = Math.min((P ? 100 : 104) * u, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
-        text(g, name, m, y + (1 - fin) * 18 * u, { f: font('P', 700, ns), color: light ? BRAND.ink : '#fff', alpha: a });
-        if (light) {
-          // Sanded Smooth only comes primed: the tag arrives with the name, not with the wipe.
-          const pw = measure(g, 'Primed only', font('F', 700, 30 * u)) + 48 * u;
-          g.save(); g.globalAlpha *= a;
-          rr(g, m, y + 34 * u, pw, 56 * u, 28 * u); g.fillStyle = BRAND.green; g.fill();
-          text(g, 'Primed only', m + pw / 2, y + 72 * u, { f: font('F', 700, 30 * u), color: '#fff', align: 'center' });
-          g.restore();
-        }
-      });
-      // Progress ticks, top right.
-      const n = 6, tw = (P ? 46 : 40) * u, tg = 10 * u, tx = W - m - n * tw - (n - 1) * tg, ty = (P ? 140 : 90) * u;
-      const show = ease.out(clamp((st - (ts[0] - 0.3)) / 0.5));
-      for (let i = 0; i < n; i++) {
-        rr(g, tx + i * (tw + tg), ty, tw, 6 * u, 3 * u);
-        g.fillStyle = `rgba(255,255,255,${0.35 * show})`; g.fill();
-        const p = ins[i];
-        if (p > 0) { rr(g, tx + i * (tw + tg), ty, tw * p, 6 * u, 3 * u); g.fillStyle = i === 5 && ins[5] > 0.5 ? BRAND.green : SAGE_L; g.globalAlpha = show; g.fill(); g.globalAlpha = 1; }
-      }
+      // Up close (a real macro) beside the same finish across a room (an Ekena render).
+      const pin = ease.out(clamp(st / 0.9));
+      const split = P ? H * 0.5 : W * 0.5;
+      const tC = cue(s, 'cast', { fallback: 3.2 });
+      g.save(); g.beginPath(); P ? g.rect(0, 0, W, split) : g.rect(0, 0, split, H); g.clip();
+      cover(g, A.texIntro, 0, 0, P ? W : split, P ? split : H, { zoom: 1.16 - 0.08 * clamp(st / s.sd), px: -0.1 });
+      g.restore();
+      g.save(); g.beginPath(); P ? g.rect(0, split, W, H - split) : g.rect(split, 0, W - split, H); g.clip();
+      cover(g, A.finIntro, P ? 0 : split + (1 - pin) * 80 * u, P ? split + (1 - pin) * 80 * u : 0, P ? W : W - split, P ? H - split : H,
+        { zoom: lerp(1.08, 1.0, clamp(st / s.sd)), py: P ? 0.4 : 0.5 });
+      g.restore();
+      g.fillStyle = '#fff'; P ? g.fillRect(0, split - 2 * u, W, 4 * u) : g.fillRect(split - 2 * u, 0, 4 * u, H);
+      scrim(g, L, { from: P ? 0.18 : 0.3, to: P ? 0.5 : 1, a0: 0, a1: P ? 0.7 : 0.75 });
+      if (P) scrim(g, L, { from: 0.62, to: 1, a1: 0.7 });
+      // Labels for each half.
+      const la = ease.out(clamp((st - tC) / 0.5));
+      const lf = (P ? 30 : 26) * u;
+      kicker(g, 'Up close', P ? m : m, P ? split - 40 * u : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
+      kicker(g, 'Across the room', P ? m : split + m * 0.6, P ? H - 300 * u : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
+      // Brand, then the card.
+      const size = (P ? 104 : 96) * u;
+      const tH = cue(s, 'Heritage', { fallback: 0.6 }) - 0.15, tE = cue(s, 'Ekena', { fallback: 1.9, alts: ['Ikenna', 'E.'] }) - 0.1;
+      const y1 = P ? 300 * u : 260 * u;
+      kicker(g, 'Ekena Millwork', m, y1 - size * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - tE) / 0.5)) });
+      kinetic(g, [['Heritage Timber', '#fff'], ['Cast from real timber', SAGE_L, tC - 0.2]], m, y1, st, tH, { size: Math.min(size, (P ? W - 2 * m : split - m * 1.4) / measure(g, 'Cast from real timber', font('P', 700, 1))) });
     },
   },
 
-  finishes: {
+  weight: {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
-      const ts = cues(s, FINISHES.map(([n, , alts]) => [n, ...(alts || [])]), { after: 1.6 });
-      const stack = listStack(ts, st, 0.6);
-      // One camera for every room render, so in a cross-fade only the beams change.
+      const t18 = cue(s, 'eighteen', { fallback: 1.2, alts: ['18'] }), tOne = cue(s, 'One', { fallback: 2.6 });
+      if (A.person) {
+        cover(g, A.person, 0, 0, W, H, { zoom: lerp(1.08, 1.0, clamp(st / s.sd)) });
+        P ? scrim(g, L, { from: 0.4, a1: 0.85 }) : scrim(g, L, { from: 0.35, to: 1, a0: 0, a1: 0.8, dir: 'right' });
+      } else {
+        darkBg(g, L, T);
+        // The real beam, long, entering on the diagonal.
+        const pin = ease.out(clamp((st - 0.05) / 1.1));
+        cutout(g, A.hero, (P ? -W * 0.1 : -W * 0.04) - (1 - pin) * W * 0.3 - 20 * u * st, P ? H * 0.34 : H * 0.18, P ? W * 1.15 : W * 0.68, P ? H * 0.34 : H * 0.72,
+          { alpha: ease.out(clamp(st / 0.5)), u, shadow: 0.5 });
+      }
+      // Stat: counts up to 18 as it's said.
+      const x = P ? m : W * 0.62, y = P ? 520 * u : H * 0.46;
+      const c = ease.out(clamp((st - t18 + 0.2) / 0.9));
+      const ns = (P ? 260 : 250) * u;
+      kicker(g, 'A 12 ft Heritage beam weighs', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
+      g.save(); g.globalAlpha *= ease.out(clamp((st - t18 + 0.3) / 0.4));
+      const num = String(Math.round(18 * c));
+      text(g, num, x, y, { f: font('P', 700, ns), color: '#fff' });
+      text(g, 'lb', x + measure(g, num, font('P', 700, ns)) + 16 * u, y, { f: font('P', 700, ns * 0.42), color: SAGE_L });
+      g.restore();
+      text(g, '5½ × 5½ in × 12 ft, listed weight', x, y + 60 * u, { f: font('F', 600, (P ? 32 : 28) * u), color: 'rgba(255,255,255,0.8)', alpha: ease.out(clamp((st - t18 - 0.3) / 0.5)) });
+      kinetic(g, [['One person can lift it.', SAGE_L]], x, y + (P ? 190 : 170) * u, st, tOne - 0.2, { size: (P ? 64 : 58) * u });
+    },
+  },
+
+  compare: {
+    draw(g, L, s, st) {
+      const { W, H, u, P, m } = L;
+      cover(g, A.cmp, 0, 0, W, H, { zoom: lerp(1.1, 1.02, clamp(st / s.sd)), py: 0.7 });
+      g.fillStyle = 'rgba(14,17,17,0.74)'; g.fillRect(0, 0, W, H);
+      const size = (P ? 92 : 84) * u;
+      kinetic(g, [['Why not solid wood?', '#fff']], m, P ? 300 * u : 190 * u, st, 0.15, { size: Math.min(size, (W - 2 * m) / measure(g, 'Why not solid wood?', font('P', 700, 1))) });
+      // Table: rows arrive on the beats.
+      const x0 = m, tw = Math.min(W - 2 * m, 1500 * u), cols = P ? [0, 0.25, 0.70] : [0, 0.22, 0.68];
+      const y0 = P ? 470 * u : 300 * u, rh = (P ? 150 : 128) * u, fs = (P ? 34 : 34) * u;
+      const rb = beatsIn(s, 0.7, s.sd - 1.2);
+      const times = [0.45, ...[0, 1, 2, 3].map(i => rb[i * 1] ?? 0.9 + i * 0.7)];
+      const ha = ease.out(clamp((st - times[0]) / 0.5));
+      // Heritage column panel.
+      g.save(); g.globalAlpha *= ha;
+      rr(g, x0 + tw * cols[1] - 24 * u, y0 - 70 * u, tw * (cols[2] - cols[1]), rh * 4 + 96 * u, 18 * u);
+      g.fillStyle = 'rgba(142,156,93,0.22)'; g.fill();
+      text(g, 'HERITAGE TIMBER', x0 + tw * cols[1], y0 - 20 * u, { f: font('P', 600, (P ? 24 : 24) * u), color: SAGE_L, spacing: 4 });
+      text(g, 'SOLID WOOD', x0 + tw * cols[2], y0 - 20 * u, { f: font('P', 600, 24 * u), color: 'rgba(255,255,255,0.6)', spacing: 4 });
+      g.restore();
+      COMPARE.forEach(([lab, her, wood], i) => {
+        const a = ease.out(clamp((st - times[i + 1]) / 0.45));
+        if (a <= 0) return;
+        const y = y0 + i * rh;
+        g.save(); g.globalAlpha *= a;
+        g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(x0, y + 8 * u, tw, 2 * u);
+        const yy = y + rh * 0.56 + (1 - a) * 14 * u;
+        text(g, lab, x0, yy, { f: font('F', 600, fs * 0.85), color: 'rgba(255,255,255,0.75)' });
+        checkDot(g, x0 + tw * cols[1] + fs * 0.45, yy - fs * 0.33, fs * 0.45);
+        const hl = wrap(g, her, font('F', 700, fs), tw * (cols[2] - cols[1]) - fs * 2.2).slice(0, 2);
+        hl.forEach((ln, k) => text(g, ln, x0 + tw * cols[1] + fs * 1.3, yy + (k - (hl.length - 1) / 2) * fs * 1.15, { f: font('F', 700, fs), color: '#fff' }));
+        text(g, wood, x0 + tw * cols[2], yy, { f: font('F', 500, fs), color: 'rgba(255,255,255,0.6)' });
+        g.restore();
+      });
+    },
+  },
+
+  choose: {
+    draw(g, L, s, st, T) {
+      const { W, H, u, P, m } = L;
+      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: its close-up).
+      const bt = beatsIn(s, 0.3, s.sd);
+      const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
+      const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
       const cam = { zoom: lerp(1.07, 1.0, ease.inOut(clamp(st / (s.sd + TR)))), py: P ? 0 : 0.5, px: P ? 0.05 : 0 };
       for (const { i, a } of stack) {
         const room = i < 0 ? A.finIntro : A.finRoom[i];
         if (room) cover(g, room, 0, 0, W, H, { ...cam, alpha: a });
-        else cover(g, A.finSw[i], 0, 0, W, H, { zoom: 1.12 - 0.05 * clamp((st - ts[i]) / 2), alpha: a });
+        else cover(g, A.finSw[i], 0, 0, W, H, { zoom: 1.1, alpha: a });
       }
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
-      scrim(g, L, { from: P ? 0.52 : 0.5, a1: 0.82 });
-      // Headline (the card).
-      kinetic(g, [['Hand-stained, or primed', '#fff']], m, (P ? 220 : 150) * u, st, 0.2, { size: (P ? 64 : 60) * u, stagger: 0.05 });
-      // Name + kicker, one at a time.
-      const ny = P ? H * 0.70 : H - 190 * u, nsz = (P ? 96 : 100) * u;
+      scrim(g, L, { from: P ? 0.45 : 0.5, a1: 0.85 });
+      const hs = (P ? 80 : 76) * u;
+      kinetic(g, [['Your finish.', '#fff'], ['Your size.', SAGE_L, cue(s, 'Eight', { fallback: 3.4 }) - 0.2]], m, P ? 230 * u : 160 * u, st, 0.15, { size: hs });
+      // Current finish: name + swatch row.
+      const ny = P ? H * 0.60 : H - 230 * u;
       FINISHES.forEach(([name, sl], i) => {
-        const fin = ease.inOut(clamp((st - (ts[i] + 0.1)) / 0.3));
-        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.2)) / 0.25)) : 0;
+        // Names follow their photo: in once the cross-fade is half done, out just before the next.
+        const fin = ease.inOut(clamp((st - ts[i] - 0.15) / 0.2));
+        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - ts[i + 1]) / 0.15)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
-        const k = sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained \u00b7 close-up';
-        kicker(g, k, m, ny - nsz * 0.95, { size: (P ? 28 : 26) * u, alpha: a });
-        const ns = Math.min(nsz, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
-        text(g, name, m, ny + (1 - fin) * 18 * u, { f: font('P', 700, ns), color: '#fff', alpha: a });
+        kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained · close-up', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });
+        text(g, name, m, ny, { f: font('P', 700, (P ? 64 : 60) * u), color: '#fff', alpha: a });
       });
-      // Swatch row: every finish, the current one ringed.
-      const r = (P ? 30 : 28) * u, gap = 18 * u, rowW = 7 * 2 * r + 6 * gap;
-      const rowX = P ? m : W - m - rowW, rowY = P ? H * 0.745 : H - 210 * u;
-      const ins = ts.map((_, i) => inAmt(ts, i, st, 0.55));
+      const r = (P ? 26 : 24) * u, gap = 14 * u, rowY = ny + (P ? 70 : 62) * u;
+      const ins = ts.map(t => clamp((st - t) / 0.2));
       FINISHES.forEach((_, i) => {
-        const appear = ease.out(clamp((st - 0.5 - i * 0.07) / 0.5));
         const on = ins[i] * (1 - (i + 1 < ins.length ? ins[i + 1] : 0));
-        swatchDot(g, A.finSw[i], rowX + r + i * (2 * r + gap), rowY - on * 8 * u, r, { alpha: appear * (0.6 + 0.4 * Math.max(on, 0.6 * ins[i])), ring: on, ringColor: SAGE_L });
+        swatchDot(g, A.finSw[i], m + r + i * (2 * r + gap), rowY - on * 6 * u, r, { alpha: ease.out(clamp((st - 0.3 - i * 0.05) / 0.4)) * (0.6 + 0.4 * Math.max(on, 0.6 * ins[i])), ring: on, ringColor: SAGE_L });
       });
-    },
-  },
-
-  sizes: {
-    draw(g, L, s, st, T) {
-      const { W, H, u, P, m } = L;
-      paper(g, L, T);
-      const size = HS(L);
-      const tS = cue(s, 'sizes', { fallback: 0.6 }) - 0.3;
-      kinetic(g, [['8 sizes', BRAND.ink]], m, P ? 300 * u : 190 * u, st, tS, { size });
-      const tLen = cue(s, 'lengths', { fallback: 5.6 }) - 0.2;
-      kicker(g, '4 to 24 ft long', m + (P ? 0 : measure(g, '8 sizes', font('P', 700, size)) + 40 * u), P ? 380 * u : 190 * u, { size: (P ? 40 : 36) * u, color: BRAND.greenText, alpha: ease.out(clamp((st - tLen) / 0.5)) });
-      // Outlines to scale, hanging from a ceiling line (coded: shows size, not the product's look).
-      const rows = P ? [SIZES.slice(0, 4), SIZES.slice(4)] : [SIZES];
-      const gapIn = 1.5;
-      const widest = Math.max(...rows.map(r => r.reduce((a, [w]) => a + w, 0) + gapIn * (r.length - 1)));
-      const sc = (W - 2 * m) / (widest + 3);
-      const ceil = P ? [520 * u, 900 * u] : [H * 0.34];
-      const t3 = cue(s, '3', { fallback: 1.6, alts: ['three'] }), t9 = cue(s, '9', { fallback: 3.2, alts: ['nine'], after: t3 + 0.3 });
-      let idx = 0;
-      rows.forEach((row, ri) => {
-        const y0 = ceil[ri];
-        const lw = ease.inOut(clamp((st - tS) / 0.8));
-        g.fillStyle = BRAND.line; g.fillRect(m, y0 - 10 * u, (W - 2 * m) * lw, 10 * u);
-        let x = m;
-        row.forEach(([w, h]) => {
-          const i = idx++;
-          const p = ease.out(clamp((st - (tS + 0.25 + i * 0.09)) / 0.5));
-          const pw = w * sc, phh = h * sc, t = 0.75 * sc;
-          const hi = i === 0 ? ease.inOut(clamp((st - t3 + 0.1) / 0.4)) * (1 - ease.inOut(clamp((st - t9 + 0.1) / 0.4)))
-            : i === 7 ? ease.inOut(clamp((st - t9 + 0.1) / 0.4)) * (1 - ease.inOut(clamp((st - tLen) / 0.5))) : 0;
-          g.save();
-          g.globalAlpha *= p;
-          g.translate(0, -(1 - p) * 40 * u);
-          sectionPath(g, 'U', x, y0, pw, phh, t);
-          g.fillStyle = hi > 0 ? `rgba(142,156,93,${0.25 + 0.5 * hi})` : 'rgba(142,156,93,0.22)';
-          g.fill('evenodd');
-          g.lineWidth = 3 * u; g.lineJoin = 'round'; g.strokeStyle = BRAND.greenDeep;
-          sectionPath(g, 'U', x, y0, pw, phh, t); g.stroke();
-          const lab = `${inch(w)}×${inch(h)}`;
-          text(g, lab, x + pw / 2, y0 + phh + 40 * u, { f: font('F', 700, (P ? 26 : 25) * u), color: hi > 0.5 ? BRAND.greenDeep : BRAND.muted, align: 'center' });
-          g.restore();
-          if (i === 7) dim(g, x + pw + 26 * u, y0, x + pw + 26 * u, y0 + phh, '11½', { alpha: hi, size: 24 * u, off: 42 * u });
-          if (i === 0) dim(g, x, y0 + phh + 80 * u, x + pw, y0 + phh + 80 * u, '3½ in', { alpha: hi, size: 24 * u });
-          x += pw + gapIn * sc;
+      // Spec table, as "Eight sizes" is said.
+      const tE = cue(s, 'Eight', { fallback: 3.4, alts: ['8'] }) - 0.2;
+      const pa = ease.out(clamp((st - tE) / 0.5));
+      if (pa > 0) {
+        const pw = P ? W - 2 * m : 760 * u, px = P ? m : W - m - pw, py = P ? H * 0.24 : 300 * u, rh = (P ? 68 : 72) * u;
+        g.save(); g.globalAlpha *= pa;
+        rr(g, px, py + (1 - pa) * 20 * u, pw, rh * SPECS.length + 40 * u, 18 * u); g.fillStyle = 'rgba(14,17,17,0.72)'; g.fill();
+        SPECS.forEach(([k, v], i) => {
+          const y = py + (1 - pa) * 20 * u + 20 * u + i * rh;
+          if (i) { g.fillStyle = 'rgba(255,255,255,0.14)'; g.fillRect(px + 28 * u, y, pw - 56 * u, 2 * u); }
+          text(g, k, px + 28 * u, y + rh * 0.62, { f: font('F', 600, 26 * u), color: 'rgba(255,255,255,0.7)' });
+          text(g, v, px + pw - 28 * u, y + rh * 0.62, { f: font('F', 700, (P ? 30 : 30) * u), color: '#fff', align: 'right' });
         });
-      });
-      // Length ruler: 4 to 24 ft; every orderable length is a dot.
-      const t4 = cue(s, '4', { after: tLen, fallback: 6.2, alts: ['four'] }), t24 = cue(s, '24', { after: t4, fallback: 7.0, alts: ['twenty'] });
-      const ry = P ? H * 0.70 : H * 0.79, rx0 = m, rx1 = W - m;
-      const ft = v => lerp(rx0, rx1, v / 24);
-      const ra = ease.out(clamp((st - tLen) / 0.5));
-      if (ra > 0) {
-        g.save(); g.globalAlpha *= ra;
-        rr(g, rx0, ry - 7 * u, rx1 - rx0, 14 * u, 7 * u); g.fillStyle = BRAND.paperDeep; g.fill();
-        const grow = lerp(4, 24, ease.inOut(clamp((st - t4) / Math.max(0.6, t24 - t4 + 0.3))));
-        rr(g, ft(0), ry - 7 * u, ft(grow) - ft(0), 14 * u, 7 * u); g.fillStyle = BRAND.green; g.fill();
-        LENGTHS.forEach(v => {
-          const on = grow >= v - 0.01 ? 1 : 0.35;
-          g.beginPath(); g.arc(ft(v), ry, 11 * u, 0, Math.PI * 2); g.fillStyle = on === 1 ? BRAND.greenDeep : '#fff'; g.fill();
-          g.lineWidth = 2.5 * u; g.strokeStyle = BRAND.greenDeep; g.stroke();
-          if (!P || [4, 8, 12, 16, 20, 24].includes(v)) text(g, `${v}`, ft(v), ry - 28 * u, { f: font('F', 700, 24 * u), color: BRAND.greenDeep, align: 'center', alpha: 0.5 + 0.5 * on });
-        });
-        text(g, 'feet', rx1, ry + 50 * u, { f: font('F', 600, 24 * u), color: BRAND.muted, align: 'right' });
         g.restore();
       }
     },
@@ -493,7 +460,7 @@ export const scenes = {
       const { W, H, u, P, m } = L;
       darkBg(g, L, T);
       const size = (P ? 88 : 80) * u;
-      kinetic(g, [['Hollow.', '#fff'], ['Slides over a block.', SAGE_L, cue(s, 'slide', { fallback: 1.7 }) - 0.3]], m, P ? 260 * u : 170 * u, st, 0.15, { size });
+      kinetic(g, [['One-person install.', '#fff'], ['Slides over a block.', SAGE_L, cue(s, 'slides', { fallback: 0.8 }) - 0.3]], m, P ? 260 * u : 170 * u, st, 0.15, { size });
       // Real photo: the open end of a Heritage beam.
       const box = P ? [m, 440 * u, W - 2.4 * m, 420 * u] : [m * 0.4, 330 * u, W * 0.52, 640 * u];
       const pin = ease.out(clamp((st - 0.1) / 0.8));
@@ -563,7 +530,7 @@ export const scenes = {
       vignette(g, L, 0.3);
       const size = HS(L);
       const y0 = P ? 520 * u : 300 * u;
-      kicker(g, 'Heritage Quick Ship', m, y0 - size * 1.0, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp(st / 0.6)) });
+      kicker(g, 'In stock', m, y0 - size * 1.0, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp(st / 0.6)) });
       kinetic(g, [['Quick Ship', '#fff']], m, y0, st, cue(s, 'ship', { fallback: 0.6 }) - 0.35, { size });
       const stat = (num, unit, label, t, x, y) => {
         const p = ease.out(clamp((st - t) / 0.6));
@@ -575,8 +542,7 @@ export const scenes = {
         text(g, label, x, y + 104 * u, { f: font('F', 500, 30 * u), color: 'rgba(255,255,255,0.88)', alpha: p });
       };
       const t3 = cue(s, 'three', { fallback: 2.9, alts: ['3'] }) - 0.3;
-      const tP = cue(s, 'primed', { fallback: 4.7 });
-      const t1 = cue(s, 'one', { after: tP, fallback: 5.2, alts: ['1'] }) - 0.3;
+      const t1 = cue(s, 'business', { fallback: 2.0 }) + 0.3;
       if (P) { stat('3–5', 'business days', 'Stained', t3, m, 900 * u); stat('24–72', 'hours', 'Primed', t1, m, 1260 * u); }
       else { stat('3–5', 'business days', 'Stained', t3, m, 640 * u); stat('24–72', 'hours', 'Primed', t1, m + 470 * u, 640 * u); }
       text(g, 'Usual ship times', m, P ? 1450 * u : 880 * u, { f: font('F', 500, 24 * u), color: 'rgba(255,255,255,0.7)', alpha: ease.out(clamp((st - t1) / 0.6)) });

@@ -69,16 +69,12 @@ ACTIONS = {
     },
     "heritage-hero": {
         "hook": [("hook_line1", "The timber look.", "look"), ("hook_line2", "Without the weight.", "without")],
-        "reveal": [("rev_name", "Heritage Timber title", "Heritage"), ("rev_ekena", "Ekena Millwork kicker", "Ekena"),
-                   ("rev_molded", "Molded from real, weathered timber", "molded"), ("rev_seams", "No corner seams", "corner")],
-        "textures": [(f"tex_{i}", f"Texture: {n}", p) for i, (n, p) in enumerate(
-            [("Mena", "Mina"), ("Salvaged Timber", "salvaged"), ("Rustic Sawn", "rustic"), ("Resawn Rip", "re"), ("Reclaimed Axed Cut", "reclaimed"), ("Sanded Smooth", "sanded")], 1)],
-        "finishes": [(f"fin_{i}", f"Finish: {n}", p) for i, (n, p) in enumerate(
-            [("Sandstone", "sandstone"), ("Kona Brown", "Kona"), ("Vanilla Chai", "vanilla"), ("Warm Caramel", "warm"), ("Natural White Oak", "natural"), ("Smokey Brown", "smoky"), ("Primed", "primed")], 1)],
-        "sizes": [("sizes_drop", "Eight outlines drop in", "sizes"), ("sizes_small", "3 1/2 in highlighted", "3"), ("sizes_big", "9 1/2 x 11 1/2 highlighted", "9"),
-                  ("sizes_len", "Length ruler 4-24 ft", "lengths")],
-        "install": [("inst_hollow", "Hollow end ringed", "hollow"), ("inst_slide", "Outline slides over block", "slide"), ("inst_wire", "Wiring through the hollow", "hide")],
-        "ship": [("ship_stained", "3-5 business days, stained", "three"), ("ship_primed", "24-72 hours, primed", "primed")],
+        "real": [("real_name", "Heritage Timber title", "Heritage"), ("real_cast", "Cast from real timber + Up close / Across the room", "cast")],
+        "weight": [("weight_18", "18 lb counts up", "18"), ("weight_one", "One person can lift it", "One")],
+        "install": [("inst_slide", "Outline slides over block", "slides"), ("inst_hollow", "Hollow end ringed", "hollow"), ("inst_wire", "Wiring through the hollow", "hide")],
+        "compare": [("cmp_table", "Heritage vs solid wood rows", "resists")],
+        "choose": [("choose_finishes", "Finishes change in the room on the beat", "six"), ("choose_specs", "Spec table", "Eight")],
+        "ship": [("ship_stained", "3-5 business days, stained", "three")],
         "end": [("end_sample", "Sample + endcap appear", "sample")],
     },
 }

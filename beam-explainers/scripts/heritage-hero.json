@@ -10,76 +10,88 @@
    "card": "The timber look. Without the weight.",
    "vo": "Want the look of old timber beams, without the weight?",
    "claims": [
-    "H17"
+    "H17",
+    "H24"
    ],
    "min_s": 4.2
   },
   {
-   "id": "reveal",
-   "title": "Meet Heritage Timber",
-   "kind": "title",
-   "card": "Heritage Timber",
-   "vo": "Meet Heritage Timber, from Ekena Millwork. | Each beam is molded from real, weathered timber, with no corner seams.",
+   "id": "real",
+   "title": "Real up close",
+   "kind": "diagram",
+   "card": "Cast from real timber",
+   "vo": "Meet Heritage Timber, by Ekena Millwork. | Each beam is cast from real, weathered timber, so it looks solid, even up close.",
    "claims": [
     "H1",
     "H2",
-    "H18"
+    "H20"
    ]
   },
   {
-   "id": "textures",
-   "title": "Textures",
+   "id": "weight",
+   "title": "The weight",
    "kind": "diagram",
-   "card": "6 textures",
-   "vo": "Pick from six textures. | Mena. | Salvaged Timber. | Rustic Sawn. | Resawn Rip. | Reclaimed Axed Cut. | And Sanded Smooth.",
+   "card": "18 lb",
+   "vo": "A twelve-foot beam weighs about eighteen pounds. | One person can lift it.",
    "claims": [
-    "H3",
-    "H5"
-   ]
-  },
-  {
-   "id": "finishes",
-   "title": "Finishes",
-   "kind": "diagram",
-   "card": "Hand-stained, or primed",
-   "vo": "Then a hand-stained finish. | Sandstone. | Kona Brown. | Vanilla Chai. | Warm Caramel. | Natural White Oak. | Smokey Brown. | Or primed, ready to paint.",
-   "claims": [
-    "H4",
-    "H14"
-   ]
-  },
-  {
-   "id": "sizes",
-   "title": "Sizes and lengths",
-   "kind": "diagram",
-   "card": "8 sizes",
-   "vo": "Eight sizes, from three and a half inches square to nine and a half by eleven and a half. In lengths from four to twenty-four feet.",
-   "claims": [
-    "H6",
-    "H9"
-   ]
+    "H21",
+    "H22"
+   ],
+   "min_s": 5.6
   },
   {
    "id": "install",
-   "title": "Hollow, easy install",
+   "title": "One-person install",
    "kind": "diagram",
-   "card": "Hollow. Slides over a block.",
-   "vo": "They're hollow, so they slide over a wood block on your ceiling, and can hide wiring.",
+   "card": "One-person install",
+   "vo": "It slides over a wood block, with standard household tools. | And it's hollow, so it can hide wiring.",
    "claims": [
-    "H17",
-    "H19"
-   ]
+    "H19",
+    "H22"
+   ],
+   "min_s": 6.6
+  },
+  {
+   "id": "compare",
+   "title": "Why not solid wood?",
+   "kind": "diagram",
+   "card": "Why not solid wood?",
+   "vo": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+   "claims": [
+    "H23",
+    "H24",
+    "H21",
+    "H22"
+   ],
+   "min_s": 7.0
+  },
+  {
+   "id": "choose",
+   "title": "Finish and size",
+   "kind": "diagram",
+   "card": "Your finish. Your size.",
+   "vo": "Pick from six hand-stained finishes, or primed. | Eight sizes, from four to twenty-four feet long.",
+   "claims": [
+    "H4",
+    "H14",
+    "H6",
+    "H9",
+    "H3"
+   ],
+   "min_s": 8.6
   },
   {
    "id": "ship",
    "title": "Quick Ship",
    "kind": "diagram",
    "card": "Quick Ship",
-   "vo": "And they ship fast. Stained beams in three to five business days. Primed, in about one to three days.",
+   "vo": "It's in stock, and ships in three to five business days.",
    "claims": [
+    "H25",
     "H10",
     "H11"
-   ]
+   ],
+   "min_s": 4.6
   },
   {
    "id": "end",
@@ -115,11 +127,6 @@
    "id": "H4",
    "text": "Finishes: Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak, Smokey Brown, Primed",
    "source": "Heritage variant data, Finish"
-  },
-  {
-   "id": "H5",
-   "text": "Five textures in all 7 finishes; Sanded Smooth only Primed",
-   "source": "Heritage variant data combinations"
   },
   {
    "id": "H6",
@@ -167,68 +174,62 @@
    "source": "Heritage key features / long description (high-density polyurethane, lightweight); beam-lines-facts.md 'Both lines'"
   },
   {
-   "id": "H18",
-   "text": "Heritage U-beams are molded with no corner seams",
-   "source": "Heritage key features: one-piece molded U-beam, no seams; beam-lines-facts.md table 'How it's made'"
-  },
-  {
    "id": "H19",
    "text": "The beam slides over a wood mounting block fixed to the ceiling; the hollow inside can hide wiring",
    "source": "INSTALL_BMU steps 1-3; Heritage long description (hollow core conceals wiring, ductwork or lighting)"
+  },
+  {
+   "id": "H20",
+   "text": "Heritage beams read as solid timber from across the room and up close",
+   "source": "Heritage description (BMSTS3C00600X0600X144KB): 'The result reads as solid timber from across the room and up close.'"
+  },
+  {
+   "id": "H21",
+   "text": "A 5 1/2 x 5 1/2 in x 12 ft Heritage beam weighs 18 lb",
+   "source": "Product record BMSTS3C00600X0600X144KB: weight 18.00 (lb), Width 5 1/2, Height 5 1/2, Length 144 in"
+  },
+  {
+   "id": "H22",
+   "text": "One person can lift and install a Heritage beam, with standard household tools",
+   "source": "Heritage key feature 'SIMPLE ONE-PERSON INSTALLATION: ... slides over a basic mounting block and secures with standard household tools - no structural work'; description 'one person can comfortably lift and install'"
+  },
+  {
+   "id": "H23",
+   "text": "High-density polyurethane resists warping and cracking, with minimal upkeep compared to natural wood",
+   "source": "Heritage key feature 'DURABLE POLYURETHANE BUILD: High-density material resists warping and cracking and maintains its appearance with minimal upkeep compared to natural wood'"
+  },
+  {
+   "id": "H24",
+   "text": "Heritage gives the look of timber without the weight, cost or labor of solid wood",
+   "source": "Heritage description: 'Bring the warmth and character of aged timber to your ceiling without the weight, cost, or labor of solid wood.'"
+  },
+  {
+   "id": "H25",
+   "text": "Heritage beams are in stock and ship quickly",
+   "source": "Heritage description: 'they are in stock and will ship immediately'; lead time stained 3-5 business days (H10)"
   }
  ],
  "key_terms": [
   "Heritage",
-  "Salvaged Timber",
-  "Rustic Sawn",
-  "Kona Brown",
-  "Vanilla Chai",
-  "Warm Caramel",
-  {
-   "term": "Smokey Brown",
-   "heard_as": [
-    "Smokey Brown",
-    "Smoky Brown"
-   ]
-  },
-  "primed",
-  {
-   "term": "Mena",
-   "heard_as": [
-    "Mena",
-    "Mina",
-    "Meena"
-   ]
-  },
-  {
-   "term": "Resawn Rip",
-   "heard_as": [
-    "Resawn Rip",
-    "Re-sawn Rip",
-    "Resun Rip"
-   ]
-  },
   {
    "term": "Ekena",
    "heard_as": [
-    "Ekena",
-    "Eek and a",
-    "Eakin and",
+    "Akina",
+    "E Kenna",
+    "E. Kenna",
+    "Eaken &",
     "Eaken and",
     "Eakin &",
-    "Eaken &",
-    "Akina",
-    "Ekina",
-    "Ekeena"
-   ]
-  },
-  {
-   "term": "Reclaimed Axed Cut",
-   "heard_as": [
-    "Reclaimed Axed Cut",
-    "Reclaimed Axe Cut",
-    "Reclaimed Axed-Cut"
+    "Eakin and",
+    "Eek and a",
+    "Ekeena",
+    "Ekena",
+    "Ekenna",
+    "Ekina"
    ]
   }
- ]
+ ],
+ "phonemes": {
+  "Ekena": "ˈiːkˌɛnɐ"
+ }
 }

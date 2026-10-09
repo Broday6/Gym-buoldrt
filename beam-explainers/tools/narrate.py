@@ -71,6 +71,7 @@ def main() -> int:
     args = ap.parse_args()
 
     script = json.loads(args.script.read_text(encoding="utf-8"))
+    PHONEMES.update(script.get("phonemes", {}))  # per-script overrides (a voice may need its own spelling)
     args.out.mkdir(parents=True, exist_ok=True)
     k = Kokoro(str(ROOT / "models/kokoro-v1.0.onnx"), str(ROOT / "models/voices-v1.0.bin"))
     from faster_whisper import WhisperModel

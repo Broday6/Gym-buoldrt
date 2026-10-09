@@ -7,7 +7,7 @@ stock footage, no AI video and no editing software; ffmpeg only encodes the resu
 |---|---|---|
 | **Heritage or Timberthane? Which beam do you need?** (`which-one`) | 96.7 s | What the two lines share, lead time, sizes (both drawn to the same scale), shapes, textures and finishes, details, and which to pick |
 | **Heritage Timber: Finish & Size Explorer** (`heritage`) | 80.0 s | 6 textures, 6 stained finishes plus Primed, every texture × finish combination, 8 sizes to scale, the inside opening, 4–24 ft lengths, Quick Ship |
-| **Heritage Timber: hero edit** (`heritage-hero`) | 61.3 s | The flagship: a problem-led edit ("the timber look, without the weight") with Ekena's own room renders full-frame (the finishes change in place on the same ceiling), texture close-ups, kinetic type, wipes and captions, cut to the beat of a quiet CC0 track ("Peaceful" by Ondrosik) |
+| **Heritage Timber: hero edit** (`heritage-hero`) | 52.5 s | The flagship, objection-led: each scene answers one reason a buyer hesitates (looks fake up close, the weight, the install, why not solid wood), then finish/size and Quick Ship. A problem-led edit ("the timber look, without the weight") with Ekena's own room renders full-frame (the finishes change in place on the same ceiling), texture close-ups, kinetic type, wipes and captions, cut to the beat of a quiet CC0 track ("Peaceful" by Ondrosik) |
 | **Timberthane: Finish & Size Explorer** (`timberthane`) | 70.8 s | 4 shapes, 8 textures, 28 hand-finished colours, any size from 3 to 24 in, 2–30 ft, endcaps, made to order in the USA |
 
 Each video comes in 1920×1080 and 1080×1920 at 60 fps, H.264, −14 LUFS.
@@ -48,7 +48,7 @@ licence; download it to `music/ondrosik-peaceful.flac`, then
 puts every scene change on a beat, and `python tools/music.py out/heritage-hero --track music/ondrosik-peaceful.flac`
 mixes it quietly under the voice. Photos: `python tools/upscale.py <photos> --out img/heritage/hi` makes
 2400 px Lanczos copies of the full-frame photos (Ekena's room renders in `img/heritage/room-renders/`,
-the same four rooms in every texture and finish). Also: `python tools/cutout.py <photos> --out img/heritage/cutout` (and
+the same four rooms in every texture and finish). Two stills (a bare-ceiling "before" and one person holding a 12 ft beam) are generated in ChatGPT from `generation-pack/PROMPTS.md` and dropped into `img/heritage/generated/`; the video uses them when present and real Ekena images otherwise. (`tools/remove_beams.py` tries the "before" without a generator by differencing two finishes of the same render; it leaves visible ghosting, so it isn't used.) Also: `python tools/cutout.py <photos> --out img/heritage/cutout` (and
 `--keep-frame` into `img/heritage/cutout-frame` for the Salvaged Timber finish set) cuts the real
 product shots out of their white backgrounds, and `--hits` on the synthesized score adds scene-change swells. It also uses the 1200 px swatches in `img/heritage/swatch-hi/`.
 
