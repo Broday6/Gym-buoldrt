@@ -335,10 +335,6 @@ export const scenes = {
           const z = 1 + 0.08 * ease.out(clamp(local / 2.5)), bw = (P ? W - m : W * 0.66) * z, bh = (P ? H * 0.42 : H * 0.62) * z;
           const bx0 = (P ? m * 0.5 : W * 0.30) - (bw / z) * (z - 1) * 0.5 - 30 * u * local, by0 = (P ? H * 0.20 : H * 0.10) - (bh / z) * (z - 1) * 0.5;
           cutout(g, A.tex[i], bx0, by0, bw, bh, { u, shadow: 0.25 });
-          const y = P ? H * 0.70 : H - 200 * u;
-          const pw = measure(g, 'Primed only', font('F', 700, 30 * u)) + 48 * u;
-          rr(g, m, y + 34 * u, pw, 56 * u, 28 * u); g.fillStyle = BRAND.green; g.fill();
-          text(g, 'Primed only', m + pw / 2, y + 72 * u, { f: font('F', 700, 30 * u), color: '#fff', align: 'center' });
           return;
         }
         cover(g, A.tex[i], 0, 0, W, H, { zoom: 1.14 - 0.06 * clamp(local / 2.5), px: i % 2 ? 0.3 : -0.3, py: 0 });
@@ -365,6 +361,14 @@ export const scenes = {
         kicker(g, `0${i + 1} / 06`, m, y - 128 * u, { size: (P ? 30 : 26) * u, color: light ? BRAND.greenText : SAGE_L, alpha: a });
         const ns = Math.min((P ? 100 : 104) * u, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
         text(g, name, m, y + (1 - fin) * 18 * u, { f: font('P', 700, ns), color: light ? BRAND.ink : '#fff', alpha: a });
+        if (light) {
+          // Sanded Smooth only comes primed: the tag arrives with the name, not with the wipe.
+          const pw = measure(g, 'Primed only', font('F', 700, 30 * u)) + 48 * u;
+          g.save(); g.globalAlpha *= a;
+          rr(g, m, y + 34 * u, pw, 56 * u, 28 * u); g.fillStyle = BRAND.green; g.fill();
+          text(g, 'Primed only', m + pw / 2, y + 72 * u, { f: font('F', 700, 30 * u), color: '#fff', align: 'center' });
+          g.restore();
+        }
       });
       // Progress ticks, top right.
       const n = 6, tw = (P ? 46 : 40) * u, tg = 10 * u, tx = W - m - n * tw - (n - 1) * tg, ty = (P ? 140 : 90) * u;
@@ -634,7 +638,9 @@ export function drawFrame(g, L, all, f) {
   const s = all[i], T = f / FPS, st = (f - s.start_frame) / FPS;
   const kind = TRANS[s.id];
   if (i > 0 && kind && st < TR) {
-    const p = ease.inOut(st / TR), prev = all[i - 1];
+    // Ease-out, counted from one frame early: the wipe's biggest step is the boundary frame itself,
+    // which sits on a beat of the music.
+    const p = ease.out((st + 1 / FPS) / TR), prev = all[i - 1];
     g.save();
     if (kind === 'wipe') { g.translate(-p * 50 * L.u, 0); }
     drawScene(g, L, prev, prev.sd + st, T);
@@ -646,7 +652,7 @@ export function drawFrame(g, L, all, f) {
     O.restore();
     if (kind === 'wipe') {
       // Soft-edged wipe from the left; fully open (no leftover corner) when p reaches 1.
-      const band = 160 * L.u, ex = lerp(0, L.W + band, p);
+      const band = 160 * L.u, ex = lerp(band, L.W + band, p); // the soft edge starts on screen, so the first step is the biggest
       O.save();
       O.globalCompositeOperation = 'destination-in';
       const gr = O.createLinearGradient(ex - band, 0, ex, 0);

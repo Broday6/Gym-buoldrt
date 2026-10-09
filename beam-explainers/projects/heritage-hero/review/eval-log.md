@@ -21,3 +21,9 @@
 - Technical checks: pass; narration: issues
 - Scenes failing: none
 
+## v4 — 2026-10-09T13:36:31Z — PASS
+
+- 0 blocker, 1 major, 5 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: none
+
