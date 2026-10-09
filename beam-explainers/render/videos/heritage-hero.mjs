@@ -421,8 +421,9 @@ export const scenes = {
           // No room render in this finish: Ekena's own studio shot of the beam in it, on a dark panel,
           // placed clear of the spec table (16:9 right) and the name panel (9:16 middle).
           g.save(); g.globalAlpha *= a; darkBg(g, L, T); g.restore();
-          if (P) cutout(g, A.sbBeam, m * 0.5, 300 * u, W - m, 460 * u, { alpha: a, u, shadow: 0.45 });
-          else cutout(g, A.sbBeam, m * 0.5, 230 * u, W * 0.5, 560 * u, { alpha: a, u, shadow: 0.45 });
+          // Left-aligned past the frame edge, so the photo's cropped end is off screen; below the headline.
+          if (P) cutout(g, A.sbBeam, -70 * u, 370 * u, W, 400 * u, { alpha: a, u, shadow: 0.45, align: 'left' });
+          else cutout(g, A.sbBeam, -90 * u, 300 * u, W * 0.6, 440 * u, { alpha: a, u, shadow: 0.45, align: 'left' });
         }
       }
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
@@ -562,7 +563,7 @@ export const scenes = {
       g.globalAlpha *= 1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3));
       if (P) {
         g.save(); g.globalAlpha *= ease.out(clamp((st - t3 + 0.2) / 0.4)) * 0.78 * (1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3)));
-        rr(g, m - 30 * u, 720 * u, W - 2 * m + 60 * u, 790 * u, 20 * u); g.fillStyle = '#141818'; g.fill(); g.restore();
+        rr(g, m - 30 * u, 720 * u, W - 2 * m + 60 * u, 750 * u, 20 * u); g.fillStyle = '#141818'; g.fill(); g.restore(); // the panel ends above the caption band
       }
       if (P) { stat('3–5', 'business days', 'Stained', t3, m, 900 * u); stat('24–72', 'hours', 'Primed', t1, m, 1260 * u); }
       else { stat('3–5', 'business days', 'Stained', t3, m, 640 * u); stat('24–72', 'hours', 'Primed', t1, m + 470 * u, 640 * u); }

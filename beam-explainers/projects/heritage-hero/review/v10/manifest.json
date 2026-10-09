@@ -1,0 +1,527 @@
+{
+  "schema": "ekena-install-review/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v10",
+  "created": "2026-10-09T20:27:31Z",
+  "previous": "v9",
+  "fps": 60,
+  "frame_count": 3242,
+  "cuts": [
+    {
+      "id": "16x9",
+      "file": "renders/v10/ekena-heritage-hero-16x9.mp4",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "9x16",
+      "file": "renders/v10/ekena-heritage-hero-9x16.mp4",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "scenes": [
+    {
+      "id": "hook",
+      "title": "Hook",
+      "kind": "title",
+      "start_frame": 0,
+      "end_frame": 267,
+      "step_card": "The timber look. Without the weight.",
+      "narration": "Want the look of old timber beams, without the weight?",
+      "claims": [
+        "H17",
+        "H24"
+      ],
+      "transition_in": "continuous",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "hook__hook_line1",
+          "label": "The timber look.",
+          "frame": 76
+        },
+        {
+          "id": "hook__hook_line2",
+          "label": "Without the weight.",
+          "frame": 149
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "hook"
+        ],
+        "card": "build/script-v10.json#hook",
+        "narration": "build/script-v10.json#hook"
+      }
+    },
+    {
+      "id": "real",
+      "title": "Real up close",
+      "kind": "diagram",
+      "start_frame": 267,
+      "end_frame": 776,
+      "step_card": "Cast from real timber",
+      "narration": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+      "claims": [
+        "H1",
+        "H2",
+        "H20"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "real__real_name",
+          "label": "Heritage Timber title",
+          "frame": 302
+        },
+        {
+          "id": "real__real_cast",
+          "label": "Cast from real timber + Up close / Across the room",
+          "frame": 502
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "real"
+        ],
+        "card": "build/script-v10.json#real",
+        "narration": "build/script-v10.json#real"
+      }
+    },
+    {
+      "id": "weight",
+      "title": "The weight",
+      "kind": "diagram",
+      "start_frame": 776,
+      "end_frame": 1199,
+      "step_card": "18 lb",
+      "narration": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+      "claims": [
+        "H21",
+        "H22"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "weight__weight_18",
+          "label": "18 lb counts up",
+          "frame": 1011
+        },
+        {
+          "id": "weight__weight_one",
+          "label": "One person can lift it",
+          "frame": 1086
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "weight"
+        ],
+        "card": "build/script-v10.json#weight",
+        "narration": "build/script-v10.json#weight"
+      }
+    },
+    {
+      "id": "install",
+      "title": "One-person install",
+      "kind": "diagram",
+      "start_frame": 1199,
+      "end_frame": 1623,
+      "step_card": "One-person install. Slides over a block.",
+      "narration": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+      "claims": [
+        "H19",
+        "H22"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "install__inst_slide",
+          "label": "Outline slides over block",
+          "frame": 1234
+        },
+        {
+          "id": "install__inst_hollow",
+          "label": "Hollow end ringed",
+          "frame": 1466
+        },
+        {
+          "id": "install__inst_wire",
+          "label": "Wiring through the hollow",
+          "frame": 1520
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "install"
+        ],
+        "card": "build/script-v10.json#install",
+        "narration": "build/script-v10.json#install"
+      }
+    },
+    {
+      "id": "compare",
+      "title": "Why not solid wood?",
+      "kind": "diagram",
+      "start_frame": 1623,
+      "end_frame": 2047,
+      "step_card": "Why not solid wood?",
+      "narration": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+      "claims": [
+        "H23",
+        "H24",
+        "H21",
+        "H22"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "compare__cmp_table",
+          "label": "Heritage vs solid wood rows",
+          "frame": 1749
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "compare"
+        ],
+        "card": "build/script-v10.json#compare",
+        "narration": "build/script-v10.json#compare"
+      }
+    },
+    {
+      "id": "choose",
+      "title": "Finish and size",
+      "kind": "diagram",
+      "start_frame": 2047,
+      "end_frame": 2598,
+      "step_card": "Your finish. Your size.",
+      "narration": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+      "claims": [
+        "H4",
+        "H14",
+        "H6",
+        "H9",
+        "H3"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "choose__choose_finishes",
+          "label": "Finishes change in the room on the beat",
+          "frame": 2098
+        },
+        {
+          "id": "choose__choose_specs",
+          "label": "Spec table",
+          "frame": 2256
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "choose"
+        ],
+        "card": "build/script-v10.json#choose",
+        "narration": "build/script-v10.json#choose"
+      }
+    },
+    {
+      "id": "ship",
+      "title": "Quick Ship",
+      "kind": "diagram",
+      "start_frame": 2598,
+      "end_frame": 2894,
+      "step_card": "Quick Ship",
+      "narration": "It's in stock, and usually ships in three to five business days.",
+      "claims": [
+        "H25",
+        "H10",
+        "H11"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": false,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "ship__ship_stained",
+          "label": "3-5 business days, stained",
+          "frame": 2754
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "ship"
+        ],
+        "card": "build/script-v10.json#ship",
+        "narration": "build/script-v10.json#ship"
+      }
+    },
+    {
+      "id": "end",
+      "title": "End card",
+      "kind": "end",
+      "start_frame": 2894,
+      "end_frame": 3242,
+      "step_card": "Order a sample",
+      "narration": "Order a sample, and see it in your own light.",
+      "claims": [
+        "H13",
+        "H12",
+        "H16"
+      ],
+      "transition_in": "dissolve",
+      "static_ok": true,
+      "black_ok": false,
+      "actions": [
+        {
+          "id": "end__end_sample",
+          "label": "Sample + endcap appear",
+          "frame": 2949
+        }
+      ],
+      "source": {
+        "files": [
+          "render/videos/heritage-hero.mjs",
+          "render/lib/core.mjs"
+        ],
+        "timeline_keys": [
+          "end"
+        ],
+        "card": "build/script-v10.json#end",
+        "narration": "build/script-v10.json#end"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "H1",
+      "text": "Heritage Timber is an Ekena Millwork faux wood beam line",
+      "source": "Heritage product record (brand Heritage Timber, manufacturer Ekena Millwork)"
+    },
+    {
+      "id": "H2",
+      "text": "Textures are cast from real weathered timbers",
+      "source": "Heritage key feature 02, long description"
+    },
+    {
+      "id": "H3",
+      "text": "U-beam textures: Mena, Salvaged Timber, Rustic Sawn, Resawn Rip, Reclaimed Axed Cut, Sanded Smooth",
+      "source": "Heritage variant data (BMSTS3), Texture by Style"
+    },
+    {
+      "id": "H4",
+      "text": "Finishes: Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak, Smokey Brown, Primed",
+      "source": "Heritage variant data, Finish"
+    },
+    {
+      "id": "H6",
+      "text": "8 cross-sections: 3.5x3.5, 3.5x5.5, 5.5x5.5, 5.5x7.5, 7.5x7.5, 7.5x9.5, 9.5x9.5, 9.5x11.5 in",
+      "source": "Heritage variant data, Size (Width x Height)"
+    },
+    {
+      "id": "H9",
+      "text": "Lengths 4, 5, 6, 8, 10, 12, 16, 20, 24 ft",
+      "source": "Heritage variant data, Size (Length)"
+    },
+    {
+      "id": "H10",
+      "text": "Stained: usually ships in 3-5 business days",
+      "source": "Heritage product record leadTimeRaw (Kona Brown)"
+    },
+    {
+      "id": "H11",
+      "text": "Primed: usually ships in 24-72 hours",
+      "source": "Heritage product record leadTimeRaw (Primed, OT)"
+    },
+    {
+      "id": "H12",
+      "text": "Endcaps are sold separately and ship unstained",
+      "source": "Quick Ship FAQ"
+    },
+    {
+      "id": "H13",
+      "text": "Heritage samples are available: a 3 1/2 x 5 1/2 in U-beam piece, 8 in long",
+      "source": "BM-HT-SAMPLE listing; SAMPLE-KIT-BMSTS3KB description '3 1/2\"W x 5 1/2\"H x 8\"L 3-Sided SAMPLE (U-Beam)'"
+    },
+    {
+      "id": "H14",
+      "text": "Primed beams are ready to paint or stain",
+      "source": "Heritage key feature 03: 'a primed, ready-to-finish surface that accepts paint or stain'"
+    },
+    {
+      "id": "H16",
+      "text": "ekenamillwork.com sells Heritage Timber",
+      "source": "Product record: manufacturer Ekena Millwork, onEkena = 1 (listed on the Ekena site). Site for the end card to be confirmed by Brody"
+    },
+    {
+      "id": "H17",
+      "text": "Heritage beams are high-density polyurethane: hollow and lightweight",
+      "source": "Heritage key features / long description (high-density polyurethane, lightweight); beam-lines-facts.md 'Both lines'"
+    },
+    {
+      "id": "H19",
+      "text": "The beam slides over a wood mounting block fixed to the ceiling; the hollow inside can hide wiring",
+      "source": "INSTALL_BMU steps 1-3; Heritage long description (hollow core conceals wiring, ductwork or lighting)"
+    },
+    {
+      "id": "H20",
+      "text": "Heritage beams read as solid timber from across the room and up close",
+      "source": "Heritage description (BMSTS3C00600X0600X144KB): 'The result reads as solid timber from across the room and up close.'"
+    },
+    {
+      "id": "H21",
+      "text": "A 5 1/2 x 5 1/2 in x 12 ft Heritage beam ships at 18 lb",
+      "source": "Product record BMSTS3C00600X0600X144KB: weight 18.00 = shippingWeight 18.0000 (lb); the net beam weight is not listed (to confirm with the product team)"
+    },
+    {
+      "id": "H22",
+      "text": "One person can lift and install a Heritage beam, with standard household tools",
+      "source": "Heritage key feature 'SIMPLE ONE-PERSON INSTALLATION: ... slides over a basic mounting block and secures with standard household tools - no structural work'; description 'one person can comfortably lift and install'"
+    },
+    {
+      "id": "H23",
+      "text": "High-density polyurethane resists warping and cracking, with minimal upkeep compared to natural wood",
+      "source": "Heritage key feature 'DURABLE POLYURETHANE BUILD: High-density material resists warping and cracking and maintains its appearance with minimal upkeep compared to natural wood'"
+    },
+    {
+      "id": "H24",
+      "text": "Heritage gives the look of timber without the weight, cost or labor of solid wood",
+      "source": "Heritage description: 'Bring the warmth and character of aged timber to your ceiling without the weight, cost, or labor of solid wood.'"
+    },
+    {
+      "id": "H25",
+      "text": "Heritage beams are in stock and ship quickly",
+      "source": "Heritage description: 'they are in stock and will ship immediately'; lead time stained 3-5 business days (H10)"
+    }
+  ],
+  "key_terms": [
+    "Heritage",
+    {
+      "term": "Ekena",
+      "heard_as": [
+        "Akina",
+        "E Kenna",
+        "E. Kenna",
+        "Eaken &",
+        "Eaken and",
+        "Eakin &",
+        "Eakin and",
+        "Eek and a",
+        "Ekeena",
+        "Ekena",
+        "Ekenna",
+        "Ekina"
+      ]
+    }
+  ],
+  "references": {
+    "install_guide": "research/INSTALL_BMU.pdf",
+    "product_images": [
+      "research/product-images/heritage__product__salvaged-timber__kona-brown.jpg",
+      "research/product-images/heritage__angles__BMSTKB-05.jpg",
+      "research/product-images/heritage__angles__BMSTKB-09.jpg",
+      "research/product-images/heritage__swatch-hi__texture-mena.jpg",
+      "research/product-images/heritage__swatch-hi__finish-sandstone.jpg",
+      "research/product-images/heritage__accessories__sample-kit.jpg",
+      "research/product-images/heritage__accessories__endcap.jpg",
+      "research/product-images/heritage__product__salvaged-timber__primed.jpg",
+      "research/product-images/heritage__product__sanded-smooth__primed.jpg",
+      "research/product-images/heritage__swatch-hi__finish-primed.jpg",
+      "research/product-images/..__render__brand__ekena-logo.png",
+      "research/product-images/heritage__room-renders__BMSTSS-07.jpg",
+      "research/product-images/heritage__room-renders__BMSTKB-07.jpg",
+      "research/product-images/heritage__room-renders__BMSTOT-07.jpg",
+      "research/product-images/heritage__room-renders__BMRSWC-08.jpg",
+      "research/product-images/heritage__room-renders__BMSTSB-05.jpg",
+      "research/product-images/heritage__room-renders__BMSTVC-07.jpg",
+      "research/product-images/heritage__room-renders__BMSTWC-07.jpg",
+      "research/product-images/heritage__room-renders__BMSTWO-07.jpg",
+      "research/product-images/heritage__swatch-hi__finish-smokey-brown.jpg",
+      "research/product-images/heritage__room-renders__BMSTKB-06.jpg",
+      "research/product-images/heritage__room-renders__BMSTKB-09.jpg",
+      "research/product-images/heritage__swatch-hi__finish-kona-brown.jpg",
+      "research/product-images/heritage__room-renders__BMRDWO-09.jpg",
+      "research/product-images/heritage__room-renders__BMSTWO-07.jpg"
+    ],
+    "house_rules": "HOUSE_RULES.md",
+    "readme": "research/beam-lines-facts.md",
+    "timeline": "build/timeline-v10.json"
+  },
+  "changes": [
+    {
+      "kind": "finding",
+      "finding": "e1",
+      "scene": "choose",
+      "status": "addressed",
+      "summary": "16:9 Smokey Brown beam moved down to y 300-740, clear of the 'Your size.' headline and above the finish label."
+    },
+    {
+      "kind": "finding",
+      "finding": "e2",
+      "scene": "choose",
+      "status": "addressed",
+      "summary": "9:16 Smokey Brown beam at y 370-770: below the headline, above the name panel (top about y 790)."
+    },
+    {
+      "kind": "finding",
+      "finding": "e3",
+      "scene": "ship",
+      "status": "addressed",
+      "summary": "9:16 stats panel now ends at y 1470, above the caption band."
+    },
+    {
+      "kind": "finding",
+      "finding": "e4",
+      "scene": "choose",
+      "status": "addressed",
+      "summary": "The studio shot is left-aligned past the frame edge, so its cropped end is off screen and the beam runs in from the left."
+    },
+    {
+      "kind": "finding",
+      "finding": "e5",
+      "scene": "end",
+      "status": "declined",
+      "summary": "End-card site still waits on Brody (ekenamillwork.com or FauxBeams.com)."
+    }
+  ]
+}

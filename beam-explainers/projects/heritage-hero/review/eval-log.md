@@ -61,3 +61,13 @@
 - Blocker e3 (choose, product): While the label reads 'HAND-STAINED · SWATCH / Smokey Brown', the room behind it is still the Natural White Oak render (BMSTWO-07). The ceiling beams, which take up most of the frame, are light tan, not Smokey Brown's grey-brown. Every other finish shows its own room, so viewers read these beams as Smokey Brown.
 - Blocker e4 (ship, graphics): In 9:16, after the kitchen was lightened, the white '24–72' (f≈2812–2880) sits on the white herringbone backsplash and range hood, so the digits break up. 'hours' (pale green) is on the bright counter and can barely be read, which leaves the primed lead-time claim without its unit. '3–5' runs across the underside of the front beam.
 
+## v9 — 2026-10-09T20:21:06Z — FAIL
+
+- 3 blocker, 2 major, 2 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: choose, ship
+- Carried from v8 unchanged: hook
+- Blocker e1 (choose, graphics): In 16:9 the new Smokey Brown beam image starts at about y 230, but the 'Your size.' headline ends at about y 240. The bottoms of 'Your' sit on the beam's top edge (x ≈ 120–480), so the headline overlaps the product.
+- Blocker e2 (choose, graphics): In 9:16 the top-left corner of the Smokey Brown beam (x ≈ 205–300, y ≈ 305–320) runs under 'Your' in the 'Your size.' headline (baseline ≈ y 312), so the text overlaps the product. The beam does clear the name panel (beam bottom ≈ y 755, panel top ≈ y 790).
+- Blocker e3 (ship, graphics): In 9:16 the new dark stats panel runs from y ≈ 718 to 1512, and its bottom edge goes straight through the narration caption pills (y ≈ 1483–1558): 'three to five business' (f≈2750–2800) and 'days.' (f≈2800–2840) are half on the panel and half on the room. The panel also dims the front beams behind '3–5'.
+
