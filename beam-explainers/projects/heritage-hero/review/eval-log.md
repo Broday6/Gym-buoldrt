@@ -44,3 +44,10 @@
 - Blocker e4 (weight, graphics): In 9:16, 'One person can lift it.' sits on the beam cutout. The top edge and cream end of the beam run through 'lift it.', so the 't' of 'lift' is cut by the beam edge and the text and the product overlap for the rest of the scene.
 - Blocker e5 (compare, install): The Weight row's Heritage cell reads '18 lb for a 12 ft beam' with no size. That holds only for 5½×5½; other 12 ft Heritage beams are listed at 12, 25 and 36 lb. This is the same overreach as the weight scene, without even the small-print qualifier.
 
+## v7 — 2026-10-09T19:44:15Z — FAIL
+
+- 1 blocker, 2 major, 4 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: choose
+- Blocker e1 (choose, graphics): In 9:16 the finish name and its eyebrow sit at about 41–50% of the height, on the white ceiling and the pale beam ends. The white names 'Vanilla Chai', 'Warm Caramel', 'Natural White Oak' and 'Primed' are white on near-white. The pale-green eyebrows 'HAND-STAINED' and 'READY TO PAINT' (the primed / ready-to-paint claim) can't be read at all. 16:9 is fine: there the label sits on the green wall.
+

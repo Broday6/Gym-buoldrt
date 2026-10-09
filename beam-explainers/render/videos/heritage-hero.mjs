@@ -29,7 +29,7 @@ const FINISHES = [
 ];
 // Why not solid wood: [row, Heritage, solid wood]. Sources: claims H21-H24 (product record + Ekena's copy).
 const COMPARE = [
-  ['Weight', '18 lb (5½ in, 12 ft long)', 'Heavy'],
+  ['Weight', 'Ships at 18 lb (5½ in, 12 ft)', 'Heavy'],
   ['Install', 'One person, household tools', 'More labor'],
   ['Upkeep', 'Resists warping and cracking', 'More upkeep'],
   ['Texture', 'Cast from real timber', 'Real timber'],
@@ -357,13 +357,13 @@ export const scenes = {
       const x = P ? m : W * 0.62, y = P ? 520 * u : H * 0.46;
       const c = ease.out(clamp((st - t18 + 0.2) / 0.9));
       const ns = (P ? 260 : 250) * u;
-      kicker(g, 'A 5½ × 5½ in × 12 ft beam weighs', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
+      kicker(g, 'A 5½ × 5½ in × 12 ft beam ships at', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
       g.save(); g.globalAlpha *= ease.out(clamp((st - t18 + 0.3) / 0.4));
       const num = String(Math.round(18 * c));
       text(g, num, x, y, { f: font('P', 700, ns), color: '#fff' });
       text(g, 'lb', x + measure(g, num, font('P', 700, ns)) + 16 * u, y, { f: font('P', 700, ns * 0.42), color: SAGE_L });
       g.restore();
-      text(g, 'Listed weight, Heritage Salvaged Timber', x, y + 60 * u, { f: font('F', 600, (P ? 32 : 28) * u), color: 'rgba(255,255,255,0.8)', alpha: ease.out(clamp((st - t18 - 0.3) / 0.5)) });
+      text(g, 'Shipping weight, Heritage Salvaged Timber', x, y + 60 * u, { f: font('F', 600, (P ? 32 : 28) * u), color: 'rgba(255,255,255,0.8)', alpha: ease.out(clamp((st - t18 - 0.3) / 0.5)) });
       kinetic(g, [['One person can lift it.', SAGE_L]], x, y + (P ? 190 : 170) * u, st, tOne - 0.2, { size: (P ? 64 : 58) * u });
     },
   },
@@ -408,7 +408,7 @@ export const scenes = {
   choose: {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
-      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: its close-up).
+      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: its swatch, inset).
       const bt = beatsIn(s, 0.3, s.sd);
       const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
       const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
@@ -416,10 +416,25 @@ export const scenes = {
       for (const { i, a } of stack) {
         const room = i < 0 ? A.finIntro : A.finRoom[i];
         if (room) cover(g, room, 0, 0, W, H, { ...cam, alpha: a });
-        else cover(g, A.finSw[i], 0, 0, W, H, { zoom: 1.1, alpha: a });
+        else {
+          // No room render in this finish: the previous room stays, with Ekena's swatch as an inset.
+          cover(g, A.finRoom[i - 1] || A.finIntro, 0, 0, W, H, { ...cam, alpha: a });
+          const sz = (P ? 0.5 * W : 0.34 * H), sx = P ? W - m - sz : W * 0.5 - sz / 2, sy = P ? H * 0.20 : H * 0.18;
+          g.save(); g.globalAlpha *= a;
+          g.shadowColor = `rgba(0,0,0,${0.45 * g.globalAlpha})`; g.shadowBlur = 40 * u; g.shadowOffsetY = 16 * u;
+          rr(g, sx, sy, sz, sz, 18 * u); g.fillStyle = '#fff'; g.fill(); g.shadowColor = 'transparent';
+          g.restore();
+          cover(g, A.finSw[i], sx + 8 * u, sy + 8 * u, sz - 16 * u, sz - 16 * u, { alpha: a, r: 12 * u });
+        }
       }
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
       scrim(g, L, { from: P ? 0.45 : 0.5, a1: 0.85 });
+      if (P) {
+        // 9:16: the name block sits over the bright ceiling, so it gets its own dark panel.
+        const ny0 = H * 0.47;
+        g.save(); g.globalAlpha *= ease.out(clamp((st - 0.3) / 0.4)) * 0.78;
+        rr(g, m - 24 * u, ny0 - 110 * u, W - 2 * m + 48 * u, 210 * u, 18 * u); g.fillStyle = '#141818'; g.fill(); g.restore();
+      }
       const hs = (P ? 80 : 76) * u;
       kinetic(g, [['Your finish.', '#fff'], ['Your size.', SAGE_L, cue(s, 'Eight', { fallback: 3.4 }) - 0.2]], m, P ? 230 * u : 160 * u, st, 0.15, { size: hs });
       // Current finish: name + swatch row.
@@ -430,7 +445,7 @@ export const scenes = {
         const fout = i + 1 < ts.length ? ease.inOut(clamp((st - ts[i + 1]) / 0.15)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
-        kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained · close-up', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });
+        kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained · swatch', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });
         text(g, name, m, ny, { f: font('P', 700, (P ? 64 : 60) * u), color: '#fff', alpha: a });
       });
       const r = (P ? 26 : 24) * u, gap = 14 * u, rowY = ny + (P ? 70 : 62) * u;
@@ -528,7 +543,7 @@ export const scenes = {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
       cover(g, A.ship, 0, 0, W, H, { zoom: lerp(1.04, 1.14, ease.inOut(clamp(st / (s.sd + TR)))), py: 0.75, px: P ? 0.1 : 0 });
-      if (P) scrim(g, L, { from: 0.15, to: 0.9, a0: 0.25, a1: 0.85 }); else scrim(g, L, { from: 0, to: 0.75, a0: 0.82, a1: 0.15, dir: 'right' });
+      if (P) { scrim(g, L, { from: 0.55, to: 0.15, a0: 0, a1: 0.6 }); scrim(g, L, { from: 0.72, to: 1, a0: 0, a1: 0.55 }); } else scrim(g, L, { from: 0, to: 0.75, a0: 0.82, a1: 0.15, dir: 'right' });
       vignette(g, L, 0.3);
       const size = HS(L);
       const y0 = P ? 520 * u : 300 * u;

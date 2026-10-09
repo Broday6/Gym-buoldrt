@@ -32,7 +32,7 @@
    "title": "The weight",
    "kind": "diagram",
    "card": "18 lb",
-   "vo": "A five-and-a-half-inch beam, twelve feet long, weighs about eighteen pounds. | One person can lift it.",
+   "vo": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. | One person can lift it.",
    "claims": [
     "H21",
     "H22"
@@ -185,8 +185,8 @@
   },
   {
    "id": "H21",
-   "text": "A 5 1/2 x 5 1/2 in x 12 ft Heritage beam weighs 18 lb",
-   "source": "Product record BMSTS3C00600X0600X144KB: weight 18.00 (lb), Width 5 1/2, Height 5 1/2, Length 144 in"
+   "text": "A 5 1/2 x 5 1/2 in x 12 ft Heritage beam ships at 18 lb",
+   "source": "Product record BMSTS3C00600X0600X144KB: weight 18.00 = shippingWeight 18.0000 (lb); the net beam weight is not listed (to confirm with the product team)"
   },
   {
    "id": "H22",
