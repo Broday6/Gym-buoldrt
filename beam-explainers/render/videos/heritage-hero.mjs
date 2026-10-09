@@ -221,20 +221,26 @@ function captions(g, L, s, st) {
 // ---- preload ------------------------------------------------------------------------------------------
 export async function preload(L) {
   const cut = async (name, dir = 'cutout') => { const r = await img(`heritage/${dir}/${name}.png`, { maxSide: 1200 }); r.bb = alphaBox(r); return r; };
-  A.hook = await img('heritage/angles/BMSTKB-09.jpg', { maxSide: 1200 });
+  // Full-frame photos come from img/heritage/hi (tools/upscale.py: Lanczos 2x + light sharpening).
+  const hi = name => img(`heritage/hi/${name}.jpg`, { maxSide: 2400 });
+  A.hook = await hi('BMSTKB-09');
   A.room8 = await img('heritage/angles/BMSTKB-08.jpg', { maxSide: 1200 });
   A.room8blur = blurred(A.room8, 26);
-  A.room7 = await img('heritage/angles/BMSTKB-07.jpg', { maxSide: 1200 });
-  A.room6 = await img('heritage/angles/BMSTKB-06.jpg', { maxSide: 1200 });
-  A.ship = await img('heritage/rooms/7652db729115ec792d44.jpg', { maxSide: 1200 });
-  A.shipBox = contentBox(A.ship);
+  A.room6 = await hi('BMSTKB-06');
+  A.ship = await hi('BMRSWC-08');
+  // The same Ekena room render in each finish (Salvaged Timber). Smokey Brown has no room render,
+  // so it is shown as its real close-up instead.
+  const FCODE = { sandstone: 'SS', 'kona-brown': 'KB', 'vanilla-chai': 'VC', 'warm-caramel': 'WC', 'natural-white-oak': 'WO', primed: 'OT' };
+  A.finRoom = [];
+  for (const [, sl] of FINISHES) A.finRoom.push(FCODE[sl] ? await hi(`BMST${FCODE[sl]}-07`) : null);
+  A.finIntro = await hi('BMSTKB-07');
   A.hero = await cut('salvaged-timber__kona-brown');
-  A.texIntro = await img('heritage/angles/BMSTKB-0.jpg', { maxSide: 1200 });
+  A.texIntro = await hi('BMSTKB-0');
   A.tex = [];
-  for (const [, sl] of TEXTURES) A.tex.push(sl === 'sanded-smooth' ? await cut('sanded-smooth__primed') : await img(`heritage/swatch-hi/texture-${sl}.jpg`, { maxSide: 1200 }));
+  for (const [, sl] of TEXTURES) A.tex.push(sl === 'sanded-smooth' ? await cut('sanded-smooth__primed') : await hi(`texture-${sl}`));
   A.finSw = [], A.finBeam = [];
   for (const [, sl] of FINISHES) {
-    A.finSw.push(await img(`heritage/swatch-hi/finish-${sl}.jpg`, { maxSide: 1200 }));
+    A.finSw.push(await hi(`finish-${sl}`));
     A.finBeam.push(await cut(`salvaged-timber__${sl}`, 'cutout-frame'));
   }
   // One box for the whole set, so the beam doesn't shift as the finish changes.
@@ -376,49 +382,38 @@ export const scenes = {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
       const ts = cues(s, FINISHES.map(([n, , alts]) => [n, ...(alts || [])]), { after: 1.6 });
-      const stack = listStack(ts, st, 0.55);
-      // Photo panel (left, or top in portrait).
-      const pw = P ? W : W * 0.46, ph = P ? H * 0.40 : H;
-      g.save(); g.beginPath(); g.rect(0, 0, pw, ph); g.clip();
+      const stack = listStack(ts, st, 0.6);
+      // One camera for every room render, so in a cross-fade only the beams change.
+      const cam = { zoom: lerp(1.07, 1.0, ease.inOut(clamp(st / (s.sd + TR)))), py: P ? 0 : 0.5, px: P ? 0.05 : 0 };
       for (const { i, a } of stack) {
-        if (i < 0) cover(g, A.room7, 0, 0, pw, ph, { zoom: 1.1 - 0.04 * clamp(st / 2), px: P ? 0 : 0.2, py: P ? 0.6 : 0, alpha: a });
-        else cover(g, A.finSw[i], 0, 0, pw, ph, { zoom: 1.12 - 0.05 * clamp((st - ts[i]) / 2), px: i % 2 ? 0.25 : -0.25, alpha: a });
+        const room = i < 0 ? A.finIntro : A.finRoom[i];
+        if (room) cover(g, room, 0, 0, W, H, { ...cam, alpha: a });
+        else cover(g, A.finSw[i], 0, 0, W, H, { zoom: 1.12 - 0.05 * clamp((st - ts[i]) / 2), alpha: a });
       }
-      g.restore();
-      // Paper panel.
-      const px = P ? 0 : pw, py = P ? ph : 0;
-      g.save(); g.beginPath(); g.rect(px, py, W - px, H - py); g.clip(); paper(g, L, T); g.restore();
-      const cx0 = P ? m : pw + 90 * u, cw = P ? W - 2 * m : W - pw - 90 * u - m;
-      // Headline (the card), small and steady.
-      const hs = (P ? 64 : 60) * u;
-      const hy = P ? ph + 120 * u : 170 * u;
-      kinetic(g, [['Hand-stained, or primed', BRAND.ink]], cx0, hy, st, 0.2, { size: hs, stagger: 0.05 });
-      // Beam in the current finish.
-      const by = P ? ph + 150 * u : 220 * u, bh = P ? H * 0.20 : H * 0.42;
-      for (const { i, a } of stack) {
-        const k = i < 0 ? 0 : i;
-        const alpha = i < 0 ? a * ease.out(clamp((st - 0.3) / 0.6)) * 0.0 : a;
-        cutout(g, A.finBeam[k], cx0, by, cw, bh, { alpha, u, bb: A.finBB, shadow: 0.22 });
-      }
-      // Name + kicker.
-      const ny = P ? H * 0.76 : H * 0.76, nsz = (P ? 84 : 80) * u;
-      FINISHES.forEach((_, i) => {
+      scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
+      scrim(g, L, { from: P ? 0.52 : 0.5, a1: 0.82 });
+      // Headline (the card).
+      kinetic(g, [['Hand-stained, or primed', '#fff']], m, (P ? 220 : 150) * u, st, 0.2, { size: (P ? 64 : 60) * u, stagger: 0.05 });
+      // Name + kicker, one at a time.
+      const ny = P ? H * 0.70 : H - 190 * u, nsz = (P ? 96 : 100) * u;
+      FINISHES.forEach(([name, sl], i) => {
         const fin = ease.inOut(clamp((st - (ts[i] + 0.1)) / 0.3));
         const fout = i + 1 < ts.length ? ease.inOut(clamp((st - (ts[i + 1] - 0.2)) / 0.25)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
-        const primed = FINISHES[i][1] === 'primed';
-        kicker(g, primed ? 'Ready to paint' : 'Hand-stained', cx0, ny - nsz * 0.95, { size: (P ? 28 : 24) * u, color: BRAND.greenText, alpha: a });
-        text(g, FINISHES[i][0], cx0, ny + (1 - fin) * 18 * u, { f: font('P', 700, nsz), color: BRAND.ink, alpha: a });
+        const k = sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained \u00b7 close-up';
+        kicker(g, k, m, ny - nsz * 0.95, { size: (P ? 28 : 26) * u, alpha: a });
+        const ns = Math.min(nsz, (W - 2 * m) / measure(g, name, font('P', 700, 1)));
+        text(g, name, m, ny + (1 - fin) * 18 * u, { f: font('P', 700, ns), color: '#fff', alpha: a });
       });
       // Swatch row: every finish, the current one ringed.
-      const r = (P ? 30 : 28) * u, gap = (P ? 18 : 18) * u, rowY = P ? H * 0.85 : H * 0.865;
+      const r = (P ? 30 : 28) * u, gap = 18 * u, rowW = 7 * 2 * r + 6 * gap;
+      const rowX = P ? m : W - m - rowW, rowY = P ? H * 0.745 : H - 210 * u;
       const ins = ts.map((_, i) => inAmt(ts, i, st, 0.55));
       FINISHES.forEach((_, i) => {
         const appear = ease.out(clamp((st - 0.5 - i * 0.07) / 0.5));
         const on = ins[i] * (1 - (i + 1 < ins.length ? ins[i + 1] : 0));
-        const x = cx0 + r + i * (2 * r + gap);
-        swatchDot(g, A.finSw[i], x, rowY - on * 8 * u, r, { alpha: appear * (0.55 + 0.45 * Math.max(on, 0.6 * ins[i])), ring: on });
+        swatchDot(g, A.finSw[i], rowX + r + i * (2 * r + gap), rowY - on * 8 * u, r, { alpha: appear * (0.6 + 0.4 * Math.max(on, 0.6 * ins[i])), ring: on, ringColor: SAGE_L });
       });
     },
   },
@@ -559,7 +554,7 @@ export const scenes = {
   ship: {
     draw(g, L, s, st) {
       const { W, H, u, P, m } = L;
-      cover(g, A.ship, 0, 0, W, H, { src: A.shipBox, zoom: lerp(1.04, 1.14, ease.inOut(clamp(st / (s.sd + TR)))), py: 0.75, px: P ? 0.1 : 0 });
+      cover(g, A.ship, 0, 0, W, H, { zoom: lerp(1.04, 1.14, ease.inOut(clamp(st / (s.sd + TR)))), py: 0.75, px: P ? 0.1 : 0 });
       if (P) scrim(g, L, { from: 0.15, to: 0.9, a0: 0.25, a1: 0.85 }); else scrim(g, L, { from: 0, to: 0.75, a0: 0.82, a1: 0.15, dir: 'right' });
       vignette(g, L, 0.3);
       const size = HS(L);
@@ -625,6 +620,7 @@ function drawScene(g, L, s, st, T) {
   g.save();
   g.globalAlpha = 1;
   g.globalCompositeOperation = 'source-over';
+  g.imageSmoothingQuality = 'high';
   // A slow push-in on every scene, so the frame is never still.
   const k = 1 + 0.012 * (st / s.sd);
   g.translate(L.W / 2, L.H / 2); g.scale(k, k); g.translate(-L.W / 2, -L.H / 2);

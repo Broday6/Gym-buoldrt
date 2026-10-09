@@ -8,6 +8,12 @@ Reads <out>/timeline.json and the narration wavs. Writes:
   <out>/audio/mix.wav       narration over the bed, the bed ducked 12 dB under the voice,
                             loudness-normalised to -14 LUFS integrated, true peak <= -1.5 dBTP.
 The score: D major, I-V-vi-IV, warm pad, soft plucked arpeggio, round bass, light kick and shaker.
+With --track, a real (licence-cleared) recording replaces the synthesized score: the track is cut
+from music_offset_s in timeline.json (set by timeline.py --beats so scene changes land on its beats),
+levelled so its bed sits --bed-lu LU under the narration, ducked a further --duck dB while anyone
+speaks, faded in and out. Keep it quiet: the defaults put it 16 LU under the voice, 24 LU under it
+while the voice is on.
+
 With --hits, each scene change also gets a soft filtered-noise swell into a low thump, timed to the
 middle of the picture's transition (scene start + --hit-offset s), so the score moves with the cuts.
 """
@@ -162,6 +168,35 @@ def add_hits(music: np.ndarray, times: list[float], seed: int) -> None:
         add(music[:, 1], int(t * SR), th, 0.14)
 
 
+def lufs(x: np.ndarray) -> float:
+    """Integrated loudness (LUFS) of a stereo buffer, measured by ffmpeg's ebur128."""
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=".wav") as f:
+        sf.write(f.name, x.astype(np.float32), SR)
+        log = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", f.name, "-af", "ebur128", "-f", "null", "-"],
+                             capture_output=True, text=True).stderr
+    return float(log[log.rfind("I:"):].split()[1])
+
+
+def load_track(path: Path, offset: float, seconds: float) -> np.ndarray:
+    """The track from `offset` s for `seconds`, 48 kHz stereo, with a short fade in and a 2.5 s fade out."""
+    a, sr = sf.read(path, dtype="float64", always_2d=True)
+    if sr != SR:
+        idx = np.arange(int(len(a) * SR / sr)) * (sr / SR)
+        a = np.stack([np.interp(idx, np.arange(len(a)), a[:, c]) for c in range(a.shape[1])], axis=1)
+    if a.shape[1] == 1:
+        a = np.repeat(a, 2, axis=1)
+    n = int(seconds * SR)
+    out = np.zeros((n, 2))
+    s0 = int(offset * SR)
+    src = a[max(0, s0):max(0, s0) + n - max(0, -s0)]
+    out[max(0, -s0):max(0, -s0) + len(src)] = src
+    fi, fo = int(0.8 * SR), int(2.5 * SR)
+    out[:fi] *= np.linspace(0, 1, fi)[:, None]
+    out[-fo:] *= np.linspace(1, 0, fo)[:, None]
+    return out
+
+
 def duck_envelope(n: int, spans: list[tuple[float, float]]) -> np.ndarray:
     g = np.ones(n)
     low = 10 ** (DUCK_DB / 20)
@@ -184,13 +219,19 @@ def main() -> int:
     ap.add_argument("out", type=Path)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--hits", action="store_true", help="swell + thump on every scene change")
+    ap.add_argument("--track", type=Path, help="a licence-cleared recording to use instead of the synthesized score")
+    ap.add_argument("--bed-lu", type=float, default=16.0, help="how far (LU) the music bed sits under the narration")
+    ap.add_argument("--duck", type=float, default=8.0, help="extra dB the track drops while the voice is on")
     ap.add_argument("--hit-offset", type=float, default=0.3)
     args = ap.parse_args()
     tl = json.loads((args.out / "timeline.json").read_text(encoding="utf-8"))
     seconds = tl["frames"] / tl["fps"]
     (args.out / "audio").mkdir(exist_ok=True)
 
-    music = build_score(seconds, tl["bpm"], args.seed)
+    if args.track:
+        music = load_track(args.track, tl.get("music_offset_s", 0.0), seconds)
+    else:
+        music = build_score(seconds, tl["bpm"], args.seed)
     if args.hits:
         add_hits(music, [s["start_frame"] / tl["fps"] + args.hit_offset for s in tl["scenes"][1:]], args.seed)
     sf.write(args.out / "audio" / "music.wav", music.astype(np.float32), SR)
@@ -206,6 +247,12 @@ def main() -> int:
         t0 = s["start_frame"] / tl["fps"] + s["vo_start_s"]
         add(voice, int(t0 * SR), a)
         spans.append((t0, t0 + len(a) / SR))
+    if args.track:
+        global DUCK_DB
+        DUCK_DB = -args.duck
+        gain = 10 ** ((lufs(voice[:, None].repeat(2, axis=1)) - args.bed_lu - lufs(music)) / 20)
+        music = music * gain
+        sf.write(args.out / "audio" / "music.wav", music.astype(np.float32), SR)
     duck = duck_envelope(n, spans)
     mix = music * duck[:, None] * 1.0 + voice[:, None] * 0.9
     raw = args.out / "audio" / "mix_raw.wav"
@@ -213,11 +260,11 @@ def main() -> int:
 
     # Two-pass loudnorm to -14 LUFS / -1.5 dBTP.
     first = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(raw), "-af",
-                            "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
+                            "loudnorm=I=-14:TP=-3:LRA=11:print_format=json", "-f", "null", "-"],
                            capture_output=True, text=True)
     js = first.stderr[first.stderr.rfind("{"):first.stderr.rfind("}") + 1]
     m = json.loads(js)
-    af = (f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+    af = (f"loudnorm=I=-14:TP=-3:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
           f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true,"
           f"aresample={SR}")
     final = args.out / "audio" / "mix.wav"
