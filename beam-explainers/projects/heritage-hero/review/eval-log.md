@@ -51,3 +51,13 @@
 - Scenes failing: choose
 - Blocker e1 (choose, graphics): In 9:16 the finish name and its eyebrow sit at about 41–50% of the height, on the white ceiling and the pale beam ends. The white names 'Vanilla Chai', 'Warm Caramel', 'Natural White Oak' and 'Primed' are white on near-white. The pale-green eyebrows 'HAND-STAINED' and 'READY TO PAINT' (the primed / ready-to-paint claim) can't be read at all. 16:9 is fine: there the label sits on the green wall.
 
+## v8 — 2026-10-09T20:02:21Z — FAIL
+
+- 4 blocker, 2 major, 2 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: choose, ship
+- Blocker e1 (choose, graphics): In 16:9 the Smokey Brown swatch inset (about x 775–1145, y 195–560) is drawn under the spec table. The table covers roughly its right quarter, so the only image of the finish is partly hidden behind text for the whole time it shows.
+- Blocker e2 (choose, graphics): In 9:16 the Smokey Brown swatch inset runs down behind the dark finish panel. The panel and the 'Smokey Brown' name cover the bottom of the swatch (about y 790–920 of 1920), so the swatch's lower edge is cut off by text.
+- Blocker e3 (choose, product): While the label reads 'HAND-STAINED · SWATCH / Smokey Brown', the room behind it is still the Natural White Oak render (BMSTWO-07). The ceiling beams, which take up most of the frame, are light tan, not Smokey Brown's grey-brown. Every other finish shows its own room, so viewers read these beams as Smokey Brown.
+- Blocker e4 (ship, graphics): In 9:16, after the kitchen was lightened, the white '24–72' (f≈2812–2880) sits on the white herringbone backsplash and range hood, so the digits break up. 'hours' (pale green) is on the bright counter and can barely be read, which leaves the primed lead-time claim without its unit. '3–5' runs across the underside of the front beam.
+

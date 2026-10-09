@@ -264,6 +264,7 @@ export async function preload(L) {
   A.sample = await cut('accessories__sample-kit');
   A.endcap = await img('heritage/accessories/endcap.jpg', { maxSide: 1200 });
   A.cmp = await hi('BMRDWO-09');
+  A.sbBeam = await cut('room-renders__BMSTSB-05');
   // Generated stills (see deliver/generation-pack): used when present, real Ekena images otherwise.
   const shape = L.P ? '9x16' : '16x9';
   const opt = rel => fs.existsSync(path.join(IMG, rel)) ? img(rel, { maxSide: 2400 }) : null;
@@ -355,10 +356,10 @@ export const scenes = {
       }
       // Stat: counts up to 18 as it's said.
       const x = P ? m : W * 0.62, y = P ? 520 * u : H * 0.46;
-      const c = ease.out(clamp((st - t18 + 0.2) / 0.9));
+      const c = ease.out(clamp((st - t18 + 0.45) / 0.5)); // reaches 18 as the word starts
       const ns = (P ? 260 : 250) * u;
       kicker(g, 'A 5½ × 5½ in × 12 ft beam ships at', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
-      g.save(); g.globalAlpha *= ease.out(clamp((st - t18 + 0.3) / 0.4));
+      g.save(); g.globalAlpha *= ease.out(clamp((st - t18 + 0.55) / 0.3));
       const num = String(Math.round(18 * c));
       text(g, num, x, y, { f: font('P', 700, ns), color: '#fff' });
       text(g, 'lb', x + measure(g, num, font('P', 700, ns)) + 16 * u, y, { f: font('P', 700, ns * 0.42), color: SAGE_L });
@@ -408,7 +409,7 @@ export const scenes = {
   choose: {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
-      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: its swatch, inset).
+      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: Ekena's studio shot of it).
       const bt = beatsIn(s, 0.3, s.sd);
       const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
       const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
@@ -417,14 +418,11 @@ export const scenes = {
         const room = i < 0 ? A.finIntro : A.finRoom[i];
         if (room) cover(g, room, 0, 0, W, H, { ...cam, alpha: a });
         else {
-          // No room render in this finish: the previous room stays, with Ekena's swatch as an inset.
-          cover(g, A.finRoom[i - 1] || A.finIntro, 0, 0, W, H, { ...cam, alpha: a });
-          const sz = (P ? 0.5 * W : 0.34 * H), sx = P ? W - m - sz : W * 0.5 - sz / 2, sy = P ? H * 0.20 : H * 0.18;
-          g.save(); g.globalAlpha *= a;
-          g.shadowColor = `rgba(0,0,0,${0.45 * g.globalAlpha})`; g.shadowBlur = 40 * u; g.shadowOffsetY = 16 * u;
-          rr(g, sx, sy, sz, sz, 18 * u); g.fillStyle = '#fff'; g.fill(); g.shadowColor = 'transparent';
-          g.restore();
-          cover(g, A.finSw[i], sx + 8 * u, sy + 8 * u, sz - 16 * u, sz - 16 * u, { alpha: a, r: 12 * u });
+          // No room render in this finish: Ekena's own studio shot of the beam in it, on a dark panel,
+          // placed clear of the spec table (16:9 right) and the name panel (9:16 middle).
+          g.save(); g.globalAlpha *= a; darkBg(g, L, T); g.restore();
+          if (P) cutout(g, A.sbBeam, m * 0.5, 300 * u, W - m, 460 * u, { alpha: a, u, shadow: 0.45 });
+          else cutout(g, A.sbBeam, m * 0.5, 230 * u, W * 0.5, 560 * u, { alpha: a, u, shadow: 0.45 });
         }
       }
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
@@ -445,7 +443,7 @@ export const scenes = {
         const fout = i + 1 < ts.length ? ease.inOut(clamp((st - ts[i + 1]) / 0.15)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
-        kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained · swatch', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });
+        kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });
         text(g, name, m, ny, { f: font('P', 700, (P ? 64 : 60) * u), color: '#fff', alpha: a });
       });
       const r = (P ? 26 : 24) * u, gap = 14 * u, rowY = ny + (P ? 70 : 62) * u;
@@ -562,6 +560,10 @@ export const scenes = {
       const t1 = cue(s, 'business', { fallback: 2.0 }) + 0.3;
       // Everything clears in the last 0.3 s, so nothing is left under the end card's fade.
       g.globalAlpha *= 1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3));
+      if (P) {
+        g.save(); g.globalAlpha *= ease.out(clamp((st - t3 + 0.2) / 0.4)) * 0.78 * (1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3)));
+        rr(g, m - 30 * u, 720 * u, W - 2 * m + 60 * u, 790 * u, 20 * u); g.fillStyle = '#141818'; g.fill(); g.restore();
+      }
       if (P) { stat('3–5', 'business days', 'Stained', t3, m, 900 * u); stat('24–72', 'hours', 'Primed', t1, m, 1260 * u); }
       else { stat('3–5', 'business days', 'Stained', t3, m, 640 * u); stat('24–72', 'hours', 'Primed', t1, m + 470 * u, 640 * u); }
       text(g, 'Usual ship times', m, P ? 1450 * u : 880 * u, { f: font('F', 500, 24 * u), color: 'rgba(255,255,255,0.7)', alpha: ease.out(clamp((st - t1) / 0.6)) });

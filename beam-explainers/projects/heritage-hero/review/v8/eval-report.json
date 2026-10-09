@@ -1,0 +1,693 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v8",
+  "evaluated_at": "2026-10-09T20:02:21Z",
+  "overall": "fail",
+  "summary": "Not ready for Brody: 4 blockers, all in two scenes. In 'Your finish. Your size.' the new Smokey Brown swatch inset is partly covered by the spec table (16:9) and the finish panel (9:16), and it sits over the Natural White Oak room, so the beams on screen under the 'Smokey Brown' label are the wrong finish. In 'Quick Ship' 9:16, the lighter grade leaves the white '24–72' over the white backsplash and 'hours' unreadable. The weight claim is now worded as shipping weight and matches the record (v7 e2 fixed). The v7 9:16 finish-label blocker is fixed.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3242 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "54.033 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 54.033 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.7 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "8 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f1011, f1037",
+        "frames": [
+          1011,
+          1011
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3242 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "54.033 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 54.033 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.7 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "12 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f289, f294, f1011, f1019, f1030, f1037",
+        "frames": [
+          289,
+          289
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A five and a half inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. Pick from six hand-stained finishes, or primed, eight cross-section sizes in lengths from four to twenty-four feet. It's in stock and usually ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          266
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          267,
+          775
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "heard": "A five and a half inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          776,
+          1198
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1199,
+          1622
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1623,
+          2046
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+        "heard": "Pick from six hand-stained finishes, or primed, eight cross-section sizes in lengths from four to twenty-four feet.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2047,
+          2597
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and usually ships in three to five business days.",
+        "heard": "It's in stock and usually ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2598,
+          2893
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2894,
+          3241
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Ekena's BMSTKB-09 vaulted room in both cuts. Card matches the manifest and lands on the words."
+    },
+    {
+      "scene": "real",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Up close is Ekena's Kona Brown swatch, and Across the room is BMSTKB-07 Kona Brown, in both cuts. 'Ekena' is heard."
+    },
+    {
+      "scene": "weight",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 1,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [],
+      "comment": "The claim now matches the record (BMSTS3C00600X0600X144KB: shippingWeight 18). The beam is Ekena's Salvaged Timber Kona Brown shot. The count lands on 18 about half a second after 'eighteen' starts."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "The outline slides over the block under the ceiling, as in INSTALL_BMU step 3 / fig. 3. The hollow and wiring are called out on cue in both cuts."
+    },
+    {
+      "scene": "compare",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "The weight cell now reads 'Ships at 18 lb (5½ in, 12 ft)', which H21 supports. The table is legible in both cuts."
+    },
+    {
+      "scene": "choose",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 1,
+        "install": 2,
+        "physics": 2,
+        "graphics": 0,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 11,
+      "gate_reasons": [
+        "graphics scored 0",
+        "product below 2 (auto-fail criterion)"
+      ],
+      "comment": "The 9:16 dark finish panel fixes v7 e1, and Sandstone, Kona Brown, Vanilla Chai, Warm Caramel, Natural White Oak and Primed each match Ekena's -07 room render. The Smokey Brown inset is the problem."
+    },
+    {
+      "scene": "ship",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "The 9:16 kitchen is lighter now (v7 e7), but the stats lost their contrast. The 16:9 cut is fine."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Real sample-kit and endcap images and the real logo. The site pill still waits on Brody."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "choose",
+      "action": "choose__choose_finishes",
+      "cut": "16x9",
+      "frame": 2306,
+      "end_frame": 2358,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": "research/product-images/heritage__swatch-hi__finish-smokey-brown.jpg",
+      "what": "In 16:9 the Smokey Brown swatch inset (about x 775–1145, y 195–560) is drawn under the spec table. The table covers roughly its right quarter, so the only image of the finish is partly hidden behind text for the whole time it shows.",
+      "fix": "render/videos/heritage-hero.mjs, 'choose' timeline key (Smokey Brown beat): move the inset clear of the spec table, e.g. to the left side above the finish label, or hold the table back until the inset has gone. One shared cause with the 9:16 finding: the inset is positioned without checking the spec-table and finish-panel boxes.",
+      "evidence": [
+        "review/v8/eval/extra/16x9_f2330.jpg",
+        "review/v8/eval/extra/smokey_16x9_tile.jpg",
+        "review/v8/eval/extra/choose_16x9_tile.jpg"
+      ],
+      "region": {
+        "x": 0.4,
+        "y": 0.18,
+        "w": 0.2,
+        "h": 0.34
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "choose",
+      "action": "choose__choose_finishes",
+      "cut": "9x16",
+      "frame": 2306,
+      "end_frame": 2358,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": "research/product-images/heritage__swatch-hi__finish-smokey-brown.jpg",
+      "what": "In 9:16 the Smokey Brown swatch inset runs down behind the dark finish panel. The panel and the 'Smokey Brown' name cover the bottom of the swatch (about y 790–920 of 1920), so the swatch's lower edge is cut off by text.",
+      "fix": "render/videos/heritage-hero.mjs, 'choose' key, 9:16 layout: shrink the inset or raise it so its bottom sits above the finish panel (panel top ≈ y 790), with a gap.",
+      "evidence": [
+        "review/v8/eval/extra/9x16_f2330.jpg"
+      ],
+      "region": {
+        "x": 0.43,
+        "y": 0.4,
+        "w": 0.5,
+        "h": 0.08
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "choose",
+      "action": "choose__choose_finishes",
+      "cut": null,
+      "frame": 2306,
+      "end_frame": 2358,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": "research/product-images/heritage__room-renders__BMSTWO-07.jpg; heritage__swatch-hi__finish-smokey-brown.jpg",
+      "what": "While the label reads 'HAND-STAINED · SWATCH / Smokey Brown', the room behind it is still the Natural White Oak render (BMSTWO-07). The ceiling beams, which take up most of the frame, are light tan, not Smokey Brown's grey-brown. Every other finish shows its own room, so viewers read these beams as Smokey Brown.",
+      "fix": "render/videos/heritage-hero.mjs, 'choose' key: for the Smokey Brown beat, take the room out (heavy dim/blur, or a plain panel) so only Ekena's swatch carries the finish. Or use Ekena's Smokey Brown beam shot (heritage__room-renders__BMSTSB-05.jpg) full panel. Don't leave another finish's beams under the label.",
+      "evidence": [
+        "review/v8/eval/extra/16x9_f2330.jpg",
+        "review/v8/eval/extra/9x16_f2330.jpg",
+        "review/v8/eval/extra/refs_choose.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 0.65
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "ship",
+      "action": "ship__ship_stained",
+      "cut": "9x16",
+      "frame": 2750,
+      "end_frame": 2880,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": "Claims H10, H11",
+      "what": "In 9:16, after the kitchen was lightened, the white '24–72' (f≈2812–2880) sits on the white herringbone backsplash and range hood, so the digits break up. 'hours' (pale green) is on the bright counter and can barely be read, which leaves the primed lead-time claim without its unit. '3–5' runs across the underside of the front beam.",
+      "fix": "render/videos/heritage-hero.mjs, 'ship' key, 9:16 layout: put the two stats on a dark panel (like the 9:16 finish panel in 'choose', 78% #141818), or keep the lighter grade overall but add a local shade behind the stat block (y ≈ 0.38–0.72). Keep the stats off the beam.",
+      "evidence": [
+        "review/v8/eval/frames/9x16_f002834.jpg",
+        "review/v8/eval/extra/ship_9x16_tile.jpg",
+        "review/v8/eval/sheets/9x16_ship.jpg"
+      ],
+      "region": {
+        "x": 0.06,
+        "y": 0.38,
+        "w": 0.6,
+        "h": 0.34
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "weight",
+      "action": "weight__weight_18",
+      "cut": null,
+      "frame": 1007,
+      "end_frame": 1037,
+      "severity": "major",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The narrator says 'eighteen' at f1007–1028 (Whisper word times on the delivered audio), but the counter is still at 6–16 lb then. It lands on 18 at f1037, during 'pounds', about 0.5 s after the word starts. The re-narration moved the word earlier; v7 landed on it.",
+      "fix": "render/videos/heritage-hero.mjs, 'weight' key, weight_18 count-up: end the count at f1007–1011 (start it about 15 frames earlier, or shorten it) so 18 lands on 'eighteen'.",
+      "evidence": [
+        "review/v8/eval/extra/weight_count_tile.jpg",
+        "review/v8/eval/strips/16x9_weight__weight_18.jpg"
+      ],
+      "region": {
+        "x": 0.62,
+        "y": 0.27,
+        "w": 0.22,
+        "h": 0.22
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 2949,
+      "end_frame": 3241,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 ('Site for the end card to be confirmed by Brody')",
+      "what": "The end-card pill reads 'ekenamillwork.com'. H16 says Brody hasn't chosen the site yet, and the researched store is FauxBeams.com. The builder declined this in v8, still waiting on Brody.",
+      "fix": "Brody to choose ekenamillwork.com or FauxBeams.com. Then set the pill in render/videos/heritage-hero.mjs ('end' key) and update H16's source.",
+      "evidence": [
+        "review/v8/eval/sheets/16x9_end.jpg",
+        "review/v8/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.83,
+        "y": 0.66,
+        "w": 0.13,
+        "h": 0.06
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "real",
+      "action": null,
+      "cut": "9x16",
+      "frame": 289,
+      "end_frame": 289,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f289, f294, f1011, f1019, f1030, f1037",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v8/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e7"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "16x9",
+      "frame": 1011,
+      "end_frame": 1011,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f1011, f1037",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v8/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e8"
+    }
+  ]
+}
