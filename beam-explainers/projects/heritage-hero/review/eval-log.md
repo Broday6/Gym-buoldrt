@@ -79,3 +79,10 @@
 - Carried from v9 unchanged: hook, real, weight, install
 - Blocker e1 (ship, graphics): In 9:16 the stats panel now ends at about y 1474 and the narration caption pill starts at about y 1482, so there is only about 8 px between them. At phone size 'three to five business' and 'days.' look stuck to the bottom of the panel, like a tab hanging off it, rather than a separate caption. The overlap from v9 is gone, but the caption is still tight to the card.
 
+## v11 — 2026-10-09T20:56:20Z — PASS
+
+- 0 blocker, 1 major, 2 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: none
+- Carried from v10 unchanged: hook, real, weight, install, compare
+
