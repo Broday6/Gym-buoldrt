@@ -32,7 +32,7 @@
    "title": "The weight",
    "kind": "diagram",
    "card": "18 lb",
-   "vo": "A twelve-foot beam weighs about eighteen pounds. | One person can lift it.",
+   "vo": "A five-and-a-half-inch beam, twelve feet long, weighs about eighteen pounds. | One person can lift it.",
    "claims": [
     "H21",
     "H22"
@@ -43,7 +43,7 @@
    "id": "install",
    "title": "One-person install",
    "kind": "diagram",
-   "card": "One-person install",
+   "card": "One-person install. Slides over a block.",
    "vo": "It slides over a wood block, with standard household tools. | And it's hollow, so it can hide wiring.",
    "claims": [
     "H19",
@@ -70,7 +70,7 @@
    "title": "Finish and size",
    "kind": "diagram",
    "card": "Your finish. Your size.",
-   "vo": "Pick from six hand-stained finishes, or primed. | Eight sizes, from four to twenty-four feet long.",
+   "vo": "Pick from six hand-stained finishes, or primed. | Eight cross-section sizes, in lengths from four to twenty-four feet.",
    "claims": [
     "H4",
     "H14",
@@ -85,7 +85,7 @@
    "title": "Quick Ship",
    "kind": "diagram",
    "card": "Quick Ship",
-   "vo": "It's in stock, and ships in three to five business days.",
+   "vo": "It's in stock, and usually ships in three to five business days.",
    "claims": [
     "H25",
     "H10",

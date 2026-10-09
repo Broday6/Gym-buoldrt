@@ -1,0 +1,840 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v6",
+  "evaluated_at": "2026-10-09T19:25:17Z",
+  "overall": "fail",
+  "summary": "Not ready for Brody: 5 blockers. The worst: the new weight claim '18 lb for a 12 ft beam' is true only for the 5½×5½ size (the product records give 12 to 36 lb for 12 ft Heritage beams), yet the narration and the comparison table state it for every 12 ft beam. Also, in 9:16 the 'Across the room' photo in 'Cast from real timber' is darkened to about 40% (the beams read near-black), and the 'Up close' macro matches no Ekena reference and not the Kona Brown room beside it.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3152 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "52.533 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 52.533 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "7 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f921",
+        "frames": [
+          921,
+          921
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3152 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "52.533 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 52.533 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "8 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f914, f921",
+        "frames": [
+          914,
+          914
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A 12-foot beam weighs about 18 pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. Pick from six hand-stained finishes or primed, eight sizes from four to 24 feet long. It's in stock and ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          261
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          262,
+          769
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A twelve-foot beam weighs about eighteen pounds. One person can lift it.",
+        "heard": "A 12-foot beam weighs about 18 pounds. One person can lift it.",
+        "match": 0.923,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          770,
+          1108
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1109,
+          1532
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1533,
+          1956
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight sizes, from four to twenty-four feet long.",
+        "heard": "Pick from six hand-stained finishes or primed, eight sizes from four to 24 feet long.",
+        "match": 0.882,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1957,
+          2507
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and ships in three to five business days.",
+        "heard": "It's in stock and ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2508,
+          2803
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2804,
+          3151
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Ekena's BMSTKB-09 room shows the beams in both cuts; card matches the manifest."
+    },
+    {
+      "scene": "real",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 0,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "product scored 0"
+      ],
+      "comment": "In 9:16 the room panel is darkened for the whole scene; the macro can't be traced to any reference and doesn't match the room's finish."
+    },
+    {
+      "scene": "weight",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 1,
+        "physics": 2,
+        "graphics": 1,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "install below 2 (auto-fail criterion)",
+        "graphics below 2 (auto-fail criterion)"
+      ],
+      "comment": "The 18 lb is stated for any 12 ft beam; in 9:16 'One person can lift it.' runs into the beam cutout."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Block-and-U diagram agrees with INSTALL_BMU fig. 3; real BMSTKB-05 cutout."
+    },
+    {
+      "scene": "compare",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 1,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [
+        "install below 2 (auto-fail criterion)"
+      ],
+      "comment": "The table's Weight cell '18 lb for a 12 ft beam' drops the size the record depends on."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 1,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [],
+      "comment": "Every finish name matches its Ekena render or swatch; the narration's 'Eight sizes, from four to twenty-four feet long' merges cross-sections and lengths."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Card shows both lead times as 'Usual ship times' (H10, H11)."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Real sample kit and endcap; the URL is still unconfirmed."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "real",
+      "action": "real__real_cast",
+      "cut": null,
+      "frame": 297,
+      "end_frame": 769,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2",
+      "source": "Manifest change note for 'real' ('a real macro beside the same finish across a room'); research/product-images/heritage__swatch-hi__texture-mena.jpg, heritage__product__salvaged-timber__kona-brown.jpg",
+      "what": "The 'Up close' macro (glossy near-black with tan ridge tops and a deep wavy grain) matches none of the manifest's product images: not the Mena texture swatch, not the Salvaged Timber Kona Brown product shot, not the Smokey Brown swatch used later. It does not look like the Kona Brown finish in the room render beside it either. The scene claims one finish seen at two distances, but shows two different-looking surfaces from a source that can't be checked.",
+      "fix": "In render/videos/heritage-hero.mjs (real scene), use an Ekena close-up of the finish in the room (Salvaged Timber, Kona Brown; e.g. a crop of heritage__product__salvaged-timber__kona-brown.jpg or a Kona Brown texture swatch), or pair the macro with a room render of the same finish. Add the macro's file to references.product_images.",
+      "evidence": [
+        "review/v6/eval/frames/16x9_f000668.jpg",
+        "review/v6/eval/refs_sheet.jpg",
+        "review/v6/eval/extra/smokey_compare.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 0.5,
+        "h": 1.0
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "real",
+      "action": "real__real_cast",
+      "cut": "9x16",
+      "frame": 363,
+      "end_frame": 769,
+      "severity": "blocker",
+      "criterion": "product",
+      "scope": "local",
+      "rule": "HOUSE_RULES 2 (show real Ekena product images)",
+      "source": "research/product-images/heritage__room-renders__BMSTKB-07.jpg",
+      "what": "In the 9:16 cut, the lower 'Across the room' panel (Ekena's BMSTKB-07 Kona Brown bedroom) is darkened for the whole scene. Its mean luminance is about 40 against about 103 for the same photo in 16:9, so the beams read near-black and the room is murky. The panel that is meant to prove the beam 'reads as solid from across the room' hides the beams.",
+      "fix": "In render/videos/heritage-hero.mjs (real scene, 9:16 layout), take the dark scrim or dim off the lower photo panel. Keep a scrim only behind the 'ACROSS THE ROOM' label, and match the 16:9 grade.",
+      "evidence": [
+        "review/v6/eval/frames/9x16_f000668.jpg",
+        "review/v6/eval/frames/16x9_f000668.jpg",
+        "review/v6/eval/sheets/9x16_real.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.5,
+        "w": 1.0,
+        "h": 0.5
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "weight",
+      "action": "weight__weight_18",
+      "cut": null,
+      "frame": 838,
+      "end_frame": 1108,
+      "severity": "blocker",
+      "criterion": "install",
+      "scope": "local",
+      "rule": null,
+      "source": "Product records raw/flat-BMSTS3C*X144KB.json; claim H21",
+      "what": "The narration says 'A twelve-foot beam weighs about eighteen pounds' and the eyebrow reads 'A 12 FT HERITAGE BEAM WEIGHS' over '18 lb'. H21 and the records give 18 lb only for the 5½×5½ in × 12 ft beam. Other 12 ft Heritage records list 12 lb (3½×3½), 25 lb (7½×7½) and 36 lb (9½×11½), and 16 to 24 ft beams weigh up to 40 lb. The size qualifier appears only as small print ('5½ × 5½ in × 12 ft, listed weight') and is never spoken.",
+      "fix": "In build/script-v6.json#weight, name the size in the spoken line (e.g. 'A five-and-a-half-inch, twelve-foot beam weighs about eighteen pounds'). Change the eyebrow in render/videos/heritage-hero.mjs (weight scene) to 'A 5½ × 5½ IN × 12 FT BEAM WEIGHS', or state the range ('12 ft beams: 12–36 lb'), with the source noted in H21.",
+      "evidence": [
+        "review/v6/eval/sheets/16x9_weight.jpg",
+        "review/v6/eval/frames/9x16_f001040.jpg"
+      ],
+      "region": {
+        "x": 0.52,
+        "y": 0.08,
+        "w": 0.45,
+        "h": 0.5
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "weight",
+      "action": "weight__weight_one",
+      "cut": "9x16",
+      "frame": 970,
+      "end_frame": 1108,
+      "severity": "blocker",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16, 'One person can lift it.' sits on the beam cutout. The top edge and cream end of the beam run through 'lift it.', so the 't' of 'lift' is cut by the beam edge and the text and the product overlap for the rest of the scene.",
+      "fix": "In render/videos/heritage-hero.mjs (weight scene, 9:16 layout), move the beam cutout down about 120 px, or put the line above the '5½ × 5½' small print with clear space, so the text and the beam don't touch.",
+      "evidence": [
+        "review/v6/eval/frames/9x16_f001040.jpg",
+        "review/v6/eval/sheets/9x16_weight.jpg"
+      ],
+      "region": {
+        "x": 0.55,
+        "y": 0.33,
+        "w": 0.25,
+        "h": 0.06
+      },
+      "id": "e4"
+    },
+    {
+      "scene": "compare",
+      "action": "compare__cmp_table",
+      "cut": null,
+      "frame": 1659,
+      "end_frame": 1956,
+      "severity": "blocker",
+      "criterion": "install",
+      "scope": "local",
+      "rule": null,
+      "source": "Product records raw/flat-BMSTS3C*X144KB.json; claim H21",
+      "what": "The Weight row's Heritage cell reads '18 lb for a 12 ft beam' with no size. That holds only for 5½×5½; other 12 ft Heritage beams are listed at 12, 25 and 36 lb. This is the same overreach as the weight scene, without even the small-print qualifier.",
+      "fix": "In render/videos/heritage-hero.mjs (compare table, Weight row), write '18 lb (5½×5½ × 12 ft)' or 'From 12 lb for a 12 ft beam', backed by the records.",
+      "evidence": [
+        "review/v6/eval/frames/16x9_f001871.jpg",
+        "review/v6/eval/frames/9x16_f001871.jpg"
+      ],
+      "region": {
+        "x": 0.21,
+        "y": 0.29,
+        "w": 0.37,
+        "h": 0.1
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "choose",
+      "action": "choose__choose_specs",
+      "cut": null,
+      "frame": 2167,
+      "end_frame": 2340,
+      "severity": "major",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": "research/beam-lines-facts.md 'Wording to be careful with: Counts'; claims H6, H9",
+      "what": "The narration says 'Eight sizes, from four to twenty-four feet long', which makes the 8 cross-sections sound like 8 lengths. The table on screen splits them correctly (Sizes: 8, from 3½×3½ to 9½×11½ in; Lengths: 4 to 24 ft, nine lengths). The store itself quotes '50 sizes' and '56 popular sizes', and the facts file says the videos should not state a size total.",
+      "fix": "In build/script-v6.json#choose, change the line to something like 'Eight cross-sections, in lengths from four to twenty-four feet.'",
+      "evidence": [
+        "review/v6/eval/frames/16x9_f002287.jpg",
+        "review/v6/eval/narration.json"
+      ],
+      "region": {
+        "x": 0.52,
+        "y": 0.27,
+        "w": 0.45,
+        "h": 0.25
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "end",
+      "cut": null,
+      "frame": 2859,
+      "end_frame": 3151,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 ('Site for the end card to be confirmed by Brody')",
+      "what": "The end card still sends viewers to 'ekenamillwork.com'. H16 says the destination is still to be confirmed by Brody, and the sources researched for the product are FauxBeams.com. Declined in v6 pending Brody's choice.",
+      "fix": "Once Brody picks ekenamillwork.com or FauxBeams.com, set the URL pill in render/videos/heritage-hero.mjs (end scene) and update H16's source.",
+      "evidence": [
+        "review/v6/eval/sheets/16x9_end.jpg"
+      ],
+      "region": {
+        "x": 0.66,
+        "y": 0.66,
+        "w": 0.22,
+        "h": 0.08
+      },
+      "id": "e7"
+    },
+    {
+      "scene": "end",
+      "cut": null,
+      "frame": 0,
+      "end_frame": 3151,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": "HOUSE_RULES 6 (licence named in the README)",
+      "source": "music/README.md, music/ondrosik-license.html",
+      "what": "The music ('Peaceful' by Ondrosik) is licensed for monetised video with no royalties (licence saved next to the track, CC0 per the README). The README the manifest points to (research/beam-lines-facts.md) doesn't name the track or its licence. Scene changes land within 26 ms of a beat (offset 9.078 s), and the end card sits on the 55.8 s lift.",
+      "fix": "Add a Music line (track, source URL, licence file) to the project README / research/beam-lines-facts.md.",
+      "evidence": [],
+      "region": null,
+      "id": "e8"
+    },
+    {
+      "scene": "weight",
+      "cut": null,
+      "frame": 838,
+      "end_frame": 1108,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "raw/flat-*.json 'weight' field",
+      "what": "The 'weight' field in the product record has no unit or type, and the Timberthane 6×6×12 record (a different construction) lists exactly the same 18 lb. The figure may be a shipping or estimated weight rather than a measured beam weight. The card's 'listed weight' is honest about this; the spoken 'weighs about' is not.",
+      "fix": "Ask the product team to confirm the field is the net beam weight before this ships; until then keep the 'listed weight' wording.",
+      "evidence": [
+        "review/v6/eval/frames/9x16_f001040.jpg"
+      ],
+      "region": null,
+      "id": "e9"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "9x16",
+      "frame": 914,
+      "end_frame": 914,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f914, f921",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v6/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e10"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "16x9",
+      "frame": 921,
+      "end_frame": 921,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f921",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v6/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e11"
+    },
+    {
+      "scene": "install",
+      "cut": null,
+      "frame": 1149,
+      "end_frame": 1532,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The card on screen reads 'One-person install.' plus 'Slides over a block.', while the manifest's step_card is 'One-person install' (no full stop, no second line). The text is correct, but the manifest doesn't record it, so the studio can't edit it.",
+      "fix": "Set build/script-v6.json#install card to 'One-person install. Slides over a block.' so the manifest matches the screen.",
+      "evidence": [
+        "review/v6/eval/sheets/16x9_install.jpg"
+      ],
+      "region": {
+        "x": 0.02,
+        "y": 0.05,
+        "w": 0.3,
+        "h": 0.12
+      },
+      "id": "e12"
+    },
+    {
+      "scene": "choose",
+      "action": "choose__choose_specs",
+      "cut": "9x16",
+      "frame": 2167,
+      "end_frame": 2507,
+      "severity": "minor",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 9:16 the spec table sits over the upper half of the ceiling, covering the beams whose finish is changing on the beat (in 16:9 it covers the right-hand beam ends). The lower beams still show the finish, so it stays readable.",
+      "fix": "render/videos/heritage-hero.mjs (choose scene, 9:16): put the spec table in the lower third over the wall, below the finish name, so the beams stay clear.",
+      "evidence": [
+        "review/v6/eval/frames/9x16_f002287.jpg"
+      ],
+      "region": {
+        "x": 0.07,
+        "y": 0.24,
+        "w": 0.86,
+        "h": 0.17
+      },
+      "id": "e13"
+    },
+    {
+      "scene": "ship",
+      "cut": null,
+      "frame": 2567,
+      "end_frame": 2803,
+      "severity": "minor",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "H10 ('usually ships in 3-5 business days'); Heritage FAQ ('typically ship within 3–7 business days')",
+      "what": "The narration drops 'usually': 'ships in three to five business days'. The card says 'Usual ship times', and the FAQ quotes 3–7 business days.",
+      "fix": "build/script-v6.json#ship: 'and usually ships in three to five business days.'",
+      "evidence": [
+        "review/v6/eval/sheets/16x9_ship.jpg"
+      ],
+      "region": null,
+      "id": "e14"
+    },
+    {
+      "scene": "end",
+      "cut": null,
+      "frame": 2822,
+      "end_frame": 2830,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In the ship-to-end dissolve, the faded '-72' from Quick Ship is still visible while 'Order' starts to appear, for about 0.15 s (clearest in 16:9 near f2826). Declined in v6, unchanged.",
+      "fix": "render/videos/heritage-hero.mjs: fade the ship stats out before the end headline starts.",
+      "evidence": [
+        "review/v6/eval/extra/16x9_end_dissolve.jpg"
+      ],
+      "region": {
+        "x": 0.5,
+        "y": 0.05,
+        "w": 0.45,
+        "h": 0.4
+      },
+      "id": "e15"
+    }
+  ]
+}

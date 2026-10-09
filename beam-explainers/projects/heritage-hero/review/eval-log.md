@@ -33,3 +33,14 @@
 - Technical checks: pass; narration: pass
 - Scenes failing: none
 
+## v6 — 2026-10-09T19:25:17Z — FAIL
+
+- 5 blocker, 2 major, 8 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: real, weight, compare
+- Blocker e1 (real, product): The 'Up close' macro (glossy near-black with tan ridge tops and a deep wavy grain) matches none of the manifest's product images: not the Mena texture swatch, not the Salvaged Timber Kona Brown product shot, not the Smokey Brown swatch used later. It does not look like the Kona Brown finish in the room render beside it either. The scene claims one finish seen at two distances, but shows two different-looking surfaces from a source that can't be checked.
+- Blocker e2 (real, product): In the 9:16 cut, the lower 'Across the room' panel (Ekena's BMSTKB-07 Kona Brown bedroom) is darkened for the whole scene. Its mean luminance is about 40 against about 103 for the same photo in 16:9, so the beams read near-black and the room is murky. The panel that is meant to prove the beam 'reads as solid from across the room' hides the beams.
+- Blocker e3 (weight, install): The narration says 'A twelve-foot beam weighs about eighteen pounds' and the eyebrow reads 'A 12 FT HERITAGE BEAM WEIGHS' over '18 lb'. H21 and the records give 18 lb only for the 5½×5½ in × 12 ft beam. Other 12 ft Heritage records list 12 lb (3½×3½), 25 lb (7½×7½) and 36 lb (9½×11½), and 16 to 24 ft beams weigh up to 40 lb. The size qualifier appears only as small print ('5½ × 5½ in × 12 ft, listed weight') and is never spoken.
+- Blocker e4 (weight, graphics): In 9:16, 'One person can lift it.' sits on the beam cutout. The top edge and cream end of the beam run through 'lift it.', so the 't' of 'lift' is cut by the beam edge and the text and the product overlap for the rest of the scene.
+- Blocker e5 (compare, install): The Weight row's Heritage cell reads '18 lb for a 12 ft beam' with no size. That holds only for 5½×5½; other 12 ft Heritage beams are listed at 12, 25 and 36 lb. This is the same overreach as the weight scene, without even the small-print qualifier.
+

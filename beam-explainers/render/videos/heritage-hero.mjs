@@ -29,7 +29,7 @@ const FINISHES = [
 ];
 // Why not solid wood: [row, Heritage, solid wood]. Sources: claims H21-H24 (product record + Ekena's copy).
 const COMPARE = [
-  ['Weight', '18 lb for a 12 ft beam', 'Heavy'],
+  ['Weight', '18 lb (5½ in, 12 ft long)', 'Heavy'],
   ['Install', 'One person, household tools', 'More labor'],
   ['Upkeep', 'Resists warping and cracking', 'More upkeep'],
   ['Texture', 'Cast from real timber', 'Real timber'],
@@ -314,20 +314,22 @@ export const scenes = {
       const split = P ? H * 0.5 : W * 0.5;
       const tC = cue(s, 'cast', { fallback: 3.2 });
       g.save(); g.beginPath(); P ? g.rect(0, 0, W, split) : g.rect(0, 0, split, H); g.clip();
-      cover(g, A.texIntro, 0, 0, P ? W : split, P ? split : H, { zoom: 1.16 - 0.08 * clamp(st / s.sd), px: -0.1 });
+      cover(g, A.finSw[FINISHES.findIndex(f => f[1] === 'kona-brown')], 0, 0, P ? W : split, P ? split : H, { zoom: 1.12 - 0.06 * clamp(st / s.sd), px: -0.1 });
       g.restore();
       g.save(); g.beginPath(); P ? g.rect(0, split, W, H - split) : g.rect(split, 0, W - split, H); g.clip();
       cover(g, A.finIntro, P ? 0 : split + (1 - pin) * 80 * u, P ? split + (1 - pin) * 80 * u : 0, P ? W : W - split, P ? H - split : H,
         { zoom: lerp(1.08, 1.0, clamp(st / s.sd)), py: P ? 0.4 : 0.5 });
       g.restore();
       g.fillStyle = '#fff'; P ? g.fillRect(0, split - 2 * u, W, 4 * u) : g.fillRect(split - 2 * u, 0, 4 * u, H);
-      scrim(g, L, { from: P ? 0.18 : 0.3, to: P ? 0.5 : 1, a0: 0, a1: P ? 0.7 : 0.75 });
-      if (P) scrim(g, L, { from: 0.62, to: 1, a1: 0.7 });
+      // Shade only behind the words: the top of the frame (headline) and a strip under each label.
+      scrim(g, L, { from: P ? 0.3 : 0.45, to: 0, a0: 0, a1: 0.6 });
+      if (!P) scrim(g, L, { from: 0.72, to: 1, a0: 0, a1: 0.55 });
       // Labels for each half.
       const la = ease.out(clamp((st - tC) / 0.5));
       const lf = (P ? 30 : 26) * u;
       kicker(g, 'Up close', P ? m : m, P ? split - 40 * u : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
-      kicker(g, 'Across the room', P ? m : split + m * 0.6, P ? H - 300 * u : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
+      if (P) { g.save(); g.globalAlpha *= la * 0.6; rr(g, m - 16 * u, split + 30 * u, measure(g, 'ACROSS THE ROOM', font('P', 600, lf), lf * 0.18) + 32 * u, lf * 1.9, lf * 0.5); g.fillStyle = '#141818'; g.fill(); g.restore(); }
+      kicker(g, 'Across the room', P ? m : split + m * 0.6, P ? split + 30 * u + lf * 1.3 : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
       // Brand, then the card.
       const size = (P ? 104 : 96) * u;
       const tH = cue(s, 'Heritage', { fallback: 0.6 }) - 0.15, tE = cue(s, 'Ekena', { fallback: 1.9, alts: ['Ikenna', 'E.'] }) - 0.1;
@@ -340,7 +342,7 @@ export const scenes = {
   weight: {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
-      const t18 = cue(s, 'eighteen', { fallback: 1.2, alts: ['18'] }), tOne = cue(s, 'One', { fallback: 2.6 });
+      const t18 = cue(s, 'eighteen', { fallback: 2.6, alts: ['18', 'about'] }), tOne = cue(s, 'One', { fallback: 2.6 });
       if (A.person) {
         cover(g, A.person, 0, 0, W, H, { zoom: lerp(1.08, 1.0, clamp(st / s.sd)) });
         P ? scrim(g, L, { from: 0.4, a1: 0.85 }) : scrim(g, L, { from: 0.35, to: 1, a0: 0, a1: 0.8, dir: 'right' });
@@ -348,20 +350,20 @@ export const scenes = {
         darkBg(g, L, T);
         // The real beam, long, entering on the diagonal.
         const pin = ease.out(clamp((st - 0.05) / 1.1));
-        cutout(g, A.hero, (P ? -W * 0.1 : -W * 0.04) - (1 - pin) * W * 0.3 - 20 * u * st, P ? H * 0.34 : H * 0.18, P ? W * 1.15 : W * 0.68, P ? H * 0.34 : H * 0.72,
+        cutout(g, A.hero, (P ? -W * 0.1 : -W * 0.04) - (1 - pin) * W * 0.3 - 20 * u * st, P ? H * 0.47 : H * 0.18, P ? W * 1.15 : W * 0.68, P ? H * 0.30 : H * 0.72,
           { alpha: ease.out(clamp(st / 0.5)), u, shadow: 0.5 });
       }
       // Stat: counts up to 18 as it's said.
       const x = P ? m : W * 0.62, y = P ? 520 * u : H * 0.46;
       const c = ease.out(clamp((st - t18 + 0.2) / 0.9));
       const ns = (P ? 260 : 250) * u;
-      kicker(g, 'A 12 ft Heritage beam weighs', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
+      kicker(g, 'A 5½ × 5½ in × 12 ft beam weighs', x, y - ns * 0.95, { size: (P ? 30 : 26) * u, alpha: ease.out(clamp((st - 0.3) / 0.5)) });
       g.save(); g.globalAlpha *= ease.out(clamp((st - t18 + 0.3) / 0.4));
       const num = String(Math.round(18 * c));
       text(g, num, x, y, { f: font('P', 700, ns), color: '#fff' });
       text(g, 'lb', x + measure(g, num, font('P', 700, ns)) + 16 * u, y, { f: font('P', 700, ns * 0.42), color: SAGE_L });
       g.restore();
-      text(g, '5½ × 5½ in × 12 ft, listed weight', x, y + 60 * u, { f: font('F', 600, (P ? 32 : 28) * u), color: 'rgba(255,255,255,0.8)', alpha: ease.out(clamp((st - t18 - 0.3) / 0.5)) });
+      text(g, 'Listed weight, Heritage Salvaged Timber', x, y + 60 * u, { f: font('F', 600, (P ? 32 : 28) * u), color: 'rgba(255,255,255,0.8)', alpha: ease.out(clamp((st - t18 - 0.3) / 0.5)) });
       kinetic(g, [['One person can lift it.', SAGE_L]], x, y + (P ? 190 : 170) * u, st, tOne - 0.2, { size: (P ? 64 : 58) * u });
     },
   },
@@ -421,7 +423,7 @@ export const scenes = {
       const hs = (P ? 80 : 76) * u;
       kinetic(g, [['Your finish.', '#fff'], ['Your size.', SAGE_L, cue(s, 'Eight', { fallback: 3.4 }) - 0.2]], m, P ? 230 * u : 160 * u, st, 0.15, { size: hs });
       // Current finish: name + swatch row.
-      const ny = P ? H * 0.60 : H - 230 * u;
+      const ny = P ? H * 0.47 : H - 230 * u;
       FINISHES.forEach(([name, sl], i) => {
         // Names follow their photo: in once the cross-fade is half done, out just before the next.
         const fin = ease.inOut(clamp((st - ts[i] - 0.15) / 0.2));
@@ -441,7 +443,7 @@ export const scenes = {
       const tE = cue(s, 'Eight', { fallback: 3.4, alts: ['8'] }) - 0.2;
       const pa = ease.out(clamp((st - tE) / 0.5));
       if (pa > 0) {
-        const pw = P ? W - 2 * m : 760 * u, px = P ? m : W - m - pw, py = P ? H * 0.24 : 300 * u, rh = (P ? 68 : 72) * u;
+        const pw = P ? W - 2 * m : 760 * u, px = P ? m : W - m - pw, py = P ? H * 0.53 : 300 * u, rh = (P ? 68 : 72) * u;
         g.save(); g.globalAlpha *= pa;
         rr(g, px, py + (1 - pa) * 20 * u, pw, rh * SPECS.length + 40 * u, 18 * u); g.fillStyle = 'rgba(14,17,17,0.72)'; g.fill();
         SPECS.forEach(([k, v], i) => {
@@ -543,6 +545,8 @@ export const scenes = {
       };
       const t3 = cue(s, 'three', { fallback: 2.9, alts: ['3'] }) - 0.3;
       const t1 = cue(s, 'business', { fallback: 2.0 }) + 0.3;
+      // Everything clears in the last 0.3 s, so nothing is left under the end card's fade.
+      g.globalAlpha *= 1 - ease.inOut(clamp((st - (s.sd - 0.35)) / 0.3));
       if (P) { stat('3–5', 'business days', 'Stained', t3, m, 900 * u); stat('24–72', 'hours', 'Primed', t1, m, 1260 * u); }
       else { stat('3–5', 'business days', 'Stained', t3, m, 640 * u); stat('24–72', 'hours', 'Primed', t1, m + 470 * u, 640 * u); }
       text(g, 'Usual ship times', m, P ? 1450 * u : 880 * u, { f: font('F', 500, 24 * u), color: 'rgba(255,255,255,0.7)', alpha: ease.out(clamp((st - t1) / 0.6)) });
