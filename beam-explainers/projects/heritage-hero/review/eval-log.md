@@ -93,3 +93,10 @@
 - Scenes failing: homes
 - Blocker e1 (homes, sync): The first montage photo (customer project 09dbbb9b) is a church or event hall: rows of stacked chairs, a pulpit, a mic stand and a piano. It is full-frame in 9:16 (about f2085-2163, while the VO says 'And here it is, in real customers' homes') and the left panel in 16:9 until about f2290, all under the card 'Real homes.' The picture contradicts the card and the line. The beam is also mostly hidden behind the chandelier.
 
+## v13 — 2026-10-13T01:49:26Z — FAIL
+
+- 1 blocker, 1 major, 3 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: none
+- Blocker e1 (homes, sync): The photo changes in 'homes' and the finish changes in 'choose' are still spaced about 42 frames (0.70 s) apart, the period of the old 'Peaceful' grid (peaceful-grid.json, 0.696 s), not Sunlit Groove's 0.488 s beat. Measured transition midpoints vs nearest beat: 9:16 montage f2100 (+83 ms), f2142 (-177 ms), f2184 (+44 ms), f2227 (-199 ms), f2269 (+13 ms); 16:9 montage f2101, f2143 (-160 ms), f2185; finish changes f2406, f2449, f2491, f2533, f2577, f2619 (each 90-135 ms off). The changes drift in and out of phase with the music, which is the rhythm Brody asked to fix, and the manifest marks e7 'centred on their beats' as addressed. Scene boundaries themselves are on the beat (within 33 ms).
+

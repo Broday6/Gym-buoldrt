@@ -116,7 +116,9 @@ def main() -> int:
     tl = {"fps": FPS, "frames": f, "seconds": round(f / FPS, 3), "bpm": 92, "scenes": scenes}
     if offset is not None:
         tl["music_offset_s"] = round(offset, 4)
-        tl["bpm"] = round(60 / ((beats[-1] - beats[0]) / (len(beats) - 1)), 2)
+        gaps = sorted(b - a_ for a_, b in zip(beats, beats[1:]))
+        tl["bpm"] = round(60 / gaps[len(gaps) // 2], 2)  # median beat period
+        tl["music_beats"] = str(a.beats)  # the renderer cuts inside scenes to this same grid
     (out / "timeline.json").write_text(json.dumps(tl, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{out.name}: {len(scenes)} scenes, {f} frames, {f / FPS:.1f}s")
     for s in scenes:

@@ -45,6 +45,12 @@ function beatsIn(s, a, b) {
   const t0 = s.start_frame / FPS;
   return A.beats.map(x => x - A.off - t0).filter(x => x >= a && x <= b);
 }
+/** n change times on the beat: every other beat when they fit (about 1 s at 123 BPM), else every beat. */
+function beatSteps(s, a, n) {
+  const all = beatsIn(s, a, s.sd - 0.2);
+  const every2 = all.filter((_, i) => i % 2 === 0);
+  return every2.length >= n ? every2.slice(0, n) : all.slice(0, n);
+}
 
 // ---- helpers ------------------------------------------------------------------------------------------
 /** The rect a photo's content occupies (photos letterboxed in a white square). */
@@ -253,7 +259,7 @@ export async function preload(L) {
   A.macro = await clean('macro-BMSTKB-05'); // Ekena's studio shot, matte, colour untouched
   A.homes = [];
   // Homes only, beams the subject: close-ups first, then whole rooms.
-  for (const id of ['2e22160e', '12d6675c', 'ed0ccc91', '9cfa08e1', '6fb22e98', '08a3551e']) A.homes.push(await clean(id));
+  for (const id of ['2e22160e', '12d6675c', 'acdc4e8b', '9cfa08e1', '6fb22e98', '08a3551e']) A.homes.push(await clean(id));
   // The same Ekena room render in each finish (Salvaged Timber). Smokey Brown has no room render,
   // so it is shown as its real close-up instead.
   const FCODE = { sandstone: 'SS', 'kona-brown': 'KB', 'vanilla-chai': 'VC', 'warm-caramel': 'WC', 'natural-white-oak': 'WO', primed: 'OT' };
@@ -284,8 +290,10 @@ export async function preload(L) {
   const opt = rel => fs.existsSync(path.join(IMG, rel)) ? img(rel, { maxSide: 2400 }) : null;
   A.before = await opt(`heritage/generated/before-09-${shape}.jpg`);
   A.person = await opt(`heritage/generated/person-lift-${shape}.jpg`);
-  A.beats = JSON.parse(fs.readFileSync(path.join(ROOT, 'music', 'peaceful-beats.json'), 'utf8')).beats;
-  A.off = JSON.parse(fs.readFileSync(path.join(ROOT, 'out', 'heritage-hero', 'timeline.json'), 'utf8')).music_offset_s ?? 0;
+  // The beat grid the timeline was cut to (timeline.json names it), so cuts inside scenes match it too.
+  const tl = JSON.parse(fs.readFileSync(path.join(ROOT, 'out', 'heritage-hero', 'timeline.json'), 'utf8'));
+  A.beats = JSON.parse(fs.readFileSync(path.resolve(ROOT, tl.music_beats || 'music/peaceful-beats.json'), 'utf8')).beats;
+  A.off = tl.music_offset_s ?? 0;
   OC = createCanvas(L.W, L.H);
   O = OC.getContext('2d');
 }
@@ -425,8 +433,9 @@ export const scenes = {
       const { W, H, u, P, m } = L;
       darkBg(g, L, T);
       // Real customer installs, one per beat: 9:16 full frame; 16:9 three portrait panels filling in turn.
-      const bt = beatsIn(s, 0.15, s.sd);
-      const n = A.homes.length, ts = A.homes.map((_, i) => bt[i] ?? 0.2 + i * 0.7);
+      const n = A.homes.length;
+      const bt = P ? [0, ...beatSteps(s, 0.4, n - 1)] : [0, ...beatSteps(s, 0.6, 3)];
+      const ts = A.homes.map((_, i) => bt[i] ?? 0.2 + i * 0.7);
       if (P) {
         // Dissolves centred on the beat; the first photo is already up when the scene starts.
         const stack = listStack([0, ...ts.slice(1)], st, 0.3);
@@ -439,7 +448,7 @@ export const scenes = {
           // each dissolve centred on its beat.
           for (const j of [k, k + 3]) {
             if (j >= n) continue;
-            const a = j < 3 ? ease.out(clamp((st - k * 0.08) / 0.25)) : ease.inOut(clamp((st - (ts[k + 1] ?? 1 + k) + 0.15) / 0.3));
+            const a = j < 3 ? ease.out(clamp((st - k * 0.08) / 0.25)) : ease.inOut(clamp((st - ts[k + 1] + 0.15) / 0.3));
             if (a <= 0) continue;
             g.save(); g.beginPath(); g.rect(x, gap, pw, H - 2 * gap); g.clip();
             cover(g, A.homes[j], x, gap + (1 - a) * 40 * u, pw, H - 2 * gap, { zoom: 1.06 - 0.04 * clamp((st - ts[j]) / 1.5), py: 0.4, alpha: a });
@@ -456,7 +465,7 @@ export const scenes = {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
       // Ekena's studio shots of one beam (Salvaged Timber) in every finish, the finish changing on each beat.
-      const bt = beatsIn(s, 0.3, s.sd);
+      const bt = beatSteps(s, 0.3, FINISHES.length);
       const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
       const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
       darkBg(g, L, T);
