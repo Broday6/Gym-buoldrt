@@ -14,7 +14,7 @@ import {
 const SAGE_L = '#CBD5A2';
 const DARK = '#141818';
 const TR = 0.6; // scene-to-scene transition length (s), at the start of the incoming scene
-const TRANS = { real: 'wipe', weight: 'wipe', install: 'fade', compare: 'wipe', choose: 'wipe', ship: 'wipe', end: 'fade' };
+const TRANS = { real: 'wipe', weight: 'wipe', install: 'fade', compare: 'wipe', homes: 'wipe', choose: 'wipe', ship: 'wipe', end: 'fade' };
 // Caption parts (split on "|") left off screen because the picture already shows the words in big type.
 const NOCAP = {};
 // Caption centre per scene (default: frame centre). The 16:9 end card centres it under the cream panel.
@@ -242,8 +242,13 @@ export async function preload(L) {
   A.hook = await hi('BMSTKB-09');
   A.room8 = await img('heritage/angles/BMSTKB-08.jpg', { maxSide: 1200 });
   A.room8blur = blurred(A.room8, 26);
-  A.room6 = await hi('BMSTKB-06');
-  A.ship = await hi('BMRSWC-08');
+  // Rooms are real customer installs from the FauxBeams Heritage galleries (img/heritage/rooms,
+  // cropped out of their white letterbox and resampled into img/heritage/hi as room-<id>).
+  A.room6 = await hi('room-3f1220cf');
+  A.ship = await hi('room-7652db72');
+  A.realRoom = await hi('room-4f4e84c0');
+  A.homes = [];
+  for (const id of ['09dbbb9b', '9cfa08e1', '6fb22e98', '08a3551e', '2e22160e', 'acdc4e8b']) A.homes.push(await hi('room-' + id));
   // The same Ekena room render in each finish (Salvaged Timber). Smokey Brown has no room render,
   // so it is shown as its real close-up instead.
   const FCODE = { sandstone: 'SS', 'kona-brown': 'KB', 'vanilla-chai': 'VC', 'warm-caramel': 'WC', 'natural-white-oak': 'WO', primed: 'OT' };
@@ -266,7 +271,8 @@ export async function preload(L) {
   A.uEnd = await cut('angles__BMSTKB-05');
   A.sample = await cut('accessories__sample-kit');
   A.endcap = await img('heritage/accessories/endcap.jpg', { maxSide: 1200 });
-  A.cmp = await hi('BMRDWO-09');
+  A.cmp = await hi('room-e8dc8b7d');
+  A.hook = await hi('room-277a5467');
   A.sbBeam = await cut('room-renders__BMSTSB-05');
   // Generated stills (see deliver/generation-pack): used when present, real Ekena images otherwise.
   const shape = L.P ? '9x16' : '16x9';
@@ -321,8 +327,8 @@ export const scenes = {
       cover(g, A.finSw[FINISHES.findIndex(f => f[1] === 'kona-brown')], 0, 0, P ? W : split, P ? split : H, { zoom: 1.12 - 0.06 * clamp(st / s.sd), px: -0.1 });
       g.restore();
       g.save(); g.beginPath(); P ? g.rect(0, split, W, H - split) : g.rect(split, 0, W - split, H); g.clip();
-      cover(g, A.finIntro, P ? 0 : split + (1 - pin) * 80 * u, P ? split + (1 - pin) * 80 * u : 0, P ? W : W - split, P ? H - split : H,
-        { zoom: lerp(1.08, 1.0, clamp(st / s.sd)), py: P ? 0.4 : 0.5 });
+      cover(g, A.realRoom, P ? 0 : split + (1 - pin) * 80 * u, P ? split + (1 - pin) * 80 * u : 0, P ? W : W - split, P ? H - split : H,
+        { zoom: lerp(1.08, 1.0, clamp(st / s.sd)), py: P ? 0.3 : 0.2 });
       g.restore();
       g.fillStyle = '#fff'; P ? g.fillRect(0, split - 2 * u, W, 4 * u) : g.fillRect(split - 2 * u, 0, 4 * u, H);
       // Shade only behind the words: the top of the frame (headline) and a strip under each label.
@@ -332,8 +338,8 @@ export const scenes = {
       const la = ease.out(clamp((st - tC) / 0.5));
       const lf = (P ? 30 : 26) * u;
       kicker(g, 'Up close', P ? m : m, P ? split - 40 * u : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
-      if (P) { g.save(); g.globalAlpha *= la * 0.6; rr(g, m - 16 * u, split + 30 * u, measure(g, 'ACROSS THE ROOM', font('P', 600, lf), lf * 0.18) + 32 * u, lf * 1.9, lf * 0.5); g.fillStyle = '#141818'; g.fill(); g.restore(); }
-      kicker(g, 'Across the room', P ? m : split + m * 0.6, P ? split + 30 * u + lf * 1.3 : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
+      if (P) { g.save(); g.globalAlpha *= la * 0.6; rr(g, m - 16 * u, split + 30 * u, measure(g, 'IN A REAL HOME', font('P', 600, lf), lf * 0.18) + 32 * u, lf * 1.9, lf * 0.5); g.fillStyle = '#141818'; g.fill(); g.restore(); }
+      kicker(g, 'In a real home', P ? m : split + m * 0.6, P ? split + 30 * u + lf * 1.3 : H - 150 * u, { size: lf, alpha: la, color: '#fff' });
       // Brand, then the card.
       const size = (P ? 104 : 96) * u;
       const tH = cue(s, 'Heritage', { fallback: 0.6 }) - 0.15, tE = cue(s, 'Ekena', { fallback: 1.9, alts: ['Ikenna', 'E.'] }) - 0.1;
@@ -409,26 +415,48 @@ export const scenes = {
     },
   },
 
+  homes: {
+    draw(g, L, s, st, T) {
+      const { W, H, u, P, m } = L;
+      darkBg(g, L, T);
+      // Real customer installs, one per beat: 9:16 full frame; 16:9 three portrait panels filling in turn.
+      const bt = beatsIn(s, 0.15, s.sd);
+      const n = A.homes.length, ts = A.homes.map((_, i) => bt[i] ?? 0.2 + i * 0.7);
+      if (P) {
+        const stack = listStack(ts.map(t => t + 0.15), st, 0.3);
+        for (const { i, a } of stack) if (i >= 0) cover(g, A.homes[i], 0, 0, W, H, { zoom: 1.06 - 0.04 * clamp((st - ts[i]) / 1.2), py: 0.4, alpha: a });
+      } else {
+        const gap = 10 * u, pw = (W - 4 * gap) / 3;
+        for (let k = 0; k < 3; k++) {
+          const x = gap + k * (pw + gap);
+          // panel k shows photo k, then photo k+3
+          for (const j of [k, k + 3]) {
+            if (j >= n) continue;
+            const a = ease.inOut(clamp((st - ts[j]) / 0.3));
+            if (a <= 0) continue;
+            g.save(); g.beginPath(); g.rect(x, gap, pw, H - 2 * gap); g.clip();
+            cover(g, A.homes[j], x, gap + (1 - a) * 40 * u, pw, H - 2 * gap, { zoom: 1.06 - 0.04 * clamp((st - ts[j]) / 1.5), py: 0.4, alpha: a });
+            g.restore();
+          }
+        }
+      }
+      scrim(g, L, { from: P ? 0.5 : 0.55, a1: 0.8 });
+      kinetic(g, [['Real homes.', '#fff'], ['Real installs.', SAGE_L, 0.6]], m, P ? H * 0.70 : H - 220 * u, st, 0.2, { size: (P ? 96 : 92) * u });
+    },
+  },
+
   choose: {
     draw(g, L, s, st, T) {
       const { W, H, u, P, m } = L;
-      // The same Ekena room, the finish changing on each beat (Smokey Brown has no room render: Ekena's studio shot of it).
+      // Ekena's studio shots of one beam (Salvaged Timber) in every finish, the finish changing on each beat.
       const bt = beatsIn(s, 0.3, s.sd);
       const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
       const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
-      const cam = { zoom: lerp(1.07, 1.0, ease.inOut(clamp(st / (s.sd + TR)))), py: P ? 0 : 0.5, px: P ? 0.05 : 0 };
-      for (const { i, a } of stack) {
-        const room = i < 0 ? A.finIntro : A.finRoom[i];
-        if (room) cover(g, room, 0, 0, W, H, { ...cam, alpha: a });
-        else {
-          // No room render in this finish: Ekena's own studio shot of the beam in it, on a dark panel,
-          // placed clear of the spec table (16:9 right) and the name panel (9:16 middle).
-          g.save(); g.globalAlpha *= a; darkBg(g, L, T); g.restore();
-          // Left-aligned past the frame edge, so the photo's cropped end is off screen; below the headline.
-          if (P) cutout(g, A.sbBeam, -70 * u, 370 * u, W, 400 * u, { alpha: a, u, shadow: 0.45, align: 'left' });
-          else cutout(g, A.sbBeam, -90 * u, 300 * u, W * 0.6, 440 * u, { alpha: a, u, shadow: 0.45, align: 'left' });
-        }
-      }
+      darkBg(g, L, T);
+      // 16:9: the beam fills the right of the frame; specs sit left, name bottom-left. 9:16: beam under the headline.
+      const bx = P ? -0.1 * W : W * 0.42, by = P ? 290 * u : H * 0.10, bw = P ? W * 1.2 : W * 0.62, bh = P ? 490 * u : H * 0.66;
+      const drift = 24 * u * (st / s.sd);
+      for (const { i, a } of stack) cutout(g, A.finBeam[Math.max(0, i)], bx - drift, by, bw, bh, { alpha: i < 0 ? a * ease.out(clamp(st / 0.5)) : a, u, bb: A.finBB, shadow: 0.5 });
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
       scrim(g, L, { from: P ? 0.45 : 0.5, a1: 0.85 });
       if (P) {
@@ -460,7 +488,7 @@ export const scenes = {
       const tE = cue(s, 'Eight', { fallback: 3.4, alts: ['8'] }) - 0.2;
       const pa = ease.out(clamp((st - tE) / 0.5));
       if (pa > 0) {
-        const pw = P ? W - 2 * m : 760 * u, px = P ? m : W - m - pw, py = P ? H * 0.53 : 300 * u, rh = (P ? 68 : 72) * u;
+        const pw = P ? W - 2 * m : 680 * u, px = P ? m : m, py = P ? H * 0.53 : 290 * u, rh = (P ? 68 : 72) * u;
         g.save(); g.globalAlpha *= pa;
         rr(g, px, py + (1 - pa) * 20 * u, pw, rh * SPECS.length + 40 * u, 18 * u); g.fillStyle = 'rgba(14,17,17,0.72)'; g.fill();
         SPECS.forEach(([k, v], i) => {

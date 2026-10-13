@@ -11,7 +11,8 @@
    "vo": "Want the look of old timber beams, without the weight?",
    "claims": [
     "H17",
-    "H24"
+    "H24",
+    "H26"
    ],
    "min_s": 4.2
   },
@@ -24,7 +25,8 @@
    "claims": [
     "H1",
     "H2",
-    "H20"
+    "H20",
+    "H26"
    ]
   },
   {
@@ -58,12 +60,24 @@
    "card": "Why not solid wood?",
    "vo": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
    "claims": [
+    "H21",
+    "H22",
     "H23",
     "H24",
-    "H21",
-    "H22"
+    "H26"
    ],
    "min_s": 7.0
+  },
+  {
+   "id": "homes",
+   "title": "Real homes",
+   "kind": "diagram",
+   "card": "Real homes. Real installs.",
+   "vo": "And here it is, in real customers' homes.",
+   "claims": [
+    "H26"
+   ],
+   "min_s": 4.6
   },
   {
    "id": "choose",
@@ -87,9 +101,10 @@
    "card": "Quick Ship",
    "vo": "It's in stock, and usually ships in three to five business days.",
    "claims": [
-    "H25",
     "H10",
-    "H11"
+    "H11",
+    "H25",
+    "H26"
    ],
    "min_s": 4.6
   },
@@ -100,9 +115,10 @@
    "card": "Order a sample",
    "vo": "Order a sample, and see it in your own light.",
    "claims": [
-    "H13",
     "H12",
-    "H16"
+    "H13",
+    "H16",
+    "H26"
    ],
    "min_s": 5.8
   }
@@ -207,6 +223,11 @@
    "id": "H25",
    "text": "Heritage beams are in stock and ship quickly",
    "source": "Heritage description: 'they are in stock and will ship immediately'; lead time stained 3-5 business days (H10)"
+  },
+  {
+   "id": "H26",
+   "text": "The room photos are real customer installs of Heritage Timber beams",
+   "source": "FauxBeams Heritage listing (BMSTS3) inspiration gallery: customer_projects images, recorded in img/assets.json (kind 'room', sku BMSTS3)"
   }
  ],
  "key_terms": [
