@@ -1,0 +1,616 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v15",
+  "evaluated_at": "2026-10-13T02:46:54Z",
+  "overall": "pass",
+  "summary": "Ready for Brody: no blockers. The 'choose' finish dissolves are now on the Sunlit Groove beat in both cuts (beam cross-fade centred within 1 frame of every beat, labels fade in within about 1-4 frames, first label now on beat f2354.6), and a frame diff against v14 confirms nothing outside 'choose' changed. Still open: the end-card site waits on Brody, and the swatch selector ring still settles about 5-6 frames after each beat.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3478 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "57.967 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 57.966 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "10 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f995, f1613, f2328",
+        "frames": [
+          995,
+          995
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3478 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "57.967 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 57.966 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "20 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f985, f995, f999, f2121, f2127, f2181, f2185, f2237",
+        "frames": [
+          985,
+          985
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A five and a half inch beam, 12 feet long, ships at about 18 pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. And here it is in real customers' homes. Pick from six hand-stained finishes or primed, eight cross-section sizes in lengths from four to 24 feet. It's in stock and usually ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          251
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          252,
+          769
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "heard": "A five and a half inch beam, 12 feet long, ships at about 18 pounds. One person can lift it.",
+        "match": 0.95,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          770,
+          1201
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1202,
+          1605
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1606,
+          2035
+        ]
+      },
+      {
+        "scene": "homes",
+        "expected": "And here it is, in real customers' homes.",
+        "heard": "And here it is in real customers' homes.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2036,
+          2323
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+        "heard": "Pick from six hand-stained finishes or primed, eight cross-section sizes in lengths from four to 24 feet.",
+        "match": 0.9,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2324,
+          2841
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and usually ships in three to five business days.",
+        "heard": "It's in stock and usually ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2842,
+          3129
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3130,
+          3477
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Customer kitchen 277a5467; caption dropped, card reads cleanly in both cuts."
+    },
+    {
+      "scene": "real",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Up-close panel is a crop of Ekena's BMSTKB-05 studio shot (matte, colour matches the source); right panel customer room 4f4e84c0. Reveal lands on the hi-hat entry (f252 = track 27.116 s)."
+    },
+    {
+      "scene": "weight",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "18 lb = weight/shippingWeight in flat-BMSTS3C00600X0600X144KB (Salvaged Timber, 5 1/2 x 5 1/2 x 144 in); labelled as shipping weight."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Picture and audio identical to v13 (checked frame by frame); judged again as the neighbour of compare."
+    },
+    {
+      "scene": "compare",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Pixel-identical to v14 apart from encoder noise; re-judged because changes[] names it (documentation-only entry e5)."
+    },
+    {
+      "scene": "homes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Unchanged from v14 (frame diff); neighbour of 'choose'. Real customer installs, montage on the beat."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Beam dissolves centred on beats 2411.7/2468.8/2527.4/2584.5/2643.0/2700.1 within 1 frame in both cuts; no pop. Swatch ring lag is a minor."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Unchanged from v14 (frame diff, only encoder noise in 9:16 f2842-2999); neighbour of 'choose'."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": null
+    }
+  ],
+  "findings": [
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 3185,
+      "end_frame": 3477,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 ('Site for the end card to be confirmed by Brody')",
+      "what": "The end-card pill still reads 'ekenamillwork.com' while claim H16 still says the site isn't confirmed. The researched store (lead times, sample) is FauxBeams.com. The builder declined this again in v15 because it is waiting on Brody.",
+      "fix": "Brody chooses ekenamillwork.com or FauxBeams.com. Then set the end-card URL in build/script-v15.json#end and mark H16 confirmed.",
+      "evidence": [
+        "review/v15/eval/sheets/16x9_end.jpg",
+        "review/v15/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.51,
+        "y": 0.64,
+        "w": 0.13,
+        "h": 0.06
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "9x16",
+      "frame": 985,
+      "end_frame": 985,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f985, f995, f999, f2121, f2127, f2181, f2185, f2237",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v15/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e2"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "16x9",
+      "frame": 995,
+      "end_frame": 995,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f995, f1613, f2328",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v15/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e3"
+    },
+    {
+      "scene": "choose",
+      "action": "choose__choose_finishes",
+      "cut": null,
+      "frame": 2397,
+      "end_frame": 2722,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": "HOUSE_RULES.md rule 6: the edit is timed to the music's beats",
+      "source": "music/sunlit-groove-beats.json + build/timeline-v15.json music_offset_s 22.9164",
+      "what": "The beam and the label now change on the beat, but the swatch selector ring was not moved. Its cross-fade is centred 5-6 frames (about 90 ms) after every beat in both cuts: measured f2417.0, 2474.6, 2532.5, 2590.1, 2648.4, 2705.8 against beats 2411.7, 2468.8, 2527.4, 2584.5, 2643.0, 2700.1. These are the same values as v14. So for about 5 frames the new name and beam sit next to a ring still on the old swatch (e.g. f2414-2416: 'Kona Brown' with Sandstone ringed). This is hard to see at speed. But the v15 change note says all finish-change motion is within about 2 frames of the beat, and that isn't true for the ring.",
+      "fix": "render/videos/heritage-hero.mjs, 'choose' finish cycle: give the swatch ring hand-over the same beat-centred timing as the beam dissolve (start 0.175 s before the beat), or correct the change note.",
+      "evidence": [
+        "review/v15/eval/extra/16x9_choose_swatch_2404-2428.jpg",
+        "review/v15/eval/extra/16x9_choose_changes2-6.jpg",
+        "review/v15/eval/extra/9x16_choose_changes2-6.jpg"
+      ],
+      "region": {
+        "x": 0.02,
+        "y": 0.82,
+        "w": 0.16,
+        "h": 0.06
+      },
+      "id": "e4"
+    }
+  ]
+}

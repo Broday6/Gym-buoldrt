@@ -108,3 +108,10 @@
 - Carried from v13 unchanged: hook, real, weight, end
 - Blocker e1 (choose, sync): The finish changes are now two beats apart, but every one lands late. Measured centres of the beam cross-fade (16:9; the 9:16 label swaps match): f2421.9, 2479.3, 2537.2, 2595.9, 2652.9, 2711.3, against beats at 2411.7, 2468.8, 2527.4, 2584.5, 2643.0, 2700.1. That is +10 to +11 frames (165-190 ms) every time. On the strip, Sandstone is still fully on screen at f2416 and Kona Brown only takes over around f2424. The first label (Sandstone) also fades in centred on about f2369, between beats 2354.6 and 2382.5. The manifest says the dissolves are centred on the beat; in 'choose' they are not (in 'homes' they are).
 
+## v15 — 2026-10-13T02:46:54Z — PASS
+
+- 0 blocker, 1 major, 3 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: none
+- Carried from v14 unchanged: hook, real, weight, install, end
+
