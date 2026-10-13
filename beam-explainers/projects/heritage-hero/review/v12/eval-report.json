@@ -1,0 +1,686 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v12",
+  "evaluated_at": "2026-10-13T01:28:27Z",
+  "overall": "fail",
+  "summary": "Not ready: one blocker. The new 'homes' montage opens on a church/event hall (customer photo 09dbbb9b: rows of chairs, pulpit, mic stand) under the card 'Real homes. Real installs.' and the line 'in real customers' homes'. Swap that one photo for a residential install; everything else (real customer rooms, studio finish shots, 18 lb claim, music licence) checks out. The end-card site (ekenamillwork.com vs FauxBeams.com) still waits on Brody.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3561 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "59.350 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 59.350 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "10 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f1028, f1653, f2371",
+        "frames": [
+          1028,
+          1028
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3561 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "59.350 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 59.350 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "21 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f314, f1014, f1024, f1028, f2123, f2203, f2207, f2247",
+        "frames": [
+          314,
+          314
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A 5.5-inch beam, 12 feet long, ships at about 18 pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. And here it is in real customers' homes. Pick from six hand-stained finishes or primed, eight cross-section sizes, in lengths from four to 24 feet. It's in stock and usually ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          289
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          290,
+          798
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "heard": "A 5.5-inch beam, 12 feet long, ships at about 18 pounds. One person can lift it.",
+        "match": 0.8,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          799,
+          1221
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1222,
+          1645
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1646,
+          2069
+        ]
+      },
+      {
+        "scene": "homes",
+        "expected": "And here it is, in real customers' homes.",
+        "heard": "And here it is in real customers' homes.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2070,
+          2365
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+        "heard": "Pick from six hand-stained finishes or primed, eight cross-section sizes, in lengths from four to 24 feet.",
+        "match": 0.9,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2366,
+          2916
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and usually ships in three to five business days.",
+        "heard": "It's in stock and usually ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2917,
+          3212
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3213,
+          3560
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Real customer kitchen (277a5467), Ekena logo, card matches manifest; both cuts frame it fully."
+    },
+    {
+      "scene": "real",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Close-up is Ekena's Salvaged Timber Kona Brown swatch (darkened ~20% behind the title, hue held); right panel is customer install 4f4e84 labelled 'In a real home'."
+    },
+    {
+      "scene": "weight",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "18 lb matches BMSTS3C00600X0600X144KB (5.5x5.5x144 in, weight = shippingWeight 18); worded as shipping weight on screen and 'ships at about' in VO."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Block-in-U diagram consistent with INSTALL_BMU fig. 1/3 (block just narrower than the inside width); hollow and wiring callouts match the VO."
+    },
+    {
+      "scene": "compare",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Table rows trace to H21-H24; legible in 9:16 (rows wrap cleanly). Background is customer install e8dc8b, darkened."
+    },
+    {
+      "scene": "homes",
+      "pass": false,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 0,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 12,
+      "gate_reasons": [
+        "sync scored 0"
+      ],
+      "comment": "Five of six photos are homes; the first is a church/event hall shown under 'Real homes' and 'in real customers' homes'."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Each finish name matches Ekena's Salvaged Timber studio shot in that finish (checked all seven); spec table matches H3/H4/H6/H9."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "3-5 business days stained / 24-72 hours primed match H10/H11; room is customer install 7652db."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Customer kitchen 3f1220, real sample-kit and endcap photos, real logo; site pill still unconfirmed (see claims finding)."
+    }
+  ],
+  "findings": [
+    {
+      "scene": "homes",
+      "action": "homes__homes_montage",
+      "cut": null,
+      "frame": 2085,
+      "end_frame": 2290,
+      "severity": "blocker",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": "Card 'Real homes. Real installs.'; narration 'in real customers' homes'; img/assets.json alt for 09dbbb9b: 'rows of chairs facing a stone fireplace'",
+      "what": "The first montage photo (customer project 09dbbb9b) is a church or event hall: rows of stacked chairs, a pulpit, a mic stand and a piano. It is full-frame in 9:16 (about f2085-2163, while the VO says 'And here it is, in real customers' homes') and the left panel in 16:9 until about f2290, all under the card 'Real homes.' The picture contradicts the card and the line. The beam is also mostly hidden behind the chandelier.",
+      "fix": "render/videos/heritage-hero.mjs line 251 (A.homes list): replace '09dbbb9b' with a residential Heritage install from img/heritage/rooms, e.g. 397f7931 (living room, stone fireplace), 1ce6e3ec or efd08492 (kitchens). Keep the six-beat timing.",
+      "evidence": [
+        "review/v12/eval/frames/9x16_f002160.jpg",
+        "review/v12/eval/sheets/16x9_homes.jpg",
+        "review/v12/eval/sheets/9x16_homes.jpg",
+        "research/product-images/heritage__rooms__09dbbb9b73fd232f1651.jpg"
+      ],
+      "region": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 1.0,
+        "h": 1.0
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 3268,
+      "end_frame": 3560,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 source: 'Site for the end card to be confirmed by Brody'",
+      "what": "The end-card pill reads 'ekenamillwork.com', but claim H16 says the site is not yet confirmed, and the researched store (lead times, sample) is FauxBeams.com. Declined again in v12 while it waits on Brody.",
+      "fix": "Brody to choose ekenamillwork.com or FauxBeams.com; then set the end-card URL in build/script-v12.json#end and mark H16 confirmed.",
+      "evidence": [
+        "review/v12/eval/sheets/16x9_end.jpg",
+        "review/v12/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.83,
+        "y": 0.66,
+        "w": 0.13,
+        "h": 0.06
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "hook",
+      "action": "hook__hook_line2",
+      "cut": "16x9",
+      "frame": 140,
+      "end_frame": 165,
+      "severity": "minor",
+      "criterion": "graphics",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "While 'Without the weight.' rises into place, the caption pill 'without the weight?' sits on top of the card line's lower half for about half a second.",
+      "fix": "render/videos/heritage-hero.mjs hook: delay the caption pill until the card line has settled, or keep the pill below the card's travel path.",
+      "evidence": [
+        "review/v12/eval/pairs/hook_hook__hook_line2.jpg"
+      ],
+      "region": {
+        "x": 0.03,
+        "y": 0.78,
+        "w": 0.45,
+        "h": 0.17
+      },
+      "id": "e3"
+    },
+    {
+      "scene": "real",
+      "action": null,
+      "cut": "9x16",
+      "frame": 314,
+      "end_frame": 314,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f314, f1014, f1024, f1028, f2123, f2203, f2207, f2247",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v12/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e4"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "16x9",
+      "frame": 1028,
+      "end_frame": 1028,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f1028, f1653, f2371",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v12/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e5"
+    },
+    {
+      "scene": "homes",
+      "action": "homes__homes_montage",
+      "cut": "16x9",
+      "frame": 2090,
+      "end_frame": 2200,
+      "severity": "minor",
+      "criterion": "craft",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "In 16:9 the three portrait panels fill one at a time, so for about 1.5 s two-thirds of the frame (then one-third) is empty dark green beside the first photo.",
+      "fix": "render/videos/heritage-hero.mjs homes: start with all three panels filled (and cut each on the beat), or blur-fill the empty slots with the incoming photo.",
+      "evidence": [
+        "review/v12/eval/sheets/16x9_homes.jpg"
+      ],
+      "region": {
+        "x": 0.33,
+        "y": 0.0,
+        "w": 0.67,
+        "h": 1.0
+      },
+      "id": "e6"
+    },
+    {
+      "scene": "homes",
+      "action": "homes__homes_montage",
+      "cut": "9x16",
+      "frame": 2117,
+      "end_frame": 2334,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": "HOUSE_RULES 6 (edit timed to the beats)",
+      "source": "music/peaceful-beats.json with timeline music_offset_s 2.2556",
+      "what": "The montage dissolves start about 6 frames (~100 ms) after each beat in peaceful-beats.json, with midpoints 130-200 ms late. Scene boundaries land within 22 ms of their beats, so this is just the montage offset.",
+      "fix": "render/videos/heritage-hero.mjs homes: start each dissolve on the beat frame (or centre it on the beat).",
+      "evidence": [
+        "review/v12/eval/sheets/9x16_homes.jpg"
+      ],
+      "region": null,
+      "id": "e7"
+    }
+  ]
+}

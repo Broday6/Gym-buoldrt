@@ -89,7 +89,7 @@ from the listings:
 - Option images: https://www.synergycdn.com/content/variant/get_variant_option_images.php
 
 ## Music
-The Heritage hero edit uses "Peaceful" by Ondrosik (Ondrej Rosik), from his Free Music Catalog on the
+The Heritage hero edit uses "Sunlit Groove" (earlier versions: "Peaceful") by Ondrosik (Ondrej Rosik), from his Free Music Catalog on the
 Internet Archive (https://archive.org/details/Ondrosik-Free-music-catalog), marked CC0 1.0. The composer's
 licence file, saved as `music/ondrosik-license.html`, allows use in videos, editing and sync, monetised
 distribution with no royalties, and says attribution is welcome but not required. See `music/README.md`.

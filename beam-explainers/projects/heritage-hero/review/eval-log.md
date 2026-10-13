@@ -86,3 +86,10 @@
 - Scenes failing: none
 - Carried from v10 unchanged: hook, real, weight, install, compare
 
+## v12 — 2026-10-13T01:28:27Z — FAIL
+
+- 1 blocker, 1 major, 5 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: homes
+- Blocker e1 (homes, sync): The first montage photo (customer project 09dbbb9b) is a church or event hall: rows of stacked chairs, a pulpit, a mic stand and a piano. It is full-frame in 9:16 (about f2085-2163, while the VO says 'And here it is, in real customers' homes') and the left panel in 16:9 until about f2290, all under the card 'Real homes.' The picture contradicts the card and the line. The beam is also mostly hidden behind the chandelier.
+

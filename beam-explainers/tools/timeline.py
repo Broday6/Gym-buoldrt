@@ -5,8 +5,8 @@
     python tools/timeline.py scripts/heritage-hero.json out/heritage-hero --beats music/peaceful-beats.json --anchor 55.79
 
 With --beats (a music track's beat times) every scene change is moved to the nearest beat that still
-leaves room for the line, and the track is offset so that the end card starts exactly on --anchor
-(a track time, e.g. where the music opens up). The offset is stored as music_offset_s.
+leaves room for the line, and the track is offset so that the anchor scene (--anchor-scene, default the end card) starts
+exactly on --anchor (a track time, e.g. where the music drops in). The offset is stored as music_offset_s.
 
 Each scene runs  lead-in + its spoken line + tail, and never less than the card's reading time
 (1 s + 1 s per 3 words, the evaluator's rule) or the scene's own `min_s`. Word timestamps from
@@ -30,7 +30,8 @@ def main() -> int:
     ap.add_argument("script", type=Path)
     ap.add_argument("out", type=Path)
     ap.add_argument("--beats", type=Path)
-    ap.add_argument("--anchor", type=float, help="track time the last scene should start on")
+    ap.add_argument("--anchor", type=float, help="track time the anchor scene should start on")
+    ap.add_argument("--anchor-scene", help="scene id that starts on --anchor (default: the last scene)")
     a = ap.parse_args()
     script = json.loads(a.script.read_text(encoding="utf-8"))
     out = a.out
@@ -84,8 +85,10 @@ def main() -> int:
     offset = None
     if a.beats:
         beats = json.loads(a.beats.read_text())["beats"]
+        ids = [s["id"] for s in script["scenes"]]
+        ai = ids.index(a.anchor_scene) if a.anchor_scene else len(ids) - 1
         starts = [sum(durs[:i]) for i in range(len(durs))]
-        offset = a.anchor - starts[-1]
+        offset = a.anchor - starts[ai]
         for _ in range(4):  # snap, re-anchor, repeat until the end card sits on the anchor
             grid = [b - offset for b in beats if b - offset > 0]
             snapped = [0.0]
@@ -94,7 +97,7 @@ def main() -> int:
                 want = snapped[-1] + durs[i - 1]
                 cands = [g for g in grid if g >= lo]
                 snapped.append(min(cands, key=lambda g: abs(g - want)) if cands else want)
-            new = a.anchor - snapped[-1]
+            new = a.anchor - snapped[ai]
             if abs(new - offset) < 1e-6:
                 break
             offset = new

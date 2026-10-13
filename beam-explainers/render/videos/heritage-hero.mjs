@@ -16,7 +16,7 @@ const DARK = '#141818';
 const TR = 0.6; // scene-to-scene transition length (s), at the start of the incoming scene
 const TRANS = { real: 'wipe', weight: 'wipe', install: 'fade', compare: 'wipe', homes: 'wipe', choose: 'wipe', ship: 'wipe', end: 'fade' };
 // Caption parts (split on "|") left off screen because the picture already shows the words in big type.
-const NOCAP = {};
+const NOCAP = { hook: [0] }; // the hook's headline already says it
 // Caption centre per scene (default: frame centre). The 16:9 end card centres it under the cream panel.
 const CAPX = { end: L => (L.P ? L.W / 2 : L.W * 0.73) };
 
@@ -244,11 +244,16 @@ export async function preload(L) {
   A.room8blur = blurred(A.room8, 26);
   // Rooms are real customer installs from the FauxBeams Heritage galleries (img/heritage/rooms,
   // cropped out of their white letterbox and resampled into img/heritage/hi as room-<id>).
-  A.room6 = await hi('room-3f1220cf');
-  A.ship = await hi('room-7652db72');
-  A.realRoom = await hi('room-4f4e84c0');
+  // tools/clean_photo.py: letterbox cropped, light denoise and white balance, 2x resample with no
+  // heavy sharpening (sharpening made the beams look glossy).
+  const clean = name => img(`heritage/clean/${name}.jpg`, { maxSide: 2400 });
+  A.room6 = await clean('3f1220cf');
+  A.ship = await clean('7652db72');
+  A.realRoom = await clean('4f4e84c0');
+  A.macro = await clean('macro-BMSTKB-05'); // Ekena's studio shot, matte, colour untouched
   A.homes = [];
-  for (const id of ['09dbbb9b', '9cfa08e1', '6fb22e98', '08a3551e', '2e22160e', 'acdc4e8b']) A.homes.push(await hi('room-' + id));
+  // Homes only, beams the subject: close-ups first, then whole rooms.
+  for (const id of ['2e22160e', '12d6675c', 'ed0ccc91', '9cfa08e1', '6fb22e98', '08a3551e']) A.homes.push(await clean(id));
   // The same Ekena room render in each finish (Salvaged Timber). Smokey Brown has no room render,
   // so it is shown as its real close-up instead.
   const FCODE = { sandstone: 'SS', 'kona-brown': 'KB', 'vanilla-chai': 'VC', 'warm-caramel': 'WC', 'natural-white-oak': 'WO', primed: 'OT' };
@@ -271,8 +276,8 @@ export async function preload(L) {
   A.uEnd = await cut('angles__BMSTKB-05');
   A.sample = await cut('accessories__sample-kit');
   A.endcap = await img('heritage/accessories/endcap.jpg', { maxSide: 1200 });
-  A.cmp = await hi('room-e8dc8b7d');
-  A.hook = await hi('room-277a5467');
+  A.cmp = await clean('e8dc8b7d');
+  A.hook = await clean('277a5467');
   A.sbBeam = await cut('room-renders__BMSTSB-05');
   // Generated stills (see deliver/generation-pack): used when present, real Ekena images otherwise.
   const shape = L.P ? '9x16' : '16x9';
@@ -324,7 +329,7 @@ export const scenes = {
       const split = P ? H * 0.5 : W * 0.5;
       const tC = cue(s, 'cast', { fallback: 3.2 });
       g.save(); g.beginPath(); P ? g.rect(0, 0, W, split) : g.rect(0, 0, split, H); g.clip();
-      cover(g, A.finSw[FINISHES.findIndex(f => f[1] === 'kona-brown')], 0, 0, P ? W : split, P ? split : H, { zoom: 1.12 - 0.06 * clamp(st / s.sd), px: -0.1 });
+      cover(g, A.macro, 0, 0, P ? W : split, P ? split : H, { zoom: 1.08 - 0.06 * clamp(st / s.sd) });
       g.restore();
       g.save(); g.beginPath(); P ? g.rect(0, split, W, H - split) : g.rect(split, 0, W - split, H); g.clip();
       cover(g, A.realRoom, P ? 0 : split + (1 - pin) * 80 * u, P ? split + (1 - pin) * 80 * u : 0, P ? W : W - split, P ? H - split : H,
@@ -423,16 +428,18 @@ export const scenes = {
       const bt = beatsIn(s, 0.15, s.sd);
       const n = A.homes.length, ts = A.homes.map((_, i) => bt[i] ?? 0.2 + i * 0.7);
       if (P) {
-        const stack = listStack(ts.map(t => t + 0.15), st, 0.3);
-        for (const { i, a } of stack) if (i >= 0) cover(g, A.homes[i], 0, 0, W, H, { zoom: 1.06 - 0.04 * clamp((st - ts[i]) / 1.2), py: 0.4, alpha: a });
+        // Dissolves centred on the beat; the first photo is already up when the scene starts.
+        const stack = listStack([0, ...ts.slice(1)], st, 0.3);
+        for (const { i, a } of stack) if (i >= 0) cover(g, A.homes[i], 0, 0, W, H, { zoom: 1.06 - 0.04 * clamp((st - ts[i]) / 1.2), py: 0.4, alpha: i === 0 ? 1 : a });
       } else {
         const gap = 10 * u, pw = (W - 4 * gap) / 3;
         for (let k = 0; k < 3; k++) {
           const x = gap + k * (pw + gap);
-          // panel k shows photo k, then photo k+3
+          // All three panels are filled from the start (photos 0-2); on the beats they change to 3-5,
+          // each dissolve centred on its beat.
           for (const j of [k, k + 3]) {
             if (j >= n) continue;
-            const a = ease.inOut(clamp((st - ts[j]) / 0.3));
+            const a = j < 3 ? ease.out(clamp((st - k * 0.08) / 0.25)) : ease.inOut(clamp((st - (ts[k + 1] ?? 1 + k) + 0.15) / 0.3));
             if (a <= 0) continue;
             g.save(); g.beginPath(); g.rect(x, gap, pw, H - 2 * gap); g.clip();
             cover(g, A.homes[j], x, gap + (1 - a) * 40 * u, pw, H - 2 * gap, { zoom: 1.06 - 0.04 * clamp((st - ts[j]) / 1.5), py: 0.4, alpha: a });
