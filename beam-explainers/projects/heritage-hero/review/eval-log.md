@@ -100,3 +100,11 @@
 - Scenes failing: none
 - Blocker e1 (homes, sync): The photo changes in 'homes' and the finish changes in 'choose' are still spaced about 42 frames (0.70 s) apart, the period of the old 'Peaceful' grid (peaceful-grid.json, 0.696 s), not Sunlit Groove's 0.488 s beat. Measured transition midpoints vs nearest beat: 9:16 montage f2100 (+83 ms), f2142 (-177 ms), f2184 (+44 ms), f2227 (-199 ms), f2269 (+13 ms); 16:9 montage f2101, f2143 (-160 ms), f2185; finish changes f2406, f2449, f2491, f2533, f2577, f2619 (each 90-135 ms off). The changes drift in and out of phase with the music, which is the rhythm Brody asked to fix, and the manifest marks e7 'centred on their beats' as addressed. Scene boundaries themselves are on the beat (within 33 ms).
 
+## v14 — 2026-10-13T02:12:07Z — FAIL
+
+- 1 blocker, 1 major, 4 minor
+- Technical checks: pass; narration: pass
+- Scenes failing: none
+- Carried from v13 unchanged: hook, real, weight, end
+- Blocker e1 (choose, sync): The finish changes are now two beats apart, but every one lands late. Measured centres of the beam cross-fade (16:9; the 9:16 label swaps match): f2421.9, 2479.3, 2537.2, 2595.9, 2652.9, 2711.3, against beats at 2411.7, 2468.8, 2527.4, 2584.5, 2643.0, 2700.1. That is +10 to +11 frames (165-190 ms) every time. On the strip, Sandstone is still fully on screen at f2416 and Kona Brown only takes over around f2424. The first label (Sandstone) also fades in centred on about f2369, between beats 2354.6 and 2382.5. The manifest says the dissolves are centred on the beat; in 'choose' they are not (in 'homes' they are).
+

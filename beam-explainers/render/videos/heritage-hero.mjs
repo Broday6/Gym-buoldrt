@@ -467,12 +467,17 @@ export const scenes = {
       // Ekena's studio shots of one beam (Salvaged Timber) in every finish, the finish changing on each beat.
       const bt = beatSteps(s, 0.3, FINISHES.length);
       const ts = FINISHES.map((_, i) => bt[i] ?? 0.4 + i * 0.7);
-      const stack = listStack(ts.map(t => t + 0.15), st, 0.35);
+      const stack = listStack(ts.map(t => t - 0.025), st, 0.35); // 0.35 s dissolve centred on the beat
       darkBg(g, L, T);
       // 16:9: the beam fills the right of the frame; specs sit left, name bottom-left. 9:16: beam under the headline.
       const bx = P ? -0.1 * W : W * 0.42, by = P ? 290 * u : H * 0.10, bw = P ? W * 1.2 : W * 0.62, bh = P ? 490 * u : H * 0.66;
       const drift = 24 * u * (st / s.sd);
-      for (const { i, a } of stack) cutout(g, A.finBeam[Math.max(0, i)], bx - drift, by, bw, bh, { alpha: i < 0 ? a * ease.out(clamp(st / 0.5)) : a, u, bb: A.finBB, shadow: 0.5 });
+      // Shadows hand over with the dissolve (base shadow fades as the incoming one grows), so nothing
+      // pops when the incoming beam becomes the base.
+      const aIn = Math.max(0, ...stack.slice(1).map(x => x.a));
+      stack.forEach(({ i, a }, k) => cutout(g, A.finBeam[Math.max(0, i)], bx - drift, by, bw, bh,
+        { alpha: (i < 0 ? ease.out(clamp(st / 0.5)) : 1) * (k === 0 ? 1 - ease.inOut(clamp((aIn - 0.5) / 0.5)) : a),
+          u, bb: A.finBB, shadow: k === 0 ? 0.5 * (1 - aIn) : 0.5 * a })); // outgoing beam fades out in the second half
       scrim(g, L, { from: 0.3, to: 0, a0: 0, a1: 0.55 });
       scrim(g, L, { from: P ? 0.45 : 0.5, a1: 0.85 });
       if (P) {
@@ -487,8 +492,9 @@ export const scenes = {
       const ny = P ? H * 0.47 : H - 230 * u;
       FINISHES.forEach(([name, sl], i) => {
         // Names follow their photo: in once the cross-fade is half done, out just before the next.
-        const fin = ease.inOut(clamp((st - ts[i] - 0.15) / 0.2));
-        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - ts[i + 1]) / 0.15)) : 0;
+        // Name fades in centred on its beat, and is gone just before the next name's fade begins.
+        const fin = ease.inOut(clamp((st - ts[i] + 0.1) / 0.2));
+        const fout = i + 1 < ts.length ? ease.inOut(clamp((st - ts[i + 1] + 0.25) / 0.15)) : 0;
         const a = fin * (1 - fout);
         if (a <= 0) return;
         kicker(g, sl === 'primed' ? 'Ready to paint' : A.finRoom[i] ? 'Hand-stained' : 'Hand-stained', m, ny - 62 * u, { size: (P ? 26 : 24) * u, alpha: a });

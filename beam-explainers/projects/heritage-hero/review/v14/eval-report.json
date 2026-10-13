@@ -1,0 +1,662 @@
+{
+  "schema": "ekena-install-eval/1",
+  "project": "Heritage Timber: Hero Edit",
+  "version": "v14",
+  "evaluated_at": "2026-10-13T02:12:07Z",
+  "overall": "fail",
+  "summary": "Not ready: one blocker. The 'homes' montage is now on the Sunlit Groove beat in both cuts (each photo change centred within about 1 frame of its beat), and the new entry-hall photo acdc4e8b is a real customer install, sharp and faithful to its source. But the finish changes in 'choose', though now spaced every second beat, all land about 10-11 frames (165-190 ms) after their beat, so they still sit off the music, which breaks house rule 6 and the manifest's 'centred on the beat'. The end-card site still waits on Brody.",
+  "technical": {
+    "pass": true,
+    "checks": [
+      {
+        "id": "codec",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "1920×1080",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "3478 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "57.967 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 57.966 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "info",
+        "detail": "10 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "16x9",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f995, f1613, f2328",
+        "frames": [
+          995,
+          995
+        ]
+      },
+      {
+        "id": "codec",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "h264",
+        "frames": null
+      },
+      {
+        "id": "resolution",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "1080×1920",
+        "frames": null
+      },
+      {
+        "id": "frame_rate",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "60 fps",
+        "frames": null
+      },
+      {
+        "id": "frame_count",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "3478 frames",
+        "frames": null
+      },
+      {
+        "id": "duration",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "57.967 s",
+        "frames": null
+      },
+      {
+        "id": "audio_sync",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "aac 48000 Hz × 2, 57.966 s",
+        "frames": null
+      },
+      {
+        "id": "decode",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "decodes cleanly",
+        "frames": null
+      },
+      {
+        "id": "loudness",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-14.3 LUFS integrated (target -14 ±1)",
+        "frames": null
+      },
+      {
+        "id": "true_peak",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "-2.8 dBTP (limit -1)",
+        "frames": null
+      },
+      {
+        "id": "black_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "none outside black_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "frozen_frames",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "no freeze ≥ 1 s outside static_ok scenes",
+        "frames": null
+      },
+      {
+        "id": "cuts_on_frame",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "info",
+        "detail": "20 hard cut(s), all on scene boundaries",
+        "frames": null
+      },
+      {
+        "id": "unexpected_cuts",
+        "cut": "9x16",
+        "pass": true,
+        "severity": "warning",
+        "detail": "hard cut or flash away from any boundary at f985, f995, f999, f2121, f2127, f2181, f2185, f2237",
+        "frames": [
+          985,
+          985
+        ]
+      },
+      {
+        "id": "card_reading_time",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "every step card has its scene long enough to read (1 s + 1 s per 3 words)",
+        "frames": null
+      },
+      {
+        "id": "cuts_match",
+        "cut": null,
+        "pass": true,
+        "severity": "info",
+        "detail": "all cuts have the same frame count",
+        "frames": null
+      }
+    ]
+  },
+  "narration": {
+    "available": true,
+    "engine": "faster-whisper small.en",
+    "cut": "16x9",
+    "pass": true,
+    "transcript": "Want the look of old timber beams without the weight? Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close. A five and a half inch beam, 12 feet long, ships at about 18 pounds. One person can lift it. It slides over a wood block with standard household tools, and it's hollow so it can hide wiring. And unlike solid wood, it resists warping and cracking with less upkeep. And here it is in real customers' homes. Pick from six hand-stained finishes or primed, eight cross-section sizes in lengths from four to 24 feet. It's in stock and usually ships in three to five business days. Order a sample and see it in your own light.",
+    "scenes": [
+      {
+        "scene": "hook",
+        "expected": "Want the look of old timber beams, without the weight?",
+        "heard": "Want the look of old timber beams without the weight?",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          0,
+          251
+        ]
+      },
+      {
+        "scene": "real",
+        "expected": "Meet Heritage Timber, by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "heard": "Meet Heritage Timber by Ekena Millwork. Each beam is cast from real, weathered timber, so it looks solid, even up close.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          252,
+          769
+        ]
+      },
+      {
+        "scene": "weight",
+        "expected": "A five-and-a-half-inch beam, twelve feet long, ships at about eighteen pounds. One person can lift it.",
+        "heard": "A five and a half inch beam, 12 feet long, ships at about 18 pounds. One person can lift it.",
+        "match": 0.95,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          770,
+          1201
+        ]
+      },
+      {
+        "scene": "install",
+        "expected": "It slides over a wood block, with standard household tools. And it's hollow, so it can hide wiring.",
+        "heard": "It slides over a wood block with standard household tools, and it's hollow so it can hide wiring.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1202,
+          1605
+        ]
+      },
+      {
+        "scene": "compare",
+        "expected": "And unlike solid wood, it resists warping and cracking, with less upkeep.",
+        "heard": "And unlike solid wood, it resists warping and cracking with less upkeep.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          1606,
+          2035
+        ]
+      },
+      {
+        "scene": "homes",
+        "expected": "And here it is, in real customers' homes.",
+        "heard": "And here it is in real customers' homes.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2036,
+          2323
+        ]
+      },
+      {
+        "scene": "choose",
+        "expected": "Pick from six hand-stained finishes, or primed. Eight cross-section sizes, in lengths from four to twenty-four feet.",
+        "heard": "Pick from six hand-stained finishes or primed, eight cross-section sizes in lengths from four to 24 feet.",
+        "match": 0.9,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2324,
+          2841
+        ]
+      },
+      {
+        "scene": "ship",
+        "expected": "It's in stock, and usually ships in three to five business days.",
+        "heard": "It's in stock and usually ships in three to five business days.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          2842,
+          3129
+        ]
+      },
+      {
+        "scene": "end",
+        "expected": "Order a sample, and see it in your own light.",
+        "heard": "Order a sample and see it in your own light.",
+        "match": 1.0,
+        "flag": null,
+        "missing_terms": [],
+        "frames": [
+          3130,
+          3477
+        ]
+      }
+    ],
+    "key_terms": [
+      {
+        "term": "Heritage",
+        "heard": true
+      },
+      {
+        "term": "Ekena",
+        "heard": true
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene": "hook",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": "Customer kitchen 277a5467; caption dropped, card reads cleanly in both cuts."
+    },
+    {
+      "scene": "real",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Up-close panel is a crop of Ekena's BMSTKB-05 studio shot (matte, colour matches the source); right panel customer room 4f4e84c0. Reveal lands on the hi-hat entry (f252 = track 27.116 s)."
+    },
+    {
+      "scene": "weight",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "18 lb = weight/shippingWeight in flat-BMSTS3C00600X0600X144KB (Salvaged Timber, 5 1/2 x 5 1/2 x 144 in); labelled as shipping weight."
+    },
+    {
+      "scene": "install",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Picture and audio identical to v13 (checked frame by frame); judged again as the neighbour of compare."
+    },
+    {
+      "scene": "compare",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Rows now fade in on the beats (start f1664.5, 1691.5, 1721.5, 1749.5 against beats 1663.6, 1691.4, 1720.7, 1748.6); text unchanged and claim-backed."
+    },
+    {
+      "scene": "homes",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Photo-change centres: 16:9 f2096/2153.5/2210.5, 9:16 f2066.5/2123.5/2182/2239.5/2297.5, all within 1 frame of a beat. acdc4e8b is a real BMSTS3 customer project, cleaned copy faithful."
+    },
+    {
+      "scene": "choose",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 1,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 13,
+      "gate_reasons": [],
+      "comment": "Finish changes now every second beat, but each one about 10-11 frames late."
+    },
+    {
+      "scene": "ship",
+      "pass": true,
+      "carried": false,
+      "scores": {
+        "product": 2,
+        "install": 2,
+        "physics": 2,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 14,
+      "gate_reasons": [],
+      "comment": "Picture and audio identical to v13; judged again as the neighbour of choose."
+    },
+    {
+      "scene": "end",
+      "pass": true,
+      "carried": true,
+      "scores": {
+        "product": 2,
+        "install": null,
+        "physics": null,
+        "graphics": 2,
+        "sync": 2,
+        "reframe": 2,
+        "craft": 2
+      },
+      "total": 10,
+      "gate_reasons": [],
+      "comment": null
+    }
+  ],
+  "findings": [
+    {
+      "scene": "choose",
+      "action": "choose__choose_finishes",
+      "cut": null,
+      "frame": 2414,
+      "end_frame": 2717,
+      "severity": "blocker",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": "HOUSE_RULES.md rule 6: the edit is timed to the music's beats",
+      "source": "music/sunlit-groove-beats.json + build/timeline-v14.json music_offset_s 22.9164",
+      "what": "The finish changes are now two beats apart, but every one lands late. Measured centres of the beam cross-fade (16:9; the 9:16 label swaps match): f2421.9, 2479.3, 2537.2, 2595.9, 2652.9, 2711.3, against beats at 2411.7, 2468.8, 2527.4, 2584.5, 2643.0, 2700.1. That is +10 to +11 frames (165-190 ms) every time. On the strip, Sandstone is still fully on screen at f2416 and Kona Brown only takes over around f2424. The first label (Sandstone) also fades in centred on about f2369, between beats 2354.6 and 2382.5. The manifest says the dissolves are centred on the beat; in 'choose' they are not (in 'homes' they are).",
+      "fix": "render/videos/heritage-hero.mjs, 'choose' finish cycle: centre each cross-fade (label out/in and beam dissolve) on the beat instead of starting it about on the beat, i.e. move the whole cycle about 10 frames (0.17 s) earlier so the swaps centre on f2411.7, 2468.8, 2527.4, 2584.5, 2643.0, 2700.1. Do the same for the first label's fade-in (centre it on 2354.6 or 2382.5). Use the same centring code the 'homes' montage uses, since that one measures on the beat.",
+      "evidence": [
+        "review/v14/eval/extra/16x9_choose_2408-2430.jpg",
+        "review/v14/eval/sheets/16x9_choose.jpg",
+        "review/v14/eval/sheets/9x16_choose.jpg",
+        "review/v14/eval/strips/16x9_choose__choose_finishes.jpg"
+      ],
+      "region": {
+        "x": 0.02,
+        "y": 0.08,
+        "w": 0.96,
+        "h": 0.72
+      },
+      "id": "e1"
+    },
+    {
+      "scene": "end",
+      "action": "end__end_sample",
+      "cut": null,
+      "frame": 3185,
+      "end_frame": 3477,
+      "severity": "major",
+      "criterion": "claims",
+      "scope": "local",
+      "rule": null,
+      "source": "Claim H16 (site to be confirmed by Brody)",
+      "what": "The end-card pill still reads 'ekenamillwork.com', but claim H16 still says the site is not confirmed. The researched store (lead times, sample) is FauxBeams.com. The builder declined this again in v14 while it waits on Brody.",
+      "fix": "Brody to choose ekenamillwork.com or FauxBeams.com. Then set the end-card URL in build/script-v14.json#end and mark H16 confirmed.",
+      "evidence": [
+        "review/v14/eval/sheets/16x9_end.jpg",
+        "review/v14/eval/sheets/9x16_end.jpg"
+      ],
+      "region": {
+        "x": 0.51,
+        "y": 0.64,
+        "w": 0.13,
+        "h": 0.06
+      },
+      "id": "e2"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "9x16",
+      "frame": 985,
+      "end_frame": 985,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f985, f995, f999, f2121, f2127, f2181, f2185, f2237",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v14/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e3"
+    },
+    {
+      "scene": "weight",
+      "action": null,
+      "cut": "16x9",
+      "frame": 995,
+      "end_frame": 995,
+      "severity": "minor",
+      "criterion": "technical",
+      "scope": "local",
+      "rule": null,
+      "source": "tech_checks.py",
+      "what": "unexpected_cuts: hard cut or flash away from any boundary at f995, f1613, f2328",
+      "fix": "Check whether this is a planned flash or a glitch; if a glitch, re-render that range.",
+      "evidence": [
+        "review/v14/eval/technical.json"
+      ],
+      "region": null,
+      "id": "e4"
+    },
+    {
+      "scene": "compare",
+      "action": "compare__cmp_table",
+      "cut": null,
+      "frame": 1664,
+      "end_frame": 1811,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": "Frame-by-frame diff of renders/v13 vs renders/v14",
+      "what": "The comparison rows were re-timed in v14: they now appear 12-58 frames earlier, starting on the beats. That looks right, but the manifest's changes[] doesn't list it. Only homes, choose and end are named. Undeclared changes let the evaluator's carry-over check miss a changed scene.",
+      "fix": "Add a changes[] entry for scene 'compare' (frames [1664, 1811], 'row reveals moved onto the beat grid') when the manifest is next written.",
+      "evidence": [
+        "review/v14/eval/extra/16x9_compare_rows_v13.jpg",
+        "review/v14/eval/extra/16x9_compare_rows_v14.jpg"
+      ],
+      "region": {
+        "x": 0.03,
+        "y": 0.28,
+        "w": 0.8,
+        "h": 0.45
+      },
+      "id": "e5"
+    },
+    {
+      "scene": "homes",
+      "action": "homes__homes_montage",
+      "cut": "9x16",
+      "frame": 2058,
+      "end_frame": 2304,
+      "severity": "minor",
+      "criterion": "sync",
+      "scope": "local",
+      "rule": null,
+      "source": null,
+      "what": "The changes[] note says the 9:16 montage changes on every beat. It actually changes every second beat (f2066, 2123, 2182, 2239, 2297), which is fine on screen but not what the note says.",
+      "fix": "Correct the wording of the e1 change summary in the next manifest. No render change needed.",
+      "evidence": [
+        "review/v14/eval/sheets/9x16_homes.jpg",
+        "review/v14/eval/strips/9x16_homes__homes_montage.jpg"
+      ],
+      "region": null,
+      "id": "e6"
+    }
+  ]
+}
